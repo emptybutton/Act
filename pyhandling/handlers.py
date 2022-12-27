@@ -35,6 +35,9 @@ class MultipleHandler(HandlerKeeper):
         super().__init__(handler_resource, *handlers)
         self.is_return_delegated = is_return_delegated
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({', '.join(map(str, self.handlers))})"
+
     def __call__(self, resource: any) -> any:
         for handler in self.handlers:
             result = handler(resource)
@@ -45,6 +48,9 @@ class MultipleHandler(HandlerKeeper):
 
 class ActionChain(HandlerKeeper):
     """Class that implements handling as a chain of actions of handlers."""
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
 
     def __call__(self, resource: any) -> any:
         return reduce(
@@ -83,6 +89,18 @@ class Brancher:
     @negative_case_handler.setter
     def negative_case_handler(self, negative_case_resource: Optional[Handler]) -> None:
         self.negative_case_resource = negative_case_resource
+
+    def __repr__(self) -> str:
+        return "{class_name}({positive_case_handler} if {condition_checker}{else_part})".format(
+            class_name=self.__class__.__name__,
+            positive_case_handler=self.positive_case_handler,
+            condition_checker=self.condition_resource_checker,
+            else_part=(
+                f' else {self.negative_case_handler}'
+                if self.negative_case_resource is not None
+                else str()
+            )
+        )
 
     def __call__(self, resource: any) -> any:
         return (

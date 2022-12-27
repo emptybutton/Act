@@ -22,6 +22,17 @@ class TypeChecker:
             else (correct_type_resource, )
         )
 
+    def __repr__(self) -> str:
+        return "{class_name}({formatted_types})".format(
+            class_name=self.__class__.__name__,
+            formatted_types=(' | ' if not self.is_correctness_under_supertype else ' & ').join(
+                map(
+                    lambda type_: (type_.__name__ if hasattr(type_, '__name__') else str(type_)),
+                    self.correct_types
+                )
+            )
+        )
+
     def __call__(self, resource: any) -> bool:
         return (
             len(self.correct_types) == 0

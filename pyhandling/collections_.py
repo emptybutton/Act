@@ -7,6 +7,9 @@ class NonInclusiveCollection:
     def __init__(self, elements_not_contained: Container):
         self.elements_not_contained = elements_not_contained
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(all except {self.elements_not_contained})"
+
     def __contains__(self, item: any) -> bool:
         return not item in self.elements_not_contained
 
@@ -43,6 +46,8 @@ class MultiRange:
 
         return self.__class__(self.ranges + tuple(range_resource))
 
+    def __repr__(self) -> str:
+        return "MultiRange({})".format(', '.join(map(str, self.ranges)))
 
     def __iter__(self) -> iter:
         return (
