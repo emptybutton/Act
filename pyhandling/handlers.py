@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import NewType, Callable, Iterable, Self, Optional
 
 
@@ -40,3 +41,13 @@ class MultipleHandler(HandlerKeeper):
 
             if self.is_return_delegated and result is not None:
                 return result
+
+
+class ActionChain(HandlerKeeper):
+    """Class that implements handling as a chain of actions of handlers."""
+
+    def __call__(self, resource: any) -> any:
+        return reduce(
+            lambda resource, handler: handler(resource),
+            (resource, *self.handlers)
+        )
