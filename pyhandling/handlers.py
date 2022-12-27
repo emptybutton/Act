@@ -51,3 +51,42 @@ class ActionChain(HandlerKeeper):
             lambda resource, handler: handler(resource),
             (resource, *self.handlers)
         )
+
+
+class Brancher:
+    """
+    Class that implements branching handling of something according to a certain
+    condition.
+
+    Delegates the determination of the state of a condition to
+    condition_resource_checker.
+    """
+
+    def __init__(
+        self,
+        positive_case_handler: Handler,
+        condition_resource_checker: Callable[[any], bool],
+        negative_case_resource: Optional[Handler] = None
+    ):
+        self.positive_case_handler = positive_case_handler
+        self.condition_resource_checker = condition_resource_checker
+        self.negative_case_resource = negative_case_resource
+
+    @property
+    def negative_case_handler(self) -> Handler:
+        return (
+            self.negative_case_resource
+            if self.negative_case_resource is not None
+            else lambda _: None
+        )
+
+    @negative_case_handler.setter
+    def negative_case_handler(self, negative_case_resource: Optional[Handler]) -> None:
+        self.negative_case_resource = negative_case_resource
+
+    def __call__(self, resource: any) -> any:
+        return (
+            self.positive_case_handler
+            if self.condition_resource_checker(resource)
+            else self.negative_case_handler
+        )(resource)
