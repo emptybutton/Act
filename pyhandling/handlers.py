@@ -194,3 +194,7 @@ class CollectionExpander:
         return (*collection, *self.adding_items)
 
 
+def return_(resource: any) -> any:
+    """Stub function for handling emulation."""
+
+    return resource
