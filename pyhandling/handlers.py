@@ -181,3 +181,16 @@ class Mapper:
         return tuple(self.handler(item) for item in collection)
 
 
+class CollectionExpander:
+    """Class for getting a collection with additional elements."""
+    
+    def __init__(self, adding_items: Iterable):
+        self.adding_items = adding_items
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} of [{', '.join(map(str, self.adding_items))}]>"
+
+    def __call__(self, collection: Iterable) -> tuple:
+        return (*collection, *self.adding_items)
+
+
