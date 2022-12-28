@@ -131,3 +131,22 @@ class Brancher:
             if self.condition_resource_checker(resource)
             else self.negative_case_handler
         )(resource)
+
+
+class EventAdapter:
+    """
+    Adapter class for combining the Handler interface with callable entities
+    that do not require input data.
+    """
+
+    def __init__(self, event: Callable[[], any]):
+        self.event = event
+
+    def __repr__(self) -> str:
+        return f"<Event {self.event}>"
+
+    def __call__(self, _: any) -> any:
+        return self.event()
+
+
+class HandlingNode:
