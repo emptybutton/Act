@@ -1,7 +1,9 @@
-from typing import Iterable
+
+from typing import NewType, Callable, Self, Iterable
 
 
-class TypeChecker:
+Checker = NewType('Checker', Callable[[any], bool])
+class TypeChecker(CheckerUnionDelegatorMixin, IChecker):
     """
     Class that implements checking whether an object conforms to certain types
 
