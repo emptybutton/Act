@@ -163,3 +163,21 @@ class ErrorRaiser:
         raise self.error
 
 
+class Mapper:
+    """
+    Map adapter class.
+
+    Works just like map with the exception of returning already saved results.
+    Can be replaced by partial(map, handler).
+    """
+
+    def __init__(self, handler: Handler):
+        self.handler = handler
+
+    def __repr__(self) -> str:
+        return f"<Mapper of {self.handler}>"
+
+    def __call__(self, collection: Iterable) -> tuple:
+        return tuple(self.handler(item) for item in collection)
+
+
