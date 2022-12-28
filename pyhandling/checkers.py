@@ -98,6 +98,27 @@ class Aller(CheckerKeeper, IChecker):
         )
 
 
+class CheckerUnionDelegatorMixin:
+    """
+    Mixin class to implement | and &.
+
+    Creates new grouping checkers when grouped with another checker by delegating
+    creation to the appropriate _non_strict_union_checker_factory and
+    _strict_union_checker_factory factories.
+
+    By default associated with Anyer and Aller.
+    """
+
+    _non_strict_union_checker_factory: Callable[[Iterable[Checker]], IChecker] = Anyer
+    _strict_union_checker_factory: Callable[[Iterable[Checker]], IChecker] = Aller
+
+    def __or__(self, other: Checker) -> IChecker:
+        return self._non_strict_union_checker_factory((self, other))
+
+    def __and__(self, other: Checker) -> IChecker:
+        return self._strict_union_checker_factory((self, other))
+
+
 class TypeChecker(CheckerUnionDelegatorMixin, IChecker):
     """
     Class that implements checking whether an object conforms to certain types
