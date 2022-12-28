@@ -26,6 +26,20 @@ class IChecker(ABC):
         pass
 
 
+class CheckerKeeper:
+    """
+    Mixin class for conveniently getting checkers from an input collection and
+    unlimited input arguments.
+    """
+
+    def __init__(self, checker_resource: Checker | Iterable[Checker], *checkers: Checker):
+        self.checkers = (
+            tuple(checker_resource)
+            if isinstance(checker_resource, Iterable)
+            else (checker_resource, )
+        ) + checkers
+
+
 class TypeChecker(CheckerUnionDelegatorMixin, IChecker):
     """
     Class that implements checking whether an object conforms to certain types
