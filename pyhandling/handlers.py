@@ -150,6 +150,22 @@ class EventAdapter:
 
 
 class HandlingNode:
+    """
+    Class that allows to handle a resource but not return the results of its
+    handling to continue the chain of handling this resource.
+    """
+
+    def __init__(self, handler: Handler):
+        self.handler = handler
+
+    def __repr__(self) -> str:
+        return f"<Handling node {self.handler}>"
+
+    def __call__(self, resource: any) -> any:
+        self.handler(resource)
+        return resource
+
+
 class ErrorRaiser:
     """Adapter class for raising an error using calling."""
 
