@@ -150,3 +150,16 @@ class EventAdapter:
 
 
 class HandlingNode:
+class ErrorRaiser:
+    """Adapter class for raising an error using calling."""
+
+    def __init__(self, error: Exception):
+        self.error = error
+
+    def __repr__(self) -> str:
+        return f"<Riser of \"{self.error}\">"
+
+    def __call__(self) -> None:
+        raise self.error
+
+
