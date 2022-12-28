@@ -35,7 +35,7 @@ class TypeChecker:
 
     def __call__(self, resource: any) -> bool:
         return (
-            len(self.correct_types) == 0
+            len(self.correct_types) > 0
             and (all if self.is_correctness_under_supertype else any)(
                 isinstance(resource, correct_type)
                 for correct_type in self.correct_types
