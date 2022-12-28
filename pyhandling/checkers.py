@@ -69,6 +69,35 @@ class Anyer(CheckerKeeper, IChecker):
         return Aller(self, other)
 
 
+class Aller(CheckerKeeper, IChecker):
+    """
+    Checker class strictly delegating check responsibilities to other checkers.
+
+    It is an adapter for \"all\" function.
+
+    Strictly related to Anyer as it uses it as a factory for | result.
+    """
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}[{' & '.join(map(str, self.checkers))}]"
+
+    def __call__(self, resource: any) -> bool:
+        return all(checker(resource) for checker in self.checkers)
+
+    def __or__(self, other: Checker) -> IChecker:
+        return Anyer(self, other)
+
+    def __and__(self, other: Checker) -> Self:
+        return self.__class__(
+            *self.checkers,
+            *(
+                other.checkers
+                if isinstance(other, Aller)
+                else (other, )
+            )
+        )
+
+
 class TypeChecker(CheckerUnionDelegatorMixin, IChecker):
     """
     Class that implements checking whether an object conforms to certain types
