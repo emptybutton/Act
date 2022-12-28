@@ -119,6 +119,19 @@ class CheckerUnionDelegatorMixin:
         return self._strict_union_checker_factory((self, other))
 
 
+class Negationer(CheckerUnionDelegatorMixin, IChecker):
+    """Proxy checker class to emulate the \"not\" operator."""
+
+    def __init__(self, checker: Checker):
+        self.checker = checker
+
+    def __repr__(self) -> str:
+        return f"<not {self.checker}>"
+
+    def __call__(self, resource: any) -> bool:
+        return not self.checker(resource)
+
+
 class TypeChecker(CheckerUnionDelegatorMixin, IChecker):
     """
     Class that implements checking whether an object conforms to certain types
