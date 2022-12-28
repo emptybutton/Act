@@ -1,3 +1,4 @@
+from enum import Enum, auto
 from functools import reduce
 from typing import NewType, Callable, Iterable, Self, Optional
 
@@ -14,36 +15,58 @@ class HandlerKeeper:
         ) + handlers
 
 
+class ReturnFlag(Enum):
+    """
+    Enum return method flags class.
+    
+    Describe the returned result from something (MultipleHandler).
+    """
+
+    first_received = auto()
+    last_thing = auto()
+    everything = auto()
+    nothing = auto()
+
+
 class MultipleHandler(HandlerKeeper):
     """
     Handler proxy class for representing multiple handlers as a single
     interface.
 
-    Has the is_return_delegated flag attribute to enable or disable returning
-    the result of one from the handlers.
+    Applies its handlers to a single resource.
 
-    When one handler returns anything other than None, it returns that value,
-    breaking the loop for other handlers.
+    Return data is described using the ReturnFlag of the return_flag attribute.
     """
 
     def __init__(
         self,
         handler_resource: Handler | Iterable[Handler],
         *handlers: Handler,
-        is_return_delegated: bool = True
+        return_flag: ReturnFlag = ReturnFlag.first_received
     ):
         super().__init__(handler_resource, *handlers)
-        self.is_return_delegated = is_return_delegated
+        self.return_flag = return_flag
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({', '.join(map(str, self.handlers))})"
 
     def __call__(self, resource: any) -> any:
-        for handler in self.handlers:
-            result = handler(resource)
+        result_of_all_handlers = list()
 
-            if self.is_return_delegated and result is not None:
-                return result
+        for handler in self.handlers:
+            handler_result = handler(resource)
+
+            if self.return_flag == ReturnFlag.everything:
+                result_of_all_handlers.append(handler_result)
+
+            if self.return_flag == ReturnFlag.first_received and handler_result is not None:
+                return handler_result
+
+        if self.return_flag == ReturnFlag.everything:
+            return result_of_all_handlers
+
+        if self.return_flag == ReturnFlag.last_thing:
+            return handler_result
 
 
 class ActionChain(HandlerKeeper):
