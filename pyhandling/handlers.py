@@ -7,6 +7,11 @@ Handler = NewType('Handler', Callable[[any], any])
 
 
 class HandlerKeeper:
+    """
+    Mixin class for conveniently getting handlers from an input collection and
+    unlimited input arguments.
+    """
+
     def __init__(self, handler_resource: Handler | Iterable[Handler], *handlers: Handler):
         self.handlers = (
             tuple(handler_resource)
@@ -70,7 +75,14 @@ class MultipleHandler(HandlerKeeper):
 
 
 class ActionChain(HandlerKeeper):
-    """Class that implements handling as a chain of actions of handlers."""
+    """
+    Class that implements handling as a chain of actions of handlers.
+
+    Each next handler gets the output of the previous one.
+    Data returned when called is data exited from the last handler.
+
+    If there are no handlers, spits out the input as output.
+    """
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
@@ -87,8 +99,11 @@ class Brancher:
     Class that implements branching handling of something according to a certain
     condition.
 
-    Delegates the determination of the state of a condition to
+    Selects the appropriate handler based on the results of the
     condition_resource_checker.
+
+    In case of a negative case and the absence of a negative case handler, returns
+    None.
     """
 
     def __init__(
