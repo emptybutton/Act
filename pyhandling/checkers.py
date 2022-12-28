@@ -1,8 +1,31 @@
+from abc import ABC, abstractmethod
 
 from typing import NewType, Callable, Self, Iterable
 
 
 Checker = NewType('Checker', Callable[[any], bool])
+
+
+class IChecker(ABC):
+    """
+    Interface for the validating entity.
+
+    Can be used | and & for grouping with another checker.
+    """
+
+    @abstractmethod
+    def __or__(self, other: Checker) -> Self:
+        pass
+
+    @abstractmethod
+    def __and__(self, other: Checker) -> Self:
+        pass
+
+    @abstractmethod
+    def __call__(self, resource: any) -> bool:
+        pass
+
+
 class TypeChecker(CheckerUnionDelegatorMixin, IChecker):
     """
     Class that implements checking whether an object conforms to certain types
