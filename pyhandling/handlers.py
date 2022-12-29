@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from functools import reduce
+from functools import reduce, wraps, partial
 from typing import NewType, Callable, Iterable, Self, Optional
 
 
@@ -290,6 +290,20 @@ class CollectionExpander:
 
     def __call__(self, collection: Iterable) -> tuple:
         return (*collection, *self.adding_items)
+
+
+def rigth_partial(func: Callable, *args, **kwargs) -> Callable:
+    """
+    Function equivalent to functools.partial but with the difference that
+    additional arguments are added not before the incoming ones from the final
+    call, but after.
+    """
+
+    @wraps(func)
+    def wrapper(*wrapper_args, **wrapper_kwargs) -> any:
+        return func(*wrapper_args, *args, **wrapper_kwargs, **kwargs)
+
+    return wrapper
 
 
 def return_(resource: any) -> any:
