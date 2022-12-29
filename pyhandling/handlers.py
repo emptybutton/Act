@@ -82,12 +82,15 @@ class ActionChain(HandlerKeeper):
     Data returned when called is data exited from the last handler.
 
     If there are no handlers, spits out the input as output.
+
+    Not strict on an input resource that, when called with no argument, is None.
+    Used for chaining events.
     """
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
 
-    def __call__(self, resource: any) -> any:
+    def __call__(self, resource: any = None) -> any:
         return reduce(
             lambda resource, handler: handler(resource),
             (resource, *self.handlers)
