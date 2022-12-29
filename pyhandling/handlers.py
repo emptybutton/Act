@@ -367,6 +367,15 @@ def call(caller: Callable[[], any]) -> any:
     return caller()
 
 
+def take(resource: any) -> ActionChain:
+    """
+    Function for creating an event that returns the input resource from this
+    function.
+    """
+
+    return EventAdapter(lambda: resource)
+
+
 then = ActionChain(tuple())
 then.__doc__ = (
     """
