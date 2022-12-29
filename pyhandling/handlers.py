@@ -367,3 +367,14 @@ def call(caller: Callable[[], any]) -> any:
     return caller()
 
 
+then = ActionChain(tuple())
+then.__doc__ = (
+    """
+    ActionChain class instance with no handlers.
+
+    Used as an operator emulator for convenient construction of ActionChains.
+    Assumes usage like \"first_handler |then>> second_handler\".
+
+    See ActionChain for more info.
+    """
+)
