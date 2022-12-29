@@ -306,6 +306,15 @@ def rigth_partial(func: Callable, *args, **kwargs) -> Callable:
     return wrapper
 
 
+def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
+    """
+    Function equivalent to pyhandling.handlers.rigth_partial but with the
+    difference that additional arguments from this function call are unfolded.
+    """
+
+    return rigth_partial(func, *args[::-1], **kwargs)
+
+
 def return_(resource: any) -> any:
     """Stub function for handling emulation."""
 
