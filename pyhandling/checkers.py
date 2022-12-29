@@ -219,3 +219,69 @@ class TypeChecker(CheckerUnionDelegatorMixin, IChecker):
                 for correct_type in self.correct_types
             )
         )
+
+
+class LengthChecker(CheckerUnionDelegatorMixin, IChecker):
+    """
+    Checker class for the presence of the length of the collection in a certain
+    interval.
+
+    Specifies a length range from an input length or sets of lengths from which
+    the length range of minimum and maximum values will be made.
+
+    Optionally includes the end value of the length in the length range by the
+    value of the is_end_inclusive attribute.
+    """
+
+    def __init__(self, required_length: int | Iterable[int], *, is_end_inclusive: bool = True):
+        self._required_length = tuple(
+            (min(required_length), max(required_length))
+            if isinstance(required_length, Iterable)
+            else (0, required_length)
+        )
+        self._is_end_inclusive = is_end_inclusive
+        self._update_required_length_range()
+
+    @property
+    def required_length(self) -> tuple[int]:
+        return self._required_length
+
+    @required_length.setter
+    def required_length(self, required_length: Iterable[int]) -> None:
+        self._required_length = tuple(required_length)
+        self._update_required_length_range()
+
+    @property
+    def is_end_inclusive(self) -> bool:
+        return self._is_end_inclusive
+
+    @is_end_inclusive.setter
+    def is_end_inclusive(self, is_end_inclusive: bool) -> None:
+        self._is_end_inclusive = is_end_inclusive
+        self._update_required_length_range()
+
+    @property
+    def required_length_range(self) -> range:
+        return self._required_length_range
+
+    def __repr__(self) -> str:
+        return "{class_name}({length_part})".format(
+            class_name=self.__class__.__name__,
+            length_part="{min_length_part}{max_length}".format(
+                min_length_part=(
+                    f"{self.required_length_range.start}, "
+                    if self.required_length_range.start > 0
+                    else str()
+                ),
+                max_length=self.required_length_range.stop - 1
+            )
+        )
+
+    def __call__(self, collection: Sized) -> bool:
+        return len(collection) in self.required_length_range
+
+    def _update_required_length_range(self) -> None:
+        self._required_length_range = range(
+            self.required_length[0],
+            self.required_length[1] + (1 if self.is_end_inclusive else 0)
+        )
