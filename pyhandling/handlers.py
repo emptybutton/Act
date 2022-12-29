@@ -324,3 +324,9 @@ def return_(resource: any) -> any:
     return resource
 
 
+def raise_(error: Exception) -> None:
+    """Wrapper function for functional use of raise statement."""
+
+    raise error
+
+
