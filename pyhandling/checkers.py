@@ -85,8 +85,14 @@ class UnionChecker(CheckerKeeper, IChecker):
     def __or__(self, other: Checker) -> Self:
         return self.create_merged_checker_by(self, other, is_strict=False)
 
+    def __ror__(self, other: Checker) -> Self:
+        return self.create_merged_checker_by(other, self, is_strict=False)
+
     def __and__(self, other: Checker) -> Self:
         return self.create_merged_checker_by(self, other, is_strict=True)
+
+    def __rand__(self, other: Checker) -> Self:
+        return self.create_merged_checker_by(other, self, is_strict=True)
 
     @classmethod
     def create_merged_checker_by(
@@ -150,8 +156,14 @@ class CheckerUnionDelegatorMixin:
     def __or__(self, other: Checker) -> IChecker:
         return self._non_strict_union_checker_factory((self, other))
 
+    def __ror__(self, other: Checker) -> Self:
+        return self._non_strict_union_checker_factory((other, self))
+
     def __and__(self, other: Checker) -> IChecker:
         return self._strict_union_checker_factory((self, other))
+
+    def __rand__(self, other: Checker) -> Self:
+        return self._strict_union_checker_factory((other, self))
 
 
 class Negationer(CheckerUnionDelegatorMixin, IChecker):
