@@ -85,7 +85,25 @@ class ActionChain(HandlerKeeper):
 
     Not strict on an input resource that, when called with no argument, is None.
     Used for chaining events.
+
+    With the right treatment | to an instance creates another instance with the
+    left handler ahead of the current chain handlers.
+
+    Equivalently, it can be called >> in front, to equivalently create an chain,
+    but the handlers of the current chain will be on the left.
+
+    When referring to | or >> with another chain creates a chain with handlers in
+    the same places, but integrates not the chain itself, but its handlers.
     """
+
+    def __ror__(self, action_node: Handler) -> Self:
+        return self.__class__(*self.__get_handlers_from(action_node), *self.handlers)
+
+    def __or__(self, action_node: Handler) -> Self:
+        return self.__class__(*self.handlers, *self.__get_handlers_from(action_node))
+
+    def __rshift__(self, action_node: Handler) -> Self:
+        return self.__class__(*self.handlers, *self.__get_handlers_from(action_node))
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
@@ -94,6 +112,16 @@ class ActionChain(HandlerKeeper):
         return reduce(
             lambda resource, handler: handler(resource),
             (resource, *self.handlers)
+        )
+
+    @staticmethod
+    def __get_handlers_from(handler: Handler) -> Iterable[Handler]:
+        """Method for getting collection of handlers from raw handler."""
+
+        return (
+            handler.handlers
+            if isinstance(handler, ActionChain)
+            else (handler, )
         )
 
 
