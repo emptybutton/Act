@@ -181,6 +181,25 @@ class HandlingNode:
         return resource
 
 
+class ContextManager:
+    """
+    Class that emulates the "with as" context manager.
+
+    Creates a context using the context_factory attribute and returns the results
+    of handling this context by the input context handler when called.
+    """
+
+    def __init__(self, context_factory: Callable[[], any]):
+        self.context_factory = context_factory
+
+    def __repr__(self) -> str:
+        return f"<ContextManager for {self.context_factory}>"
+
+    def __call__(self, context_handler: Handler) -> any:
+        with self.context_factory() as context:
+            return context_handler(context)
+
+
 class ErrorRaiser:
     """Adapter class for raising an error using calling."""
 
