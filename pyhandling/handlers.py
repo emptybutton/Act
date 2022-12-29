@@ -200,6 +200,23 @@ class ContextManager:
             return context_handler(context)
 
 
+class ErrorHandlingController:
+    """
+    Controller class that delegates the handling of errors by error_handler that
+    occur when delegating resource handling to resource_handler.
+    """
+
+    def __init__(self, resource_handler: Handler, error_handler: Callable[[Exception], any]):
+        self.resource_handler = resource_handler
+        self.error_handler = error_handler
+
+    def __call__(self, resource: any):
+        try:
+            return self.resource_handler(resource)
+        except Exception as error:
+            return self.error_handler(error)
+
+
 class ErrorRaiser:
     """Adapter class for raising an error using calling."""
 
