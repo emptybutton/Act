@@ -235,7 +235,7 @@ class Mapper:
     Map adapter class.
 
     Works just like map with the exception of returning already saved results.
-    Can be replaced by partial(map, handler).
+    Can be replaced by ActionChain(partial(map, handler), tuple).
     """
 
     def __init__(self, handler: Handler):
