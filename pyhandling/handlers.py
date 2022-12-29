@@ -316,6 +316,11 @@ def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
 
 
 def return_(resource: any) -> any:
-    """Stub function for handling emulation."""
+    """
+    Wrapper function for handling emulation through the functional use of the
+    return statement.
+    """
 
     return resource
+
+
