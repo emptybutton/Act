@@ -12,39 +12,45 @@ You can even integrate the entire program logic into one call
 from functools import partial
 from typing import Iterable
 
-from pyhandling import ActionChain, HandlingNode, Brancher, EventAdapter, ErrorRaiser, CollectionExpander, Mapper, return_
-from pyhandling.checkers import Negationer, TypeChecker, Aller
+from pyhandling import take, then, HandlingNode, Brancher, EventAdapter, ErrorRaiser, Mapper, CollectionExpander, return_
+from pyhandling.checkers import Negationer, TypeChecker, UnionChecker, LengthChecker
 
 
-main = ActionChain(
-    HandlingNode(Brancher(
+main = (
+    take(range(-10, 0))
+    |then>> HandlingNode(Brancher(
         EventAdapter(ErrorRaiser(TypeError("Input data must be iterable collection."))),
         Negationer(TypeChecker(Iterable))
-    )),
-    HandlingNode(Mapper(
+    ))
+    |then>> HandlingNode(Mapper(
         Brancher(
             EventAdapter(ErrorRaiser(TypeError("Elements of the input collection must be numbers."))),
             Negationer(TypeChecker(int | float))
         )
-    )),
-    CollectionExpander(range(11)),
-    HandlingNode(print),
-    partial(
+    ))
+    |then>> CollectionExpander(range(11))
+    |then>> HandlingNode(print)
+    |then>> partial(
         filter,
-        Aller(lambda number: not number % 2, lambda number: number != 0)
-    ),
-    tuple,
-    HandlingNode(print),
-    partial(map, lambda number: number + 1),
-    Brancher(tuple, TypeChecker(Iterable) | TypeChecker(int | float), return_),
-    HandlingNode(print),
-    sum,
-    print,
-    EventAdapter(exit)
+        UnionChecker(
+            lambda number: not number % 2,
+            lambda number: number != 0,
+            is_strict=True
+        )
+    )
+    |then>> tuple
+    |then>> HandlingNode(print)
+    |then>> partial(map, lambda number: number + 1)
+    |then>> tuple
+    |then>> Brancher(tuple, TypeChecker(Iterable) & LengthChecker(256), return_)
+    |then>> HandlingNode(print)
+    |then>> sum
+    |then>> print
+    |then>> EventAdapter(exit)
 )
 
 if __name__ == '__main__':
-    main(range(-10, 0))
+    main()
 ```
 
 **output**
