@@ -8,6 +8,7 @@ You can even integrate the entire program logic into one call
 `pip install pyhandling`
 
 ### Example
+
 ```python
 from functools import partial
 from typing import Iterable
