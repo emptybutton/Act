@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-
-from typing import NewType, Callable, Self, Iterable
+from functools import partial
+from typing import NewType, Callable, Self, Iterable, Optional, Sized
 
 
 Checker = NewType('Checker', Callable[[any], bool])
@@ -40,61 +40,93 @@ class CheckerKeeper:
         ) + checkers
 
 
-class Anyer(CheckerKeeper, IChecker):
+class UnionChecker(CheckerKeeper, IChecker):
     """
-    Checker class not strictly delegating check responsibilities to other checkers.
+    Checker class delegating check responsibilities to other checkers.
 
-    It is an adapter for \"any\" function.
+    Specifies the consistency strictness of checkers by the is_strict attribute.
 
-    Strictly related to Aller as it uses it as a factory for & result.
+    Throws an error if there are no checkers.
     """
+
+    def __init__(
+        self,
+        checker_resource: Checker | Iterable[Checker],
+        *checkers: Checker,
+        is_strict: bool = False
+    ):
+        super().__init__(checker_resource, *checkers)
+        self.is_strict = is_strict
+
+    @property
+    def checkers(self) -> tuple[Checker]:
+        return self._checkers
+
+    @checkers.setter
+    def checkers(self, checkers: Iterable[Checker]) -> None:
+        self._checkers = tuple(checkers)
+
+        if len(self._checkers) == 0:
+            raise AttributeError("UnionChecker.checkers must contain at least one checker")
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}[{' | '.join(map(str, self.checkers))}]"
-
-    def __call__(self, resource: any) -> bool:
-        return any(checker(resource) for checker in self.checkers)
-
-    def __or__(self, other: Checker) -> Self:
-        return self.__class__(
-            *self.checkers,
-            *(
-                other.checkers
-                if isinstance(other, Anyer)
-                else (other, )
+        return "{class_name}[{checker_part}]".format(
+            class_name=self.__class__.__name__,
+            checker_part=(' & ' if self.is_strict else ' | ').join(
+                map(str, self.checkers)
             )
         )
 
-    def __and__(self, other: Checker) -> IChecker:
-        return Aller(self, other)
-
-
-class Aller(CheckerKeeper, IChecker):
-    """
-    Checker class strictly delegating check responsibilities to other checkers.
-
-    It is an adapter for \"all\" function.
-
-    Strictly related to Anyer as it uses it as a factory for | result.
-    """
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}[{' & '.join(map(str, self.checkers))}]"
-
     def __call__(self, resource: any) -> bool:
-        return all(checker(resource) for checker in self.checkers)
+        return (all if self.is_strict else any)(
+            checker(resource) for checker in self.checkers
+        )
 
-    def __or__(self, other: Checker) -> IChecker:
-        return Anyer(self, other)
+    def __or__(self, other: Checker) -> Self:
+        return self.create_merged_checker_by(self, other, is_strict=False)
 
     def __and__(self, other: Checker) -> Self:
-        return self.__class__(
-            *self.checkers,
-            *(
-                other.checkers
-                if isinstance(other, Aller)
-                else (other, )
-            )
+        return self.create_merged_checker_by(self, other, is_strict=True)
+
+    @classmethod
+    def create_merged_checker_by(
+        cls, 
+        first_checker: Checker, 
+        second_checker: Checker, 
+        *args, 
+        is_strict: Optional[bool] = None, 
+        **kwargs
+    ) -> Self:
+        """Method for creating a checker by merging with another."""
+
+        if (
+            isinstance(first_checker, UnionChecker)
+            and isinstance(second_checker, UnionChecker)
+            and first_checker.is_strict is second_checker.is_strict
+            and (is_strict is None or is_strict is first_checker.is_strict)
+        ):
+            first_checkers = cls.__get_checkers_from(first_checker)
+            second_checkers = cls.__get_checkers_from(second_checker)
+
+            if is_strict is None:
+                is_strict = first_checker.is_strict
+        else:
+            first_checkers, second_checkers = (first_checker, ), (second_checker, )
+
+        return cls(
+            *first_checkers,
+            *second_checkers,
+            *args,
+            **({'is_strict': is_strict} if is_strict is not None else dict()),
+            **kwargs 
+        )
+
+    @staticmethod
+    def __get_checkers_from(checker: Checker) -> Iterable[Checker]:
+        return (
+            checker.checkers
+            if isinstance(checker, UnionChecker)
+            else (checker, )
         )
 
 
@@ -106,11 +138,14 @@ class CheckerUnionDelegatorMixin:
     creation to the appropriate _non_strict_union_checker_factory and
     _strict_union_checker_factory factories.
 
-    By default associated with Anyer and Aller.
+    Uses UnionChecker by default.
     """
 
-    _non_strict_union_checker_factory: Callable[[Iterable[Checker]], IChecker] = Anyer
-    _strict_union_checker_factory: Callable[[Iterable[Checker]], IChecker] = Aller
+    _non_strict_union_checker_factory: Callable[[Iterable[Checker]], IChecker] = UnionChecker
+    _strict_union_checker_factory: Callable[[Iterable[Checker]], IChecker] = partial(
+        UnionChecker,
+        is_strict=True
+    )
 
     def __or__(self, other: Checker) -> IChecker:
         return self._non_strict_union_checker_factory((self, other))
