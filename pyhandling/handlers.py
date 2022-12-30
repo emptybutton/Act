@@ -96,32 +96,38 @@ class ActionChain(HandlerKeeper):
     the same places, but integrates not the chain itself, but its handlers.
     """
 
-    def __ror__(self, action_node: Handler) -> Self:
-        return self.__class__(*self.__get_handlers_from(action_node), *self.handlers)
-
-    def __or__(self, action_node: Handler) -> Self:
-        return self.__class__(*self.handlers, *self.__get_handlers_from(action_node))
+    def __call__(self, *args, **kwargs) -> any:
+        return reduce(
+            lambda resource, handler: handler(resource),
+            (self.handlers[0](*args, **kwargs), *self.handlers[1:])
+        ) if self.handlers else resource
 
     def __rshift__(self, action_node: Handler) -> Self:
-        return self.__class__(*self.handlers, *self.__get_handlers_from(action_node))
+        return self.clone_with(action_node)
+
+    def __or__(self, action_node: Handler) -> Self:
+        return self.clone_with(action_node)
+
+    def __ror__(self, action_node: Handler) -> Self:
+        return self.clone_with(action_node, is_other_handlers_on_the_left=True)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
 
-    def __call__(self, resource: any = None) -> any:
-        return reduce(
-            lambda resource, handler: handler(resource),
-            (resource, *self.handlers)
+    def clone_with(self, *handlers: Handler, is_other_handlers_on_the_left: bool = False) -> Self:
+        other_handlers = post_partial(get_collection_with_reduced_nesting, 1)(
+            handler.handlers if isinstance(handler, ActionChain) else (handler, )
+            for handler in handlers
         )
 
-    @staticmethod
-    def __get_handlers_from(handler: Handler) -> Iterable[Handler]:
-        """Method for getting collection of handlers from raw handler."""
+        handler_groph = [self.handlers, handlers]
 
-        return (
-            handler.handlers
-            if isinstance(handler, ActionChain)
-            else (handler, )
+        if is_other_handlers_on_the_left:
+            handler_groph.reverse()
+
+        return self.__class__(
+            *handler_groph[0],
+            *handler_groph[1],
         )
 
 
