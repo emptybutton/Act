@@ -367,10 +367,10 @@ def raise_(error: Exception) -> None:
     raise error
 
 
-def call(caller: Callable[[], any]) -> any:
+def call(caller: Callable, *args, **kwargs) -> any:
     """Function to call an input object and return the results of that call."""
 
-    return caller()
+    return caller(*args, **kwargs)
 
 
 def additionally(action: Handler) -> Handler:
