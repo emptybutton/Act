@@ -54,3 +54,18 @@ class DelegatingProperty:
 
         setattr(instance, self.delegated_attribute_name, self.value_converter(value))
 
+
+class Clock:
+    ticks_to_disability = DelegatingProperty('_ticks_to_disability')
+
+    def __init__(self, ticks_to_disability: int):
+        self._ticks_to_disability = ticks_to_disability
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.ticks_to_disability})"
+
+    def __bool__(self) -> bool:
+        return self._ticks_to_disability > 0
+
+    def tick(self) -> None:
+        self._ticks_to_disability -= 1
