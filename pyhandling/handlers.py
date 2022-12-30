@@ -329,7 +329,7 @@ class CollectionExpander:
         return (*collection, *self.adding_items)
 
 
-def rigth_partial(func: Callable, *args, **kwargs) -> Callable:
+def post_partial(func: Callable, *args, **kwargs) -> Callable:
     """
     Function equivalent to functools.partial but with the difference that
     additional arguments are added not before the incoming ones from the final
