@@ -373,7 +373,21 @@ def call(caller: Callable[[], any]) -> any:
     return caller()
 
 
-def take(resource: any) -> ActionChain:
+def additionally(action: Handler) -> Handler:
+    """
+    Function that allows to handle a resource but not return the results of its
+    handling to continue the chain of handling this resource.
+    """
+
+    @wraps(action)
+    def wrapper(resource: any) -> any:
+        action(resource)
+        return resource
+
+    return wrapper
+
+
+def take(resource: any) -> Callable[[], any]:
     """
     Function for creating an event that returns the input resource from this
     function.
