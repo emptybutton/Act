@@ -312,7 +312,9 @@ def take(resource: any) -> Callable[[], any]:
     function.
     """
 
-    return EventAdapter(lambda: resource)
+    return partial(return_, resource)
+
+
 
 
 then = ActionChain(tuple())
