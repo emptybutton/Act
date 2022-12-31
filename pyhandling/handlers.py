@@ -1,5 +1,6 @@
 from enum import Enum, auto
 from functools import reduce, wraps, partial
+from math import inf
 from typing import Callable, Iterable, Self, Optional
 
 from pyhandling.tools import DelegatingProperty, Arguments
@@ -272,6 +273,23 @@ def call(caller: Callable, *args, **kwargs) -> any:
 
 def call_method(object_: object, method_name: str, *args, **kwargs) -> any:
     return getattr(object_, method_name)(*args, **kwargs)
+
+
+def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int = inf) -> tuple:
+    reduced_collection = list()
+
+    for item in collection:
+        if not isinstance(item, Iterable):
+            reduced_collection.append(item)
+            continue
+
+        reduced_collection.extend(
+            reduce_collection_nesting(item, number_of_reductions - 1)
+            if number_of_reductions > 1
+            else item
+        )
+
+    return tuple(reduced_collection)
 
 
 def additionally(action: Handler) -> Handler:
