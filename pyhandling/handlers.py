@@ -135,9 +135,13 @@ class ActionChain(HandlerKeeper):
         )
 
 
-class Brancher:
+def on_condition(
+    condition_resource_checker: Callable[[any], bool],
+    positive_condition_handler: Handler,
+    negative_condition_handler: Handler = lambda _: None
+) -> Handler:
     """
-    Class that implements branching handling of something according to a certain
+    Function that implements branching handling of something according to a certain
     condition.
 
     Selects the appropriate handler based on the results of the
@@ -147,47 +151,14 @@ class Brancher:
     None.
     """
 
-    def __init__(
-        self,
-        positive_case_handler: Handler,
-        condition_resource_checker: Callable[[any], bool],
-        negative_case_resource: Optional[Handler] = None
-    ):
-        self.positive_case_handler = positive_case_handler
-        self.condition_resource_checker = condition_resource_checker
-        self.negative_case_resource = negative_case_resource
-
-    @property
-    def negative_case_handler(self) -> Handler:
+    def branching_function(resource: any) -> any:
         return (
-            self.negative_case_resource
-            if self.negative_case_resource is not None
-            else lambda _: None
-        )
-
-    @negative_case_handler.setter
-    def negative_case_handler(self, negative_case_resource: Optional[Handler]) -> None:
-        self.negative_case_resource = negative_case_resource
-
-    def __repr__(self) -> str:
-        return "{class_name}({positive_case_handler} if {condition_checker}{else_part})".format(
-            class_name=self.__class__.__name__,
-            positive_case_handler=self.positive_case_handler,
-            condition_checker=self.condition_resource_checker,
-            else_part=(
-                f' else {self.negative_case_handler}'
-                if self.negative_case_resource is not None
-                else str()
-            )
-        )
-
-    def __call__(self, resource: any) -> any:
-        return (
-            self.positive_case_handler
-            if self.condition_resource_checker(resource)
-            else self.negative_case_handler
+            positive_condition_handler
+            if condition_resource_checker(resource)
+            else negative_condition_handler
         )(resource)
 
+    return branching_function
 
 class EventAdapter:
     """
