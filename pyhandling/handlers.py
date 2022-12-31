@@ -182,19 +182,16 @@ def handle_context(context_factory: Callable[[], any], context_handler: Handler)
         return context_handler(context)
 
 
-class ErrorHandlingController:
+def rollbackable(func: Callable, rollbacker: Callable[[Exception], any]) -> Callable:
     """
-    Controller class that delegates the handling of errors by error_handler that
-    occur when delegating resource handling to resource_handler.
+    Decorator function providing handling of possible errors.
+    Delegates error handling to rollbacker.
     """
 
-    def __init__(self, resource_handler: Handler, error_handler: Callable[[Exception], any]):
-        self.resource_handler = resource_handler
-        self.error_handler = error_handler
-
-    def __call__(self, resource: any):
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> any:
         try:
-            return self.resource_handler(resource)
+            return func(*args, **kwargs)
         except Exception as error:
             return self.error_handler(error)
 
@@ -204,6 +201,7 @@ class ErrorRaiser:
 
     def __init__(self, error: Exception):
         self.error = error
+            return rollbacker(error)
 
     def __repr__(self) -> str:
         return f"<Riser of \"{self.error}\">"
