@@ -78,7 +78,7 @@ class MultipleHandler(HandlerKeeper):
             return handler_result
 
 
-class ActionChain(HandlerKeeper):
+class ActionChain(HandlerKeeper):  
     """
     Class that implements handling as a chain of actions of handlers.
 
