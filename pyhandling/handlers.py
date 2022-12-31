@@ -193,22 +193,7 @@ def rollbackable(func: Callable, rollbacker: Callable[[Exception], any]) -> Call
         try:
             return func(*args, **kwargs)
         except Exception as error:
-            return self.error_handler(error)
-
-
-class ErrorRaiser:
-    """Adapter class for raising an error using calling."""
-
-    def __init__(self, error: Exception):
-        self.error = error
             return rollbacker(error)
-
-    def __repr__(self) -> str:
-        return f"<Riser of \"{self.error}\">"
-
-    def __call__(self) -> None:
-        raise self.error
-
 
 class Mapper:
     """
