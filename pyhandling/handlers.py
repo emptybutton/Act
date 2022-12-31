@@ -201,9 +201,9 @@ def rollbackable(func: Callable, rollbacker: Callable[[Exception], any]) -> Call
 
 
 
-class Recurser:
+def recursively(condition_checker: Callable[[any], bool], resource_handler: Handler) -> any:
     """
-    Class to create recursion.
+    Function to recursively handle input resource.
 
     If the result of handling for recursion is correct, it feeds the results
     of recursive_resource_handler to it, until the negative results of the
@@ -212,25 +212,11 @@ class Recurser:
     Checks the condition of execution of the recursion by the correctness of the
     input resource or the result of the execution of the handler of the recursion
     resource.
-
-    Delegates the determination of resource validity to the
-    recursion_continuation_checker attribute.
     """
 
-    def __init__(
-        self,
-        recursive_resource_handler: Handler,
-        recursion_continuation_checker: Callable[[any], bool]
-    ):
-        self.recursive_resource_handler = recursive_resource_handler
-        self.recursion_continuation_checker = recursion_continuation_checker
-
-    def __call__(self, resource: any) -> any:
-        while self.recursion_continuation_checker(resource):
-            resource = self.recursive_resource_handler(resource)
-
-        return resource
-
+    def recursively_handle(resource: any) -> any:
+        while condition_checker(resource):
+            resource = resource_handler(resource)
 
 class CollectionExpander:
     """Class for getting a collection with additional elements."""
