@@ -195,22 +195,10 @@ def rollbackable(func: Callable, rollbacker: Callable[[Exception], any]) -> Call
         except Exception as error:
             return rollbacker(error)
 
-class Mapper:
-    """
-    Map adapter class.
+    return wrapper
 
-    Works just like map with the exception of returning already saved results.
-    Can be replaced by ActionChain(partial(map, handler), tuple).
-    """
 
-    def __init__(self, handler: Handler):
-        self.handler = handler
 
-    def __repr__(self) -> str:
-        return f"<Mapper of {self.handler}>"
-
-    def __call__(self, collection: Iterable) -> tuple:
-        return tuple(self.handler(item) for item in collection)
 
 
 class Recurser:
