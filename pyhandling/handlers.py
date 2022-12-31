@@ -315,6 +315,14 @@ def take(resource: any) -> Callable[[], any]:
     return partial(return_, resource)
 
 
+def showly(handler: Handler) -> ActionChain:
+    handlers = handler.handlers if isinstance(handler, ActionChain) else (handler, )
+
+    return ActionChain(
+        get_collection_with_reduced_nesting(
+            additionally(print) |then>> handler for handler in handlers
+        )
+    ) |then>> additionally(print)
 
 
 then = ActionChain(tuple())
