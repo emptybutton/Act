@@ -170,23 +170,16 @@ def separately(func: Callable[[], any]) -> any:
     return wraps(func)(lambda *args, **kwargs: func())
 
 
-class ContextManager:
+def handle_context(context_factory: Callable[[], any], context_handler: Handler):
     """
-    Class that emulates the "with as" context manager.
+    Function for emulating the "with as" context manager.
 
-    Creates a context using the context_factory attribute and returns the results
-    of handling this context by the input context handler when called.
+    Creates a context using the context_factory and returns the results of
+    handling this context by context_handler.
     """
 
-    def __init__(self, context_factory: Callable[[], any]):
-        self.context_factory = context_factory
-
-    def __repr__(self) -> str:
-        return f"<ContextManager for {self.context_factory}>"
-
-    def __call__(self, context_handler: Handler) -> any:
-        with self.context_factory() as context:
-            return context_handler(context)
+    with context_factory() as context:
+        return context_handler(context)
 
 
 class ErrorHandlingController:
