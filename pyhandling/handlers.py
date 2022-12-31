@@ -161,21 +161,13 @@ def on_condition(
     return branching_function
 
 
-class HandlingNode:
+def separately(func: Callable[[], any]) -> any:
     """
-    Class that allows to handle a resource but not return the results of its
-    handling to continue the chain of handling this resource.
+    Decorator function for constructing a function to which no input attributes
+    will be passed.
     """
 
-    def __init__(self, handler: Handler):
-        self.handler = handler
-
-    def __repr__(self) -> str:
-        return f"<Handling node {self.handler}>"
-
-    def __call__(self, resource: any) -> any:
-        self.handler(resource)
-        return resource
+    return wraps(func)(lambda *args, **kwargs: func())
 
 
 class ContextManager:
