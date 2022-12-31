@@ -198,7 +198,10 @@ def rollbackable(func: Callable, rollbacker: Callable[[Exception], any]) -> Call
     return wrapper
 
 
+def get_collection_from(*collections: Iterable) -> tuple:
+    """Function to get a collection with elements from input collections."""
 
+    return get_collection_with_reduced_nesting(collections, 1)
 
 
 def recursively(condition_checker: Callable[[any], bool], resource_handler: Handler) -> any:
@@ -218,17 +221,9 @@ def recursively(condition_checker: Callable[[any], bool], resource_handler: Hand
         while condition_checker(resource):
             resource = resource_handler(resource)
 
-class CollectionExpander:
-    """Class for getting a collection with additional elements."""
-    
-    def __init__(self, adding_items: Iterable):
-        self.adding_items = adding_items
+            return resource
 
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} of [{', '.join(map(str, self.adding_items))}]>"
-
-    def __call__(self, collection: Iterable) -> tuple:
-        return (*collection, *self.adding_items)
+    return recursively_handle
 
 
 def post_partial(func: Callable, *args, **kwargs) -> Callable:
