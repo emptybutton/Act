@@ -2,6 +2,7 @@ from enum import Enum, auto
 from functools import reduce, wraps, partial
 from typing import Callable, Iterable, Self, Optional
 
+from pyhandling.tools import DelegatingProperty, Arguments
 
 
 Handler = Callable[[any], any]
@@ -13,8 +14,10 @@ class HandlerKeeper:
     unlimited input arguments.
     """
 
+    handlers = DelegatingProperty('_handlers')
+
     def __init__(self, handler_resource: Handler | Iterable[Handler], *handlers: Handler):
-        self.handlers = (
+        self._handlers = (
             tuple(handler_resource)
             if isinstance(handler_resource, Iterable)
             else (handler_resource, )
