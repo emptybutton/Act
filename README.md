@@ -13,24 +13,32 @@ You can even integrate the entire program logic into one call
 from functools import partial
 from typing import Iterable
 
-from pyhandling import take, then, HandlingNode, Brancher, EventAdapter, ErrorRaiser, Mapper, CollectionExpander, return_
+from pyhandling import *
 from pyhandling.checkers import Negationer, TypeChecker, UnionChecker, LengthChecker
 
 
 main = (
     take(range(-10, 0))
-    |then>> HandlingNode(Brancher(
-        EventAdapter(ErrorRaiser(TypeError("Input data must be iterable collection."))),
-        Negationer(TypeChecker(Iterable))
+    |then>> additionally(on_condition(
+        Negationer(TypeChecker(Iterable)),
+        separately(
+            take(TypeError("Input data must be iterable collection."))
+            |then>> raise_
+        ),
     ))
-    |then>> HandlingNode(Mapper(
-        Brancher(
-            EventAdapter(ErrorRaiser(TypeError("Elements of the input collection must be numbers."))),
-            Negationer(TypeChecker(int | float))
+    |then>> additionally(partial(
+        map(
+            on_condition(
+                Negationer(TypeChecker(int | float)),
+                separately(
+                    take(TypeError("Elements of the input collection must be numbers."))
+                    |then>> raise_
+                ),
+            )
         )
     ))
     |then>> CollectionExpander(range(11))
-    |then>> HandlingNode(print)
+    |then>> additionally(print)
     |then>> partial(
         filter,
         UnionChecker(
@@ -40,14 +48,14 @@ main = (
         )
     )
     |then>> tuple
-    |then>> HandlingNode(print)
+    |then>> additionally(print)
     |then>> partial(map, lambda number: number + 1)
     |then>> tuple
-    |then>> Brancher(tuple, TypeChecker(Iterable) & LengthChecker(256), return_)
-    |then>> HandlingNode(print)
+    |then>> on_condition(TypeChecker(Iterable) & LengthChecker(256), tuple, return_)
+    |then>> additionally(print)
     |then>> sum
     |then>> print
-    |then>> EventAdapter(exit)
+    |then>> separately(exit)
 )
 
 if __name__ == '__main__':
