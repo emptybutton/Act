@@ -1,9 +1,10 @@
 from enum import Enum, auto
 from functools import reduce, wraps, partial
-from typing import NewType, Callable, Iterable, Self, Optional
+from typing import Callable, Iterable, Self, Optional
 
 
-Handler = NewType('Handler', Callable[[any], any])
+
+Handler = Callable[[any], any]
 
 
 class HandlerKeeper:

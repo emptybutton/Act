@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from functools import partial
-from typing import NewType, Callable, Self, Iterable, Optional, Sized
+from typing import Callable, Self, Iterable, Optional, Sized, Protocol
 
 
-Checker = NewType('Checker', Callable[[any], bool])
+Checker = Callable[[any], bool]
 
 
 class IChecker(ABC):
