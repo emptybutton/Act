@@ -270,6 +270,10 @@ def call(caller: Callable, *args, **kwargs) -> any:
     return caller(*args, **kwargs)
 
 
+def call_method(object_: object, method_name: str, *args, **kwargs) -> any:
+    return getattr(object_, method_name)(*args, **kwargs)
+
+
 def additionally(action: Handler) -> Handler:
     """
     Function that allows to handle a resource but not return the results of its
