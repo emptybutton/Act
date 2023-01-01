@@ -193,6 +193,8 @@ def on_condition(
     """
 
     def branching_function(resource: any) -> any:
+        """Function created as a result of on_condition function."""
+
         return (handler if condition_resource_checker(resource) else else_)(resource)
 
     return branching_function
@@ -255,6 +257,11 @@ def recursively(resource_handler: Handler, condition_checker: Callable[[any], bo
     """
 
     def recursively_handle(resource: any) -> any:
+        """
+        Function emulating recursion that was created as a result of calling
+        recursively.
+        """
+
         while condition_checker(resource):
             resource = resource_handler(resource)
 
@@ -308,10 +315,14 @@ def call(caller: Callable, *args, **kwargs) -> any:
 
 
 def call_method(object_: object, method_name: str, *args, **kwargs) -> any:
+    """Shortcut function to call a method on an input object."""
+
     return getattr(object_, method_name)(*args, **kwargs)
 
 
 def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int = inf) -> tuple:
+    """Function that allows to get a collection with a reduced nesting level."""
+
     reduced_collection = list()
 
     for item in collection:
