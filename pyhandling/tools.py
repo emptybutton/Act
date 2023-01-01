@@ -98,7 +98,7 @@ class Clock:
         self._ticks_to_disability = ticks_to_disability
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.ticks_to_disability})"
+        return f"{'in' if not self else str()}valid {self.__class__.__name__}({self.ticks_to_disability})"
 
     def __bool__(self) -> bool:
         return self._ticks_to_disability > 0
