@@ -4,9 +4,10 @@ from math import inf
 from typing import Callable, Iterable, Self, Optional
 
 from pyhandling.tools import DelegatingProperty, Arguments
+from pyhandling.tools import handler_of, DelegatingProperty, Clock
 
 
-Handler = Callable[[any], any]
+Handler = handler_of[any]
 
 
 class HandlerKeeper:
@@ -183,7 +184,7 @@ def handle_context(context_factory: Callable[[], any], context_handler: Handler)
         return context_handler(context)
 
 
-def rollbackable(func: Callable, rollbacker: Callable[[Exception], any]) -> Callable:
+def rollbackable(func: Callable, rollbacker: handler_of[Exception]) -> Callable:
     """
     Decorator function providing handling of possible errors.
     Delegates error handling to rollbacker.
