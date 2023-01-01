@@ -92,6 +92,17 @@ class DelegatingProperty:
 
 
 class Clock:
+    """
+    Atomic class for saving state.
+
+    Has a number of ticks that determines its state.
+    When ticks expire, it becomes "False" and continues to tick in the negative.
+
+    Can roll back ticks, one at a time.
+
+    For immutability, cloned when ticks change.
+    """
+
     ticks_to_disability = DelegatingProperty('_ticks_to_disability')
 
     def __init__(self, ticks_to_disability: int):
@@ -105,8 +116,16 @@ class Clock:
 
     @to_clone
     def tick(self) -> None:
-        self._ticks_to_disability -= 1        """
+        """
+        Method of ticking and corresponding approximation of the "False" state.
+        """
+
+        self._ticks_to_disability -= 1
+
     @to_clone
     def rollback_tick(self) -> None:
+        """
+        Method for tick rollback and corresponding approximation of "True" state.
+        """
 
         self._ticks_to_disability += 1
