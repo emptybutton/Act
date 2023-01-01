@@ -80,9 +80,12 @@ class MultipleHandler(HandlerKeeper):
             return handler_result
 
 
-class ActionChain(HandlerKeeper):  
+class ActionChain:
     """
     Class that implements handling as a chain of actions of handlers.
+
+    In the presence of basic chains (strictly instances of the ActionChain class)
+    in the rows of handlers, takes their handlers instead of them.
 
     Each next handler gets the output of the previous one.
     Data returned when called is data exited from the last handler.
@@ -101,6 +104,18 @@ class ActionChain(HandlerKeeper):
     When referring to | or >> with another chain creates a chain with handlers in
     the same places, but integrates not the chain itself, but its handlers.
     """
+
+    handlers = DelegatingProperty('_handlers')
+
+    def __init__(self, opening_handler_resource: Callable | Iterable[Callable], *handlers: Handler):
+        self._handlers = self.get_with_aligned_chains(
+            (
+                tuple(opening_handler_resource)
+                if isinstance(opening_handler_resource, Iterable)
+                else (opening_handler_resource, )
+            )
+            + handlers
+        )
 
     def __call__(self, *args, **kwargs) -> any:
         return reduce(
@@ -121,11 +136,6 @@ class ActionChain(HandlerKeeper):
         return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
 
     def clone_with(self, *handlers: Handler, is_other_handlers_on_the_left: bool = False) -> Self:
-        other_handlers = post_partial(get_collection_with_reduced_nesting, 1)(
-            handler.handlers if isinstance(handler, ActionChain) else (handler, )
-            for handler in handlers
-        )
-
         handler_groph = [self.handlers, handlers]
 
         if is_other_handlers_on_the_left:
@@ -134,6 +144,36 @@ class ActionChain(HandlerKeeper):
         return self.__class__(
             *handler_groph[0],
             *handler_groph[1],
+        )
+
+    def clone_with_intermediate(
+        self,
+        intermediate_handler: Handler,
+        *,
+        is_on_input: bool = False,
+        is_on_output: bool = False
+    ) -> Self:
+        if not self.handlers:
+            return self
+
+        return ActionChain(
+            ((intermediate_handler, ) if is_on_input else tuple())
+            + ((
+                self.handlers[0] |then>> ActionChain(
+                    post_partial(get_collection_with_reduced_nesting, 1)(
+                        intermediate_handler |then>> handler
+                        for handler in self.handlers[1:]
+                    )
+                )
+            ), )
+            + ((intermediate_handler, ) if is_on_output else tuple())
+        )
+
+    @staticmethod
+    def get_with_aligned_chains(handlers: Iterable) -> tuple:
+        return post_partial(get_collection_with_reduced_nesting, 1)(
+            handler.handlers if isinstance(handler, ActionChain) else (handler, )
+            for handler in handlers
         )
 
 
