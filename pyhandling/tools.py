@@ -1,6 +1,24 @@
+from copy import copy
 from dataclasses import dataclass, field
+from functools import wraps
 from math import inf
 from typing import Iterable, Self, Callable
+
+
+def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
+    """
+    Decorator function to spawn new objects by cloning and applying an input
+    method to them.
+    """
+
+    @wraps(method)
+    def wrapper(instance: object, *args, **kwargs) -> object:
+        clone = copy(instance)
+        method(clone, *args, **kwargs)
+
+        return clone
+
+    return wrapper
 
 
 @dataclass(frozen=True)
