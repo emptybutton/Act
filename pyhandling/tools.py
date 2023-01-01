@@ -158,3 +158,12 @@ class HandlerAnnotationFactory:
             ],
             any
         ]
+
+
+handler_of = HandlerAnnotationFactory()
+handler_of.__doc__ = (
+    """
+    Standard HandlerAnnotationFactory instance for quick access to its benefits.
+    See it for more info.
+    """
+)
