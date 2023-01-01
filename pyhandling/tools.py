@@ -104,4 +104,5 @@ class Clock:
         return self._ticks_to_disability > 0
 
     def tick(self) -> None:
-        self._ticks_to_disability -= 1
+        self._ticks_to_disability -= 1        """
+
