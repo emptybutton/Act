@@ -22,7 +22,7 @@ def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
 
 
 @dataclass(frozen=True)
-class Arguments:
+class ArgumentPack:
     args: Iterable = tuple()
     kwargs: dict = field(default_factory=dict)
 
