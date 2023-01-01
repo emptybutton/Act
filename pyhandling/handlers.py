@@ -90,6 +90,9 @@ class ActionChain:
     Each next handler gets the output of the previous one.
     Data returned when called is data exited from the last handler.
 
+    The first handler is not bound to the standard handler interface and can be
+    any callable object.
+
     If there are no handlers, spits out the input as output.
 
     Not strict on an input resource that, when called with no argument, is None.
