@@ -2,7 +2,7 @@ from copy import copy
 from dataclasses import dataclass, field
 from functools import wraps
 from math import inf
-from typing import Iterable, Self, Callable
+from typing import Callable, Iterable, Self, Union, _CallableGenericAlias
 
 
 def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
@@ -129,3 +129,32 @@ class Clock:
         """
 
         self._ticks_to_disability += 1
+
+
+class HandlerAnnotationFactory:
+    """
+    Callable annotation factory class.
+
+    Creates a Callable annotation that takes one parameter (the type of which
+    this factory accepts) and returns whatever it wants.
+
+    Can be used via [] (preferred) or by normal call.
+    """
+
+    def __call__(self, handler_input_annotation: any) -> _CallableGenericAlias:
+        return self._create_handler_annotation_by(handler_input_annotation)
+
+    def __getitem__(self, handler_input_annotation: any) -> _CallableGenericAlias:
+        return self._create_handler_annotation_by(handler_input_annotation)
+
+    def _create_handler_annotation_by(self, handler_input_annotation: any) -> _CallableGenericAlias:
+        """Annotation Creation Method."""
+
+        return Callable[
+            [
+                Union[handler_input_annotation]
+                if isinstance(handler_input_annotation, Iterable)
+                else handler_input_annotation
+            ],
+            any
+        ]
