@@ -144,8 +144,8 @@ def on_condition(
     else_: Handler = lambda _: None
 ) -> Handler:
     """
-    Function that implements branching handling of something according to a certain
-    condition.
+    Function that implements branching handling of something according to a
+    certain condition.
 
     Selects the appropriate handler based on the results of the
     condition_resource_checker.
