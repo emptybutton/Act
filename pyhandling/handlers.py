@@ -407,3 +407,15 @@ as_collection.__doc__ = (
     """
 )
 
+
+times = (
+    (lambda number: number + 1)
+    |then>> Clock
+    |then>> close(post_partial(call_method, 'tick'))
+)
+times.__doc__ = (
+    """
+    Function to create a dirty function that will return True the input (for
+    that function) number of times, after only False.
+    """
+)
