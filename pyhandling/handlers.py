@@ -98,14 +98,10 @@ class ActionChain:
     Not strict on an input resource that, when called with no argument, is None.
     Used for chaining events.
 
-    With the right treatment | to an instance creates another instance with the
-    left handler ahead of the current chain handlers.
+    Can be connected to another chain or handler using | between them with
+    maintaining the position of the call.
 
-    Equivalently, it can be called >> in front, to equivalently create an chain,
-    but the handlers of the current chain will be on the left.
-
-    When referring to | or >> with another chain creates a chain with handlers in
-    the same places, but integrates not the chain itself, but its handlers.
+    Also can be used >> to expand handlers starting from the end respectively.
     """
 
     handlers = DelegatingProperty('_handlers')
