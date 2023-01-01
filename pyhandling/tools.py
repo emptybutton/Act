@@ -58,6 +58,13 @@ class ArgumentPack:
 
 
 class DelegatingProperty:
+    """
+    Descriptor class that takes data from an attribute that already exists on an
+    object.
+
+    Has the ability to set a delegating attribute (but it's better not to do so).
+    """
+
     def __init__(
         self,
         delegated_attribute_name: str,
