@@ -139,8 +139,9 @@ class ActionChain(HandlerKeeper):
 
 def on_condition(
     condition_resource_checker: Callable[[any], bool],
-    positive_condition_handler: Handler,
-    negative_condition_handler: Handler = lambda _: None
+    handler: Handler,
+    *,
+    else_: Handler = lambda _: None
 ) -> Handler:
     """
     Function that implements branching handling of something according to a certain
@@ -149,16 +150,12 @@ def on_condition(
     Selects the appropriate handler based on the results of the
     condition_resource_checker.
 
-    In case of a negative case and the absence of a negative case handler, returns
-    None.
+    In case of a negative case and the absence of a negative case handler (else_),
+    returns None.
     """
 
     def branching_function(resource: any) -> any:
-        return (
-            positive_condition_handler
-            if condition_resource_checker(resource)
-            else negative_condition_handler
-        )(resource)
+        return (handler if condition_resource_checker(resource) else else_)(resource)
 
     return branching_function
 
