@@ -220,7 +220,7 @@ def recursively(resource_handler: Handler, condition_checker: Callable[[any], bo
         while condition_checker(resource):
             resource = resource_handler(resource)
 
-            return resource
+        return resource
 
     return recursively_handle
 
