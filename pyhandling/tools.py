@@ -23,24 +23,37 @@ def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
 
 @dataclass(frozen=True)
 class ArgumentPack:
+    """Data class for structuring arguments."""
+
     args: Iterable = tuple()
     kwargs: dict = field(default_factory=dict)
 
     @to_clone
     def expand_with(self, *args, **kwargs) -> Self:
+        """Method to create another pack with input arguments."""
+
         self.args = (*self.args, *args)
         self.kwargs = self.kwargs | kwargs
 
     @to_clone
     def merge_with(self, argument_pack: Self) -> Self:
+        """Method to create another pack by merging with an input argument pack."""
+
         self.args = (*self.args, *argument_pack.args)
         self.kwargs = self.kwargs | argument_pack.kwargs
 
     def call(self, caller: Callable) -> any:
+        """
+        Method for calling an input function with arguments stored in an
+        instance.
+        """
+
         return caller(*self.args, **self.kwargs)
 
     @classmethod
     def create_via_call(cls, *args, **kwargs) -> Self:
+        """Method for creating a pack with this method's input arguments."""
+
         return cls(args, kwargs)
 
 
