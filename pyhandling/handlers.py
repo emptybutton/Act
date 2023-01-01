@@ -352,14 +352,20 @@ def take(resource: any) -> Callable[[], any]:
     return partial(return_, resource)
 
 
-def showly(handler: Handler) -> ActionChain:
-    handlers = handler.handlers if isinstance(handler, ActionChain) else (handler, )
 
-    return ActionChain(
-        get_collection_with_reduced_nesting(
-            additionally(print) |then>> handler for handler in handlers
-        )
-    ) |then>> additionally(print)
+def showly(handler: Handler, *, writer: handler_of[str] = print) -> ActionChain:
+    """
+    Decorator function for visualizing the outcomes of intermediate stages of a
+    chain of actions, or simply the input and output results of a regular handler.
+    """
+
+    writer = additionally(str |then>> writer)
+
+    return (
+        handler.clone_with_intermediate(writer, is_on_input=True, is_on_output=True)
+        if isinstance(handler, ActionChain)
+        else wraps(handler)(writer |then>> handler |then>> writer)
+    )
 
 
 then = ActionChain(tuple())
