@@ -352,6 +352,20 @@ def take(resource: any) -> Callable[[], any]:
     return partial(return_, resource)
 
 
+def close(func: Callable, *, canterizer: Callable[[Callable, ...], Callable] = partial) -> Callable:
+    """
+    Function to canterize the input function.
+
+    Wraps the input function in a container function that can be opened when
+    that function is called.
+
+    When defaulted to a container function, it returns the input function
+    associated with the input arguments given when the container function was
+    called.
+    """
+
+    return partial(canterizer, func)
+
 
 def showly(handler: Handler, *, writer: handler_of[str] = print) -> ActionChain:
     """
