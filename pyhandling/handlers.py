@@ -393,3 +393,17 @@ then.__doc__ = (
     See ActionChain for more info.
     """
 )
+
+
+as_collection: Callable[[any], tuple] = on_condition(
+    post_partial(isinstance, Iterable),
+    tuple,
+    else_=lambda resource: (resource, )
+)
+as_collection.__doc__ = (
+    """
+    Function to convert an input resource into a tuple collection.
+    With a non-iterable resource, wraps it in a tuple
+    """
+)
+
