@@ -26,17 +26,15 @@ class Arguments:
     args: Iterable = tuple()
     kwargs: dict = field(default_factory=dict)
 
-    def clone_with(self, *args, **kwargs) -> Self:
-        return self.__class__(
-            (*self.args, *args),
-            self.kwargs | kwargs
-        )
+    @to_clone
+    def expand_with(self, *args, **kwargs) -> Self:
+        self.args = (*self.args, *args)
+        self.kwargs = self.kwargs | kwargs
 
-    def merge_clone_with(self, arguments: Self) -> Self:
-        return self.__class__(
-            (*self.args, *arguments.args),
-            self.kwargs | arguments.kwargs
-        )
+    @to_clone
+    def merge_with(self, argument_pack: Self) -> Self:
+        self.args = (*self.args, *argument_pack.args)
+        self.kwargs = self.kwargs | argument_pack.kwargs
 
     def call(self, caller: Callable) -> any:
         return caller(*self.args, **self.kwargs)
