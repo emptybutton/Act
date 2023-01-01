@@ -206,7 +206,7 @@ def get_collection_from(*collections: Iterable) -> tuple:
     return get_collection_with_reduced_nesting(collections, 1)
 
 
-def recursively(condition_checker: Callable[[any], bool], resource_handler: Handler) -> any:
+def recursively(resource_handler: Handler, condition_checker: Callable[[any], bool]) -> any:
     """
     Function to recursively handle input resource.
 
