@@ -103,6 +103,10 @@ class Clock:
     def __bool__(self) -> bool:
         return self._ticks_to_disability > 0
 
+    @to_clone
     def tick(self) -> None:
         self._ticks_to_disability -= 1        """
+    @to_clone
+    def rollback_tick(self) -> None:
 
+        self._ticks_to_disability += 1
