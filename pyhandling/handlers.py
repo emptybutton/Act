@@ -163,7 +163,7 @@ def on_condition(
     return branching_function
 
 
-def separately(func: Callable[[], any]) -> any:
+def eventually(func: Callable[[], any]) -> any:
     """
     Decorator function for constructing a function to which no input attributes
     will be passed.
