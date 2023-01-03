@@ -18,6 +18,8 @@ def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
 
         return clone
 
+    wrapper.__annotations__['return'] = Self
+
     return wrapper
 
 
