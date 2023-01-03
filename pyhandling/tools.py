@@ -101,7 +101,6 @@ class Clock:
 
     Can roll back ticks, one at a time.
 
-    For immutability, cloned when ticks change.
     """
 
     ticks_to_disability = DelegatingProperty('_ticks_to_disability')
@@ -115,7 +114,6 @@ class Clock:
     def __bool__(self) -> bool:
         return self._ticks_to_disability > 0
 
-    @to_clone
     def tick(self) -> None:
         """
         Method of ticking and corresponding approximation of the "False" state.
@@ -123,7 +121,6 @@ class Clock:
 
         self._ticks_to_disability -= 1
 
-    @to_clone
     def rollback_tick(self) -> None:
         """
         Method for tick rollback and corresponding approximation of "True" state.
