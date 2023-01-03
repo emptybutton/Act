@@ -338,6 +338,39 @@ def dynamically_bind(
     return wrapper
 
 
+def unpackly(func: Callable) -> handler_of[ArgumentPack | Iterable]:
+    """
+    Decorator function that allows to bring an ordinary function to the Handler
+    interface by unpacking the input resource into the input function.
+
+    Specifies the type of unpacking depending on the type of the input resource
+    into the resulting function.
+
+    When ArgumentPack delegates unpacking to it (Preferred Format).
+
+    When a dict or otherwise a homogeneous collection unpacks * or **
+    respectively.
+
+    Also unpacks a collection of the form [collection, dict] as * and ** from
+    this collection.
+    """
+
+    @wraps(func)
+    def wrapper(argument_collection: ArgumentPack | Iterable) -> any:
+        if isinstance(argument_collection, ArgumentPack):
+            return argument_collection.call(func)
+        elif isinstance(argument_collection, dict):
+            return func(**argument_collection)
+        elif isinstance(argument_collection, Iterable):
+            return func(*argument_collection[0], **argument_collection[1]) if (
+                len(argument_collection) == 2
+                and isinstance(argument_collection[0], Iterable)
+                and isinstance(argument_collection[1], dict)
+            ) else func(*argument_collection)
+
+    return wrapper
+
+
 def return_(resource: any) -> any:
     """
     Wrapper function for handling emulation through the functional use of the
