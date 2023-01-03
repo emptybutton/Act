@@ -97,13 +97,13 @@ class Clock:
     Atomic class for saving state.
 
     Has a number of ticks that determines its state.
-    When ticks expire, it becomes "False" and continues to tick in the negative.
+    When ticks expire, it becomes "False" and may leave negative ticks.
 
-    Can roll back ticks, one at a time.
+    The client himself determines the state of anything by the clock, so he can
+    move ticks as he pleases.
 
     """
 
-    ticks_to_disability = DelegatingProperty('_ticks_to_disability')
 
     def __init__(self, ticks_to_disability: int):
         self._ticks_to_disability = ticks_to_disability
@@ -112,21 +112,7 @@ class Clock:
         return f"{'in' if not self else str()}valid {self.__class__.__name__}({self.ticks_to_disability})"
 
     def __bool__(self) -> bool:
-        return self._ticks_to_disability > 0
-
-    def tick(self) -> None:
-        """
-        Method of ticking and corresponding approximation of the "False" state.
-        """
-
-        self._ticks_to_disability -= 1
-
-    def rollback_tick(self) -> None:
-        """
-        Method for tick rollback and corresponding approximation of "True" state.
-        """
-
-        self._ticks_to_disability += 1
+        return self.ticks_to_disability > 0
 
 
 class HandlerAnnotationFactory:
