@@ -408,6 +408,16 @@ def getattr_of(object_: object, attribute_name: str) -> any:
     return getattr(object_, attribute_name)
 
 
+def setattr_of(object_: object, attribute_name: str, attribute_value: any) -> any:
+    """
+    Synonym function for setattr.
+
+    Unlike original setattr arguments can be keyword.
+    """
+
+    return setattr(object_, attribute_name, attribute_value)
+
+
 def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int = inf) -> tuple:
     """Function that allows to get a collection with a reduced nesting level."""
 
