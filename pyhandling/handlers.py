@@ -3,7 +3,7 @@ from functools import reduce, wraps, partial
 from math import inf
 from typing import Callable, Iterable, Self
 
-from pyhandling.tools import handler_of, DelegatingProperty, Clock
+from pyhandling.tools import handler_of, DelegatingProperty, ArgumentPack, Clock
 
 
 Handler = handler_of[any]
