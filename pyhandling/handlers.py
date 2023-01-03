@@ -191,7 +191,7 @@ class ActionChain:
         """
 
         return post_partial(get_collection_with_reduced_nesting, 1)(
-            handler.handlers if isinstance(handler, ActionChain) else (handler, )
+            handler.handlers if type(handler) is ActionChain else (handler, )
             for handler in handlers
         )
 
