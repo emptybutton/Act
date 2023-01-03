@@ -196,12 +196,7 @@ class ActionChain:
         )
 
 
-def on_condition(
-    condition_resource_checker: Callable[[any], bool],
-    handler: Handler,
-    *,
-    else_: Handler = lambda _: None
-) -> Handler:
+def on_condition(checker: Callable[[any], bool], handler: Handler, *, else_: Handler = lambda _: None) -> Handler:
     """
     Function that implements branching handling of something according to a
     certain condition.
@@ -216,7 +211,7 @@ def on_condition(
     def branching_function(resource: any) -> any:
         """Function created as a result of on_condition function."""
 
-        return (handler if condition_resource_checker(resource) else else_)(resource)
+        return (handler if checker(resource) else else_)(resource)
 
     return branching_function
 
