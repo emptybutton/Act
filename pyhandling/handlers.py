@@ -168,7 +168,7 @@ class ActionChain:
         )
 
     @staticmethod
-    def get_with_aligned_chains(handlers: Iterable) -> tuple:
+    def get_with_aligned_chains(handlers: Iterable[Handler]) -> tuple[Handler]:
         return post_partial(get_collection_with_reduced_nesting, 1)(
             handler.handlers if isinstance(handler, ActionChain) else (handler, )
             for handler in handlers
