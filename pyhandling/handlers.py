@@ -440,7 +440,7 @@ def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductio
 def additionally(action: Handler) -> Handler:
     """
     Function that allows to handle a resource but not return the results of its
-    handling to continue the chain of handling this resource.
+    handling.
     """
 
     @wraps(action)
