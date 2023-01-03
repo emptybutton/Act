@@ -451,16 +451,8 @@ def additionally(action: Handler) -> Handler:
     return wrapper
 
 
-def take(resource: any) -> Callable[[], any]:
 def close(resource: any, *, closer: Handler = return_) -> Callable:
     """
-    Function for creating an event that returns the input resource from this
-    function.
-    """
-
-    return partial(return_, resource)
-
-
     Function to canterize the input object.
 
     Wraps the input object in a container function that can be \"opened\" when
