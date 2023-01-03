@@ -501,7 +501,7 @@ as_collection: Callable[[any], tuple] = on_condition(
 as_collection.__doc__ = (
     """
     Function to convert an input resource into a tuple collection.
-    With a non-iterable resource, wraps it in a tuple
+    With a non-iterable resource, wraps it in a tuple.
     """
 )
 
