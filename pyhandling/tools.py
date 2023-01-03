@@ -1,7 +1,7 @@
 from copy import copy
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Callable, Iterable, Self, Union, _CallableGenericAlias
+from typing import Callable, Self, Iterable, Union, _CallableGenericAlias
 
 
 def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
