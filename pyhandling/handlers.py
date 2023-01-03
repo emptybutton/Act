@@ -318,6 +318,26 @@ def bind(func: Callable, argument_name: str, argument_value: any) -> Callable:
     return wraps(func)(partial(func, **{argument_name: argument_value}))
 
 
+def dynamically_bind(
+    func: Callable[[any, ...], any],
+    argument_name: str,
+    argument_handler: Handler,
+) -> Callable[[any, ...], any]:
+    """
+    Atomic partial function allowing to calculate the value of the input
+    argument of the input function depending on the first input argument of the
+    input function.
+
+    Aimed mostly to bring the function to the Handler interface.
+    """
+
+    @wraps(func)
+    def wrapper(resource: any) -> any:
+        return func(resource, **{argument_name: argument_handler(resource)})
+
+    return wrapper
+
+
 def return_(resource: any) -> any:
     """
     Wrapper function for handling emulation through the functional use of the
