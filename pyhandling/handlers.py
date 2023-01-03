@@ -309,6 +309,15 @@ def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
     return rigth_partial(func, *args[::-1], **kwargs)
 
 
+def bind(func: Callable, argument_name: str, argument_value: any) -> Callable:
+    """
+    Atomic partial function for a single keyword argument whose name and value
+    are separate input arguments.
+    """
+
+    return wraps(func)(partial(func, **{argument_name: argument_value}))
+
+
 def return_(resource: any) -> any:
     """
     Wrapper function for handling emulation through the functional use of the
