@@ -94,8 +94,6 @@ class ActionChain:
 
     If there are no handlers, spits out the input as output.
 
-    Not strict on an input resource that, when called with no argument, is None.
-    Used for chaining events.
 
     Can be connected to another chain or handler using | between them with
     maintaining the position of the call.
