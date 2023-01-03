@@ -1,7 +1,6 @@
 from copy import copy
 from dataclasses import dataclass, field
 from functools import wraps
-from math import inf
 from typing import Callable, Iterable, Self, Union, _CallableGenericAlias
 
 
