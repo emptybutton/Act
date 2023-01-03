@@ -92,6 +92,9 @@ class ActionChain:
     The first handler is not bound to the standard handler interface and can be
     any callable object.
 
+    Accordingly, delegates the call to that first handler, so it emulates its
+    interface.
+
     If there are no handlers, spits out the input as output.
 
 
