@@ -225,7 +225,7 @@ def eventually(func: Callable[[], any]) -> any:
     return wraps(func)(lambda *args, **kwargs: func())
 
 
-def handle_context(context_factory: Callable[[], any], context_handler: Handler):
+def handle_context_by(context_factory: Callable[[], any], context_handler: Handler):
     """
     Function for emulating the "with as" context manager.
 
