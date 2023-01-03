@@ -452,6 +452,7 @@ def additionally(action: Handler) -> Handler:
 
 
 def take(resource: any) -> Callable[[], any]:
+def close(resource: any, *, closer: Handler = return_) -> Callable:
     """
     Function for creating an event that returns the input resource from this
     function.
@@ -460,19 +461,16 @@ def take(resource: any) -> Callable[[], any]:
     return partial(return_, resource)
 
 
-def close(func: Callable, *, canterizer: Callable[[Callable, ...], Callable] = partial) -> Callable:
-    """
-    Function to canterize the input function.
+    Function to canterize the input object.
 
-    Wraps the input function in a container function that can be opened when
+    Wraps the input object in a container function that can be \"opened\" when
     that function is called.
 
-    When defaulted to a container function, it returns the input function
-    associated with the input arguments given when the container function was
-    called.
+    With the default canterization function, creates a function, on \"opening\" of
+    which the input object is returned.
     """
 
-    return partial(canterizer, func)
+    return partial(closer, resource)
 
 
 def showly(handler: Handler, *, writer: handler_of[str] = print) -> ActionChain:
