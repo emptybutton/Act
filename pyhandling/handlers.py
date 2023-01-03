@@ -398,6 +398,16 @@ def call_method(object_: object, method_name: str, *args, **kwargs) -> any:
     return getattr(object_, method_name)(*args, **kwargs)
 
 
+def getattr_of(object_: object, attribute_name: str) -> any:
+    """
+    Synonym function for getattr.
+
+    Unlike original getattr arguments can be keyword.
+    """
+
+    return getattr(object_, attribute_name)
+
+
 def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int = inf) -> tuple:
     """Function that allows to get a collection with a reduced nesting level."""
 
