@@ -134,6 +134,14 @@ class ActionChain:
         return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
 
     def clone_with(self, *handlers: Handler, is_other_handlers_on_the_left: bool = False) -> Self:
+        """
+        Method for cloning the current chain instance with additional handlers
+        from unlimited arguments.
+
+        Additional handlers can be added to the beginning of the chain if
+        `is_other_handlers_on_the_left = True`.
+        """
+
         handler_groph = [self.handlers, handlers]
 
         if is_other_handlers_on_the_left:
@@ -151,6 +159,14 @@ class ActionChain:
         is_on_input: bool = False,
         is_on_output: bool = False
     ) -> Self:
+        """
+        Method for cloning the current chain with an additional handler between
+        the current chain handlers.
+
+        Also, the intermediate handler can add to the end and/or to the beginning
+        of the chain with is_on_input and/or is_on_output = True.
+        """
+
         if not self.handlers:
             return self
 
@@ -169,6 +185,11 @@ class ActionChain:
 
     @staticmethod
     def get_with_aligned_chains(handlers: Iterable[Handler]) -> tuple[Handler]:
+        """
+        Function for getting homogeneous handlers without unnecessary chain
+        instances.
+        """
+
         return post_partial(get_collection_with_reduced_nesting, 1)(
             handler.handlers if isinstance(handler, ActionChain) else (handler, )
             for handler in handlers
