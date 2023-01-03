@@ -506,14 +506,26 @@ as_collection.__doc__ = (
 )
 
 
-times = (
+times: Callable[[int], Callable[[], bool]] = (
     (lambda number: number + 1)
     |then>> Clock
-    |then>> close(post_partial(call_method, 'tick'))
+    |then>> partial(close, closer=partial)(
+        additionally(dynamically_bind(
+            bind(setattr_of, 'attribute_name', 'ticks_to_disability'),
+            'attribute_value',
+            on_condition(
+                return_,
+                (lambda clock: clock.ticks_to_disability - 1),
+                else_=(lambda clock: clock.initial_ticks_to_disability - 1)
+            )
+        ))
+        |then>> bool,
+    )
 )
 times.__doc__ = (
     """
-    Function to create a dirty function that will return True the input (for
-    that function) number of times, after only False.
+    Function to create a dirty function that will return True the input value
+    (for this function) number of times, then False once after the input count
+    has passed, True again n times, and so on.
     """
 )
