@@ -544,6 +544,9 @@ as_argument_pack.__doc__ = (
     """
 )
 
+with_doc = close(partial(bind, bind(setattr_of, 'argument_name', '__doc__'), 'argument_value'), closer=partial)
+
+
 times: Callable[[int], Callable[[], bool]] = (
     (lambda number: number + 1)
     |then>> Clock
