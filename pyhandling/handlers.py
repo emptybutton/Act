@@ -97,7 +97,6 @@ class ActionChain:
 
     If there are no handlers, spits out the input as output.
 
-
     Can be connected to another chain or handler using | between them with
     maintaining the position of the call.
 
