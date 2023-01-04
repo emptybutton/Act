@@ -223,5 +223,17 @@ handler_of.__doc__ = CUSTOMANNOTATIONFACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.for
 )
 
 
+checker_of = CustomAnnotationFactory(
+    Callable,
+    [[CustomAnnotationFactory.input_annotation_annotation], bool]
+)
+checker_of.__doc__ = CUSTOMANNOTATIONFACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
+    """
+    Creates a Callable annotation that takes one parameter (the type of which
+    this factory accepts) and returns the result of the check (bool).
+    """
+)
+
+
     """
 )
