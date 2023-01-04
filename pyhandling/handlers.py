@@ -3,7 +3,7 @@ from functools import reduce, wraps, partial
 from math import inf
 from typing import Callable, Iterable, Self
 
-from pyhandling.tools import handler_of, DelegatingProperty, ArgumentPack, Clock
+from pyhandling.tools import handler_of, DelegatingProperty, ArgumentPack, Clock, factory_of
 
 
 Handler = handler_of[any]
@@ -307,6 +307,30 @@ def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
     """
 
     return rigth_partial(func, *args[::-1], **kwargs)
+
+
+def mergely(merge_function_factory: factory_of[Callable], *parallel_functions: factory_of[any]):
+    """
+    Decorator function that allows to initially separate several operations on
+    input arguments and then combine these results in final operation.
+
+    Gets the final merging function of the first input function by calling it
+    with all the input arguments of the resulting (as a result of calling this
+    particular function) function.
+
+    Passes to the final merge function the results of calls to unbounded input
+    functions (with the same arguments that were passed to the factory of this
+    final merge function).
+    """
+
+    @wraps(merge_function_factory)
+    def wrapper(*args, **kwargs):
+        return merge_function_factory(*args, **kwargs)(*(
+            parallel_function(*args, **kwargs)
+            for parallel_function in parallel_functions
+        ))
+
+    return wrapper
 
 
 def bind(func: Callable, argument_name: str, argument_value: any) -> Callable:
