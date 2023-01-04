@@ -202,7 +202,15 @@ class CustomAnnotationFactory(AnnotationFactory):
         return tuple(formatted_annotations)
 
 
+CUSTOMANNOTATIONFACTORY_INSTANCE_DOCUMENTATION_TEMPLATE: Final = (
     """
+    CustomAnnotationFactory instance.
+    {}
+    See AnnotationFactory for more info.
+    """
+)
+
+
 handler_of = CustomAnnotationFactory(
     Callable,
     [[CustomAnnotationFactory.input_annotation_annotation], any]
