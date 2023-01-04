@@ -71,14 +71,16 @@ class DelegatingProperty:
         delegated_attribute_name: str,
         *,
         settable: bool = False,
-        value_converter: Callable[[any], any] = lambda resource: resource
+        geting_value_converter: Callable[[any], any] = lambda resource: resource,
+        seting_value_converter: Callable[[any], any] = lambda resource: resource
     ):
         self.delegated_attribute_name = delegated_attribute_name
         self.settable = settable
-        self.value_converter = value_converter
+        self.geting_value_converter = geting_value_converter
+        self.seting_value_converter = seting_value_converter
 
     def __get__(self, instance: object, owner: type) -> any:
-        return getattr(instance, self.delegated_attribute_name)
+        return self.geting_value_converter(getattr(instance, self.delegated_attribute_name))
 
     def __set__(self, instance: object, value: any) -> None:
         if not self.settable:
@@ -89,7 +91,7 @@ class DelegatingProperty:
                 )
             )
 
-        setattr(instance, self.delegated_attribute_name, self.value_converter(value))
+        setattr(instance, self.delegated_attribute_name, self.seting_value_converter(value))
 
 
 class Clock:
