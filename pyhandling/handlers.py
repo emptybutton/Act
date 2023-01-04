@@ -475,7 +475,7 @@ def additionally(action: Handler) -> Handler:
     return wrapper
 
 
-def close(resource: any, *, closer: Handler = return_) -> Callable:
+def close(resource: any, *, closer: Callable[..., any] = return_) -> Callable:
     """
     Function to canterize the input object.
 
