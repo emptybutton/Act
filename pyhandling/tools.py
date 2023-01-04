@@ -202,10 +202,10 @@ class CustomAnnotationFactory(AnnotationFactory):
         return tuple(formatted_annotations)
 
 
-handler_of = HandlerAnnotationFactory()
-handler_of.__doc__ = (
     """
-    Standard HandlerAnnotationFactory instance for quick access to its benefits.
-    See HandlerAnnotationFactory for more info.
+handler_of = CustomAnnotationFactory(
+    Callable,
+    [[CustomAnnotationFactory.input_annotation_annotation], any]
+)
     """
 )
