@@ -143,8 +143,63 @@ class AnnotationFactory(ABC):
         """Annotation Creation Method from an input annotation."""
 
 
+class CustomAnnotationFactory(AnnotationFactory):
+    """
+    AnnotationFactory class delegating the construction of another factory's
+    annotation.
 
+    When called, replaces the 'annotation' strings from its arguments and their
+    subcollections with the input annotation.
+    """
+
+    _input_annotation_annotation: any = '<input_annotation>'
+
+    input_annotation_annotation = classmethod(DelegatingProperty(
+        '_input_annotation_annotation'
+    ))
+
+    original_factory = DelegatingProperty('_original_factory')
+    annotations = DelegatingProperty('_annotations')
+
+    def __init__(self, original_factory: Mapping, annotations: Iterable):
+        self._original_factory = original_factory
+        self._annotations = tuple(annotations)
+
+    def __repr__(self) -> str:
+        return "{factory}{arguments}".format(
+            factory=(
+                self._original_factory.__name__
+                if hasattr(self._original_factory, '__name__')
+                else self._original_factory
+            ),
+            arguments=list(self._annotations)
+        )
+
+    def _create_full_annotation_by(self, annotation: any) -> any:
+        return self._original_factory[
+            *self.__get_formatted_annotations_from(self._annotations, annotation)
         ]
+
+    def __get_formatted_annotations_from(self, annotations: Iterable, replacement_annotation: any) -> tuple:
+        """
+        Recursive function to replace element(s) of the input collection (and
+        its subcollections) equal to 'annotation' with the input annotation.
+        """
+
+        formatted_annotations = list()
+
+        for annotation in annotations:
+            if annotation == self._input_annotation_annotation:
+                annotation = replacement_annotation
+            elif isinstance(annotation, Iterable) and not isinstance(annotation, str):
+                annotation = self.__get_formatted_annotations_from(
+                    annotation,
+                    replacement_annotation
+                )
+
+            formatted_annotations.append(annotation)
+
+        return tuple(formatted_annotations)
 
 
 handler_of = HandlerAnnotationFactory()
