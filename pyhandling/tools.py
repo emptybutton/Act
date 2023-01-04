@@ -1,7 +1,8 @@
+from abc import ABC, abstractmethod
 from copy import copy
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Callable, Self, Iterable, Union, _CallableGenericAlias
+from typing import Callable, Self, Iterable, Union, Mapping, Final
 
 
 def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
@@ -119,32 +120,30 @@ class Clock:
         return self.ticks_to_disability > 0
 
 
-class HandlerAnnotationFactory:
+class AnnotationFactory(ABC):
     """
-    Callable annotation factory class.
-
-    Creates a Callable annotation that takes one parameter (the type of which
-    this factory accepts) and returns whatever it wants.
+    Annotation factory class.
+    Creates annotation by input other.
 
     Can be used via [] (preferred) or by normal call.
     """
 
-    def __call__(self, handler_input_annotation: any) -> _CallableGenericAlias:
-        return self._create_handler_annotation_by(handler_input_annotation)
+    def __call__(self, annotation: any) -> any:
+        return self._create_full_annotation_by(annotation)
 
-    def __getitem__(self, handler_input_annotation: any) -> _CallableGenericAlias:
-        return self._create_handler_annotation_by(handler_input_annotation)
+    def __getitem__(self, annotation: any) -> any:
+        return self._create_full_annotation_by(
+            Union[annotation]
+            if isinstance(annotation, Iterable)
+            else annotation
+        )
 
-    def _create_handler_annotation_by(self, handler_input_annotation: any) -> _CallableGenericAlias:
-        """Annotation Creation Method."""
+    @abstractmethod
+    def _create_full_annotation_by(self, annotation: any) -> any:
+        """Annotation Creation Method from an input annotation."""
 
-        return Callable[
-            [
-                Union[handler_input_annotation]
-                if isinstance(handler_input_annotation, Iterable)
-                else handler_input_annotation
-            ],
-            any
+
+
         ]
 
 
