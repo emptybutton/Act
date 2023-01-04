@@ -530,6 +530,20 @@ as_collection.__doc__ = (
 )
 
 
+as_argument_pack: Callable[[any], ArgumentPack] = on_condition(
+    post_partial(isinstance, ArgumentPack),
+    return_,
+    else_=ArgumentPack.create_via_call
+)
+as_argument_pack.__doc__ = (
+    """
+    Function to optionally convert an input resource into an ArgumentPack with
+    one argument (the input resource).
+
+    When input resource is ArgumentPack, function returns it unchanged.
+    """
+)
+
 times: Callable[[int], Callable[[], bool]] = (
     (lambda number: number + 1)
     |then>> Clock
