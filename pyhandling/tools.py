@@ -244,6 +244,20 @@ factory_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.f
     Creates a Callable annotation that takes any parameters and returns the type
     of which this factory accepts.
     """
+
+
+event_for = CustomAnnotationFactory(
+    Callable,
+    [[], CustomAnnotationFactory.input_annotation_annotation]
+)
+event_for.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
+    """
+    Creates a Callable annotation that takes no parameters and returns the type
+    of which this factory accepts.
+    """
+)
+
+
 Handler = handler_of[any]
 Handler.__doc__ = (
     """
