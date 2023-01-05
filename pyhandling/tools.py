@@ -202,7 +202,7 @@ class CustomAnnotationFactory(AnnotationFactory):
         return tuple(formatted_annotations)
 
 
-CUSTOMANNOTATIONFACTORY_INSTANCE_DOCUMENTATION_TEMPLATE: Final = (
+CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE: Final = (
     """
     CustomAnnotationFactory instance.
     {}
@@ -215,7 +215,7 @@ handler_of = CustomAnnotationFactory(
     Callable,
     [[CustomAnnotationFactory.input_annotation_annotation], any]
 )
-handler_of.__doc__ = CUSTOMANNOTATIONFACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
+handler_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
     """
     Creates a Callable annotation that takes one parameter (the type of which
     this factory accepts) and returns whatever it wants.
@@ -227,7 +227,7 @@ checker_of = CustomAnnotationFactory(
     Callable,
     [[CustomAnnotationFactory.input_annotation_annotation], bool]
 )
-checker_of.__doc__ = CUSTOMANNOTATIONFACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
+checker_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
     """
     Creates a Callable annotation that takes one parameter (the type of which
     this factory accepts) and returns the result of the check (bool).
@@ -239,7 +239,7 @@ factory_of = CustomAnnotationFactory(
     Callable,
     [..., CustomAnnotationFactory.input_annotation_annotation]
 )
-factory_of.__doc__ = CUSTOMANNOTATIONFACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
+factory_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
     """
     Creates a Callable annotation that takes any parameters and returns the type
     of which this factory accepts.
