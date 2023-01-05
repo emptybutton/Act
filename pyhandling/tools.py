@@ -244,4 +244,13 @@ factory_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.f
     Creates a Callable annotation that takes any parameters and returns the type
     of which this factory accepts.
     """
+Handler = handler_of[any]
+Handler.__doc__ = (
+    """
+    Annotation of non-strict handler of something.
+    Created by handler_of and equivalently handler_of[any].
+    """
+)
+
+
 )
