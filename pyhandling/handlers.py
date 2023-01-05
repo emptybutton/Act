@@ -193,7 +193,7 @@ class ActionChain:
         )
 
 
-def on_condition(checker: Callable[[any], bool], handler: Handler, *, else_: Handler = lambda _: None) -> Handler:
+def on_condition(checker: checker_of[any], handler: Handler, *, else_: Handler = lambda _: None) -> Handler:
     """
     Function that implements branching handling of something according to a
     certain condition.
@@ -213,7 +213,7 @@ def on_condition(checker: Callable[[any], bool], handler: Handler, *, else_: Han
     return branching_function
 
 
-def eventually(func: Callable[[], any]) -> any:
+def eventually(func: Event) -> any:
     """
     Decorator function for constructing a function to which no input attributes
     will be passed.
@@ -222,7 +222,7 @@ def eventually(func: Callable[[], any]) -> any:
     return wraps(func)(lambda *args, **kwargs: func())
 
 
-def handle_context_by(context_factory: Callable[[], any], context_handler: Handler):
+def handle_context_by(context_factory: Event, context_handler: Handler):
     """
     Function for emulating the "with as" context manager.
 
@@ -256,7 +256,7 @@ def get_collection_from(*collections: Iterable) -> tuple:
     return get_collection_with_reduced_nesting(collections, 1)
 
 
-def recursively(resource_handler: Handler, condition_checker: Callable[[any], bool]) -> any:
+def recursively(resource_handler: Handler, condition_checker: checker_of[any]) -> any:
     """
     Function to recursively handle input resource.
 
@@ -553,7 +553,7 @@ from_argument_pack: Callable[[Callable], Callable[[ArgumentPack | Iterable], any
 )
 
 
-times: Callable[[int], Callable[[], bool]] = (
+times: Callable[[int], event_for[bool]] = (
     (lambda number: number + 1)
     |then>> Clock
     |then>> partial(close, closer=partial)(
