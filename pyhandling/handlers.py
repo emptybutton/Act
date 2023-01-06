@@ -3,7 +3,9 @@ from functools import reduce, wraps, partial
 from math import inf
 from typing import Callable, Iterable, Self
 
-from pyhandling.tools import Handler, DelegatingProperty, handler_of, factory_of, ArgumentPack, event_for, Clock
+from pyhandling.annotations import Handler, checker_of, Event, handler_of, factory_of, event_for
+
+from pyhandling.tools import DelegatingProperty, ArgumentPack, Clock
 
 
 class HandlerKeeper:

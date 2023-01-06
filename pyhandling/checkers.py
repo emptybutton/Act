@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from functools import partial
 from typing import Callable, Self, Iterable, Optional, Sized, Protocol
 
-from pyhandling.tools import Checker
+from pyhandling.annotations import Checker
 
 
 class IChecker(ABC):
