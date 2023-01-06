@@ -24,7 +24,11 @@ def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
 
 @dataclass(frozen=True)
 class ArgumentPack:
-    """Data class for structuring arguments."""
+    """
+    Data class for structuring arguments.
+
+    Can be an atomic storage for storing any intermediate data.
+    """
 
     args: Iterable = tuple()
     kwargs: dict = field(default_factory=dict)
