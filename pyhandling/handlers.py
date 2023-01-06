@@ -310,7 +310,11 @@ def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
     return rigth_partial(func, *args[::-1], **kwargs)
 
 
-def mergely(merge_function_factory: factory_of[Callable], *parallel_functions: factory_of[any]):
+def mergely(
+    merge_function_factory: factory_of[Callable],
+    *parallel_functions: factory_of[any],
+    **keyword_parallel_functions: factory_of[any]
+):
     """
     Decorator function that allows to initially separate several operations on
     input arguments and then combine these results in final operation.
@@ -322,14 +326,24 @@ def mergely(merge_function_factory: factory_of[Callable], *parallel_functions: f
     Passes to the final merge function the results of calls to unbounded input
     functions (with the same arguments that were passed to the factory of this
     final merge function).
+
+    When specifying parallel functions using keyword arguments, sets them to the
+    final merging function through the same argument name through which they
+    were specified.
     """
 
     @wraps(merge_function_factory)
     def wrapper(*args, **kwargs):
-        return merge_function_factory(*args, **kwargs)(*(
-            parallel_function(*args, **kwargs)
-            for parallel_function in parallel_functions
-        ))
+        return merge_function_factory(*args, **kwargs)(
+            *(
+                parallel_function(*args, **kwargs)
+                for parallel_function in parallel_functions
+            ),
+            **{
+                kwarg: keyword_parallel_function(*args, **kwargs)
+                for kwarg, keyword_parallel_function in keyword_parallel_functions.items()
+            }
+        )
 
     return wrapper
 
