@@ -598,9 +598,6 @@ as_collection.__doc__ = (
 with_doc = close(partial(bind, bind(setattr_of, 'argument_name', '__doc__'), 'argument_value'), closer=partial)
 
 
-from_argument_pack: Callable[[Callable], Callable[[ArgumentPack | Iterable], any]] = (
-    unpackly
-    |then>> close(partial(call_method, ActionChain(as_argument_pack), 'clone_with')),
 )
 
 
