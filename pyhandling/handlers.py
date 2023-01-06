@@ -601,6 +601,9 @@ with_doc.__doc__ = (
 
 as_collection: Callable[[any], tuple] = with_doc(
     """
+    Function to convert an input resource into a tuple collection.
+    With a non-iterable resource, wraps it in a tuple.
+    """,
 
     on_condition(
         post_partial(isinstance, Iterable),
@@ -610,7 +613,13 @@ as_collection: Callable[[any], tuple] = with_doc(
 )
 
 
-times: Callable[[int], event_for[bool]] = (
+times: Callable[[int], event_for[bool]] = with_doc(
+    """
+    Function to create a dirty function that will return True the input value
+    (for this function) number of times, then False once after the input count
+    has passed, True again n times, and so on.
+    """,
+
     (lambda number: number + 1)
     |then>> Clock
     |then>> close(
@@ -625,11 +634,4 @@ times: Callable[[int], event_for[bool]] = (
         ))
         |then>> bool
     )
-)
-times.__doc__ = (
-    """
-    Function to create a dirty function that will return True the input value
-    (for this function) number of times, then False once after the input count
-    has passed, True again n times, and so on.
-    """
 )
