@@ -495,7 +495,7 @@ def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductio
             continue
 
         reduced_collection.extend(
-            reduce_collection_nesting(item, number_of_reductions - 1)
+            get_collection_with_reduced_nesting(item, number_of_reductions - 1)
             if number_of_reductions > 1
             else item
         )
