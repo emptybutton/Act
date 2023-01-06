@@ -469,6 +469,21 @@ def setitem_of(object_: object, item_key: any, item_value: any) -> None:
     object_[item_key] = item_value
 
 
+def execute_operation(first_operand: any, operator: str, second_operand: any) -> any:
+    """
+    Function to use python operators in a functional way.
+
+    Since this function uses eval, do not pass operator and unchecked standard
+    type operands from the global input to it.
+    """
+
+    return eval(
+        f"first_operand {operator} second_operand",
+        {'then': then},
+        {'first_operand': first_operand, 'second_operand': second_operand}
+    )
+
+
 def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int = inf) -> tuple:
     """Function that allows to get a collection with a reduced nesting level."""
 
