@@ -550,6 +550,20 @@ def showly(handler: Handler, *, writer: handler_of[str] = print) -> ActionChain:
     )
 
 
+def as_argument_pack(*args, **kwargs) -> ArgumentPack:
+    """
+    Function to optionally convert input arguments into an ArgumentPack with
+    that input arguments.
+
+    When passed a single positional ArgumentPack to the function, it returns it.
+    """
+
+    if len(args) == 1 and isinstance(args[0], ArgumentPack) and not kwargs:
+        return args[0]
+
+    return ArgumentPack(args, kwargs)
+
+
 then = ActionChain(tuple())
 then.__doc__ = (
     """
@@ -576,17 +590,8 @@ as_collection.__doc__ = (
 )
 
 
-as_argument_pack: Callable[[any], ArgumentPack] = on_condition(
-    post_partial(isinstance, ArgumentPack),
-    return_,
-    else_=ArgumentPack.create_via_call
 )
-as_argument_pack.__doc__ = (
-    """
-    Function to optionally convert an input resource into an ArgumentPack with
-    one argument (the input resource).
 
-    When input resource is ArgumentPack, function returns it unchanged.
     """
 )
 
