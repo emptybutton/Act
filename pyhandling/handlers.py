@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from functools import reduce, wraps, partial
 from math import inf
-from typing import Callable, Iterable, Self
+from typing import Callable, Iterable, Self, Optional
 
 from pyhandling.annotations import Handler, checker_of, Event, handler_of, factory_of, event_for
 
@@ -195,9 +195,9 @@ class ActionChain:
         )
 
 
-def on_condition(checker: checker_of[any], handler: Handler, *, else_: Handler = lambda _: None) -> Handler:
+def on_condition(checker: Callable[..., bool], func: Callable, *, else_: Optional[Callable] = None) -> Callable:
     """
-    Function that implements branching handling of something according to a
+    Function that implements branching of something according to a
     certain condition.
 
     Selects the appropriate handler based on the results of the
@@ -207,12 +207,14 @@ def on_condition(checker: checker_of[any], handler: Handler, *, else_: Handler =
     returns None.
     """
 
-    def branching_function(resource: any) -> any:
-        """Function created as a result of on_condition function."""
+    if else_ is None:
+        else_ = eventually(partial(return_, None))
 
-        return (handler if checker(resource) else else_)(resource)
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> any:
+        return (func if checker(*args, **kwargs) else else_)(*args, **kwargs)
 
-    return branching_function
+    return wrapper
 
 
 def eventually(func: Event) -> any:
