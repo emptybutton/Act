@@ -577,27 +577,36 @@ then.__doc__ = (
 )
 
 
-as_collection: Callable[[any], tuple] = on_condition(
-    post_partial(isinstance, Iterable),
-    tuple,
-    else_=lambda resource: (resource, )
+with_doc: Callable[[str, object], object] = (
+    as_argument_pack
+    |then>> additionally(mergely(
+        (
+            post_partial(getattr_of, 'args')
+            |then>> post_partial(getitem_of, 1)
+            |then>> close(setattr_of)
+        ),
+        eventually(partial(return_, '__doc__')),
+        post_partial(getattr_of, 'args') |then>> post_partial(getitem_of, 0)
+    ))
+    |then>> post_partial(getattr_of, 'args')
+    |then>> post_partial(getitem_of, 1)
 )
-as_collection.__doc__ = (
+with_doc.__doc__ = (
     """
-    Function to convert an input resource into a tuple collection.
-    With a non-iterable resource, wraps it in a tuple.
+    Function to automatically set documentation for an object when it is
+    initialized into a variable.
     """
 )
 
 
-)
-
+as_collection: Callable[[any], tuple] = with_doc(
     """
-)
 
-with_doc = close(partial(bind, bind(setattr_of, 'argument_name', '__doc__'), 'argument_value'), closer=partial)
-
-
+    on_condition(
+        post_partial(isinstance, Iterable),
+        tuple,
+        else_=lambda resource: (resource, )
+    )
 )
 
 
