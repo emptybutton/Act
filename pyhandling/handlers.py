@@ -474,15 +474,19 @@ def additionally(action: Handler) -> Handler:
     return wrapper
 
 
-def close(resource: any, *, closer: Callable = return_) -> Callable:
+def close(resource: any, *, closer: Callable[[any, ...], any] = partial) -> Callable:
     """
-    Function to canterize the input object.
+    Function to create a closure for the input resource.
 
-    Wraps the input object in a container function that can be \"opened\" when
+    Wraps the input resource in a container function that can be \"opened\" when
     that function is called.
 
-    With the default canterization function, creates a function, on \"opening\" of
-    which the input object is returned.
+    The input resource type depends on the chosen closer function.
+
+    With a default closer function, ***it requires a Callable resource***.
+
+    When \"opened\" the default container function returns an input resource with
+    the bined input arguments from the function container.
     """
 
     return partial(closer, resource)
@@ -548,17 +552,14 @@ with_doc = close(partial(bind, bind(setattr_of, 'argument_name', '__doc__'), 'ar
 
 from_argument_pack: Callable[[Callable], Callable[[ArgumentPack | Iterable], any]] = (
     unpackly
-    |then>> close(
-        partial(call_method, ActionChain(as_argument_pack), 'clone_with'),
-        closer=partial
-    ),
+    |then>> close(partial(call_method, ActionChain(as_argument_pack), 'clone_with')),
 )
 
 
 times: Callable[[int], event_for[bool]] = (
     (lambda number: number + 1)
     |then>> Clock
-    |then>> partial(close, closer=partial)(
+    |then>> close(
         additionally(dynamically_bind(
             bind(setattr_of, 'attribute_name', 'ticks_to_disability'),
             'attribute_value',
@@ -568,7 +569,7 @@ times: Callable[[int], event_for[bool]] = (
                 else_=(lambda clock: clock.initial_ticks_to_disability - 1)
             )
         ))
-        |then>> bool,
+        |then>> bool
     )
 )
 times.__doc__ = (
