@@ -457,6 +457,18 @@ def setattr_of(object_: object, attribute_name: str, attribute_value: any) -> an
     return setattr(object_, attribute_name, attribute_value)
 
 
+def getitem_of(object_: object, item_key: any) -> any:
+    """Function for functional use of [] getting."""
+
+    return object_[item_key]
+
+
+def setitem_of(object_: object, item_key: any, item_value: any) -> None:
+    """Function for functional use of [] setting."""
+
+    object_[item_key] = item_value
+
+
 def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int = inf) -> tuple:
     """Function that allows to get a collection with a reduced nesting level."""
 
