@@ -23,15 +23,28 @@ def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
 
 
 @dataclass(frozen=True)
+class ArgumentKey:
+    """Data class for structuring getting value from ArgumentPack via []."""
+
+    key: any
+    is_keyword: bool = field(default=False, kw_only=True)
+
+
+@dataclass(frozen=True)
 class ArgumentPack:
     """
     Data class for structuring arguments.
 
     Can be an atomic storage for storing any intermediate data.
+    Has the ability to get an attribute when passed to [] an ArgumentKey
+    instance.
     """
 
     args: Iterable = tuple()
     kwargs: dict = field(default_factory=dict)
+
+    def __getitem__(self, argument: ArgumentKey) -> any:
+        return (self.kwargs if argument.is_keyword else self.args)[argument.key]
 
     @to_clone
     def expand_with(self, *args, **kwargs) -> Self:
