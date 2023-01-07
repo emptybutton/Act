@@ -104,7 +104,11 @@ class ActionChain:
 
     handlers = DelegatingProperty('_handlers')
 
-    def __init__(self, opening_handler_resource: Callable | Iterable[Callable], *handlers: Handler):
+    def __init__(
+        self,
+        opening_handler_resource: Callable | Iterable[Callable] = tuple(),
+        *handlers: Handler
+    ):
         self._handlers = self.get_with_aligned_chains(
             (
                 tuple(opening_handler_resource)
@@ -564,10 +568,10 @@ def as_argument_pack(*args, **kwargs) -> ArgumentPack:
     return ArgumentPack(args, kwargs)
 
 
-then = ActionChain(tuple())
+then = ActionChain()
 then.__doc__ = (
     """
-    ActionChain class instance with no handlers.
+    Neutral instance of the ActionChain class.
 
     Used as an operator emulator for convenient construction of ActionChains.
     Assumes usage like \"first_handler |then>> second_handler\".
