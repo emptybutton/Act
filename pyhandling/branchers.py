@@ -1,11 +1,11 @@
 from enum import Enum, auto
 from functools import reduce, wraps, partial
-from math import inf
-from typing import Callable, Iterable, Self, Optional
+from typing import Iterable, Callable, Self, Optional
 
-from pyhandling.annotations import Handler, checker_of, Event, handler_of, factory_of, event_for
-
-from pyhandling.tools import DelegatingProperty, ArgumentPack, ArgumentKey, Clock
+from pyhandling.annotations import Handler, Event, checker_of, factory_of, handler_of
+from pyhandling.binders import post_partial
+from pyhandling.tools import DelegatingProperty, ArgumentKey, ArgumentPack, get_collection_with_reduced_nesting
+from pyhandling.synonyms import return_
 
 
 class HandlerKeeper:
@@ -230,16 +230,25 @@ def eventually(func: Event) -> any:
     return wraps(func)(lambda *args, **kwargs: func())
 
 
-def handle_context_by(context_factory: Event, context_handler: Handler):
+def returnly(
+    func: Callable[[any, ...], any],
+    *,
+    argument_key_to_return: ArgumentKey = ArgumentKey(0)
+) -> Callable[[any, ...], any]:
     """
-    Function for emulating the "with as" context manager.
+    Decorator function that causes the input function to return not the result
+    of its execution, but some argument that is incoming to it.
 
-    Creates a context using the context_factory and returns the results of
-    handling this context by context_handler.
+    Returns the first argument by default.
     """
 
-    with context_factory() as context:
-        return context_handler(context)
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> any:
+        func(*args, **kwargs)
+
+        return ArgumentPack(args, kwargs)[argument_key_to_return]
+
+    return wrapper
 
 
 def rollbackable(func: Callable, rollbacker: handler_of[Exception]) -> Callable:
@@ -256,12 +265,6 @@ def rollbackable(func: Callable, rollbacker: handler_of[Exception]) -> Callable:
             return rollbacker(error)
 
     return wrapper
-
-
-def get_collection_from(*collections: Iterable) -> tuple:
-    """Function to get a collection with elements from input collections."""
-
-    return get_collection_with_reduced_nesting(collections, 1)
 
 
 def recursively(resource_handler: Handler, condition_checker: checker_of[any]) -> any:
@@ -289,29 +292,6 @@ def recursively(resource_handler: Handler, condition_checker: checker_of[any]) -
         return resource
 
     return recursively_handle
-
-
-def post_partial(func: Callable, *args, **kwargs) -> Callable:
-    """
-    Function equivalent to functools.partial but with the difference that
-    additional arguments are added not before the incoming ones from the final
-    call, but after.
-    """
-
-    @wraps(func)
-    def wrapper(*wrapper_args, **wrapper_kwargs) -> any:
-        return func(*wrapper_args, *args, **wrapper_kwargs, **kwargs)
-
-    return wrapper
-
-
-def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
-    """
-    Function equivalent to pyhandling.handlers.rigth_partial but with the
-    difference that additional arguments from this function call are unfolded.
-    """
-
-    return rigth_partial(func, *args[::-1], **kwargs)
 
 
 def mergely(
@@ -352,209 +332,6 @@ def mergely(
     return wrapper
 
 
-def bind(func: Callable, argument_name: str, argument_value: any) -> Callable:
-    """
-    Atomic partial function for a single keyword argument whose name and value
-    are separate input arguments.
-    """
-
-    return wraps(func)(partial(func, **{argument_name: argument_value}))
-
-
-def unpackly(func: Callable) -> handler_of[ArgumentPack | Iterable]:
-    """
-    Decorator function that allows to bring an ordinary function to the Handler
-    interface by unpacking the input resource into the input function.
-
-    Specifies the type of unpacking depending on the type of the input resource
-    into the resulting function.
-
-    When ArgumentPack delegates unpacking to it (Preferred Format).
-
-    When a dict or otherwise a homogeneous collection unpacks * or **
-    respectively.
-
-    Also unpacks a collection of the form [collection, dict] as * and ** from
-    this collection.
-    """
-
-    @wraps(func)
-    def wrapper(argument_collection: ArgumentPack | Iterable) -> any:
-        if isinstance(argument_collection, ArgumentPack):
-            return argument_collection.call(func)
-        elif isinstance(argument_collection, dict):
-            return func(**argument_collection)
-        elif isinstance(argument_collection, Iterable):
-            return func(*argument_collection[0], **argument_collection[1]) if (
-                len(argument_collection) == 2
-                and isinstance(argument_collection[0], Iterable)
-                and isinstance(argument_collection[1], dict)
-            ) else func(*argument_collection)
-
-    return wrapper
-
-
-def return_(resource: any) -> any:
-    """
-    Wrapper function for handling emulation through the functional use of the
-    return statement.
-    """
-
-    return resource
-
-
-def raise_(error: Exception) -> None:
-    """Wrapper function for functional use of raise statement."""
-
-    raise error
-
-
-def call(caller: Callable, *args, **kwargs) -> any:
-    """Function to call an input object and return the results of that call."""
-
-    return caller(*args, **kwargs)
-
-
-def call_method(object_: object, method_name: str, *args, **kwargs) -> any:
-    """Shortcut function to call a method on an input object."""
-
-    return getattr(object_, method_name)(*args, **kwargs)
-
-
-def getattr_of(object_: object, attribute_name: str) -> any:
-    """
-    Synonym function for getattr.
-
-    Unlike original getattr arguments can be keyword.
-    """
-
-    return getattr(object_, attribute_name)
-
-
-def setattr_of(object_: object, attribute_name: str, attribute_value: any) -> any:
-    """
-    Synonym function for setattr.
-
-    Unlike original setattr arguments can be keyword.
-    """
-
-    return setattr(object_, attribute_name, attribute_value)
-
-
-def getitem_of(object_: object, item_key: any) -> any:
-    """Function for functional use of [] getting."""
-
-    return object_[item_key]
-
-
-def setitem_of(object_: object, item_key: any, item_value: any) -> None:
-    """Function for functional use of [] setting."""
-
-    object_[item_key] = item_value
-
-
-def execute_operation(first_operand: any, operator: str, second_operand: any) -> any:
-    """
-    Function to use python operators in a functional way.
-
-    Since this function uses eval, do not pass operator and unchecked standard
-    type operands from the global input to it.
-    """
-
-    return eval(
-        f"first_operand {operator} second_operand",
-        {'then': then},
-        {'first_operand': first_operand, 'second_operand': second_operand}
-    )
-
-
-def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int = inf) -> tuple:
-    """Function that allows to get a collection with a reduced nesting level."""
-
-    reduced_collection = list()
-
-    for item in collection:
-        if not isinstance(item, Iterable):
-            reduced_collection.append(item)
-            continue
-
-        reduced_collection.extend(
-            get_collection_with_reduced_nesting(item, number_of_reductions - 1)
-            if number_of_reductions > 1
-            else item
-        )
-
-    return tuple(reduced_collection)
-
-
-def returnly(
-    func: Callable[[any, ...], any],
-    *,
-    argument_key_to_return: ArgumentKey = ArgumentKey(0)
-) -> Callable[[any, ...], any]:
-    """
-    Decorator function that causes the input function to return not the result
-    of its execution, but some argument that is incoming to it.
-
-    Returns the first argument by default.
-    """
-
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> any:
-        func(*args, **kwargs)
-
-        return ArgumentPack(args, kwargs)[argument_key_to_return]
-
-    return wrapper
-
-
-def close(resource: any, *, closer: Callable[[any, ...], any] = partial) -> Callable:
-    """
-    Function to create a closure for the input resource.
-
-    Wraps the input resource in a container function that can be \"opened\" when
-    that function is called.
-
-    The input resource type depends on the chosen closer function.
-
-    With a default closer function, ***it requires a Callable resource***.
-
-    When \"opened\" the default container function returns an input resource with
-    the bined input arguments from the function container.
-    """
-
-    return partial(closer, resource)
-
-
-def showly(handler: Handler, *, writer: handler_of[str] = print) -> ActionChain:
-    """
-    Decorator function for visualizing the outcomes of intermediate stages of a
-    chain of actions, or simply the input and output results of a regular handler.
-    """
-
-    writer = returnly(str |then>> writer)
-
-    return (
-        handler.clone_with_intermediate(writer, is_on_input=True, is_on_output=True)
-        if isinstance(handler, ActionChain)
-        else wraps(handler)(writer |then>> handler |then>> writer)
-    )
-
-
-def as_argument_pack(*args, **kwargs) -> ArgumentPack:
-    """
-    Function to optionally convert input arguments into an ArgumentPack with
-    that input arguments.
-
-    When passed a single positional ArgumentPack to the function, it returns it.
-    """
-
-    if len(args) == 1 and isinstance(args[0], ArgumentPack) and not kwargs:
-        return args[0]
-
-    return ArgumentPack(args, kwargs)
-
-
 then = ActionChain()
 then.__doc__ = (
     """
@@ -565,67 +342,4 @@ then.__doc__ = (
 
     See ActionChain for more info.
     """
-)
-
-
-
-documenting_by: Callable[[str], Callable[[object], object]] = (
-    mergely(
-        eventually(partial(return_, close(returnly(setattr_of)))),
-        attribute_name=eventually(partial(return_, '__doc__')),
-        attribute_value=return_
-    )
-)
-documenting_by.__doc__ = (
-    """
-    Function of getting other function that getting resource with the input 
-    documentation from this first function.
-    """
-)
-
-
-as_collection: Callable[[any], tuple] = documenting_by(
-    """
-    Function to convert an input resource into a tuple collection.
-    With a non-iterable resource, wraps it in a tuple.
-    """
-)(
-    on_condition(
-        post_partial(isinstance, Iterable),
-        tuple,
-        else_=lambda resource: (resource, )
-    )
-)
-
-
-times: Callable[[int], event_for[bool]] = documenting_by(
-    """
-    Function to create a dirty function that will return True the input value
-    (for this function) number of times, then False once after the input count
-    has passed, True again n times, and so on.
-    """
-)(
-    post_partial(execute_operation, '+', 1)
-    |then>> Clock
-    |then>> close(
-        returnly(on_condition(
-            lambda clock: not clock
-            mergely(
-                close(setattr_of),
-                eventually(partial(return_, 'ticks_to_disability')),
-                post_partial(getattr_of, 'initial_ticks_to_disability')
-            )
-        ))
-        |then>> returnly(
-            mergely(
-                close(setattr_of),
-                eventually(partial(return_, 'ticks_to_disability')),
-                (
-                    post_partial(getattr_of, 'ticks_to_disability')
-                    |then>> post_partial(execute_operation, '-', 1)
-                )
-            )
-        )
-        |then>> bool
-    )
 )

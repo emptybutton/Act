@@ -1,6 +1,7 @@
 from copy import copy
 from dataclasses import dataclass, field
 from functools import wraps
+from math import inf
 from typing import Callable, Self, Iterable
 
 
@@ -133,4 +134,43 @@ class Clock:
 
     def __bool__(self) -> bool:
         return self.ticks_to_disability > 0
+
+
+def get_collection_from(*collections: Iterable) -> tuple:
+    """Function to get a collection with elements from input collections."""
+
+    return get_collection_with_reduced_nesting(collections, 1)
+
+
+def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int = inf) -> tuple:
+    """Function that allows to get a collection with a reduced nesting level."""
+
+    reduced_collection = list()
+
+    for item in collection:
+        if not isinstance(item, Iterable):
+            reduced_collection.append(item)
+            continue
+
+        reduced_collection.extend(
+            get_collection_with_reduced_nesting(item, number_of_reductions - 1)
+            if number_of_reductions > 1
+            else item
+        )
+
+    return tuple(reduced_collection)
+
+
+def as_argument_pack(*args, **kwargs) -> ArgumentPack:
+    """
+    Function to optionally convert input arguments into an ArgumentPack with
+    that input arguments.
+
+    When passed a single positional ArgumentPack to the function, it returns it.
+    """
+
+    if len(args) == 1 and isinstance(args[0], ArgumentPack) and not kwargs:
+        return args[0]
+
+    return ArgumentPack(args, kwargs)
 
