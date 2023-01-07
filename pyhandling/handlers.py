@@ -608,15 +608,24 @@ times: Callable[[int], event_for[bool]] = documenting_by(
     post_partial(execute_operation, '+', 1)
     |then>> Clock
     |then>> close(
-        additionally(dynamically_bind(
-            bind(setattr_of, 'attribute_name', 'ticks_to_disability'),
-            'attribute_value',
-            on_condition(
-                return_,
-                (lambda clock: clock.ticks_to_disability - 1),
-                else_=(lambda clock: clock.initial_ticks_to_disability - 1)
+        returnly(on_condition(
+            lambda clock: not clock
+            mergely(
+                close(setattr_of),
+                eventually(partial(return_, 'ticks_to_disability')),
+                post_partial(getattr_of, 'initial_ticks_to_disability')
             )
         ))
+        |then>> returnly(
+            mergely(
+                close(setattr_of),
+                eventually(partial(return_, 'ticks_to_disability')),
+                (
+                    post_partial(getattr_of, 'ticks_to_disability')
+                    |then>> post_partial(execute_operation, '-', 1)
+                )
+            )
+        )
         |then>> bool
     )
 )
