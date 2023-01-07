@@ -5,6 +5,15 @@ from pyhandling.annotations import handler_of
 from pyhandling.tools import ArgumentPack
 
 
+def bind(func: Callable, argument_name: str, argument_value: any) -> Callable:
+    """
+    Atomic partial function for a single keyword argument whose name and value
+    are separate input arguments.
+    """
+
+    return wraps(func)(partial(func, **{argument_name: argument_value}))
+
+
 def post_partial(func: Callable, *args, **kwargs) -> Callable:
     """
     Function equivalent to functools.partial but with the difference that
@@ -28,13 +37,22 @@ def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
     return rigth_partial(func, *args[::-1], **kwargs)
 
 
-def bind(func: Callable, argument_name: str, argument_value: any) -> Callable:
+def close(resource: any, *, closer: Callable[[any, ...], any] = partial) -> Callable:
     """
-    Atomic partial function for a single keyword argument whose name and value
-    are separate input arguments.
+    Function to create a closure for the input resource.
+
+    Wraps the input resource in a container function that can be \"opened\" when
+    that function is called.
+
+    The input resource type depends on the chosen closer function.
+
+    With a default closer function, ***it requires a Callable resource***.
+
+    When \"opened\" the default container function returns an input resource with
+    the bined input arguments from the function container.
     """
 
-    return wraps(func)(partial(func, **{argument_name: argument_value}))
+    return partial(closer, resource)
 
 
 def unpackly(func: Callable) -> handler_of[ArgumentPack | Iterable]:
@@ -68,21 +86,3 @@ def unpackly(func: Callable) -> handler_of[ArgumentPack | Iterable]:
             ) else func(*argument_collection)
 
     return wrapper
-
-
-def close(resource: any, *, closer: Callable[[any, ...], any] = partial) -> Callable:
-    """
-    Function to create a closure for the input resource.
-
-    Wraps the input resource in a container function that can be \"opened\" when
-    that function is called.
-
-    The input resource type depends on the chosen closer function.
-
-    With a default closer function, ***it requires a Callable resource***.
-
-    When \"opened\" the default container function returns an input resource with
-    the bined input arguments from the function container.
-    """
-
-    return partial(closer, resource)

@@ -199,101 +199,6 @@ class ActionChain:
         )
 
 
-def on_condition(checker: Callable[..., bool], func: Callable, *, else_: Optional[Callable] = None) -> Callable:
-    """
-    Function that implements branching of something according to a
-    certain condition.
-
-    Selects the appropriate handler based on the results of the
-    condition_resource_checker.
-
-    In case of a negative case and the absence of a negative case handler (else_),
-    returns None.
-    """
-
-    if else_ is None:
-        else_ = eventually(partial(return_, None))
-
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> any:
-        return (func if checker(*args, **kwargs) else else_)(*args, **kwargs)
-
-    return wrapper
-
-
-def eventually(func: Event) -> any:
-    """
-    Decorator function for constructing a function to which no input attributes
-    will be passed.
-    """
-
-    return wraps(func)(lambda *args, **kwargs: func())
-
-
-def returnly(
-    func: Callable[[any, ...], any],
-    *,
-    argument_key_to_return: ArgumentKey = ArgumentKey(0)
-) -> Callable[[any, ...], any]:
-    """
-    Decorator function that causes the input function to return not the result
-    of its execution, but some argument that is incoming to it.
-
-    Returns the first argument by default.
-    """
-
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> any:
-        func(*args, **kwargs)
-
-        return ArgumentPack(args, kwargs)[argument_key_to_return]
-
-    return wrapper
-
-
-def rollbackable(func: Callable, rollbacker: handler_of[Exception]) -> Callable:
-    """
-    Decorator function providing handling of possible errors.
-    Delegates error handling to rollbacker.
-    """
-
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> any:
-        try:
-            return func(*args, **kwargs)
-        except Exception as error:
-            return rollbacker(error)
-
-    return wrapper
-
-
-def recursively(resource_handler: Handler, condition_checker: checker_of[any]) -> any:
-    """
-    Function to recursively handle input resource.
-
-    If the result of handling for recursion is correct, it feeds the results
-    of recursive_resource_handler to it, until the negative results of the
-    recursion condition.
-
-    Checks the condition of execution of the recursion by the correctness of the
-    input resource or the result of the execution of the handler of the recursion
-    resource.
-    """
-
-    def recursively_handle(resource: any) -> any:
-        """
-        Function emulating recursion that was created as a result of calling
-        recursively.
-        """
-
-        while condition_checker(resource):
-            resource = resource_handler(resource)
-
-        return resource
-
-    return recursively_handle
-
-
 def mergely(
     merge_function_factory: factory_of[Callable],
     *parallel_functions: factory_of[any],
@@ -330,6 +235,101 @@ def mergely(
         )
 
     return wrapper
+
+
+def recursively(resource_handler: Handler, condition_checker: checker_of[any]) -> any:
+    """
+    Function to recursively handle input resource.
+
+    If the result of handling for recursion is correct, it feeds the results
+    of recursive_resource_handler to it, until the negative results of the
+    recursion condition.
+
+    Checks the condition of execution of the recursion by the correctness of the
+    input resource or the result of the execution of the handler of the recursion
+    resource.
+    """
+
+    def recursively_handle(resource: any) -> any:
+        """
+        Function emulating recursion that was created as a result of calling
+        recursively.
+        """
+
+        while condition_checker(resource):
+            resource = resource_handler(resource)
+
+        return resource
+
+    return recursively_handle
+
+
+def on_condition(checker: Callable[..., bool], func: Callable, *, else_: Optional[Callable] = None) -> Callable:
+    """
+    Function that implements branching of something according to a
+    certain condition.
+
+    Selects the appropriate handler based on the results of the
+    condition_resource_checker.
+
+    In case of a negative case and the absence of a negative case handler (else_),
+    returns None.
+    """
+
+    if else_ is None:
+        else_ = eventually(partial(return_, None))
+
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> any:
+        return (func if checker(*args, **kwargs) else else_)(*args, **kwargs)
+
+    return wrapper
+
+
+def rollbackable(func: Callable, rollbacker: handler_of[Exception]) -> Callable:
+    """
+    Decorator function providing handling of possible errors.
+    Delegates error handling to rollbacker.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> any:
+        try:
+            return func(*args, **kwargs)
+        except Exception as error:
+            return rollbacker(error)
+
+    return wrapper
+
+
+def returnly(
+    func: Callable[[any, ...], any],
+    *,
+    argument_key_to_return: ArgumentKey = ArgumentKey(0)
+) -> Callable[[any, ...], any]:
+    """
+    Decorator function that causes the input function to return not the result
+    of its execution, but some argument that is incoming to it.
+
+    Returns the first argument by default.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> any:
+        func(*args, **kwargs)
+
+        return ArgumentPack(args, kwargs)[argument_key_to_return]
+
+    return wrapper
+
+
+def eventually(func: Event) -> any:
+    """
+    Decorator function for constructing a function to which no input attributes
+    will be passed.
+    """
+
+    return wraps(func)(lambda *args, **kwargs: func())
 
 
 then = ActionChain()
