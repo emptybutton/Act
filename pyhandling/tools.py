@@ -33,9 +33,8 @@ class ArgumentKey:
 @dataclass(frozen=True)
 class ArgumentPack:
     """
-    Data class for structuring arguments.
+    Data class for structuring the storage of any arguments.
 
-    Can be an atomic storage for storing any intermediate data.
     Has the ability to get an attribute when passed to [] an ArgumentKey
     instance.
     """
