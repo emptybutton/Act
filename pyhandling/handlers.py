@@ -568,34 +568,28 @@ then.__doc__ = (
 )
 
 
-with_doc: Callable[[str, object], object] = (
-    as_argument_pack
-    |then>> additionally(mergely(
-        (
-            post_partial(getattr_of, 'args')
-            |then>> post_partial(getitem_of, 1)
-            |then>> close(setattr_of)
-        ),
-        eventually(partial(return_, '__doc__')),
-        post_partial(getattr_of, 'args') |then>> post_partial(getitem_of, 0)
-    ))
-    |then>> post_partial(getattr_of, 'args')
-    |then>> post_partial(getitem_of, 1)
+
+documenting_by: Callable[[str], Callable[[object], object]] = (
+    mergely(
+        eventually(partial(return_, close(returnly(setattr_of)))),
+        attribute_name=eventually(partial(return_, '__doc__')),
+        attribute_value=return_
+    )
 )
-with_doc.__doc__ = (
+documenting_by.__doc__ = (
     """
-    Function to automatically set documentation for an object when it is
-    initialized into a variable.
+    Function of getting other function that getting resource with the input 
+    documentation from this first function.
     """
 )
 
 
-as_collection: Callable[[any], tuple] = with_doc(
+as_collection: Callable[[any], tuple] = documenting_by(
     """
     Function to convert an input resource into a tuple collection.
     With a non-iterable resource, wraps it in a tuple.
-    """,
-
+    """
+)(
     on_condition(
         post_partial(isinstance, Iterable),
         tuple,
@@ -604,14 +598,15 @@ as_collection: Callable[[any], tuple] = with_doc(
 )
 
 
-times: Callable[[int], event_for[bool]] = with_doc(
+times: Callable[[int], event_for[bool]] = documenting_by(
     """
     Function to create a dirty function that will return True the input value
     (for this function) number of times, then False once after the input count
     has passed, True again n times, and so on.
-    """,
 
     (lambda number: number + 1)
+    """
+)(
     |then>> Clock
     |then>> close(
         additionally(dynamically_bind(
