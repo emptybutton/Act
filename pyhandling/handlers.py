@@ -5,7 +5,7 @@ from typing import Callable, Iterable, Self, Optional
 
 from pyhandling.annotations import Handler, checker_of, Event, handler_of, factory_of, event_for
 
-from pyhandling.tools import DelegatingProperty, ArgumentPack, Clock
+from pyhandling.tools import DelegatingProperty, ArgumentPack, ArgumentKey, Clock
 
 
 class HandlerKeeper:
@@ -487,16 +487,23 @@ def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductio
     return tuple(reduced_collection)
 
 
-def additionally(action: Handler) -> Handler:
+def returnly(
+    func: Callable[[any, ...], any],
+    *,
+    argument_key_to_return: ArgumentKey = ArgumentKey(0)
+) -> Callable[[any, ...], any]:
     """
-    Function that allows to handle a resource but not return the results of its
-    handling.
+    Decorator function that causes the input function to return not the result
+    of its execution, but some argument that is incoming to it.
+
+    Returns the first argument by default.
     """
 
-    @wraps(action)
-    def wrapper(resource: any) -> any:
-        action(resource)
-        return resource
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> any:
+        func(*args, **kwargs)
+
+        return ArgumentPack(args, kwargs)[argument_key_to_return]
 
     return wrapper
 
@@ -525,7 +532,7 @@ def showly(handler: Handler, *, writer: handler_of[str] = print) -> ActionChain:
     chain of actions, or simply the input and output results of a regular handler.
     """
 
-    writer = additionally(str |then>> writer)
+    writer = returnly(str |then>> writer)
 
     return (
         handler.clone_with_intermediate(writer, is_on_input=True, is_on_output=True)
