@@ -603,10 +603,9 @@ times: Callable[[int], event_for[bool]] = documenting_by(
     Function to create a dirty function that will return True the input value
     (for this function) number of times, then False once after the input count
     has passed, True again n times, and so on.
-
-    (lambda number: number + 1)
     """
 )(
+    post_partial(execute_operation, '+', 1)
     |then>> Clock
     |then>> close(
         additionally(dynamically_bind(
