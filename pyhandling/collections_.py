@@ -1,4 +1,4 @@
-from typing import Container, Generator, Iterable, Self
+from typing import Container, Iterable, Self, Generator
 
 
 class NonInclusiveCollection:
@@ -64,3 +64,33 @@ class MultiRange:
 
     def __or__(self, range_resource: Self | Iterable[range] | range) -> Self:
         return self.get_with(range_resource)
+
+
+class Combination:
+    def __init__(self, *elements: any):
+        self.elements = elements
+
+    def __repr__(self) -> str:
+        return (
+            f"<Combination of {list(self.elements)}>"
+            if len(self.elements)
+            else "<Neutral Combination>"
+        )
+
+    def __iter__(self) -> Generator[tuple, None, None]:
+        if len(self.elements) <= 1:
+            yield from self.elements
+
+        current_collection = tuple(self.elements)
+
+        for _ in range(len(self.elements)):
+            for swipe_element_index in range(1, len(self.elements)):
+                current_collection = tuple( 
+                    {
+                        swipe_element_index - 1: current_collection[swipe_element_index],
+                        swipe_element_index: current_collection[swipe_element_index - 1]
+                    }.get(element_index, element)
+                    for element_index, element in enumerate(current_collection)
+                )
+
+                yield current_collection
