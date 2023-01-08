@@ -4,7 +4,7 @@ from typing import Iterable, Callable, Self, Optional
 
 from pyhandling.annotations import Handler, Event, checker_of, factory_of, handler_of
 from pyhandling.binders import post_partial
-from pyhandling.tools import DelegatingProperty, ArgumentKey, ArgumentPack, get_collection_with_reduced_nesting
+from pyhandling.tools import DelegatingProperty, ArgumentPack, ArgumentKey, get_collection_with_reduced_nesting
 from pyhandling.synonyms import return_
 
 
@@ -94,7 +94,7 @@ class ActionChain:
     Accordingly, delegates the call to that first handler, so it emulates its
     interface.
 
-    If there are no handlers, spits out the input as output.
+    If there are no handlers, returns an argument pack from an input arguments.
 
     Can be connected to another chain or handler using | between them with
     maintaining the position of the call.
@@ -122,7 +122,7 @@ class ActionChain:
         return reduce(
             lambda resource, handler: handler(resource),
             (self.handlers[0](*args, **kwargs), *self.handlers[1:])
-        ) if self.handlers else resource
+        ) if self.handlers else ArgumentPack(args, kwargs)
 
     def __rshift__(self, action_node: Handler) -> Self:
         return self.clone_with(action_node)
