@@ -34,7 +34,7 @@ def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
     difference that additional arguments from this function call are unfolded.
     """
 
-    return rigth_partial(func, *args[::-1], **kwargs)
+    return post_partial(func, *args[::-1], **kwargs)
 
 
 def close(resource: any, *, closer: Callable[[any, ...], any] = partial) -> Callable:
