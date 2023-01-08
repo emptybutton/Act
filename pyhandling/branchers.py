@@ -72,7 +72,7 @@ class MultipleHandler(HandlerKeeper):
                 return handler_result
 
         if self.return_flag == ReturnFlag.everything:
-            return result_of_all_handlers
+            return tuple(result_of_all_handlers)
 
         if self.return_flag == ReturnFlag.last_thing:
             return handler_result
