@@ -1,4 +1,4 @@
-from typing import Iterable, Callable
+from typing import Optional, Self, Iterable, Callable
 
 from pyhandling.branchers import HandlerKeeper, ReturnFlag, MultipleHandler, ActionChain
 from pyhandling.tools import ArgumentPack
@@ -6,14 +6,19 @@ from pyhandling.tools import ArgumentPack
 from pytest import mark
 
 
-stub_handler = lambda resource: resource
+class MockHandler:
+    def __repr__(self) -> str:
+        return "<MockHandler>"
+
+    def __call__(self, resource: any) -> any:
+        return resource
 
 
 @mark.parametrize(
     'first_handler_resource, handlers',
     [
-        [stub_handler, (stub_handler, stub_handler, stub_handler)],
-        [(stub_handler, stub_handler), (stub_handler, stub_handler)]
+        [MockHandler(), (MockHandler(), MockHandler(), MockHandler())],
+        [(MockHandler(), MockHandler()), (MockHandler(), MockHandler())]
     ]
 )
 def test_handler_keeper(
@@ -33,16 +38,16 @@ def test_handler_keeper(
 @mark.parametrize(
     'handlers, return_flag, resource, result',
     [
-        [(stub_handler, stub_handler, stub_handler), ReturnFlag.first_received, 1, 1],
-        [(stub_handler, stub_handler, stub_handler), ReturnFlag.first_received, 100, 100],
-        [(stub_handler, lambda number: number**2), ReturnFlag.last_thing, 16, 256],
+        [(MockHandler(), MockHandler(), MockHandler()), ReturnFlag.first_received, 1, 1],
+        [(MockHandler(), MockHandler(), MockHandler()), ReturnFlag.first_received, 100, 100],
+        [(MockHandler(), lambda number: number**2), ReturnFlag.last_thing, 16, 256],
         [
-            (stub_handler, lambda number: number + 2, lambda number: number * 2),
+            (MockHandler(), lambda number: number + 2, lambda number: number * 2),
             ReturnFlag.everything,
             8,
             (8, 10, 16)
         ],
-        [(stub_handler, ), ReturnFlag.nothing, 1, None]
+        [(MockHandler(), ), ReturnFlag.nothing, 1, None]
     ]
 )
 def test_multiple_handler_handling(
@@ -70,9 +75,9 @@ def test_neutral_action_chain_output(args: Iterable, kwargs: dict):
 @mark.parametrize(
     'first_nodes, second_nodes',
     [
-        [(stub_handler, lambda x: x + 1), (stub_handler, )],
-        [(stub_handler, lambda x: x + 1), tuple()],
-        [tuple(), (stub_handler, )],
+        [(MockHandler(), lambda x: x + 1), (MockHandler(), )],
+        [(MockHandler(), lambda x: x + 1), tuple()],
+        [tuple(), (MockHandler(), )],
         [tuple(), tuple()]
     ]
 )
