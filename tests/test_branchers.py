@@ -7,11 +7,24 @@ from pytest import mark
 
 
 class MockHandler:
+    def __init__(self, equality_id: Optional[int] = None):
+        self.equality_id = equality_id
+
+    def __hash__(self) -> int:
+        return id(self)
+
     def __repr__(self) -> str:
         return "<MockHandler>"
 
     def __call__(self, resource: any) -> any:
         return resource
+
+    def __eq__(self, other: Self) -> bool:
+        return (
+            self is other
+            if self.equality_id is None
+            else self.equality_id == other.equality_id
+        )
 
 
 @mark.parametrize(
