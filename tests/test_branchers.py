@@ -188,3 +188,37 @@ def test_action_chain_cloning_with_intermediate(
     )(input_resource) == result
 
 
+@mark.parametrize(
+    'input_handlers, output_straightening_handlers',
+    [
+        [tuple(), tuple()],
+        [(ActionChain(), ), tuple()],
+        [(MockHandler(1), )] * 2,
+        [(MockHandler(1), MockHandler(2))] * 2,
+        [(MockHandler(1), MockHandler(2), MockHandler(3))] * 2,
+        [
+            (ActionChain(MockHandler(1), MockHandler(2)), ),
+            (MockHandler(1), MockHandler(2))
+        ],
+        [
+            (ActionChain(MockHandler(1), MockHandler(2)), MockHandler(3)),
+            (MockHandler(1), MockHandler(2), MockHandler(3))
+        ],
+        [
+            (ActionChain(ActionChain((MockHandler(1), )), MockHandler(2)), MockHandler(3)),
+            (MockHandler(1), MockHandler(2), MockHandler(3))
+        ],
+        [
+            (ActionChain(ActionChain(ActionChain([MockHandler(1)]))), ),
+            (MockHandler(1), )
+        ],
+        [ActionChain((ActionChain, ) * 10)((MockHandler(1), )), (MockHandler(1), )]
+    ]
+)
+def test_straightening_action_chains(
+    input_handlers: tuple[MockHandler | ActionChain],
+    output_straightening_handlers: tuple[MockHandler | ActionChain]
+):
+    assert ActionChain(input_handlers).handlers == output_straightening_handlers
+
+
