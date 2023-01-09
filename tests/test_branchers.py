@@ -107,6 +107,29 @@ def test_action_chain_connection_to_other(first_nodes: Iterable[Callable], secon
 
 
 @mark.parametrize(
+    'first_nodes, second_nodes',
+    [
+        [(MockHandler(), lambda x: x + 1), (MockHandler(), MockHandler())],
+        [(MockHandler(), lambda x: x + 1, MockHandler()), (MockHandler(), )],
+        [(MockHandler(), ), (MockHandler(), MockHandler())],
+        [(MockHandler(), lambda x: x + 1), tuple()],
+        [tuple(), (MockHandler(), )],
+        [tuple(), tuple()]
+    ]
+)
+def test_action_chain_connection_to_raw_handlers(first_nodes: Iterable[Callable], second_nodes: Iterable[Callable]):
+    assert (
+        ActionChain(*first_nodes, *second_nodes).handlers
+        == ActionChain(first_nodes).clone_with(*second_nodes).handlers
+        == (
+            ActionChain(second_nodes).clone_with(
+                *first_nodes, is_other_handlers_on_the_left=True
+            ).handlers
+        )
+    )
+
+
+@mark.parametrize(
     'handlers, connetction_handler',
     [
         [(MockHandler(), lambda x: x + 1), MockHandler()],
