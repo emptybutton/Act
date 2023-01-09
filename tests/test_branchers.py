@@ -160,3 +160,31 @@ def test_action_chain_connection_through_operators(handlers: Iterable[Callable[[
 
 
 @mark.parametrize(
+    "original_branchers, intermediate_brancher, is_on_input, is_on_output, input_resource, result",
+    [
+        [(lambda x: x + 2, lambda x: x * x), lambda x: x * 2, False, False, 2, 64],
+        [(lambda x: x + 2, lambda x: x + 10, lambda x: x * 2), lambda x: x + 1, False, False, 2, 32],
+        [(MockHandler(), lambda x: x - 1), lambda x: x ** x, True, False, 2, 255],
+        [(MockHandler(), lambda x: x * 2), lambda x: x * x, False, True, 2, 64],
+        [(MockHandler(), MockHandler(), MockHandler()), lambda x: x + 1, True, True, 0, 4],
+        [tuple(), lambda x: x + 1, False, False, 128, ArgumentPack.create_via_call(128)],
+        [tuple(), lambda x: x * x, True, False, 8, 64],
+        [tuple(), lambda x: x * x, False, True, 8, 64],
+        [tuple(), lambda x: x * x, True, True, 4, 256]
+    ]
+)
+def test_action_chain_cloning_with_intermediate(
+    original_branchers: Iterable[Callable[[any], any]],
+    intermediate_brancher: Callable[[any], any],
+    is_on_input: bool,
+    is_on_output: bool,
+    input_resource: any,
+    result: any
+):
+    assert ActionChain(original_branchers).clone_with_intermediate(
+        intermediate_brancher,
+        is_on_input=is_on_input,
+        is_on_output=is_on_output
+    )(input_resource) == result
+
+
