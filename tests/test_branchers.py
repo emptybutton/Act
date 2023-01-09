@@ -73,6 +73,19 @@ def test_neutral_action_chain_calling(args: Iterable, kwargs: dict):
 
 
 @mark.parametrize(
+    "handlers, input_resource, result",
+    [
+        [(lambda x: x + 2, lambda x: x ** x), 2, 256],
+        [(MockHandler(), ), 1, 1],
+        [(MockHandler(), ), str(), str()],
+        [(lambda x: None, ), 256, None],
+    ]
+)
+def test_action_chain_calling(handlers: Iterable[Callable[[any], any]], input_resource: any, result: any):
+    assert ActionChain(handlers)(input_resource) == result
+
+
+@mark.parametrize(
     'first_nodes, second_nodes',
     [
         [(MockHandler(), lambda x: x + 1), (MockHandler(), )],
