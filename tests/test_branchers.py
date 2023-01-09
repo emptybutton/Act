@@ -68,7 +68,7 @@ def test_multiple_handler_handling(
         [tuple(), dict()]
     ]
 )
-def test_neutral_action_chain_output(args: Iterable, kwargs: dict):
+def test_neutral_action_chain_calling(args: Iterable, kwargs: dict):
     assert ActionChain()(*args, **kwargs) == ArgumentPack(args, kwargs)
 
 
@@ -81,7 +81,7 @@ def test_neutral_action_chain_output(args: Iterable, kwargs: dict):
         [tuple(), tuple()]
     ]
 )
-def test_action_chain_connections(first_nodes: Iterable[Callable], second_nodes: Iterable[Callable]):
+def test_action_chain_connection_to_other(first_nodes: Iterable[Callable], second_nodes: Iterable[Callable]):
     assert (
         ActionChain(*first_nodes, *second_nodes).handlers
         == ActionChain(first_nodes).clone_with(ActionChain(second_nodes)).handlers
