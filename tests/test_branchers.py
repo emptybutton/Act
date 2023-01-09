@@ -243,3 +243,19 @@ def test_mergely_by_formula_function(
     )(factor) == factor * ((factor * original_x) ** (factor * original_y) + (factor * original_z))
 
 
+@mark.parametrize(
+    "handler, checker, resource, result",
+    [
+        (lambda x: x + 1, lambda x: x < 10, 0, 10),
+        (lambda x: x - 1, lambda x: x > 10, 0, 0),
+        (lambda x: x ** x, lambda x: x > 10, 10, 10)
+    ]
+)
+def test_recursively(
+    handler: Callable[[any], any],
+    checker: Callable[[any], bool],
+    resource: any,
+    result: any
+):
+    assert recursively(handler, checker)(resource) == result
+
