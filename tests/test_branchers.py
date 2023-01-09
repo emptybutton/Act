@@ -98,6 +98,29 @@ def test_action_chain_connection_to_other(first_nodes: Iterable[Callable], secon
     assert (
         ActionChain(*first_nodes, *second_nodes).handlers
         == ActionChain(first_nodes).clone_with(ActionChain(second_nodes)).handlers
-        == (ActionChain(first_nodes) | ActionChain(second_nodes)).handlers
-        == (ActionChain(first_nodes) >> ActionChain(second_nodes)).handlers
+        == (
+            ActionChain(second_nodes).clone_with(
+                ActionChain(first_nodes), is_other_handlers_on_the_left=True
+            ).handlers
+        )
     )
+
+
+@mark.parametrize(
+    'handlers, connetction_handler',
+    [
+        [(MockHandler(), lambda x: x + 1), MockHandler()],
+        [(MockHandler(), lambda x: x + 1, MockHandler()), lambda x: x**2],
+        [(MockHandler(), ), lambda x: x + 1],
+        [tuple(), MockHandler()],
+    ]
+)
+def test_action_chain_connection_through_operators(handlers: Iterable[Callable[[any], any]], connetction_handler: Callable[[any], any]):
+    assert (
+        ActionChain(*(*handlers, connetction_handler)).handlers
+        == (ActionChain(*handlers) | connetction_handler).handlers
+        == (ActionChain(*handlers) >> connetction_handler).handlers
+    )
+
+
+@mark.parametrize(
