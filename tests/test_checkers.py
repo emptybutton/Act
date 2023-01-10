@@ -38,3 +38,26 @@ def test_type_checker(type_: type, resource: any):
     assert TypeChecker(type_)(resource) == isinstance(resource, type_)
 
 
+@mark.parametrize(
+    "required_length, is_end_inclusive, collection, result",
+    [
+        (3, True, (None, ) * 2, True),
+        (3, True, (None, ) * 3, True),
+        (3, False, (None, ) * 3, False),
+        (0, True, tuple(), True),
+        (0, False, tuple(), False),
+        ((5, 10), True, tuple(), False),
+        ((5, 10), True, (None, ) * 5, True),
+        ((5, 10), True, (None, ) * 10, True),
+        ((5, 10), True, (None, ) * 7, True),
+        ((5, 10), False, (None, ) * 10, False),
+        ((5, 10, 12, 15), False, (None, ) * 5, True),
+        ((5, 10, 12, 15), False, (None, ) * 11, True),
+        ((5, 10, 12, 15), True, (None, ) * 15, True),
+    ]
+)
+def test_length_checker(required_length: int, is_end_inclusive: bool, collection: Sized, result: bool):
+    assert (
+        LengthChecker(required_length, is_end_inclusive=is_end_inclusive)(collection)
+        is result
+    )
