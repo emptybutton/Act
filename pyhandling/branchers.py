@@ -101,6 +101,9 @@ class ActionChain:
     maintaining the position of the call.
 
     Also can be used >> to expand handlers starting from the end respectively.
+
+    Has a one resource call synonyms >= and <= where is the chain on the right
+    i.e. \"resource >= chain_instance\" and \"instance <= resource\". 
     """
 
     handlers = DelegatingProperty('_handlers')
@@ -133,6 +136,9 @@ class ActionChain:
 
     def __ror__(self, action_node: Handler) -> Self:
         return self.clone_with(action_node, is_other_handlers_on_the_left=True)
+
+    def __le__(self, resource: any) -> any:
+        return self(resource)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
@@ -359,6 +365,11 @@ then.__doc__ = (
 
     Used as an operator emulator for convenient construction of ActionChains.
     Assumes usage like \"first_handler |then>> second_handler\".
+
+    Additional you can add any resource to the beginning of the construction
+    and >= after it to call the constructed chain with this resource.
+
+    You get something like this \"resource >= first_handler |then>> second_handler\".
 
     See ActionChain for more info.
     """
