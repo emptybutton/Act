@@ -85,3 +85,16 @@ def test_argument_pack_expanding(
     )
 
 
+@mark.parametrize(
+    'func, argument_pack, result',
+    [
+        (lambda a, b, c: a * b * c, ArgumentPack((1, 2, 3)), 6),
+        (lambda a, b, c: a + b + c, ArgumentPack((8, 4), dict(c=30)), 42),
+        (lambda a, b, c: a ** b ** c, ArgumentPack(kwargs=dict(a=2, b=2, c=3)), 256),
+        (lambda: 48, ArgumentPack(), 48),
+    ]
+)
+def test_argument_pack_calling(func: Callable, argument_pack: ArgumentPack, result: any):
+    assert argument_pack.call(func) == result
+
+
