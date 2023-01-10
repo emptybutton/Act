@@ -2,8 +2,9 @@ from typing import Optional, Self, Iterable, Callable, Type
 
 from pyhandling.tools import ArgumentPack
 from pyhandling.branchers import HandlerKeeper, ReturnFlag, MultipleHandler, ActionChain, mergely, recursively, on_condition, rollbackable, returnly, eventually, then
+from pyhandling.errors import HandlingRecursionDepthError
 
-from pytest import mark
+from pytest import mark, fail, raises 
 
 
 class MockHandler:
