@@ -1,7 +1,7 @@
 from typing import Optional, Self, Iterable, Callable
 
-from pyhandling.branchers import HandlerKeeper, ReturnFlag, MultipleHandler, ActionChain, mergely, recursively
 from pyhandling.tools import ArgumentPack
+from pyhandling.branchers import HandlerKeeper, ReturnFlag, MultipleHandler, ActionChain, mergely, recursively, on_condition, rollbackable, returnly, eventually, then
 
 from pytest import mark
 
@@ -273,4 +273,25 @@ def test_recursively(
     result: any
 ):
     assert recursively(handler, checker)(resource) == result
+
+
+@mark.parametrize(
+    "number_of_handler_calls, number_of_checker_calls",
+    [(i, i + 1) for i in range(3)] + [(100, 101), (653, 654), (999, 1000)]
+)
+def test_recursively_handler_execution_sequences(
+    number_of_handler_calls: int,
+    number_of_checker_calls: int
+):
+    handling_counter = Counter()
+    checking_counter = Counter()
+
+    recursively(
+        lambda _: handling_counter(),
+        lambda _: checking_counter() or checking_counter.counted < number_of_checker_calls
+    )(None)
+
+    assert number_of_handler_calls == handling_counter.counted
+    assert number_of_checker_calls == checking_counter.counted
+
 
