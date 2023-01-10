@@ -295,3 +295,20 @@ def test_recursively_handler_execution_sequences(
     assert number_of_checker_calls == checking_counter.counted
 
 
+@mark.parametrize(
+    "max_recursion_depth",
+    tuple(range(4)) + (10, 24, 128, 1000, 1256, 10_000, 100_000)
+)
+def test_recursively_depth_exceedance(max_recursion_depth: int):
+    handling_counter = Counter()
+
+    with raises(HandlingRecursionDepthError):
+        recursively(
+            lambda _: handling_counter(),
+            lambda _: True,
+            max_recursion_depth=max_recursion_depth
+        )(None)
+
+    assert handling_counter.counted == max_recursion_depth
+
+
