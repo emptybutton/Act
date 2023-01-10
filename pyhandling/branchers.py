@@ -275,7 +275,12 @@ def recursively(
     return recursively_handle
 
 
-def on_condition(checker: Callable[..., bool], func: Callable, *, else_: Optional[Callable] = None) -> Callable:
+def on_condition(
+    condition_checker: Callable[..., bool],
+    positive_condition_func: Callable,
+    *,
+    else_: Callable
+) -> Callable:
     """
     Function that implements branching of something according to a
     certain condition.
@@ -287,8 +292,6 @@ def on_condition(checker: Callable[..., bool], func: Callable, *, else_: Optiona
     returns None.
     """
 
-    if else_ is None:
-        else_ = eventually(partial(return_, None))
 
     @wraps(func)
     def wrapper(*args, **kwargs) -> any:

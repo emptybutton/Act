@@ -68,7 +68,8 @@ times: Callable[[int], event_for[bool]] = documenting_by(
                 close(setattr_of),
                 eventually(partial(return_, 'ticks_to_disability')),
                 post_partial(getattr_of, 'initial_ticks_to_disability')
-            )
+            ),
+            else_=return_
         ))
         |then>> returnly(
             mergely(
