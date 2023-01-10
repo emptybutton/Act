@@ -1,3 +1,7 @@
+from typing import Iterable, Callable
+
+from pytest import mark
+
 from pyhandling.tools import to_clone, ArgumentPack, ArgumentKey, DelegatingProperty
 
 
@@ -21,3 +25,15 @@ def test_to_clone():
     assert cloned_object.mock_attribute == 4
 
 
+@mark.parametrize(
+    'args, kwargs',
+    [
+        ((1, 2, 3), dict(a=4, b=5, c=6)),
+        ((1, ), dict(a=4, b=5, c=6)),
+        (tuple(), dict(a=4, b=5, c=6)),
+        ((1, 2, 3), dict()),
+        (tuple(), dict()),
+    ]
+)
+def test_argument_pack_creation_via_call(args: Iterable, kwargs: dict):
+    assert ArgumentPack.create_via_call(*args, **kwargs) == ArgumentPack(args, kwargs)
