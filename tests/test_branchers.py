@@ -380,3 +380,15 @@ def test_rollbackable_with_error(
     assert type(rollbackable(func, lambda error: error)(*input_args)) is error_type
 
 
+@mark.parametrize('call_number', tuple(range(4)) + (8, 128, 1024))
+def test_returnly_call_number(call_number: int):
+    call_counter = Counter()
+
+    returnly_proxy_counter = returnly(call_counter)
+
+    for _ in range(call_number):
+        returnly_proxy_counter(2)
+
+    assert call_counter.counted == call_number * 2
+
+
