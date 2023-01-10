@@ -98,3 +98,20 @@ def test_argument_pack_calling(func: Callable, argument_pack: ArgumentPack, resu
     assert argument_pack.call(func) == result
 
 
+@mark.parametrize(
+    'argument_pack, argument_key, result',
+    [
+        (ArgumentPack((1, 2, 3)), ArgumentKey(0), 1),
+        (ArgumentPack((2, 8, 32, 64, 128), dict(a=1)), ArgumentKey(3), 64),
+        (ArgumentPack((4, 2), dict(a=32, b=64, c=128)), ArgumentKey('c', is_keyword=True), 128),
+        (ArgumentPack(kwargs=dict(a=1, b=5, c=7)), ArgumentKey('b', is_keyword=True), 5),
+    ]
+)
+def test_argument_pack_getting_argument_by_key(
+    argument_pack: ArgumentPack,
+    argument_key: ArgumentKey,
+    result: any
+):
+    assert argument_pack[argument_key] == result
+
+
