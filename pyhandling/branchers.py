@@ -282,22 +282,28 @@ def on_condition(
     else_: Callable
 ) -> Callable:
     """
-    Function that implements branching of something according to a
-    certain condition.
+    Function that implements the func choosing by condition.
 
-    Selects the appropriate handler based on the results of the
-    condition_resource_checker.
+    Creates a function that delegates the call to one other function selected by
+    the results of condition_checker.
 
-    In case of a negative case and the absence of a negative case handler (else_),
-    returns None.
+    If the condition is positive, selects positive_condition_func, if it is
+    negative else_.
     """
 
+    def brancher(*args, **kwargs) -> any:
+        """
+        Function created by the on_condition function.
+        See on_condition for more info.
+        """
 
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> any:
-        return (func if checker(*args, **kwargs) else else_)(*args, **kwargs)
+        return (
+            positive_condition_func
+            if condition_checker(*args, **kwargs)
+            else else_
+        )(*args, **kwargs)
 
-    return wrapper
+    return brancher
 
 
 def rollbackable(func: Callable, rollbacker: handler_of[Exception]) -> Callable:
