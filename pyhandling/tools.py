@@ -46,19 +46,21 @@ class ArgumentPack:
     def __getitem__(self, argument: ArgumentKey) -> any:
         return (self.kwargs if argument.is_keyword else self.args)[argument.key]
 
-    @to_clone
-    def expand_with(self, *args, **kwargs) -> Self:
+    def expand_with(self, *args, **kwargs) -> None:
         """Method to create another pack with input arguments."""
 
-        self.args = (*self.args, *args)
-        self.kwargs = self.kwargs | kwargs
+        return self.__class__(
+            (*self.args, *args),
+            self.kwargs | kwargs
+        )
 
-    @to_clone
-    def merge_with(self, argument_pack: Self) -> Self:
+    def merge_with(self, argument_pack: Self) -> None:
         """Method to create another pack by merging with an input argument pack."""
 
-        self.args = (*self.args, *argument_pack.args)
-        self.kwargs = self.kwargs | argument_pack.kwargs
+        return self.__class__(
+            (*self.args, *argument_pack.args),
+            self.kwargs | argument_pack.kwargs
+        )
 
     def call(self, caller: Callable) -> any:
         """
