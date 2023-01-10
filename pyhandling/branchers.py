@@ -4,6 +4,7 @@ from typing import Iterable, Callable, Self, Optional
 
 from pyhandling.annotations import Handler, Event, checker_of, factory_of, handler_of
 from pyhandling.binders import post_partial
+from pyhandling.errors import HandlingRecursionDepthError
 from pyhandling.tools import DelegatingProperty, ArgumentPack, ArgumentKey, get_collection_with_reduced_nesting
 from pyhandling.synonyms import return_
 
@@ -234,7 +235,12 @@ def mergely(
     return wrapper
 
 
-def recursively(resource_handler: Handler, condition_checker: checker_of[any]) -> any:
+def recursively(
+    resource_handler: Handler,
+    condition_checker: checker_of[any],
+    *,
+    max_recursion_depth: int = 1_000
+) -> any:
     """
     Function to recursively handle input resource.
 
@@ -245,6 +251,9 @@ def recursively(resource_handler: Handler, condition_checker: checker_of[any]) -
     Checks the condition of execution of the recursion by the correctness of the
     input resource or the result of the execution of the handler of the recursion
     resource.
+
+    Limits the number of calls to max_recursion_depth by the argument. After the
+    maximum expires, it causes the corresponding error.
     """
 
     def recursively_handle(resource: any) -> any:
@@ -253,10 +262,15 @@ def recursively(resource_handler: Handler, condition_checker: checker_of[any]) -
         recursively.
         """
 
-        while condition_checker(resource):
-            resource = resource_handler(resource)
-
-        return resource
+        for _ in range(max_recursion_depth):
+            if condition_checker(resource):
+                resource = resource_handler(resource)
+            else:
+                return resource
+        else:
+            raise HandlingRecursionDepthError(
+                f"The number of recursive handling calls has exceeded the {max_recursion_depth} call limit."
+            )
 
     return recursively_handle
 
