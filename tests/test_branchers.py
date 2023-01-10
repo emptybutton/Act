@@ -458,3 +458,10 @@ def test_then_operator(
     )
 
 
+def test_action_chain_one_resource_call_operator(input_resource: int | float = 30):
+    chain = ActionChain(lambda x: x * x + 12, lambda x: x ** x)
+
+    result_of_chain_normal_call = chain(input_resource)
+
+    assert (input_resource >= chain) == result_of_chain_normal_call
+    assert (chain <= input_resource) == result_of_chain_normal_call
