@@ -333,3 +333,29 @@ def test_on_condition_by_numeric_functions(
     )(input_number) == result
 
 
+@mark.parametrize(
+    "func, input_args, input_kwargs, result",
+    [
+        (lambda x: 1 / x, (1, ), dict(), 1),
+        (lambda x: 1 / x, (2, ), dict(), 0.5),
+        (lambda x, y: x + y, (1, 2), dict(), 3),
+        (lambda x, y, z: x + y + z, (1, 2), {'z': 3}, 6),
+        (lambda x, y, z: x + y + z, (2, ), {'y': 4, 'z': 6}, 12),
+        (lambda x, y: x + y, tuple(), {'x': 4, 'y': 6}, 10),
+        (lambda: 42, tuple(), dict(), 42),
+    ]
+)
+def test_rollbackable_without_error(
+    func: Callable,
+    input_args: Iterable, 
+    input_kwargs: dict,
+    result: any
+):
+    assert rollbackable(
+        func,
+        lambda error: fail(
+            f"Catching the unexpected error {error.__class__.__name__} \"{str(error)}\""
+        )
+    )(*input_args, **input_kwargs) == result
+
+
