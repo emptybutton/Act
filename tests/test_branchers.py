@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Optional, Self, Iterable, Callable, Type
 
 from pyhandling.branchers import HandlerKeeper, ReturnFlag, MultipleHandler, ActionChain, mergely, recursively, on_condition, rollbackable, returnly, eventually, then
@@ -422,5 +423,19 @@ def test_returnly_by_formula_function(
             else dict()
         )
     )(*input_args, **input_kwargs) == result
+
+
+@mark.parametrize(
+    'binded_numbers, not_counted_numbers',
+    [
+        (tuple(range(10)), ) * 2,
+        ((1, 2, 3, 6), (200, 100, 123, 54, 13, 42)),
+        (tuple(), tuple())
+    ]
+)
+def test_eventually(binded_numbers: Iterable[int | float], not_counted_numbers: Iterable[int | float]):
+    assert eventually(
+        partial(lambda *numbers: sum(numbers), *binded_numbers)
+    )(*not_counted_numbers) == sum(binded_numbers)
 
 
