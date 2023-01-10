@@ -1,4 +1,4 @@
-from typing import Optional, Self, Iterable, Callable
+from typing import Optional, Self, Iterable, Callable, Type
 
 from pyhandling.tools import ArgumentPack
 from pyhandling.branchers import HandlerKeeper, ReturnFlag, MultipleHandler, ActionChain, mergely, recursively, on_condition, rollbackable, returnly, eventually, then
@@ -357,5 +357,26 @@ def test_rollbackable_without_error(
             f"Catching the unexpected error {error.__class__.__name__} \"{str(error)}\""
         )
     )(*input_args, **input_kwargs) == result
+
+
+@mark.parametrize(
+    "func, input_args, error_type",
+    [
+        (lambda x: x / 0, (42, ), ZeroDivisionError),
+        (lambda x, y: x + y, (1, '2'), TypeError),
+        (lambda mapping, key: mapping[key], (tuple(), 0), IndexError),
+        (lambda mapping, key: mapping[key], (tuple(), 10), IndexError),
+        (lambda mapping, key: mapping[key], ((1, 2), 2), IndexError),
+        (lambda mapping, key: mapping[key], (dict(), 'a'), KeyError),
+        (lambda mapping, key: mapping[key], ({'a': 42}, 'b'), KeyError),
+        (lambda: int('1' + '0'*4300), tuple(), ValueError)
+    ]
+)
+def test_rollbackable_with_error(
+    func: Callable,
+    input_args: Iterable,
+    error_type: Type[Exception]
+):
+    assert type(rollbackable(func, lambda error: error)(*input_args)) is error_type
 
 
