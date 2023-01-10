@@ -312,3 +312,24 @@ def test_recursively_depth_exceedance(max_recursion_depth: int):
     assert handling_counter.counted == max_recursion_depth
 
 
+@mark.parametrize(
+    "input_number, result",
+    [
+        (0, 1),
+        (3, 27),
+        (10, 10 ** 10),
+        (20, 400),
+        (100, 10_000)
+    ]
+)
+def test_on_condition_by_numeric_functions(
+    input_number: int | float,
+    result: any
+):
+    assert on_condition(
+        lambda x: x <= 10,
+        lambda x: x ** x,
+        else_=lambda x: x * x
+    )(input_number) == result
+
+
