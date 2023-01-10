@@ -27,6 +27,21 @@ class MockHandler:
         )
 
 
+class Counter:
+    def __init__(self, counted: int = 0):
+        self._counted = counted
+
+    @property
+    def counted(self) -> int:
+        return self._counted
+
+    def __repr__(self) -> str:
+        return f"Counter({self._counted})"
+
+    def __call__(self, number_of_counts: int = 1) -> None:
+        self._counted += number_of_counts
+
+
 @mark.parametrize(
     'first_handler_resource, handlers',
     [
