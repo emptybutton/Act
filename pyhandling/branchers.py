@@ -93,7 +93,7 @@ class ActionChain:
     any callable object.
 
     Accordingly, delegates the call to that first handler, so it emulates its
-    interface.
+    calling interface.
 
     If there are no handlers, returns an argument pack from an input arguments.
 
