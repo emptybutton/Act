@@ -115,3 +115,33 @@ def test_argument_pack_getting_argument_by_key(
     assert argument_pack[argument_key] == result
 
 
+@mark.parametrize(
+    'delegating_property_kwargs, is_waiting_for_attribute_setting_error',
+    [
+        (dict(), True),
+        (dict(settable=True), False),
+        (dict(settable=True), False)
+    ]
+)
+def test_delegating_property_getting(
+    delegating_property_kwargs: dict,
+    is_waiting_for_attribute_setting_error: bool,
+    delegating_property_delegated_attribute_name: str = '_some_attribue'
+):
+    mock = MockObject(**{delegating_property_delegated_attribute_name: 0})
+
+    property_ = DelegatingProperty(
+        delegating_property_delegated_attribute_name,
+        **delegating_property_kwargs
+    )
+
+    try:
+        property_.__set__(mock, 42)
+    except AttributeError as error:
+        if not is_waiting_for_attribute_setting_error:
+            raise error
+
+    assert (
+        getattr(mock, delegating_property_delegated_attribute_name)
+        == property_.__get__(mock, type(mock))
+    )
