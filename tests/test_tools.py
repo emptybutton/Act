@@ -62,3 +62,26 @@ def test_argument_pack_merger(
     )
 
 
+@mark.parametrize(
+    'first_args, first_kwargs, second_args, second_kwargs',
+    [
+        ((1, 2, 3), dict(a=4, b=5, c=6), (4, 5, 6), dict(d=7, e=8, f=9)),
+        (tuple(), dict(a=4, b=5, c=6), (4, 5, 6), dict(d=7, e=8, f=9)),
+        (tuple(), dict(a=4, b=5, c=6), tuple(), dict(d=7, e=8, f=9)),
+        ((1, 2, 3), dict(), (4, 5, 6), dict()),
+        (tuple(), dict(), ) * 2,
+        ((1, 2, 3), dict(a=4, b=5, c=6), (4, 5, 6), dict(a=7, b=8, c=9)),
+    ]
+)
+def test_argument_pack_expanding(
+    first_args: Iterable,
+    first_kwargs: dict,
+    second_args: Iterable,
+    second_kwargs: dict
+):
+    assert (
+        ArgumentPack(first_args, first_kwargs).expand_with(*second_args, **second_kwargs)
+        == ArgumentPack.create_via_call(*first_args, *second_args, **(first_kwargs | second_kwargs))
+    )
+
+
