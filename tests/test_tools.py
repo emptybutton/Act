@@ -193,3 +193,18 @@ def test_get_collection_with_reduced_nesting(
     )
 
 
+@mark.parametrize(
+    'args, kwargs, result_argument_pack',
+    [
+        ((1, 2, 3), dict(), ArgumentPack((1, 2, 3))),
+        ((8, 32, 64), dict(a=1, b=2, c=3), ArgumentPack((8, 32, 64), dict(a=1, b=2, c=3))),
+        (tuple(), dict(x=16, y=4, z=1), ArgumentPack(kwargs=dict(x=16, y=4, z=1))),
+        (tuple(), dict(), ArgumentPack()),
+        ((42, ), dict(x=16), ArgumentPack((42, ), dict(x=16))),
+        ((42, ), dict(), ArgumentPack((42, ))),
+        ((ArgumentPack((42, )), ), dict(), ArgumentPack((42, ))),
+        ((ArgumentPack((42, ), dict(a=32)), ), dict(), ArgumentPack((42, ), dict(a=32))),
+    ]
+)
+def test_as_argument_pack(args: Iterable, kwargs: dict, result_argument_pack: ArgumentPack):
+    assert as_argument_pack(*args, **kwargs) == result_argument_pack
