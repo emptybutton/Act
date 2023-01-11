@@ -157,3 +157,17 @@ def test_clock(clock: Clock, ticks_to_subtract: int, result_ticks: int):
     assert clock.ticks_to_disability == result_ticks
 
 
+@mark.parametrize(
+    'input_collections, output_collection',
+    [
+        [((1, 2, 3), (4, 5)), (1, 2, 3, 4, 5)],
+        [((1, 2), tuple(), (3, 4, 5), tuple(), (6, 7)), (1, 2, 3, 4, 5, 6, 7)],
+        [((1, 2, 3), (4, (5, 6))), (1, 2, 3, 4, (5, 6))],
+        [[[[[[42]]]]], ([[[42]]], )],
+        [tuple(), tuple()],
+    ]
+)
+def test_get_collection_from(input_collections: Iterable[Iterable], output_collection: tuple):
+    assert get_collection_from(*input_collections) == output_collection
+
+
