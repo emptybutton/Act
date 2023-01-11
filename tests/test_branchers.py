@@ -1,47 +1,12 @@
 from functools import partial
-from typing import Optional, Self, Iterable, Callable, Type
+from typing import Optional, Iterable, Callable, Type
 
 from pyhandling.branchers import HandlerKeeper, ReturnFlag, MultipleHandler, ActionChain, mergely, recursively, on_condition, rollbackable, returnly, eventually, then
 from pyhandling.errors import HandlingRecursionDepthError
 from pyhandling.tools import ArgumentPack, ArgumentKey
+from tests.mocks import MockHandler, Counter
 
 from pytest import mark, fail, raises 
-
-
-class MockHandler:
-    def __init__(self, equality_id: Optional[int] = None):
-        self.equality_id = equality_id
-
-    def __hash__(self) -> int:
-        return id(self)
-
-    def __repr__(self) -> str:
-        return "<MockHandler>"
-
-    def __call__(self, resource: any) -> any:
-        return resource
-
-    def __eq__(self, other: Self) -> bool:
-        return (
-            self is other
-            if self.equality_id is None
-            else self.equality_id == other.equality_id
-        )
-
-
-class Counter:
-    def __init__(self, counted: int = 0):
-        self._counted = counted
-
-    @property
-    def counted(self) -> int:
-        return self._counted
-
-    def __repr__(self) -> str:
-        return f"Counter({self._counted})"
-
-    def __call__(self, number_of_counts: int = 1) -> None:
-        self._counted += number_of_counts
 
 
 @mark.parametrize(

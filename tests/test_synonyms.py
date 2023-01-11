@@ -1,24 +1,10 @@
 from functools import partial
-from typing import Optional, Type, Callable, Iterable
+from typing import Callable
 
 from pyhandling.synonyms import return_, raise_, call, call_method, getattr_of, setattr_of, getitem_of, setitem_of, execute_operation, handle_context_by
+from tests.mocks import Box
 
 from pytest import mark, raises
-
-
-class Box:
-    def __init__(self, enter_result: any = None, **attributes):
-        self.__dict__ = attributes
-        self.enter_result = enter_result
-
-    def __repr__(self) -> str:
-        return '<Box instance>'
-
-    def __enter__(self) -> any:
-        return self.enter_result
-
-    def __exit__(self, error_type: Optional[Type[Exception]], error: Optional[Exception], traceback: any):
-        pass
 
 
 def add_then_divide_by_zero_f_attribute(adding_number: int, object_: object) -> None:
