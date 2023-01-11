@@ -11,6 +11,21 @@ class MockObject:
         )
 
 
+class Box(MockObject):
+    def __init__(self, enter_result: any = None, **attributes):
+        super().__init__(**attributes)
+        self.enter_result = enter_result
+
+    def __repr__(self) -> str:
+        return '<Box instance>'
+
+    def __enter__(self) -> any:
+        return self.enter_result
+
+    def __exit__(self, error_type: Optional[Type[Exception]], error: Optional[Exception], traceback: any):
+        pass
+
+
 class MockHandler:
     def __init__(self, equality_id: Optional[int] = None):
         self.equality_id = equality_id
@@ -45,18 +60,3 @@ class Counter:
 
     def __call__(self, number_of_counts: int = 1) -> None:
         self._counted += number_of_counts
-
-
-class Box(MockObject):
-    def __init__(self, enter_result: any = None, **attributes):
-        super().__init__(**attributes)
-        self.enter_result = enter_result
-
-    def __repr__(self) -> str:
-        return '<Box instance>'
-
-    def __enter__(self) -> any:
-        return self.enter_result
-
-    def __exit__(self, error_type: Optional[Type[Exception]], error: Optional[Exception], traceback: any):
-        pass
