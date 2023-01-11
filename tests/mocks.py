@@ -47,9 +47,9 @@ class Counter:
         self._counted += number_of_counts
 
 
-class Box:
+class Box(MockObject):
     def __init__(self, enter_result: any = None, **attributes):
-        self.__dict__ = attributes
+        super().__init__(**attributes)
         self.enter_result = enter_result
 
     def __repr__(self) -> str:
