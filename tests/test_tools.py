@@ -3,16 +3,7 @@ from typing import Iterable, Callable
 from pytest import mark
 
 from pyhandling.tools import to_clone, ArgumentPack, ArgumentKey, DelegatingProperty
-
-
-class MockObject:
-    def __init__(self, **attributes):
-        self.__dict__ = attributes
-
-    def __repr__(self) -> str:
-        return "<MockObject with {attributes}>".format(
-            attributes=str(self.__dict__)[1:-1].replace(': ', '=').replace('\'', '')
-        )
+from tests.mocks import MockObject
 
 
 def test_to_clone():
