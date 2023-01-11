@@ -1,4 +1,6 @@
+from datetime import datetime
 from functools import wraps, partial
+from math import inf
 from typing import Callable, Iterable
 
 from pyhandling.annotations import Handler, handler_of, event_for
@@ -6,6 +8,50 @@ from pyhandling.branchers import ActionChain, returnly, then, mergely, eventuall
 from pyhandling.binders import close, post_partial
 from pyhandling.synonyms import setattr_of, return_, execute_operation, getattr_of
 from pyhandling.tools import Clock
+
+
+class Logger:
+    """
+    Class for logging any messages.
+
+    Stores messages via the input value of its call.
+
+    Has the ability to clear logs when their limit is reached, controlled by the
+    maximum_log_count attribute and the keyword argument.
+
+    Able to save the date of logging in the logs. Controlled by is_date_logging
+    attribute and keyword argument.
+
+    Suggested to be used with showly function.
+    """
+
+    def __init__(
+        self,
+        logs: Iterable[str] = tuple(),
+        *,
+        maximum_log_count: int | float = inf,
+        is_date_logging: bool = False
+    ):
+        self._logs = list()
+        self.maximum_log_count = maximum_log_count
+        self.is_date_logging = is_date_logging
+
+        for log in logs:
+            self(log)
+
+    @property
+    def logs(self) -> tuple[str]:
+        return tuple(self._logs)
+
+    def __call__(self, message: str) -> None:
+        self._logs.append(
+            message
+            if not self.is_date_logging
+            else f'[{datetime.now()}] {message}'
+        )
+
+        if len(self._logs) > self.maximum_log_count:
+            self._logs = self._logs[self.maximum_log_count:]
 
 
 def showly(handler: Handler, *, writer: handler_of[str] = print) -> ActionChain:
