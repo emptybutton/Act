@@ -57,3 +57,20 @@ def test_documenting_by(documentation: str):
     assert mock.__doc__ == documentation
 
 
+@mark.parametrize(
+    "input_resource, result",
+    [
+        (42, (42, )),
+        (None, (None, )),
+        ([1, 2, 3], (1, 2, 3)),
+        (map(lambda x: x ** 2, [4, 8, 16]), (16, 64, 256)),
+        ((3, 9, 12), (3, 9, 12)),
+        (tuple(), tuple()),
+        (list(), tuple()),
+        ('Hello', ('H', 'e', 'l', 'l', 'o'))
+    ]
+)
+def test_as_collection(input_resource: any, result: tuple):
+    assert as_collection(input_resource) == result
+
+
