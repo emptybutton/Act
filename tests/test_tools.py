@@ -2,7 +2,7 @@ from typing import Iterable, Callable
 
 from pytest import mark
 
-from pyhandling.tools import to_clone, ArgumentPack, ArgumentKey, DelegatingProperty
+from pyhandling.tools import to_clone, ArgumentPack, ArgumentKey, DelegatingProperty, Clock, get_collection_from, get_collection_with_reduced_nesting, as_argument_pack
 from tests.mocks import MockObject
 
 
@@ -136,3 +136,24 @@ def test_delegating_property_getting(
         getattr(mock, delegating_property_delegated_attribute_name)
         == property_.__get__(mock, type(mock))
     )
+
+
+@mark.parametrize(
+    'clock, ticks_to_subtract, result_ticks',
+    [
+        (Clock(0), 0, 0),
+        (Clock(10), 3, 7),
+        (Clock(30), -12, 42),
+        (Clock(-5), 3, -8),
+        (Clock(-40), -8, -32),
+    ]
+)
+def test_clock(clock: Clock, ticks_to_subtract: int, result_ticks: int):
+    initual_ticks = clock.initial_ticks_to_disability
+
+    clock.ticks_to_disability -= ticks_to_subtract
+
+    assert clock.initial_ticks_to_disability == initual_ticks
+    assert clock.ticks_to_disability == result_ticks
+
+
