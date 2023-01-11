@@ -2,6 +2,8 @@ from typing import Optional, Self, Type
 
 
 class MockObject:
+    """Mock class having dynamic attributes."""
+
     def __init__(self, **attributes):
         self.__dict__ = attributes
 
@@ -12,6 +14,8 @@ class MockObject:
 
 
 class Box(MockObject):
+    """MockObject class emulating context."""
+    
     def __init__(self, enter_result: any = None, **attributes):
         super().__init__(**attributes)
         self.enter_result = enter_result
@@ -27,6 +31,13 @@ class Box(MockObject):
 
 
 class MockHandler:
+    """
+    Mock class creating a handling effect by returning an input resource.
+
+    Has an additional identification when specifying equality_id, allowing you
+    to compare this handlers by this very id.
+    """
+
     def __init__(self, equality_id: Optional[int] = None):
         self.equality_id = equality_id
 
@@ -48,6 +59,8 @@ class MockHandler:
 
 
 class Counter:
+    """Counter class that counts its calls."""
+
     def __init__(self, counted: int = 0):
         self._counted = counted
 
