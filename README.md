@@ -7,65 +7,46 @@ You can even integrate the entire program logic into one call
 ### Installation
 `pip install pyhandling`
 
-### Example
+### Usage examples
+
+Basic example
 
 ```python
 from functools import partial
-from typing import Iterable
+from typing import Callable
+
+from random import randint
 
 from pyhandling import *
-from pyhandling.checkers import Negationer, TypeChecker, UnionChecker, LengthChecker
 
 
-main = (
-    take(range(-10, 0))
-    |then>> additionally(on_condition(
-        Negationer(TypeChecker(Iterable)),
-        separately(
-            take(TypeError("Input data must be iterable collection."))
+main: dirty[Callable[[int], str]] = showly(
+    on_condition(
+        lambda number: not 0 <= number <= 10,
+        (
+            "Input number must be positive and less than 11 but it is {}".format
+            |then>> ValueError
             |then>> raise_
         ),
-    ))
-    |then>> additionally(partial(
-        map(
-            on_condition(
-                Negationer(TypeChecker(int | float)),
-                separately(
-                    take(TypeError("Elements of the input collection must be numbers."))
-                    |then>> raise_
-                ),
-            )
-        )
-    ))
-    |then>> CollectionExpander(range(11))
-    |then>> additionally(print)
-    |then>> partial(
-        filter,
-        UnionChecker(
-            lambda number: not number % 2,
-            lambda number: number != 0,
-            is_strict=True
-        )
+        else_=return_
     )
-    |then>> tuple
-    |then>> additionally(print)
-    |then>> partial(map, lambda number: number + 1)
-    |then>> tuple
-    |then>> on_condition(TypeChecker(Iterable) & LengthChecker(256), tuple, return_)
-    |then>> additionally(print)
-    |then>> sum
-    |then>> print
-    |then>> separately(exit)
+    |then>> mergely(take(execute_operation), return_, take('<<'), return_)
+    |then>> mergely(
+        take("{number} is {comparison_word} than 255".format),
+        number=return_,
+        comparison_word=lambda numebr: 'less' if numebr < 255 else 'more'
+    )
 )
 
 if __name__ == '__main__':
-    main()
+    main(randint(-5, 10))
 ```
 
 **output**
 ```
-(-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-(-10, -8, -6, -4, -2, 2, 4, 6, 8, 10)
-(-9, -7, -5, -3, -1, 3, 5, 7, 9, 11)
-10
+4
+4
+64
+64 is less than 255
 ```
+
