@@ -3,7 +3,7 @@ from functools import wraps, partial
 from math import inf
 from typing import Callable, Iterable
 
-from pyhandling.annotations import Handler, dirty, handler_of, event_for
+from pyhandling.annotations import Handler, dirty, handler_of, event_for, factory_of
 from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition
 from pyhandling.binders import close, post_partial
 from pyhandling.synonyms import setattr_of, return_, execute_operation, getattr_of
@@ -98,6 +98,15 @@ as_collection: Callable[[any], tuple] = documenting_by(
 )
 
 
+take: Callable[[any], factory_of[any]] = documenting_by(
+    """
+    Shortcut function equivalent to eventually(partial(return_, input_resource).
+    """
+)(
+    close(return_) |then>> eventually
+)
+
+
 times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
     """
     Function to create a function that will return True the input value (for
@@ -112,7 +121,7 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
             lambda clock: not clock,
             mergely(
                 close(setattr_of),
-                eventually(partial(return_, 'ticks_to_disability')),
+                take('ticks_to_disability'),
                 post_partial(getattr_of, 'initial_ticks_to_disability')
             ),
             else_=return_
@@ -120,7 +129,7 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
         |then>> returnly(
             mergely(
                 close(setattr_of),
-                eventually(partial(return_, 'ticks_to_disability')),
+                take('ticks_to_disability'),
                 (
                     post_partial(getattr_of, 'ticks_to_disability')
                     |then>> post_partial(execute_operation, '-', 1)
