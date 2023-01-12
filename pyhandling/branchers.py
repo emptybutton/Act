@@ -273,10 +273,10 @@ def recursively(
                 resource = resource_handler(resource)
             else:
                 return resource
-        else:
-            raise HandlingRecursionDepthError(
-                f"The number of recursive handling calls has exceeded the {max_recursion_depth} call limit."
-            )
+
+        raise HandlingRecursionDepthError(
+            f"The number of recursive handling calls has exceeded the {max_recursion_depth} call limit."
+        )
 
     return recursively_handle
 
