@@ -1,1 +1,1 @@
-pyannotating==1.0.0
+pyannotating==1.1.0
