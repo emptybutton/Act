@@ -1,9 +1,18 @@
-from typing import Final, Callable
+from copy import copy
+from typing import Optional, Final, Callable
 
-from pyannotating import CustomAnnotationFactory, input_annotation
+from pyannotating import FormalAnnotation, CustomAnnotationFactory, input_annotation
 
 
-CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE: Final = (
+dirty = FormalAnnotation(
+    """
+    Formal annotation to indicate the dirtyness of a function or any other
+    callable object.
+    """
+)
+
+
+CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE: Final[str] = (
     """
     CustomAnnotationFactory instance.
     {}

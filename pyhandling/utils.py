@@ -3,7 +3,7 @@ from functools import wraps, partial
 from math import inf
 from typing import Callable, Iterable
 
-from pyhandling.annotations import Handler, handler_of, event_for
+from pyhandling.annotations import Handler, dirty, handler_of, event_for
 from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition
 from pyhandling.binders import close, post_partial
 from pyhandling.synonyms import setattr_of, return_, execute_operation, getattr_of
@@ -54,7 +54,7 @@ class Logger:
             self._logs = self._logs[self.maximum_log_count:]
 
 
-def showly(handler: Handler, *, writer: handler_of[str] = print) -> ActionChain:
+def showly(handler: Handler, *, writer: dirty[handler_of[str]] = print) -> dirty[ActionChain]:
     """
     Decorator function for visualizing the outcomes of intermediate stages of a
     chain of actions, or simply the input and output results of a regular handler.
@@ -69,7 +69,7 @@ def showly(handler: Handler, *, writer: handler_of[str] = print) -> ActionChain:
     )
 
 
-documenting_by: Callable[[str], Callable[[object], object]] = (
+documenting_by: Callable[[str], dirty[Callable[[object], object]]] = (
     mergely(
         eventually(partial(return_, close(returnly(setattr_of)))),
         attribute_name=eventually(partial(return_, '__doc__')),
@@ -98,11 +98,11 @@ as_collection: Callable[[any], tuple] = documenting_by(
 )
 
 
-times: Callable[[int], event_for[bool]] = documenting_by(
+times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
     """
-    Function to create a dirty function that will return True the input value
-    (for this function) number of times, then False once after the input count
-    has passed, True again n times, and so on.
+    Function to create a function that will return True the input value (for
+    this function) number of times, then False once after the input count has
+    passed, True again n times, and so on.
     """
 )(
     post_partial(execute_operation, '+', 1)
