@@ -1,3 +1,4 @@
+from pyhandling.annotations import dirty
 from pyhandling.binders import *
 from pyhandling.branchers import *
 from pyhandling.synonyms import *
