@@ -1,6 +1,6 @@
 from copy import copy
 from dataclasses import dataclass, field
-from functools import wraps
+from functools import wraps, cached_property, partial
 from math import inf
 from typing import Callable, Self, Iterable
 
@@ -42,6 +42,13 @@ class ArgumentPack:
 
     args: Iterable = tuple()
     kwargs: dict = field(default_factory=dict)
+
+    @cached_property
+    def keys(self) -> tuple[ArgumentKey]:
+        return (
+            *map(ArgumentKey, range(len(self.args))),
+            *map(partial(ArgumentKey, is_keyword=True), self.kwargs.keys())
+        )
 
     def __getitem__(self, argument: ArgumentKey) -> any:
         return (self.kwargs if argument.is_keyword else self.args)[argument.key]
