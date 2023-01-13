@@ -206,4 +206,3 @@ def as_argument_pack(*args, **kwargs) -> ArgumentPack:
         return args[0]
 
     return ArgumentPack(args, kwargs)
-
