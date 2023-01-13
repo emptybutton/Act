@@ -84,6 +84,17 @@ documenting_by.__doc__ = (
 )
 
 
+show: dirty[Callable[[any], any]] = documenting_by(
+    """
+    Function for printing a resource and then returning it.
+
+    Can be replaced by returnly(print) and is a shorthand for it.
+    """
+)(
+    returnly(print)
+)
+
+
 as_collection: Callable[[any], tuple] = documenting_by(
     """
     Function to convert an input resource into a tuple collection.
