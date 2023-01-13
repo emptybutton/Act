@@ -4,10 +4,11 @@ from math import inf
 from typing import Callable, Iterable, Type
 
 from pyhandling.annotations import Handler, dirty, handler_of, event_for, factory_of
-from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition
+from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition, rollbackable
 from pyhandling.binders import close, post_partial
-from pyhandling.tools import Clock
+from pyhandling.errors import BadResourceError
 from pyhandling.synonyms import setattr_of, return_, execute_operation, getattr_of, raise_, getitem_of, call
+from pyhandling.tools import Clock, as_argument_pack, ArgumentKey, DelegatingProperty
 
 
 class Logger:
@@ -162,5 +163,28 @@ raising: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
 )(
     close(isinstance, closer=post_partial)
     |then>> post_partial(on_condition, raise_, else_=return_)
+)
+
+
+saving_resource_on_error: Callable[[Handler], Handler] = documenting_by(
+    """
+    Decorator function that formats occurring errors to BadResourceError, saving
+    information about the input resource and the error itself accordingly.
+    """
+)(
+    close(
+        as_argument_pack
+        |then>> mergely(
+            post_partial(getitem_of, ArgumentKey(1)) |then>> close(call, closer=post_partial),
+            mergely(
+                take(rollbackable),
+                post_partial(getitem_of, ArgumentKey(0)),
+                (
+                    post_partial(getitem_of, ArgumentKey(1))
+                    |then>> close(BadResourceError |then>> raise_)
+                )
+            )
+        )
+    )
 )
 )
