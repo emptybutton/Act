@@ -187,4 +187,26 @@ saving_resource_on_error: Callable[[Handler], Handler] = documenting_by(
         )
     )
 )
+
+
+maybe: Callable[[Iterable[Callable] | Callable], ActionChain] = documenting_by(
+    """
+    Function that decorates the input action chain or just a collection of
+    handlers (ater on, the action chain anyway) and allowing to break this very
+    action chain in case of an error, by returning a valid result of the last of
+    the fully completed node.
+    """
+)(
+    as_collection
+    |then>> partial(map, saving_resource_on_error)
+    |then>> tuple
+    |then>> ActionChain
+    |then>> post_partial(
+        rollbackable,
+        on_condition(
+            post_partial(isinstance, BadResourceError),
+            post_partial(getattr_of, 'resource'),
+            else_=raise_
+        )
+    )
 )
