@@ -1,13 +1,13 @@
 from datetime import datetime
 from functools import wraps, partial
 from math import inf
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Type
 
 from pyhandling.annotations import Handler, dirty, handler_of, event_for, factory_of
 from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition
 from pyhandling.binders import close, post_partial
-from pyhandling.synonyms import setattr_of, return_, execute_operation, getattr_of
 from pyhandling.tools import Clock
+from pyhandling.synonyms import setattr_of, return_, execute_operation, getattr_of, raise_, getitem_of, call
 
 
 class Logger:
@@ -149,4 +149,18 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
         )
         |then>> bool
     )
+)
+
+
+raising: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
+    """
+    Function that selectively raises an error (the type of which is the input,
+    respectively).
+
+    When called with another resource, returns it.
+    """
+)(
+    close(isinstance, closer=post_partial)
+    |then>> post_partial(on_condition, raise_, else_=return_)
+)
 )
