@@ -75,6 +75,16 @@ class ArgumentPack:
             self.kwargs | argument_pack.kwargs
         )
 
+    def only_with(self, *argument_keys: ArgumentKey) -> Self:
+        """Method for cloning with values obtained from input keys."""
+
+        keyword_argument_keys = set(filter(lambda argument_key: argument_key.is_keyword, argument_keys))
+
+        return self.__class__(
+            tuple(self[argument_key] for argument_key in set(arguments) - keyword_argument_keys),
+            {keyword_argument_key.key: self[keyword_argument_key] for keyword_argument_key in keyword_argument_keys}
+        )
+
     def call(self, caller: Callable) -> any:
         """
         Method for calling an input function with arguments stored in an
