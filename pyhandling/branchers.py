@@ -113,7 +113,7 @@ class ActionChain:
         opening_handler_resource: Callable | Iterable[Callable] = tuple(),
         *handlers: Handler
     ):
-        self._handlers = self.get_with_aligned_chains(
+        self._handlers = get_collection_with_reduced_nesting(
             (
                 tuple(opening_handler_resource)
                 if isinstance(opening_handler_resource, Iterable)
@@ -127,6 +127,9 @@ class ActionChain:
             lambda resource, handler: handler(resource),
             (self.handlers[0](*args, **kwargs), *self.handlers[1:])
         ) if self.handlers else ArgumentPack(args, kwargs)
+
+    def __iter__(self) -> iter:
+        return iter(self.handlers)
 
     def __rshift__(self, action_node: Handler) -> Self:
         return self.clone_with(action_node)
@@ -188,18 +191,6 @@ class ActionChain:
                 )
             ), ) if self.handlers else tuple())
             + ((intermediate_handler, ) if is_on_output else tuple())
-        )
-
-    @staticmethod
-    def get_with_aligned_chains(handlers: Iterable[Handler]) -> tuple[Handler]:
-        """
-        Function for getting homogeneous handlers without unnecessary chain
-        instances.
-        """
-
-        return post_partial(get_collection_with_reduced_nesting, 1)(
-            handler.handlers if type(handler) is ActionChain else (handler, )
-            for handler in handlers
         )
 
 
