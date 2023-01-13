@@ -53,6 +53,9 @@ class ArgumentPack:
     def __getitem__(self, argument: ArgumentKey) -> any:
         return (self.kwargs if argument.is_keyword else self.args)[argument.key]
 
+    def __contains__(self, argument: ArgumentKey) -> bool:
+        return argument.key in (self.kwargs.keys() if argument.is_keyword else self.args)
+
     def expand_with(self, *args, **kwargs) -> None:
         """Method to create another pack with input arguments."""
 
