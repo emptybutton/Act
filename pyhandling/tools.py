@@ -85,6 +85,14 @@ class ArgumentPack:
             {keyword_argument_key.key: self[keyword_argument_key] for keyword_argument_key in keyword_argument_keys}
         )
 
+    def without(self, *arguments: ArgumentKey) -> Self:
+        """
+        Method for cloning a pack excluding arguments whose keys are input to
+        this method.
+        """
+        
+        return self.only_with(*(set(self.keys) - set(arguments)))
+
     def call(self, caller: Callable) -> any:
         """
         Method for calling an input function with arguments stored in an
