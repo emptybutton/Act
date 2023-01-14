@@ -127,3 +127,20 @@ def test_resource_returning_of_raising(
     input_resource: any
 ):
     assert raising(error_type)(input_resource) == input_resource
+
+
+@mark.parametrize(
+    "error, resource",
+    [
+        (Exception(), str()),
+        (TypeError(), int()),
+        (AttributeError(), (1, 2, 3)),
+        (AttributeError(), (item for item in range(10))),
+    ]
+)
+def test_saving_resource_on_error_error_raising(error: Exception, resource: any):
+    try:
+        saving_resource_on_error(eventually(partial(raise_, error)))(resource)
+    except BadResourceError as resource_error:
+        assert type(resource_error.error) is type(error)
+        assert resource_error.resource is resource
