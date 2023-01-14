@@ -188,7 +188,6 @@ maybe: Callable[[Iterable[Callable] | Callable], ActionChain] = documenting_by(
 )(
     as_collection
     |then>> partial(map, saving_resource_on_error)
-    |then>> tuple
     |then>> ActionChain
     |then>> post_partial(
         rollbackable,
