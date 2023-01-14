@@ -144,3 +144,32 @@ def test_saving_resource_on_error_error_raising(error: Exception, resource: any)
     except BadResourceError as resource_error:
         assert type(resource_error.error) is type(error)
         assert resource_error.resource is resource
+
+
+@mark.parametrize(
+    "handler_resource, input_resource, result",
+    [
+        (ActionChain(lambda x: x + 1, lambda x: x / 0), 0, 1),
+        (ActionChain(lambda x: x / 0), 42, 42),
+        (ActionChain(), 42, ArgumentPack((42, ))),
+        (tuple(), 256, ArgumentPack((256, ))),
+        ([lambda x: x ** 2, lambda x: x ** x], 2, 256),
+        (
+            [
+                lambda x: x ** 2,
+                lambda x: x ** x,
+                lambda x: x + 80,
+                lambda x: x >> 3,
+                lambda x: x.non_existent_attribute
+            ],
+            2,
+            42
+        )
+    ]
+)
+def test_maybe(
+    handler_resource: Iterable[Callable] | Callable,
+    input_resource: any,
+    result: any
+):
+    assert maybe(handler_resource)(input_resource) == result
