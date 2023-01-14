@@ -1,7 +1,13 @@
-from pytest import mark
+from functools import partial
+from typing import Type, Iterable, Callable
 
-from pyhandling.branchers import ActionChain
-from pyhandling.utils import Logger, showly, documenting_by, as_collection, times
+from pytest import mark, raises
+
+from pyhandling.branchers import ActionChain, eventually
+from pyhandling.errors import BadResourceError
+from pyhandling.synonyms import raise_
+from pyhandling.tools import ArgumentPack
+from pyhandling.utils import Logger, showly, documenting_by, as_collection, times, raising, saving_resource_on_error, maybe
 from tests.mocks import Counter, MockHandler, MockObject
 
 
@@ -90,3 +96,19 @@ def test_times(steps_to_false: int, number_of_runs: int):
             steps_to_false = inital_steps_to_false
 
         steps_to_false -= 1
+
+
+@mark.parametrize(
+    "error_type, error",
+    [
+        (TypeError, TypeError()),
+        (IndexError, IndexError()),
+        (KeyError, KeyError()),
+        (Exception, Exception()),
+        (Exception, KeyError())
+    ]
+)
+def test_error_raising_of_raising(error_type: Type[Exception], error: Exception):
+    with raises(error_type):
+        raising(error_type)(error)
+
