@@ -112,3 +112,18 @@ def test_error_raising_of_raising(error_type: Type[Exception], error: Exception)
     with raises(error_type):
         raising(error_type)(error)
 
+
+@mark.parametrize(
+    "error_type, input_resource",
+    [
+        (Exception, str()),
+        (TypeError, int()),
+        (AttributeError, (1, 2, 3)),
+        (AttributeError, (item for item in range(10))),
+    ]
+)
+def test_resource_returning_of_raising(
+    error_type: Type[Exception],
+    input_resource: any
+):
+    assert raising(error_type)(input_resource) == input_resource
