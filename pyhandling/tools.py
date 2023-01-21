@@ -2,7 +2,7 @@ from copy import copy
 from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
 from math import inf
-from typing import Callable, Self, Iterable
+from typing import Callable, Self, Any, Iterable
 
 
 def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
@@ -27,7 +27,7 @@ def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
 class ArgumentKey:
     """Data class for structuring getting value from ArgumentPack via []."""
 
-    key: any
+    key: Any
     is_keyword: bool = field(default=False, kw_only=True)
 
 
@@ -50,7 +50,7 @@ class ArgumentPack:
             *map(partial(ArgumentKey, is_keyword=True), self.kwargs.keys())
         )
 
-    def __getitem__(self, argument: ArgumentKey) -> any:
+    def __getitem__(self, argument: ArgumentKey) -> Any:
         return (self.kwargs if argument.is_keyword else self.args)[argument.key]
 
     def __or__(self, other: Self) -> Self:
@@ -93,7 +93,7 @@ class ArgumentPack:
         
         return self.only_with(*(set(self.keys) - set(arguments)))
 
-    def call(self, caller: Callable) -> any:
+    def call(self, caller: Callable) -> Any:
         """
         Method for calling an input function with arguments stored in an
         instance.
@@ -121,18 +121,18 @@ class DelegatingProperty:
         delegated_attribute_name: str,
         *,
         settable: bool = False,
-        geting_value_converter: Callable[[any], any] = lambda resource: resource,
-        seting_value_converter: Callable[[any], any] = lambda resource: resource
+        geting_value_converter: Callable[[Any], Any] = lambda resource: resource,
+        seting_value_converter: Callable[[Any], Any] = lambda resource: resource
     ):
         self.delegated_attribute_name = delegated_attribute_name
         self.settable = settable
         self.geting_value_converter = geting_value_converter
         self.seting_value_converter = seting_value_converter
 
-    def __get__(self, instance: object, owner: type) -> any:
+    def __get__(self, instance: object, owner: type) -> Any:
         return self.geting_value_converter(getattr(instance, self.delegated_attribute_name))
 
-    def __set__(self, instance: object, value: any) -> None:
+    def __set__(self, instance: object, value: Any) -> None:
         if not self.settable:
             raise AttributeError(
                 "delegating property of '{attribute_name}' for '{class_name}' object is not settable".format(

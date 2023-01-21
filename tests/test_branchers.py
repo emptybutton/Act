@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Optional, Iterable, Callable, Type
+from typing import Any, Iterable, Callable, Type, Optional
 
 from pyhandling.branchers import HandlerKeeper, ReturnFlag, MultipleHandler, ActionChain, mergely, recursively, on_condition, rollbackable, returnly, eventually, then
 from pyhandling.errors import HandlingRecursionDepthError
@@ -17,8 +17,8 @@ from pytest import mark, fail, raises
     ]
 )
 def test_handler_keeper(
-    first_handler_resource: Iterable[Callable[[any], any]] | Callable[[any], any],
-    handlers: Callable[[any], any]
+    first_handler_resource: Iterable[Callable[[Any], Any]] | Callable[[Any], Any],
+    handlers: Callable[[Any], Any]
 ):
     assert (
         set(HandlerKeeper(first_handler_resource, *handlers).handlers)
@@ -46,10 +46,10 @@ def test_handler_keeper(
     ]
 )
 def test_multiple_handler_handling(
-    handlers: Iterable[Callable[[any], any]],
+    handlers: Iterable[Callable[[Any], Any]],
     return_flag: ReturnFlag,
-    resource: any,
-    result: any
+    resource: Any,
+    result: Any
 ):
     assert MultipleHandler(*handlers, return_flag=return_flag)(resource) == result
 
@@ -76,7 +76,7 @@ def test_neutral_action_chain_calling(args: Iterable, kwargs: dict):
         [(lambda x: None, ), 256, None],
     ]
 )
-def test_action_chain_calling(handlers: Iterable[Callable[[any], any]], input_resource: any, result: any):
+def test_action_chain_calling(handlers: Iterable[Callable[[Any], Any]], input_resource: Any, result: Any):
     assert ActionChain(handlers)(input_resource) == result
 
 
@@ -133,7 +133,7 @@ def test_action_chain_connection_to_raw_handlers(first_nodes: Iterable[Callable]
         [tuple(), MockHandler()],
     ]
 )
-def test_action_chain_connection_through_operators(handlers: Iterable[Callable[[any], any]], connetction_handler: Callable[[any], any]):
+def test_action_chain_connection_through_operators(handlers: Iterable[Callable[[Any], Any]], connetction_handler: Callable[[Any], Any]):
     assert (
         ActionChain(*(*handlers, connetction_handler)).handlers
         == (ActionChain(*handlers) | connetction_handler).handlers
@@ -156,12 +156,12 @@ def test_action_chain_connection_through_operators(handlers: Iterable[Callable[[
     ]
 )
 def test_action_chain_cloning_with_intermediate(
-    original_branchers: Iterable[Callable[[any], any]],
-    intermediate_brancher: Callable[[any], any],
+    original_branchers: Iterable[Callable[[Any], Any]],
+    intermediate_brancher: Callable[[Any], Any],
     is_on_input: bool,
     is_on_output: bool,
-    input_resource: any,
-    result: any
+    input_resource: Any,
+    result: Any
 ):
     assert ActionChain(original_branchers).clone_with_intermediate(
         intermediate_brancher,
@@ -234,10 +234,10 @@ def test_mergely_by_formula_function(
     ]
 )
 def test_recursively(
-    handler: Callable[[any], any],
-    checker: Callable[[any], bool],
-    resource: any,
-    result: any
+    handler: Callable[[Any], Any],
+    checker: Callable[[Any], bool],
+    resource: Any,
+    result: Any
 ):
     assert recursively(handler, checker)(resource) == result
 
@@ -291,7 +291,7 @@ def test_recursively_depth_exceedance(max_recursion_depth: int):
 )
 def test_on_condition_by_numeric_functions(
     input_number: int | float,
-    result: any
+    result: Any
 ):
     assert on_condition(
         lambda x: x <= 10,
@@ -316,7 +316,7 @@ def test_rollbackable_without_error(
     func: Callable,
     input_args: Iterable, 
     input_kwargs: dict,
-    result: any
+    result: Any
 ):
     assert rollbackable(
         func,
@@ -378,7 +378,7 @@ def test_returnly_by_formula_function(
     input_args: tuple,
     input_kwargs: dict,
     argument_key_to_return: Optional[ArgumentKey],
-    result: any
+    result: Any
 ):
     assert returnly(
         lambda a, b, c: a + b + c,

@@ -1,5 +1,5 @@
 from copy import copy
-from typing import Optional, Final, Callable
+from typing import Any, Final, Callable
 
 from pyannotating import FormalAnnotation, CustomAnnotationFactory, input_annotation
 
@@ -21,7 +21,7 @@ CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE: Final[str] = (
 )
 
 
-handler_of = CustomAnnotationFactory(Callable, [[input_annotation], any])
+handler_of = CustomAnnotationFactory(Callable, [[input_annotation], Any])
 handler_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
     """
     Creates a Callable annotation that takes one parameter (the type of which
@@ -57,28 +57,28 @@ event_for.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.fo
 )
 
 
-Handler = handler_of[any]
+Handler = handler_of[Any]
 Handler.__doc__ = (
     """
     Annotation of non-strict handler of something.
-    Created by handler_of and equivalently handler_of[any].
+    Created by handler_of and equivalently handler_of[Any].
     """
 )
 
 
-Checker = checker_of[any]
+Checker = checker_of[Any]
 Checker.__doc__ = (
     """
     Annotation of non-strict checker of something.
-    Created by checker_of and equivalently checker_of[any].
+    Created by checker_of and equivalently checker_of[Any].
     """
 )
 
 
-Event = event_for[any]
+Event = event_for[Any]
 Event.__doc__ = (
     """
     Event annotation, non-strict on the return type.
-    Created by event_for and equivalently event_for[any].
+    Created by event_for and equivalently event_for[Any].
     """
 )

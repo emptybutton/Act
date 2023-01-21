@@ -1,7 +1,7 @@
 from datetime import datetime
 from functools import wraps, partial
 from math import inf
-from typing import Callable, Iterable, Type
+from typing import Callable, Iterable, Any, Type
 
 from pyhandling.annotations import Handler, dirty, handler_of, event_for, factory_of
 from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition, rollbackable
@@ -85,7 +85,7 @@ documenting_by.__doc__ = (
 )
 
 
-as_collection: Callable[[any], tuple] = documenting_by(
+as_collection: Callable[[Any], tuple] = documenting_by(
     """
     Function to convert an input resource into a tuple collection.
     With a non-iterable resource, wraps it in a tuple.
@@ -99,7 +99,7 @@ as_collection: Callable[[any], tuple] = documenting_by(
 )
 
 
-take: Callable[[any], factory_of[any]] = documenting_by(
+take: Callable[[Any], factory_of[Any]] = documenting_by(
     """
     Shortcut function equivalent to eventually(partial(return_, input_resource).
     """

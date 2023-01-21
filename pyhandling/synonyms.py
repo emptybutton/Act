@@ -1,9 +1,9 @@
-from typing import Callable
+from typing import Any, Callable
 
 from pyhandling.annotations import Event, Handler
 
 
-def return_(resource: any) -> any:
+def return_(resource: Any) -> Any:
     """
     Wrapper function for handling emulation through the functional use of the
     return statement.
@@ -18,19 +18,19 @@ def raise_(error: Exception) -> None:
     raise error
 
 
-def call(caller: Callable, *args, **kwargs) -> any:
+def call(caller: Callable, *args, **kwargs) -> Any:
     """Function to call an input object and return the results of that call."""
 
     return caller(*args, **kwargs)
 
 
-def call_method(object_: object, method_name: str, *args, **kwargs) -> any:
+def call_method(object_: object, method_name: str, *args, **kwargs) -> Any:
     """Shortcut function to call a method on an input object."""
 
     return getattr(object_, method_name)(*args, **kwargs)
 
 
-def getattr_of(object_: object, attribute_name: str) -> any:
+def getattr_of(object_: object, attribute_name: str) -> Any:
     """
     Synonym function for getattr.
 
@@ -40,7 +40,7 @@ def getattr_of(object_: object, attribute_name: str) -> any:
     return getattr(object_, attribute_name)
 
 
-def setattr_of(object_: object, attribute_name: str, attribute_value: any) -> any:
+def setattr_of(object_: object, attribute_name: str, attribute_value: Any) -> Any:
     """
     Synonym function for setattr.
 
@@ -50,19 +50,19 @@ def setattr_of(object_: object, attribute_name: str, attribute_value: any) -> an
     return setattr(object_, attribute_name, attribute_value)
 
 
-def getitem_of(object_: object, item_key: any) -> any:
+def getitem_of(object_: object, item_key: Any) -> Any:
     """Function for functional use of [] getting."""
 
     return object_[item_key]
 
 
-def setitem_of(object_: object, item_key: any, item_value: any) -> None:
+def setitem_of(object_: object, item_key: Any, item_value: Any) -> None:
     """Function for functional use of [] setting."""
 
     object_[item_key] = item_value
 
 
-def execute_operation(first_operand: any, operator: str, second_operand: any) -> any:
+def execute_operation(first_operand: Any, operator: str, second_operand: Any) -> Any:
     """
     Function to use python operators in a functional way.
 

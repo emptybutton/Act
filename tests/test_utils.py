@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Type, Iterable, Callable
+from typing import Any, Type, Iterable, Callable
 
 from pytest import mark, raises
 
@@ -76,7 +76,7 @@ def test_documenting_by(documentation: str):
         ('Hello', ('H', 'e', 'l', 'l', 'o'))
     ]
 )
-def test_as_collection(input_resource: any, result: tuple):
+def test_as_collection(input_resource: Any, result: tuple):
     assert as_collection(input_resource) == result
 
 
@@ -124,7 +124,7 @@ def test_error_raising_of_raising(error_type: Type[Exception], error: Exception)
 )
 def test_resource_returning_of_raising(
     error_type: Type[Exception],
-    input_resource: any
+    input_resource: Any
 ):
     assert raising(error_type)(input_resource) == input_resource
 
@@ -138,7 +138,7 @@ def test_resource_returning_of_raising(
         (AttributeError(), (item for item in range(10))),
     ]
 )
-def test_saving_resource_on_error_error_raising(error: Exception, resource: any):
+def test_saving_resource_on_error_error_raising(error: Exception, resource: Any):
     try:
         saving_resource_on_error(eventually(partial(raise_, error)))(resource)
     except BadResourceError as resource_error:
@@ -169,7 +169,7 @@ def test_saving_resource_on_error_error_raising(error: Exception, resource: any)
 )
 def test_maybe(
     handler_resource: Iterable[Callable] | Callable,
-    input_resource: any,
-    result: any
+    input_resource: Any,
+    result: Any
 ):
     assert maybe(handler_resource)(input_resource) == result

@@ -1,11 +1,11 @@
 from functools import wraps, partial
-from typing import Callable, Iterable
+from typing import Callable, Any, Iterable
 
 from pyhandling.annotations import handler_of
 from pyhandling.tools import ArgumentPack
 
 
-def bind(func: Callable, argument_name: str, argument_value: any) -> Callable:
+def bind(func: Callable, argument_name: str, argument_value: Any) -> Callable:
     """
     Atomic partial function for a single keyword argument whose name and value
     are separate input arguments.
@@ -22,7 +22,7 @@ def post_partial(func: Callable, *args, **kwargs) -> Callable:
     """
 
     @wraps(func)
-    def wrapper(*wrapper_args, **wrapper_kwargs) -> any:
+    def wrapper(*wrapper_args, **wrapper_kwargs) -> Any:
         return func(*wrapper_args, *args, **wrapper_kwargs, **kwargs)
 
     return wrapper
@@ -37,7 +37,7 @@ def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
     return post_partial(func, *args[::-1], **kwargs)
 
 
-def close(resource: any, *, closer: Callable[[any, ...], any] = partial) -> Callable:
+def close(resource: Any, *, closer: Callable[[Any, ...], Any] = partial) -> Callable:
     """
     Function to create a closure for the input resource.
 
@@ -73,7 +73,7 @@ def unpackly(func: Callable) -> handler_of[ArgumentPack | Iterable]:
     """
 
     @wraps(func)
-    def wrapper(argument_collection: ArgumentPack | Iterable) -> any:
+    def wrapper(argument_collection: ArgumentPack | Iterable) -> Any:
         if isinstance(argument_collection, ArgumentPack):
             return argument_collection.call(func)
         elif isinstance(argument_collection, dict):

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from functools import partial
-from typing import Callable, Self, Iterable, Optional, Sized, Protocol
+from typing import Callable, Self, Any, Iterable, Optional, Sized, Protocol
 
 from pyhandling.annotations import Checker
 
@@ -21,7 +21,7 @@ class IChecker(ABC):
         pass
 
     @abstractmethod
-    def __call__(self, resource: any) -> bool:
+    def __call__(self, resource: Any) -> bool:
         pass
 
 
@@ -76,8 +76,8 @@ class UnionChecker(CheckerKeeper, IChecker):
             )
         )
 
-    def __call__(self, resource: any) -> bool:
-        return (all if self.is_strict else any)(
+    def __call__(self, resource: Any) -> bool:
+        return (all if self.is_strict else Any)(
             checker(resource) for checker in self.checkers
         )
 
@@ -174,7 +174,7 @@ class Negationer(CheckerUnionDelegatorMixin, IChecker):
     def __repr__(self) -> str:
         return f"<not {self.checker}>"
 
-    def __call__(self, resource: any) -> bool:
+    def __call__(self, resource: Any) -> bool:
         return not self.checker(resource)
 
 
@@ -210,7 +210,7 @@ class TypeChecker(CheckerUnionDelegatorMixin, IChecker):
             )
         )
 
-    def __call__(self, resource: any) -> bool:
+    def __call__(self, resource: Any) -> bool:
         return (
             len(self.correct_types) > 0
             and (all if self.is_correctness_under_supertype else any)(

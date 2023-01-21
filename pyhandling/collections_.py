@@ -1,4 +1,4 @@
-from typing import Container, Iterable, Self, Generator
+from typing import Container, Any, Iterable, Self, Generator
 
 
 class NonInclusiveCollection:
@@ -10,7 +10,7 @@ class NonInclusiveCollection:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(all except {self.elements_not_contained})"
 
-    def __contains__(self, item: any) -> bool:
+    def __contains__(self, item: Any) -> bool:
         return not item in self.elements_not_contained
 
 
@@ -56,7 +56,7 @@ class MultiRange:
             for item in range_
         )
 
-    def __contains__(self, item: any) -> bool:
+    def __contains__(self, item: Any) -> bool:
         return any(
             item in range_
             for range_ in self.ranges

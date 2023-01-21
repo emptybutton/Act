@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from functools import reduce, wraps, partial
-from typing import Iterable, Callable, Self, Optional
+from typing import Iterable, Any, Callable, Self, Optional
 
 from pyhandling.annotations import Handler, Event, checker_of, factory_of, handler_of
 from pyhandling.binders import post_partial
@@ -60,7 +60,7 @@ class MultipleHandler(HandlerKeeper):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({', '.join(map(str, self.handlers))})"
 
-    def __call__(self, resource: any) -> any:
+    def __call__(self, resource: Any) -> Any:
         result_of_all_handlers = list()
 
         for handler in self.handlers:
@@ -90,7 +90,7 @@ class ActionChain:
     Data returned when called is data exited from the last handler.
 
     The first handler is not bound to the standard handler interface and can be
-    any callable object.
+    Any callable object.
 
     Accordingly, delegates the call to that first handler, so it emulates its
     calling interface.
@@ -122,7 +122,7 @@ class ActionChain:
             + handlers
         )
 
-    def __call__(self, *args, **kwargs) -> any:
+    def __call__(self, *args, **kwargs) -> Any:
         return reduce(
             lambda resource, handler: handler(resource),
             (self.handlers[0](*args, **kwargs), *self.handlers[1:])
@@ -140,7 +140,7 @@ class ActionChain:
     def __ror__(self, action_node: Handler) -> Self:
         return self.clone_with(action_node, is_other_handlers_on_the_left=True)
 
-    def __le__(self, resource: any) -> any:
+    def __le__(self, resource: Any) -> Any:
         return self(resource)
 
     def __repr__(self) -> str:
@@ -196,8 +196,8 @@ class ActionChain:
 
 def mergely(
     merge_function_factory: factory_of[Callable],
-    *parallel_functions: factory_of[any],
-    **keyword_parallel_functions: factory_of[any]
+    *parallel_functions: factory_of[Any],
+    **keyword_parallel_functions: factory_of[Any]
 ):
     """
     Decorator function that allows to initially separate several operations on
@@ -234,10 +234,10 @@ def mergely(
 
 def recursively(
     resource_handler: Handler,
-    condition_checker: checker_of[any],
+    condition_checker: checker_of[Any],
     *,
     max_recursion_depth: int = 1_000
-) -> any:
+) -> Any:
     """
     Function to recursively handle input resource.
 
@@ -253,7 +253,7 @@ def recursively(
     maximum expires, it causes the corresponding error.
     """
 
-    def recursively_handle(resource: any) -> any:
+    def recursively_handle(resource: Any) -> Any:
         """
         Function emulating recursion that was created as a result of calling
         recursively.
@@ -288,7 +288,7 @@ def on_condition(
     negative else_.
     """
 
-    def brancher(*args, **kwargs) -> any:
+    def brancher(*args, **kwargs) -> Any:
         """
         Function created by the on_condition function.
         See on_condition for more info.
@@ -310,7 +310,7 @@ def rollbackable(func: Callable, rollbacker: handler_of[Exception]) -> Callable:
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> any:
+    def wrapper(*args, **kwargs) -> Any:
         try:
             return func(*args, **kwargs)
         except Exception as error:
@@ -320,10 +320,10 @@ def rollbackable(func: Callable, rollbacker: handler_of[Exception]) -> Callable:
 
 
 def returnly(
-    func: Callable[[any, ...], any],
+    func: Callable[[Any, ...], Any],
     *,
     argument_key_to_return: ArgumentKey = ArgumentKey(0)
-) -> Callable[[any, ...], any]:
+) -> Callable[[Any, ...], Any]:
     """
     Decorator function that causes the input function to return not the result
     of its execution, but some argument that is incoming to it.
@@ -332,7 +332,7 @@ def returnly(
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> any:
+    def wrapper(*args, **kwargs) -> Any:
         func(*args, **kwargs)
 
         return ArgumentPack(args, kwargs)[argument_key_to_return]
@@ -340,7 +340,7 @@ def returnly(
     return wrapper
 
 
-def eventually(func: Event) -> any:
+def eventually(func: Event) -> Any:
     """
     Decorator function for constructing a function to which no input attributes
     will be passed.

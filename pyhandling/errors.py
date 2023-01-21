@@ -1,3 +1,5 @@
+from typing import Any
+
 from pyhandling.tools import DelegatingProperty
 
 
@@ -22,7 +24,7 @@ class BadResourceError(PyhandingError):
     resource = DelegatingProperty('_resource')
     error = DelegatingProperty('_error')
 
-    def __init__(self, resource: any, error: Exception):
+    def __init__(self, resource: Any, error: Exception):
         self._resource = resource
         self._error = error
 
