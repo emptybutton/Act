@@ -72,6 +72,25 @@ def showly(handler: handler, *, writer: dirty[handler_of[str]] = print) -> dirty
     )
 
 
+def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]) -> handler:
+    """
+    Decorator function for a handler that allows it to return a pack of its
+    input resource and the error it encountered.
+    """
+
+    @wraps(handler)
+    def wrapper(resource: Any) -> Any:
+        try:
+            return handler(resource)
+        except Exception as error:
+            if error_checker(error):
+                return BadResourceError(resource, error)
+
+            raise error
+
+    return wrapper
+
+
 documenting_by: Callable[[str], dirty[reformer_of[object]]] = (
     mergely(
         eventually(partial(return_, close(returnly(setattr_of)))),
@@ -154,29 +173,6 @@ raising: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
 )(
     close(isinstance, closer=post_partial)
     |then>> post_partial(on_condition, raise_, else_=return_)
-)
-
-
-saving_resource_on_error: Callable[[handler], handler] = documenting_by(
-    """
-    Decorator function that formats occurring errors to BadResourceError, saving
-    information about the input resource and the error itself accordingly.
-    """
-)(
-    close(
-        as_argument_pack
-        |then>> mergely(
-            post_partial(getitem_of, ArgumentKey(1)) |then>> close(call, closer=post_partial),
-            mergely(
-                take(rollbackable),
-                post_partial(getitem_of, ArgumentKey(0)),
-                (
-                    post_partial(getitem_of, ArgumentKey(1))
-                    |then>> close(BadResourceError |then>> raise_)
-                )
-            )
-        )
-    )
 )
 
 
