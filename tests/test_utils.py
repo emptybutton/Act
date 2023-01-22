@@ -6,8 +6,8 @@ from pytest import mark, raises
 from pyhandling.branchers import ActionChain, eventually
 from pyhandling.errors import BadResourceError
 from pyhandling.synonyms import raise_
-from pyhandling.tools import ArgumentPack
-from pyhandling.utils import Logger, showly, documenting_by, as_collection, times, raising, saving_resource_on_error, maybe
+from pyhandling.tools import ArgumentPack, BadResource, IBadResource
+from pyhandling.utils import Logger, showly, documenting_by, as_collection, times, raising, returnly_rollbackable, maybe, returnly_rollbackable
 from tests.mocks import Counter, MockHandler, MockObject
 
 
@@ -130,20 +130,55 @@ def test_resource_returning_of_raising(
 
 
 @mark.parametrize(
-    "error, resource",
+    "handler, error_checker, input_resource, result",
     [
-        (Exception(), str()),
-        (TypeError(), int()),
-        (AttributeError(), (1, 2, 3)),
-        (AttributeError(), (item for item in range(10))),
+        (lambda x: x + 10, lambda _: True, 32, 42),
+        (
+            lambda x: x / 0,
+            lambda error: isinstance(error, ZeroDivisionError),
+            256,
+            BadResourceError(256, ZeroDivisionError())
+        ),
+        (
+            lambda x: x.non_existent_attribute,
+            lambda error: isinstance(error, AttributeError),
+            str(),
+            BadResourceError(str(), AttributeError())
+        ),
     ]
 )
-def test_saving_resource_on_error_error_raising(error: Exception, resource: Any):
-    try:
-        saving_resource_on_error(eventually(partial(raise_, error)))(resource)
-    except BadResourceError as resource_error:
-        assert type(resource_error.error) is type(error)
-        assert resource_error.resource is resource
+def test_returnly_rollbackable(
+    handler: Callable[[Any], Any],
+    error_checker: Callable[[Exception], Any],
+    input_resource: Any,
+    result: Any
+):
+    returnly_rollbackable_result = returnly_rollbackable(handler, error_checker)(input_resource)
+
+    if type(result) is BadResourceError:
+        assert returnly_rollbackable_result.resource == result.resource
+        assert type(returnly_rollbackable_result.error) is type(result.error)
+
+    else:
+        assert returnly_rollbackable_result == result
+
+
+@mark.parametrize(
+    "handler, error_checker, input_resource, expected_error_type",
+    [
+        (lambda x: x / 0, lambda error: isinstance(error, TypeError), 32, ZeroDivisionError),
+        (lambda x: 21 + x, lambda error: isinstance(error, AttributeError), '21', TypeError),
+        (lambda x: x.non_existent_attribute, lambda error: isinstance(error, SyntaxError), tuple(), AttributeError),
+    ]
+)
+def test_returnly_rollbackable_error_returning(
+    handler: Callable[[Any], Any],
+    error_checker: Callable[[Exception], Any],
+    input_resource: Any,
+    expected_error_type: Type[Exception]
+):
+    with raises(expected_error_type):
+        returnly_rollbackable(handler, error_checker)(input_resource)
 
 
 @mark.parametrize(
