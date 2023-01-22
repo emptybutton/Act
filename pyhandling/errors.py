@@ -1,6 +1,6 @@
 from typing import Any
 
-from pyhandling.tools import DelegatingProperty
+from pyhandling.tools import IBadResource, DelegatingProperty
 
 
 class PyhandingError(Exception):
@@ -15,7 +15,7 @@ class HandlingRecursionDepthError(HandlingRecursionError):
     __notes__ = ("To change the limit, call recursive with the max_recursion_depth argument, with the desired value", )
 
 
-class BadResourceError(PyhandingError):
+class BadResourceError(PyhandingError, IBadResource):
     """
     Error class containing another error that occurred during the handling of
     some resource and the resource itself, respectively.
