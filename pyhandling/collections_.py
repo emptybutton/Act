@@ -1,4 +1,4 @@
-from typing import Container, Any, Iterable, Self, Generator
+from typing import Container, Any, Iterable, Self
 
 
 class NonInclusiveCollection:

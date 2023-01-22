@@ -1,4 +1,3 @@
-from copy import copy
 from typing import Any, Final, Callable
 
 from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation

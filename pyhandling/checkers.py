@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from functools import partial
-from typing import Callable, Self, Any, Iterable, Optional, Sized, Protocol
+from typing import Self, Any, Iterable, Optional, Callable, Sized
 
 from pyhandling.annotations import Checker
 

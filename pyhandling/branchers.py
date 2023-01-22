@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from functools import reduce, wraps, partial
-from typing import Iterable, Any, Callable, Self, Optional
+from typing import Iterable, Any, Callable, Self
 
 from pyhandling.annotations import Handler, Event, checker_of, factory_of, handler_of
 from pyhandling.binders import post_partial
