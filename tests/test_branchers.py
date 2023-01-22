@@ -1,57 +1,12 @@
 from functools import partial
 from typing import Any, Iterable, Callable, Type, Optional
 
-from pyhandling.branchers import HandlerKeeper, ReturnFlag, MultipleHandler, ActionChain, mergely, recursively, on_condition, rollbackable, returnly, eventually, then
+from pyhandling.branchers import ActionChain, mergely, recursively, on_condition, rollbackable, returnly, eventually, then
 from pyhandling.errors import HandlingRecursionDepthError
 from pyhandling.tools import ArgumentPack, ArgumentKey
 from tests.mocks import MockHandler, Counter
 
-from pytest import mark, fail, raises 
-
-
-@mark.parametrize(
-    'first_handler_resource, handlers',
-    [
-        [MockHandler(), (MockHandler(), MockHandler(), MockHandler())],
-        [(MockHandler(), MockHandler()), (MockHandler(), MockHandler())]
-    ]
-)
-def test_handler_keeper(
-    first_handler_resource: Iterable[Callable[[Any], Any]] | Callable[[Any], Any],
-    handlers: Callable[[Any], Any]
-):
-    assert (
-        set(HandlerKeeper(first_handler_resource, *handlers).handlers)
-        == set(handlers) | set(
-            first_handler_resource
-            if isinstance(first_handler_resource, Iterable)
-            else (first_handler_resource, )
-        )
-    )
-
-
-@mark.parametrize(
-    'handlers, return_flag, resource, result',
-    [
-        [(MockHandler(), MockHandler(), MockHandler()), ReturnFlag.first_received, 1, 1],
-        [(MockHandler(), MockHandler(), MockHandler()), ReturnFlag.first_received, 100, 100],
-        [(MockHandler(), lambda number: number**2), ReturnFlag.last_thing, 16, 256],
-        [
-            (MockHandler(), lambda number: number + 2, lambda number: number * 2),
-            ReturnFlag.everything,
-            8,
-            (8, 10, 16)
-        ],
-        [(MockHandler(), ), ReturnFlag.nothing, 1, None]
-    ]
-)
-def test_multiple_handler_handling(
-    handlers: Iterable[Callable[[Any], Any]],
-    return_flag: ReturnFlag,
-    resource: Any,
-    result: Any
-):
-    assert MultipleHandler(*handlers, return_flag=return_flag)(resource) == result
+from pytest import mark, fail, raises
 
 
 @mark.parametrize(

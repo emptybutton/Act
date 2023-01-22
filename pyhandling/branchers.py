@@ -1,5 +1,4 @@
-from enum import Enum, auto
-from functools import reduce, wraps, partial
+from functools import reduce, wraps
 from typing import Iterable, Any, Callable, Self
 
 from pyhandling.annotations import Handler, Event, checker_of, factory_of, handler_of
@@ -7,76 +6,6 @@ from pyhandling.binders import post_partial
 from pyhandling.errors import HandlingRecursionDepthError
 from pyhandling.tools import DelegatingProperty, ArgumentPack, ArgumentKey, get_collection_with_reduced_nesting
 from pyhandling.synonyms import return_
-
-
-class HandlerKeeper:
-    """
-    Mixin class for conveniently getting handlers from an input collection and
-    unlimited input arguments.
-    """
-
-    handlers = DelegatingProperty('_handlers')
-
-    def __init__(self, handler_resource: Handler | Iterable[Handler], *handlers: Handler):
-        self._handlers = (
-            tuple(handler_resource)
-            if isinstance(handler_resource, Iterable)
-            else (handler_resource, )
-        ) + handlers
-
-
-class ReturnFlag(Enum):
-    """
-    Enum return method flags class.
-    
-    Describe the returned result from something (MultipleHandler).
-    """
-
-    first_received = auto()
-    last_thing = auto()
-    everything = auto()
-    nothing = auto()
-
-
-class MultipleHandler(HandlerKeeper):
-    """
-    Handler proxy class for representing multiple handlers as a single
-    interface.
-
-    Applies its handlers to a single resource.
-
-    Return data is described using the ReturnFlag of the return_flag attribute.
-    """
-
-    def __init__(
-        self,
-        handler_resource: Handler | Iterable[Handler],
-        *handlers: Handler,
-        return_flag: ReturnFlag = ReturnFlag.first_received
-    ):
-        super().__init__(handler_resource, *handlers)
-        self.return_flag = return_flag
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({', '.join(map(str, self.handlers))})"
-
-    def __call__(self, resource: Any) -> Any:
-        result_of_all_handlers = list()
-
-        for handler in self.handlers:
-            handler_result = handler(resource)
-
-            if self.return_flag == ReturnFlag.everything:
-                result_of_all_handlers.append(handler_result)
-
-            if self.return_flag == ReturnFlag.first_received and handler_result is not None:
-                return handler_result
-
-        if self.return_flag == ReturnFlag.everything:
-            return tuple(result_of_all_handlers)
-
-        if self.return_flag == ReturnFlag.last_thing:
-            return handler_result
 
 
 class ActionChain:
