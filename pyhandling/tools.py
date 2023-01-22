@@ -210,6 +210,13 @@ class IBadResource(ABC):
         pass
 
 
+class BadResource(IBadResource):
+    resource = DelegatingProperty('_resource')
+
+    def __init__(self, resource: Any):
+        self._resource = resource
+
+
 def get_collection_from(*collections: Iterable) -> tuple:
     """Function to get a collection with elements from input collections."""
 
