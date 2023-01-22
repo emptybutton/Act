@@ -1,6 +1,8 @@
 from functools import wraps, partial
 from typing import Callable, Any, Iterable
 
+from pyannotating import method_of
+
 from pyhandling.annotations import handler_of
 from pyhandling.tools import ArgumentPack
 
@@ -37,7 +39,7 @@ def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
     return post_partial(func, *args[::-1], **kwargs)
 
 
-def close(resource: Any, *, closer: Callable[[Any, ...], Any] = partial) -> Callable:
+def close(resource: Any, *, closer: method_of[Any] = partial) -> Callable:
     """
     Function to create a closure for the input resource.
 

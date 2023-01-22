@@ -1,4 +1,6 @@
-from typing import Container, Any, Iterable, Self
+from typing import Container, Any, Self
+
+from pyannotating import many_or_one
 
 
 class NonInclusiveCollection:
@@ -24,7 +26,7 @@ class MultiRange:
     desired resource.
     """
 
-    def __init__(self, range_resource: Iterable[range] | range):
+    def __init__(self, range_resource: many_or_one[range]):
         self._ranges = (
             (range_resource, )
             if isinstance(range_resource, range)
@@ -35,7 +37,7 @@ class MultiRange:
     def ranges(self) -> tuple[range]:
         return self._ranges
 
-    def get_with(self, range_resource: Self | Iterable[range] | range) -> Self:
+    def get_with(self, range_resource: Self | many_or_one[range]) -> Self:
         """Method that implements getting a new Multirange with additional ranges."""
 
         if isinstance(range_resource, MultiRange):
@@ -62,5 +64,5 @@ class MultiRange:
             for range_ in self.ranges
         )
 
-    def __or__(self, range_resource: Self | Iterable[range] | range) -> Self:
+    def __or__(self, range_resource: Self | many_or_one[range]) -> Self:
         return self.get_with(range_resource)

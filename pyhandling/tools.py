@@ -4,8 +4,12 @@ from functools import wraps, cached_property, partial
 from math import inf
 from typing import Callable, Self, Any, Iterable
 
+from pyannotating import method_of
 
-def to_clone(method: Callable[[object, ...], None]) -> Callable[[...], object]:
+from pyhandling.annotations import factory_of, handler
+
+
+def to_clone(method: method_of[object]) -> factory_of[object]:
     """
     Decorator function to spawn new objects by cloning and applying an input
     method to them.

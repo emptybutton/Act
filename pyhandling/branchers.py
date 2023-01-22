@@ -1,6 +1,8 @@
 from functools import reduce, wraps
 from typing import Iterable, Any, Callable, Self
 
+from pyannotating import many_or_one
+
 from pyhandling.annotations import handler, event, checker_of, factory_of, handler_of
 from pyhandling.binders import post_partial
 from pyhandling.errors import HandlingRecursionDepthError
@@ -39,7 +41,7 @@ class ActionChain:
 
     def __init__(
         self,
-        opening_handler_resource: Callable | Iterable[Callable] = tuple(),
+        opening_handler_resource: many_or_one[Callable] = tuple(),
         *handlers: handler
     ):
         self._handlers = get_collection_with_reduced_nesting(

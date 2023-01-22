@@ -3,6 +3,8 @@ from functools import wraps, partial
 from math import inf
 from typing import Callable, Iterable, Any, Type
 
+from pyannotating import many_or_one
+
 from pyhandling.annotations import handler, dirty, handler_of, event_for, factory_of
 from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition, rollbackable
 from pyhandling.binders import close, post_partial
@@ -178,7 +180,7 @@ saving_resource_on_error: Callable[[handler], handler] = documenting_by(
 )
 
 
-maybe: Callable[[Iterable[Callable] | Callable], ActionChain] = documenting_by(
+maybe: Callable[[many_or_one[Callable]], ActionChain] = documenting_by(
     """
     Function that decorates the input action chain or just a collection of
     handlers (ater on, the action chain anyway) and allowing to break this very

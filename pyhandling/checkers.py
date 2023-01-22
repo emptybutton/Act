@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from functools import partial
 from typing import Self, Any, Iterable, Optional, Callable, Sized
 
+from pyannotating import many_or_one
+
 from pyhandling.annotations import checker
 
 
@@ -31,7 +33,7 @@ class CheckerKeeper:
     unlimited input arguments.
     """
 
-    def __init__(self, checker_resource: checker | Iterable[checker], *checkers: checker):
+    def __init__(self, checker_resource: many_or_one[checker], *checkers: checker):
         self.checkers = (
             tuple(checker_resource)
             if isinstance(checker_resource, Iterable)
@@ -50,7 +52,7 @@ class UnionChecker(CheckerKeeper, IChecker):
 
     def __init__(
         self,
-        checker_resource: checker | Iterable[checker],
+        checker_resource: many_or_one[checker],
         *checkers: checker,
         is_strict: bool = False
     ):
@@ -90,6 +92,7 @@ class UnionChecker(CheckerKeeper, IChecker):
     def __and__(self, other: checker) -> Self:
         return self.create_merged_checker_by(self, other, is_strict=True)
 
+    def __rand__(self, other: checker) -> Self:
         return self.create_merged_checker_by(other, self, is_strict=True)
 
     @classmethod
@@ -187,7 +190,7 @@ class TypeChecker(CheckerUnionDelegatorMixin, IChecker):
 
     def __init__(
         self,
-        correct_type_resource: Iterable[type] | type,
+        correct_type_resource: many_or_one[type],
         *,
         is_correctness_under_supertype: bool = False
     ):
@@ -231,7 +234,7 @@ class LengthChecker(CheckerUnionDelegatorMixin, IChecker):
     value of the is_end_inclusive attribute.
     """
 
-    def __init__(self, required_length: int | Iterable[int], *, is_end_inclusive: bool = True):
+    def __init__(self, required_length: many_or_one[int], *, is_end_inclusive: bool = True):
         self._required_length = tuple(
             (min(required_length), max(required_length))
             if isinstance(required_length, Iterable)
