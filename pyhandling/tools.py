@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from copy import copy
 from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
@@ -25,6 +26,24 @@ def to_clone(method: method_of[object]) -> factory_of[object]:
     wrapper.__annotations__['return'] = Self
 
     return wrapper
+
+
+class Flag:
+    """Class for creating generic flags without using enum."""
+
+    def __init__(self, name: str, *, is_positive: bool = True):
+        self._name = name
+        self._is_positive = is_positive
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def __repr__(self) -> str:
+        return f"<{self._name} flag>"
+
+    def __bool__(self) -> bool:
+        return self._is_positive
 
 
 @dataclass(frozen=True)
