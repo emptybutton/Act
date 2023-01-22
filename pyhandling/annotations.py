@@ -1,4 +1,4 @@
-from typing import Any, Final, Callable
+from typing import Final, Callable, Any
 
 from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 
