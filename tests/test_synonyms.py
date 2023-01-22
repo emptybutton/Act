@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Callable, Any
 
-from pyhandling.synonyms import return_, raise_, call, call_method, getattr_of, setattr_of, getitem_of, setitem_of, execute_operation, handle_context_by
+from pyhandling.synonyms import return_, raise_, call, call_method, getattr_of, setattr_of, getitem_of, setitem_of, execute_operation, handle_context_by, transform_by, assert_
 from tests.mocks import Box
 
 from pytest import mark, raises
@@ -21,6 +21,17 @@ def test_return_(resource: Any):
 def test_raise_(error: Exception):
     with raises(error):
         raise_(error)
+
+
+@mark.parametrize('resource', (True, 42j, b"Hello world!", [1, 2, 3]))
+def test_error_free_assert_(resource: Any):
+    assert_(resource)
+
+
+@mark.parametrize('resource', (False, int(), str(), tuple()))
+def test_assert_error_raising(resource: Any):
+    with raises(AssertionError):
+        assert_(resource)
 
 
 @mark.parametrize('func, result', ((partial(return_, 1), 1), (lambda: 1 + 2, 3)))
