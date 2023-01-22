@@ -50,7 +50,7 @@ def test_action_chain_connection_to_other(first_nodes: Iterable[Callable], secon
         == ActionChain(first_nodes).clone_with(ActionChain(second_nodes)).handlers
         == (
             ActionChain(second_nodes).clone_with(
-                ActionChain(first_nodes), is_other_handlers_on_the_left=True
+                ActionChain(first_nodes), is_other_handlers_left=True
             ).handlers
         )
     )
@@ -73,7 +73,7 @@ def test_action_chain_connection_to_raw_handlers(first_nodes: Iterable[Callable]
         == ActionChain(first_nodes).clone_with(*second_nodes).handlers
         == (
             ActionChain(second_nodes).clone_with(
-                *first_nodes, is_other_handlers_on_the_left=True
+                *first_nodes, is_other_handlers_left=True
             ).handlers
         )
     )

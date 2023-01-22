@@ -69,7 +69,6 @@ class ActionChain:
         return self.clone_with(action_node)
 
     def __ror__(self, action_node: handler) -> Self:
-        return self.clone_with(action_node, is_other_handlers_on_the_left=True)
 
     def __le__(self, resource: Any) -> Any:
         return self(resource)
@@ -77,18 +76,18 @@ class ActionChain:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
 
-    def clone_with(self, *handlers: handler, is_other_handlers_on_the_left: bool = False) -> Self:
+    def clone_with(self, *handlers: handler, is_other_handlers_left: bool = False) -> Self:
         """
         Method for cloning the current chain instance with additional handlers
         from unlimited arguments.
 
         Additional handlers can be added to the beginning of the chain if
-        `is_other_handlers_on_the_left = True`.
+        `is_other_handlers_left = True`.
         """
 
         handler_groph = [self.handlers, handlers]
 
-        if is_other_handlers_on_the_left:
+        if is_other_handlers_left:
             handler_groph.reverse()
 
         return self.__class__(
