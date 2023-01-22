@@ -5,7 +5,7 @@ from typing import Callable, Iterable, Any, Type
 
 from pyannotating import many_or_one
 
-from pyhandling.annotations import handler, dirty, handler_of, event_for, factory_of
+from pyhandling.annotations import handler, dirty, handler_of, event_for, factory_of, reformer_of, checker_of
 from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition, rollbackable
 from pyhandling.binders import close, post_partial
 from pyhandling.errors import BadResourceError
@@ -72,7 +72,7 @@ def showly(handler: handler, *, writer: dirty[handler_of[str]] = print) -> dirty
     )
 
 
-documenting_by: Callable[[str], dirty[Callable[[object], object]]] = (
+documenting_by: Callable[[str], dirty[reformer_of[object]]] = (
     mergely(
         eventually(partial(return_, close(returnly(setattr_of)))),
         attribute_name=eventually(partial(return_, '__doc__')),
