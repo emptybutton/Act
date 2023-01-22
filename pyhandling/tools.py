@@ -56,6 +56,7 @@ class ArgumentKey:
 
     key: Any
     is_keyword: bool = field(default=False, kw_only=True)
+    default: Any = field(default=nothing, compare=False, kw_only=True)
 
 
 @dataclass(frozen=True)
@@ -78,7 +79,11 @@ class ArgumentPack:
         )
 
     def __getitem__(self, argument: ArgumentKey) -> Any:
-        return (self.kwargs if argument.is_keyword else self.args)[argument.key]
+        return (
+            (self.kwargs if argument.is_keyword else self.args)[argument.key]
+            if argument in self or argument.default is nothing
+            else argument.default
+        )
 
     def __or__(self, other: Self) -> Self:
         return self.merge_with(other)
