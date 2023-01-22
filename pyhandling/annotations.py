@@ -28,5 +28,6 @@ handler = handler_of[Any]
 
 checker = checker_of[Any]
 
+decorator = reformer_of[Callable]
 
 event = event_for[Any]
