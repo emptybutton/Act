@@ -89,7 +89,7 @@ class ArgumentPack:
         return self.merge_with(other)
 
     def __contains__(self, argument: ArgumentKey) -> bool:
-        return argument.key in (self.kwargs.keys() if argument.is_keyword else self.args)
+        return argument in self.keys
 
     def expand_with(self, *args, **kwargs) -> None:
         """Method to create another pack with input arguments."""
