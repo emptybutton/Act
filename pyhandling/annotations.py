@@ -1,7 +1,7 @@
 from copy import copy
 from typing import Any, Final, Callable
 
-from pyannotating import FormalAnnotation, CustomAnnotationFactory, input_annotation
+from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 
 
 dirty = FormalAnnotation(
@@ -14,14 +14,14 @@ dirty = FormalAnnotation(
 
 CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE: Final[str] = (
     """
-    CustomAnnotationFactory instance.
+    AnnotationTemplate instance.
     {}
-    See AnnotationFactory for more info.
+    See AnnotationTemplate and AnnotationFactory for more info.
     """
 )
 
 
-handler_of = CustomAnnotationFactory(Callable, [[input_annotation], Any])
+handler_of = AnnotationTemplate(Callable, [[input_annotation], Any])
 handler_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
     """
     Creates a Callable annotation that takes one parameter (the type of which
@@ -30,7 +30,7 @@ handler_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.f
 )
 
 
-checker_of = CustomAnnotationFactory(Callable, [[input_annotation], bool])
+checker_of = AnnotationTemplate(Callable, [[input_annotation], bool])
 checker_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
     """
     Creates a Callable annotation that takes one parameter (the type of which
@@ -39,7 +39,7 @@ checker_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.f
 )
 
 
-factory_of = CustomAnnotationFactory(Callable, [..., input_annotation])
+factory_of = AnnotationTemplate(Callable, [..., input_annotation])
 factory_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
     """
     Creates a Callable annotation that takes any parameters and returns the type
@@ -48,7 +48,7 @@ factory_of.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.f
 )
 
 
-event_for = CustomAnnotationFactory(Callable,[[], input_annotation])
+event_for = AnnotationTemplate(Callable,[[], input_annotation])
 event_for.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.format(
     """
     Creates a Callable annotation that takes no parameters and returns the type
