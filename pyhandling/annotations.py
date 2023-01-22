@@ -17,8 +17,8 @@ checker_of = AnnotationTemplate(Callable, [[input_annotation], bool])
 
 
 
+event_for = AnnotationTemplate(Callable, [[], input_annotation])
 
-event_for = AnnotationTemplate(Callable,[[], input_annotation])
 factory_of = AnnotationTemplate(Callable, [[...], input_annotation])
 
 
