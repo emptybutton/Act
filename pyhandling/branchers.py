@@ -69,6 +69,7 @@ class ActionChain:
         return self.clone_with(action_node)
 
     def __ror__(self, action_node: handler) -> Self:
+        return self.clone_with(action_node, is_other_handlers_left=True)
 
     def __le__(self, resource: Any) -> Any:
         return self(resource)
