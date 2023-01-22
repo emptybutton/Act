@@ -15,7 +15,9 @@ handler_of = AnnotationTemplate(Callable, [[input_annotation], Any])
 
 checker_of = AnnotationTemplate(Callable, [[input_annotation], bool])
 
+formatter_of = AnnotationTemplate(Callable, [[input_annotation], str])
 
+reformer_of = AnnotationTemplate(Callable, [[input_annotation], input_annotation])
 
 event_for = AnnotationTemplate(Callable, [[], input_annotation])
 
