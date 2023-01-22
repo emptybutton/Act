@@ -56,8 +56,8 @@ event_for.__doc__ = CUSTOM_ANNOTATION_FACTORY_INSTANCE_DOCUMENTATION_TEMPLATE.fo
 )
 
 
-Handler = handler_of[Any]
-Handler.__doc__ = (
+handler = handler_of[Any]
+handler.__doc__ = (
     """
     Annotation of non-strict handler of something.
     Created by handler_of and equivalently handler_of[Any].
@@ -65,8 +65,8 @@ Handler.__doc__ = (
 )
 
 
-Checker = checker_of[Any]
-Checker.__doc__ = (
+checker = checker_of[Any]
+checker.__doc__ = (
     """
     Annotation of non-strict checker of something.
     Created by checker_of and equivalently checker_of[Any].
@@ -74,8 +74,8 @@ Checker.__doc__ = (
 )
 
 
-Event = event_for[Any]
-Event.__doc__ = (
+event = event_for[Any]
+event.__doc__ = (
     """
     Event annotation, non-strict on the return type.
     Created by event_for and equivalently event_for[Any].

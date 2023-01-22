@@ -1,6 +1,6 @@
 from typing import Any, Callable
 
-from pyhandling.annotations import Event, Handler
+from pyhandling.annotations import event, handler
 
 
 def return_(resource: Any) -> Any:
@@ -77,7 +77,7 @@ def execute_operation(first_operand: Any, operator: str, second_operand: Any) ->
     )
 
 
-def handle_context_by(context_factory: Event, context_handler: Handler):
+def handle_context_by(context_factory: event, context_handler: handler) -> Any:
     """
     Function for emulating the "with as" context manager.
 

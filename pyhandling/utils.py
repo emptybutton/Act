@@ -3,7 +3,7 @@ from functools import wraps, partial
 from math import inf
 from typing import Callable, Iterable, Any, Type
 
-from pyhandling.annotations import Handler, dirty, handler_of, event_for, factory_of
+from pyhandling.annotations import handler, dirty, handler_of, event_for, factory_of
 from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition, rollbackable
 from pyhandling.binders import close, post_partial
 from pyhandling.errors import BadResourceError
@@ -56,6 +56,7 @@ class Logger:
 
 
 def showly(handler: Handler, *, writer: dirty[handler_of[str]] = print) -> dirty[ActionChain]:
+def showly(handler: handler, *, writer: dirty[handler_of[str]] = print) -> dirty[ActionChain]:
     """
     Decorator function for visualizing the outcomes of intermediate stages of a
     chain of actions, or simply the input and output results of a regular handler.
@@ -155,7 +156,7 @@ raising: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
 )
 
 
-saving_resource_on_error: Callable[[Handler], Handler] = documenting_by(
+saving_resource_on_error: Callable[[handler], handler] = documenting_by(
     """
     Decorator function that formats occurring errors to BadResourceError, saving
     information about the input resource and the error itself accordingly.

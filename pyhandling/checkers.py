@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from functools import partial
 from typing import Self, Any, Iterable, Optional, Callable, Sized
 
-from pyhandling.annotations import Checker
+from pyhandling.annotations import checker
 
 
 class IChecker(ABC):
@@ -13,11 +13,11 @@ class IChecker(ABC):
     """
 
     @abstractmethod
-    def __or__(self, other: Checker) -> Self:
+    def __or__(self, other: checker) -> Self:
         pass
 
     @abstractmethod
-    def __and__(self, other: Checker) -> Self:
+    def __and__(self, other: checker) -> Self:
         pass
 
     @abstractmethod
@@ -31,7 +31,7 @@ class CheckerKeeper:
     unlimited input arguments.
     """
 
-    def __init__(self, checker_resource: Checker | Iterable[Checker], *checkers: Checker):
+    def __init__(self, checker_resource: checker | Iterable[checker], *checkers: checker):
         self.checkers = (
             tuple(checker_resource)
             if isinstance(checker_resource, Iterable)
@@ -50,19 +50,19 @@ class UnionChecker(CheckerKeeper, IChecker):
 
     def __init__(
         self,
-        checker_resource: Checker | Iterable[Checker],
-        *checkers: Checker,
+        checker_resource: checker | Iterable[checker],
+        *checkers: checker,
         is_strict: bool = False
     ):
         super().__init__(checker_resource, *checkers)
         self.is_strict = is_strict
 
     @property
-    def checkers(self) -> tuple[Checker]:
+    def checkers(self) -> tuple[checker]:
         return self._checkers
 
     @checkers.setter
-    def checkers(self, checkers: Iterable[Checker]) -> None:
+    def checkers(self, checkers: Iterable[checker]) -> None:
         self._checkers = tuple(checkers)
 
         if len(self._checkers) == 0:
@@ -81,23 +81,22 @@ class UnionChecker(CheckerKeeper, IChecker):
             checker(resource) for checker in self.checkers
         )
 
-    def __or__(self, other: Checker) -> Self:
+    def __or__(self, other: checker) -> Self:
         return self.create_merged_checker_by(self, other, is_strict=False)
 
-    def __ror__(self, other: Checker) -> Self:
+    def __ror__(self, other: checker) -> Self:
         return self.create_merged_checker_by(other, self, is_strict=False)
 
-    def __and__(self, other: Checker) -> Self:
+    def __and__(self, other: checker) -> Self:
         return self.create_merged_checker_by(self, other, is_strict=True)
 
-    def __rand__(self, other: Checker) -> Self:
         return self.create_merged_checker_by(other, self, is_strict=True)
 
     @classmethod
     def create_merged_checker_by(
         cls, 
-        first_checker: Checker, 
-        second_checker: Checker, 
+        first_checker: checker, 
+        second_checker: checker, 
         *args, 
         is_strict: Optional[bool] = None, 
         **kwargs
@@ -127,7 +126,7 @@ class UnionChecker(CheckerKeeper, IChecker):
         )
 
     @staticmethod
-    def __get_checkers_from(checker: Checker) -> Iterable[Checker]:
+    def __get_checkers_from(checker: checker) -> Iterable[checker]:
         return (
             checker.checkers
             if isinstance(checker, UnionChecker)
@@ -146,29 +145,29 @@ class CheckerUnionDelegatorMixin:
     Uses UnionChecker by default.
     """
 
-    _non_strict_union_checker_factory: Callable[[Iterable[Checker]], IChecker] = UnionChecker
-    _strict_union_checker_factory: Callable[[Iterable[Checker]], IChecker] = partial(
+    _non_strict_union_checker_factory: Callable[[Iterable[checker]], IChecker] = UnionChecker
+    _strict_union_checker_factory: Callable[[Iterable[checker]], IChecker] = partial(
         UnionChecker,
         is_strict=True
     )
 
-    def __or__(self, other: Checker) -> IChecker:
+    def __or__(self, other: checker) -> IChecker:
         return self._non_strict_union_checker_factory((self, other))
 
-    def __ror__(self, other: Checker) -> Self:
+    def __ror__(self, other: checker) -> Self:
         return self._non_strict_union_checker_factory((other, self))
 
-    def __and__(self, other: Checker) -> IChecker:
+    def __and__(self, other: checker) -> IChecker:
         return self._strict_union_checker_factory((self, other))
 
-    def __rand__(self, other: Checker) -> Self:
+    def __rand__(self, other: checker) -> Self:
         return self._strict_union_checker_factory((other, self))
 
 
 class Negationer(CheckerUnionDelegatorMixin, IChecker):
     """Proxy checker class to emulate the \"not\" operator."""
 
-    def __init__(self, checker: Checker):
+    def __init__(self, checker: checker):
         self.checker = checker
 
     def __repr__(self) -> str:

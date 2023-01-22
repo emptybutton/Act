@@ -1,7 +1,7 @@
 from functools import reduce, wraps
 from typing import Iterable, Any, Callable, Self
 
-from pyhandling.annotations import Handler, Event, checker_of, factory_of, handler_of
+from pyhandling.annotations import handler, event, checker_of, factory_of, handler_of
 from pyhandling.binders import post_partial
 from pyhandling.errors import HandlingRecursionDepthError
 from pyhandling.tools import DelegatingProperty, ArgumentPack, ArgumentKey, get_collection_with_reduced_nesting
@@ -40,7 +40,7 @@ class ActionChain:
     def __init__(
         self,
         opening_handler_resource: Callable | Iterable[Callable] = tuple(),
-        *handlers: Handler
+        *handlers: handler
     ):
         self._handlers = get_collection_with_reduced_nesting(
             (
@@ -60,13 +60,13 @@ class ActionChain:
     def __iter__(self) -> iter:
         return iter(self.handlers)
 
-    def __rshift__(self, action_node: Handler) -> Self:
+    def __rshift__(self, action_node: handler) -> Self:
         return self.clone_with(action_node)
 
-    def __or__(self, action_node: Handler) -> Self:
+    def __or__(self, action_node: handler) -> Self:
         return self.clone_with(action_node)
 
-    def __ror__(self, action_node: Handler) -> Self:
+    def __ror__(self, action_node: handler) -> Self:
         return self.clone_with(action_node, is_other_handlers_on_the_left=True)
 
     def __le__(self, resource: Any) -> Any:
@@ -75,7 +75,7 @@ class ActionChain:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
 
-    def clone_with(self, *handlers: Handler, is_other_handlers_on_the_left: bool = False) -> Self:
+    def clone_with(self, *handlers: handler, is_other_handlers_on_the_left: bool = False) -> Self:
         """
         Method for cloning the current chain instance with additional handlers
         from unlimited arguments.
@@ -96,7 +96,7 @@ class ActionChain:
 
     def clone_with_intermediate(
         self,
-        intermediate_handler: Handler,
+        intermediate_handler: handler,
         *,
         is_on_input: bool = False,
         is_on_output: bool = False
@@ -162,7 +162,7 @@ def mergely(
 
 
 def recursively(
-    resource_handler: Handler,
+    resource_handler: handler,
     condition_checker: checker_of[Any],
     *,
     max_recursion_depth: int = 1000
@@ -269,7 +269,7 @@ def returnly(
     return wrapper
 
 
-def eventually(func: Event) -> Any:
+def eventually(func: event) -> Any:
     """
     Decorator function for constructing a function to which no input attributes
     will be passed.
