@@ -55,7 +55,6 @@ class Logger:
             self._logs = self._logs[self.maximum_log_count:]
 
 
-def showly(handler: Handler, *, writer: dirty[handler_of[str]] = print) -> dirty[ActionChain]:
 def showly(handler: handler, *, writer: dirty[handler_of[str]] = print) -> dirty[ActionChain]:
     """
     Decorator function for visualizing the outcomes of intermediate stages of a
