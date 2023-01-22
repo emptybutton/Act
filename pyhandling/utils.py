@@ -8,9 +8,10 @@ from pyannotating import many_or_one
 from pyhandling.annotations import handler, dirty, handler_of, event_for, factory_of, reformer_of, checker_of
 from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition, rollbackable
 from pyhandling.binders import close, post_partial
+from pyhandling.checkers import Negationer
 from pyhandling.errors import BadResourceError
-from pyhandling.synonyms import setattr_of, return_, execute_operation, getattr_of, raise_, getitem_of, call
-from pyhandling.tools import Clock, as_argument_pack, ArgumentKey, DelegatingProperty
+from pyhandling.synonyms import setattr_of, return_, execute_operation, getattr_of, raise_, getitem_of, transform_by
+from pyhandling.tools import Clock, as_argument_pack, ArgumentKey, DelegatingProperty, IBadResource
 
 
 class Logger:
@@ -178,21 +179,31 @@ raising: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
 
 maybe: Callable[[many_or_one[Callable]], ActionChain] = documenting_by(
     """
-    Function that decorates the input action chain or just a collection of
-    handlers (ater on, the action chain anyway) and allowing to break this very
-    action chain in case of an error, by returning a valid result of the last of
-    the fully completed node.
+    Function to finish execution of an action chain when a bad resource appears
+    in it.
     """
 )(
     as_collection
-    |then>> partial(map, saving_resource_on_error)
-    |then>> ActionChain
-    |then>> post_partial(
-        rollbackable,
-        on_condition(
-            post_partial(isinstance, BadResourceError),
-            post_partial(getattr_of, 'resource'),
-            else_=raise_
+    |then>> partial(
+        map |then>> tuple,
+        partial(
+            on_condition,
+            Negationer(post_partial(isinstance, IBadResource)),
+            else_=return_
         )
+    )
+    |then>> on_condition(
+        bool,
+        partial(
+            ActionChain(
+                on_condition(
+                    post_partial(isinstance, IBadResource),
+                    post_partial(getattr_of, 'resource'),
+                    else_=return_
+                )
+            ).clone_with,
+            is_other_handlers_left=True
+        ),
+        else_=ActionChain
     )
 )
