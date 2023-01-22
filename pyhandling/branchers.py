@@ -19,7 +19,7 @@ class ActionChain:
     Data returned when called is data exited from the last handler.
 
     The first handler is not bound to the standard handler interface and can be
-    Any callable object.
+    any callable object.
 
     Accordingly, delegates the call to that first handler, so it emulates its
     calling interface.
