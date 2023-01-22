@@ -121,8 +121,8 @@ class DelegatingProperty:
         delegated_attribute_name: str,
         *,
         settable: bool = False,
-        geting_value_converter: Callable[[Any], Any] = lambda resource: resource,
-        seting_value_converter: Callable[[Any], Any] = lambda resource: resource
+        geting_value_converter: handler = lambda resource: resource,
+        seting_value_converter: handler = lambda resource: resource
     ):
         self.delegated_attribute_name = delegated_attribute_name
         self.settable = settable

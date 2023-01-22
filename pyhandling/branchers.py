@@ -202,7 +202,7 @@ def recursively(
 
 
 def on_condition(
-    condition_checker: Callable[..., bool],
+    condition_checker: factory_of[bool],
     positive_condition_func: Callable,
     *,
     else_: Callable
