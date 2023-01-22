@@ -201,6 +201,15 @@ class Clock:
         return self.ticks_to_disability > 0
 
 
+class IBadResource(ABC):
+    """Class for annotating a resource that is invalid under some circumstances."""
+
+    @property
+    @abstractmethod
+    def resource(self) -> Any:
+        pass
+
+
 def get_collection_from(*collections: Iterable) -> tuple:
     """Function to get a collection with elements from input collections."""
 
