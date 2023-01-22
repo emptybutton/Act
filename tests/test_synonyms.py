@@ -74,6 +74,20 @@ def test_execute_operation(first: Any, operator: str, second: Any, result: Any):
 
 
 @mark.parametrize(
+    'operator, operand, result',
+    [
+        ('not', True, False),
+        ('not', False, True),
+        ('not', tuple(), True),
+        ('~', -43, 42),
+        ('~', 0, -1)
+    ]
+)
+def test_transform_by(operator: str, operand: Any, result: Any):
+    assert transform_by(operator, operand) == result
+
+
+@mark.parametrize(
     'context_factory, context_handler, result', (
         (Box, lambda resource: resource, None),
         (partial(Box, 1), lambda resource: resource, 1),

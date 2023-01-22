@@ -83,6 +83,17 @@ def execute_operation(first_operand: Any, operator: str, second_operand: Any) ->
     )
 
 
+def transform_by(operator: str, operand: Any) -> Any:
+    """
+    Function to use single operand operator in functional way.
+
+    Since this function uses eval, do not pass operator from the global input to
+    it.
+    """
+
+    return eval(f"{operator} operand", dict(), {'operand': operand})
+
+
 def handle_context_by(context_factory: event, context_handler: handler) -> Any:
     """
     Function for emulating the "with as" context manager.
