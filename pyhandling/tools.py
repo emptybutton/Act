@@ -3,7 +3,7 @@ from copy import copy
 from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
 from math import inf
-from typing import Callable, Self, Any, Iterable
+from typing import Self, Any, Final, Iterable, Callable
 
 from pyannotating import method_of
 
@@ -44,6 +44,10 @@ class Flag:
 
     def __bool__(self) -> bool:
         return self._is_positive
+
+
+nothing: Final[Flag] = Flag('nothing', is_positive=False)
+nothing.__doc__ = """Flag to indicate the absence of anything, including None."""
 
 
 @dataclass(frozen=True)
