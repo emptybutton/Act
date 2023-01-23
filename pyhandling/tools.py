@@ -243,8 +243,11 @@ def get_collection_from(*collections: Iterable) -> tuple:
     return get_collection_with_reduced_nesting(collections, 1)
 
 
-def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int = inf) -> tuple:
+def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int | float = inf) -> tuple:
     """Function that allows to get a collection with a reduced nesting level."""
+
+    if isinstance(number_of_reductions, float) and number_of_reductions != inf:
+        number_of_reductions = int(number_of_reductions)
 
     reduced_collection = list()
 
