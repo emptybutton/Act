@@ -236,6 +236,9 @@ class BadResourceWrapper(IBadResourceKeeper):
     def __init__(self, resource: Any):
         self._bad_resource = resource
 
+    def __repr__(self) -> str:
+        return f"<Wrapper of bad {self.bad_resource}>"
+
 
 def get_collection_from(*collections: Iterable) -> tuple:
     """Function to get a collection with elements from input collections."""
