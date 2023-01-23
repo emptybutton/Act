@@ -79,7 +79,7 @@ class UnionChecker(CheckerKeeper, IChecker):
         )
 
     def __call__(self, resource: Any) -> bool:
-        return (all if self.is_strict else Any)(
+        return (all if self.is_strict else any)(
             checker(resource) for checker in self.checkers
         )
 
