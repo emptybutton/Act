@@ -11,7 +11,7 @@ from pyhandling.binders import close, post_partial
 from pyhandling.checkers import Negationer
 from pyhandling.errors import BadResourceError
 from pyhandling.synonyms import setattr_of, return_, execute_operation, getattr_of, raise_, getitem_of, transform_by
-from pyhandling.tools import Clock, as_argument_pack, ArgumentKey, DelegatingProperty, IBadResource
+from pyhandling.tools import Clock, IBadResourceKeeper
 
 
 class Logger:
@@ -179,31 +179,20 @@ raising: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
 
 maybe: Callable[[many_or_one[Callable]], ActionChain] = documenting_by(
     """
-    Function to finish execution of an action chain when a bad resource appears
-    in it.
+    Function to finish execution of an action chain when a bad resource keeper
+    appears in it by returning this same keeper, skipping subsequent action
+    chain nodes.
     """
 )(
     as_collection
-    |then>> partial(
-        map |then>> tuple,
+    |then>> close(map)(
         partial(
             on_condition,
-            Negationer(post_partial(isinstance, IBadResource)),
+            Negationer(post_partial(isinstance, IBadResourceKeeper)),
             else_=return_
         )
     )
-    |then>> on_condition(
-        bool,
-        partial(
-            ActionChain(
-                on_condition(
-                    post_partial(isinstance, IBadResource),
-                    post_partial(getattr_of, 'resource'),
-                    else_=return_
-                )
-            ).clone_with,
-            is_other_handlers_left=True
-        ),
-        else_=ActionChain
+    |then>> ActionChain
+)
     )
 )
