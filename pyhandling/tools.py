@@ -3,8 +3,8 @@ from copy import copy
 from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
 from math import inf
-from typing import Self, Any, Final, Iterable, Callable
 from types import MappingProxyType
+from typing import Self, Final, Any, Iterable, Optional, Tuple, Callable
 
 from pyannotating import method_of
 
@@ -221,20 +221,20 @@ class Clock:
         return self.ticks_to_disability > 0
 
 
-class IBadResource(ABC):
+class IBadResourceKeeper(ABC):
     """Class for annotating a resource that is invalid under some circumstances."""
 
     @property
     @abstractmethod
-    def resource(self) -> Any:
+    def bad_resource(self) -> Any:
         pass
 
 
-class BadResource(IBadResource):
-    resource = DelegatingProperty('_resource')
+class BadResourceWrapper(IBadResourceKeeper):
+    bad_resource = DelegatingProperty('_bad_resource')
 
     def __init__(self, resource: Any):
-        self._resource = resource
+        self._bad_resource = resource
 
 
 def get_collection_from(*collections: Iterable) -> tuple:
