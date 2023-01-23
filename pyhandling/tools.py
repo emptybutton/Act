@@ -10,7 +10,7 @@ from pyannotating import method_of
 from pyhandling.annotations import factory_for, handler
 
 
-def to_clone(method: method_of[object]) -> factory_of[object]:
+def to_clone(method: method_of[object]) -> factory_for[object]:
     """
     Decorator function to spawn new objects by cloning and applying an input
     method to them.
