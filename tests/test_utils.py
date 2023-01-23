@@ -6,8 +6,8 @@ from pytest import mark, raises
 from pyhandling.branchers import ActionChain, eventually
 from pyhandling.errors import BadResourceError
 from pyhandling.synonyms import raise_
-from pyhandling.tools import ArgumentPack, BadResource, IBadResource
 from pyhandling.utils import Logger, showly, documenting_by, as_collection, times, raising, returnly_rollbackable, maybe, returnly_rollbackable
+from pyhandling.tools import ArgumentPack, BadResourceWrapper, IBadResourceKeeper
 from tests.mocks import Counter, MockHandler, MockObject
 
 
