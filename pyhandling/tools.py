@@ -133,17 +133,17 @@ class ArgumentPack:
         keyword_argument_keys = set(filter(lambda argument_key: argument_key.is_keyword, argument_keys))
 
         return self.__class__(
-            tuple(self[argument_key] for argument_key in set(arguments) - keyword_argument_keys),
+            tuple(self[argument_key] for argument_key in set(argument_keys) - keyword_argument_keys),
             {keyword_argument_key.key: self[keyword_argument_key] for keyword_argument_key in keyword_argument_keys}
         )
 
-    def without(self, *arguments: ArgumentKey) -> Self:
+    def without(self, *argument_keys: ArgumentKey) -> Self:
         """
         Method for cloning a pack excluding arguments whose keys are input to
         this method.
         """
         
-        return self.only_with(*(set(self.keys) - set(arguments)))
+        return self.only_with(*(set(self.keys) - set(argument_keys)))
 
     def call(self, caller: Callable) -> Any:
         """
