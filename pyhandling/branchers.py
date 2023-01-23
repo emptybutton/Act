@@ -3,10 +3,10 @@ from typing import Callable, Iterable, Any, Iterator, Self
 
 from pyannotating import many_or_one
 
-from pyhandling.annotations import handler, event, checker_of, factory_of, handler_of
+from pyhandling.annotations import handler, factory_for, checker_of, handler_of, event
 from pyhandling.binders import post_partial
 from pyhandling.errors import HandlingRecursionDepthError
-from pyhandling.tools import DelegatingProperty, ArgumentPack, ArgumentKey, get_collection_with_reduced_nesting
+from pyhandling.tools import DelegatingProperty, get_collection_with_reduced_nesting, ArgumentPack, ArgumentKey
 from pyhandling.synonyms import return_
 
 
