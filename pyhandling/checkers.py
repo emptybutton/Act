@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from functools import partial
-from typing import Self, Any, Iterable, Optional, Callable, Sized
+from typing import Self, Any, Iterable, Tuple, Optional, Callable, Sized
 
 from pyannotating import many_or_one
 
@@ -60,7 +60,7 @@ class UnionChecker(CheckerKeeper, IChecker):
         self.is_strict = is_strict
 
     @property
-    def checkers(self) -> tuple[checker]:
+    def checkers(self) -> Tuple[checker]:
         return self._checkers
 
     @checkers.setter
@@ -244,7 +244,7 @@ class LengthChecker(CheckerUnionDelegatorMixin, IChecker):
         self._update_required_length_range()
 
     @property
-    def required_length(self) -> tuple[int]:
+    def required_length(self) -> Tuple[int]:
         return self._required_length
 
     @required_length.setter

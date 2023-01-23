@@ -34,7 +34,7 @@ class MultiRange:
         )
 
     @property
-    def ranges(self) -> tuple[range]:
+    def ranges(self) -> Tuple[range]:
         return self._ranges
 
     def get_with(self, range_resource: Self | many_or_one[range]) -> Self:

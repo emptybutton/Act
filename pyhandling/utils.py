@@ -1,7 +1,7 @@
 from datetime import datetime
 from functools import wraps, partial
 from math import inf
-from typing import Callable, Iterable, Any, Type
+from typing import Iterable, Tuple, Any, Callable, Type
 
 from pyannotating import many_or_one
 
@@ -44,7 +44,7 @@ class Logger:
             self(log)
 
     @property
-    def logs(self) -> tuple[str]:
+    def logs(self) -> Tuple[str]:
         return tuple(self._logs)
 
     def __call__(self, message: str) -> None:
