@@ -1,5 +1,5 @@
 from functools import reduce, wraps
-from typing import Iterable, Any, Callable, Self
+from typing import Callable, Iterable, Any, Iterator, Self
 
 from pyannotating import many_or_one
 
@@ -59,7 +59,7 @@ class ActionChain:
             (self.handlers[0](*args, **kwargs), *self.handlers[1:])
         ) if self.handlers else ArgumentPack(args, kwargs)
 
-    def __iter__(self) -> iter:
+    def __iter__(self) -> Iterator[Callable]:
         return iter(self.handlers)
 
     def __rshift__(self, action_node: handler) -> Self:

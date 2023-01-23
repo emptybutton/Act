@@ -1,4 +1,4 @@
-from typing import Container, Any, Self
+from typing import Container, Any, Tuple, Self, Generator
 
 from pyannotating import many_or_one
 
@@ -51,7 +51,7 @@ class MultiRange:
     def __repr__(self) -> str:
         return "MultiRange({})".format(', '.join(map(str, self.ranges)))
 
-    def __iter__(self) -> iter:
+    def __iter__(self) -> Generator[int, None, None]:
         return (
             item
             for range_ in self.ranges
