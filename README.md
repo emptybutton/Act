@@ -9,44 +9,34 @@ You can even integrate the entire program logic into one call
 
 ## Usage examples
 
-Basic example
+### Composition
+Merge your functions into one
 
 ```python
-from functools import partial
-from typing import Callable
-
-from random import randint
-
-from pyhandling import *
-
-
-main: dirty[Callable[[int], str]] = showly(
-    on_condition(
-        lambda number: not 0 <= number <= 10,
-        (
-            "Input number must be positive and less than 11 but it is {}".format
-            |then>> ValueError
-            |then>> raise_
-        ),
-        else_=return_
-    )
-    |then>> mergely(take(execute_operation), return_, take('<<'), return_)
-    |then>> mergely(
-        take("{number} is {comparison_word} than 255".format),
-        number=return_,
-        comparison_word=lambda numebr: 'less' if numebr < 255 else 'more'
-    )
-)
-
-if __name__ == '__main__':
-    main(randint(-5, 10))
+print_multiplied_line_from = str |then>> (lambda x: x * 2) |then>> print
+print_multiplied_line_from(23)
 ```
 
-**output**
-```
-4
-4
-64
-64 is less than 255
+to later get
+
+```python
+2323
 ```
 
+or you can do the same but call the function immediately
+
+```python
+23 >= str |then>> (lambda x: x * 2) |then>> print
+```
+
+and get the same result
+```python
+2323
+```
+
+### Currying
+Change the interface of your functions to suit your current needs
+
+```python
+post_partial(lambda a, b, c: a + b + c, "world", '!')("Hello") 
+```
