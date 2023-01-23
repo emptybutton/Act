@@ -126,9 +126,9 @@ class ActionChain:
 
 
 def mergely(
-    merge_function_factory: factory_of[Callable],
-    *parallel_functions: factory_of[Any],
-    **keyword_parallel_functions: factory_of[Any]
+    merge_function_factory: factory_for[Callable],
+    *parallel_functions: factory_for[Any],
+    **keyword_parallel_functions: factory_for[Any]
 ):
     """
     Decorator function that allows to initially separate several operations on
@@ -204,7 +204,7 @@ def recursively(
 
 
 def on_condition(
-    condition_checker: factory_of[bool],
+    condition_checker: factory_for[bool],
     positive_condition_func: Callable,
     *,
     else_: Callable

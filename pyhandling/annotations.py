@@ -21,7 +21,7 @@ reformer_of = AnnotationTemplate(Callable, [[input_annotation], input_annotation
 
 event_for = AnnotationTemplate(Callable, [[], input_annotation])
 
-factory_of = AnnotationTemplate(Callable, [[...], input_annotation])
+factory_for = AnnotationTemplate(Callable, [[...], input_annotation])
 
 
 handler = handler_of[Any]

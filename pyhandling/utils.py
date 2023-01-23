@@ -5,8 +5,8 @@ from typing import Callable, Iterable, Any, Type
 
 from pyannotating import many_or_one
 
-from pyhandling.annotations import handler, dirty, handler_of, event_for, factory_of, reformer_of, checker_of
 from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition, rollbackable
+from pyhandling.annotations import handler, dirty, handler_of, checker_of, reformer_of, factory_for, event_for
 from pyhandling.binders import close, post_partial
 from pyhandling.checkers import Negationer
 from pyhandling.errors import BadResourceError
@@ -121,7 +121,7 @@ as_collection: Callable[[Any], tuple] = documenting_by(
 )
 
 
-take: Callable[[Any], factory_of[Any]] = documenting_by(
+take: Callable[[Any], factory_for[Any]] = documenting_by(
     """
     Shortcut function equivalent to eventually(partial(return_, input_resource).
     """

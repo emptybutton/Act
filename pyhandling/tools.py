@@ -7,7 +7,7 @@ from typing import Self, Any, Final, Iterable, Callable
 
 from pyannotating import method_of
 
-from pyhandling.annotations import factory_of, handler
+from pyhandling.annotations import factory_for, handler
 
 
 def to_clone(method: method_of[object]) -> factory_of[object]:
