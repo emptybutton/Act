@@ -188,6 +188,7 @@ def test_returnly_rollbackable_error_returning(
         (returnly_rollbackable(lambda x: x / 0, lambda error: isinstance(error, ZeroDivisionError)), 42, 42),
         (ActionChain(), 42, ArgumentPack((42, ))),
         (tuple(), 256, ArgumentPack((256, ))),
+        (lambda x: x ** x, 4, 256),
         ([lambda x: x ** 2, lambda x: x ** x], 2, 256),
         (
             [
