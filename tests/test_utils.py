@@ -213,4 +213,6 @@ def test_maybe(
     assert (
         (maybe_result.bad_resource if isinstance(maybe_result, IBadResourceKeeper) else maybe_result)
         == result
+    )
+
 
