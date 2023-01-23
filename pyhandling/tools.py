@@ -231,6 +231,11 @@ class IBadResourceKeeper(ABC):
 
 
 class BadResourceWrapper(IBadResourceKeeper):
+    """
+    Implementation class for the BadResourceKeeper interface for storing a
+    resource without the context of its badness.
+    """
+
     bad_resource = DelegatingProperty('_bad_resource')
 
     def __init__(self, resource: Any):
