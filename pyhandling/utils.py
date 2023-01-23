@@ -3,7 +3,7 @@ from functools import wraps, partial
 from math import inf
 from typing import Iterable, Tuple, Any, Callable, Type
 
-from pyannotating import many_or_one
+from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import handler, dirty, handler_of, checker_of, reformer_of, factory_for, event_for
 from pyhandling.branchers import ActionChain, returnly, then, rollbackable, mergely, eventually, on_condition
@@ -194,5 +194,17 @@ maybe: Callable[[many_or_one[Callable]], ActionChain] = documenting_by(
     )
     |then>> ActionChain
 )
+
+
+optionally_get_bad_resource_from: handler_of[Special[IBadResourceKeeper]] = documenting_by(
+    """
+    Function for getting a bad resource from his keeper when this keeper enters.
+    Returns the input resource if it is not a bad resource keeper.
+    """
+)(
+    on_condition(
+        post_partial(isinstance, IBadResourceKeeper),
+        post_partial(getattr_of, 'bad_resource'),
+        else_=return_
     )
 )
