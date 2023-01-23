@@ -7,7 +7,7 @@ from pyhandling.branchers import ActionChain, eventually
 from pyhandling.errors import BadResourceError
 from pyhandling.synonyms import raise_
 from pyhandling.tools import ArgumentPack, BadResourceWrapper, IBadResourceKeeper
-from pyhandling.utils import Logger, showly, documenting_by, as_collection, times, raising, returnly_rollbackable, maybe, returnly_rollbackable, optionally_get_bad_resource_from
+from pyhandling.utils import Logger, showly, documenting_by, calling_of, as_collection, times, raising, returnly_rollbackable, maybe, returnly_rollbackable, optionally_get_bad_resource_from
 from tests.mocks import Counter, MockHandler, MockObject
 
 
@@ -61,6 +61,18 @@ def test_documenting_by(documentation: str):
 
     assert '__doc__' in mock.__dict__.keys()
     assert mock.__doc__ == documentation
+
+
+@mark.parametrize(
+    "object_, args, kwargs, result",
+    [
+        (lambda x, y: x * y + x + y, (2, 3), dict(), 11),
+        (lambda x, y: x / y, (84,), dict(y=2), 42),
+        (lambda: 256, tuple(), dict(), 256)
+    ]
+)
+def test_calling_of(object_: Callable, args: Iterable, kwargs: dict, result: Any):
+    assert calling_of(object_)(*args, **kwargs) == result
 
 
 @mark.parametrize(
