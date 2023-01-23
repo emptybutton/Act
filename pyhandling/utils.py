@@ -5,12 +5,12 @@ from typing import Iterable, Tuple, Any, Callable, Type
 
 from pyannotating import many_or_one
 
-from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition, rollbackable
 from pyhandling.annotations import handler, dirty, handler_of, checker_of, reformer_of, factory_for, event_for
+from pyhandling.branchers import ActionChain, returnly, then, rollbackable, mergely, eventually, on_condition
 from pyhandling.binders import close, post_partial
 from pyhandling.checkers import Negationer
 from pyhandling.errors import BadResourceError
-from pyhandling.synonyms import setattr_of, return_, execute_operation, getattr_of, raise_, getitem_of, transform_by
+from pyhandling.synonyms import return_, setattr_of, execute_operation, getattr_of, raise_
 from pyhandling.tools import Clock, IBadResourceKeeper
 
 
