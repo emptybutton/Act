@@ -34,7 +34,7 @@ class ActionChain:
     Also can be used >> to expand handlers starting from the end respectively.
 
     Has a one resource call synonyms >= and <= where is the chain on the right
-    i.e. \"resource >= chain_instance\" and \"instance <= resource\". 
+    i.e. \"resource >= chain_instance\" and \"chain_instance <= resource\". 
     """
 
     handlers = DelegatingProperty('_handlers')
