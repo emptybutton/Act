@@ -111,7 +111,7 @@ class ArgumentPack:
     def __contains__(self, argument: ArgumentKey) -> bool:
         return argument in self.keys
 
-    def expand_with(self, *args, **kwargs) -> None:
+    def expand_with(self, *args, **kwargs) -> Self:
         """Method to create another pack with input arguments."""
 
         return self.__class__(
@@ -119,7 +119,7 @@ class ArgumentPack:
             self.kwargs | kwargs
         )
 
-    def merge_with(self, argument_pack: Self) -> None:
+    def merge_with(self, argument_pack: Self) -> Self:
         """Method to create another pack by merging with an input argument pack."""
 
         return self.__class__(
