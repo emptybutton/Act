@@ -5,7 +5,7 @@ from typing import Iterable, Tuple, Any, Callable, Type
 
 from pyannotating import many_or_one, Special
 
-from pyhandling.annotations import handler, dirty, handler_of, checker_of, reformer_of, factory_for, event_for
+from pyhandling.annotations import handler, dirty, handler_of, checker_of, reformer_of, decorator, factory_for, event_for
 from pyhandling.branchers import ActionChain, returnly, then, rollbackable, mergely, eventually, on_condition
 from pyhandling.binders import close, post_partial
 from pyhandling.checkers import Negationer
@@ -104,6 +104,18 @@ documenting_by.__doc__ = (
     Function of getting other function that getting resource with the input 
     documentation from this first function.
     """
+)
+
+
+calling_of: decorator = documenting_by(
+    """
+    Function to represent a proxy of some callable object to call it without
+    direct referring to this very object.
+
+    Can be used to later represent the proxy as a method.
+    """
+)(
+    lambda object_: lambda *args, **kwargs: object_(*args, **kwargs)
 )
 
 
