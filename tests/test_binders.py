@@ -5,6 +5,8 @@ from pyhandling.tools import ArgumentPack
 
 
 def sum_of(first, second, third=3, fourth=4):
+    """Stub function for testing currying."""
+
     return first + second + third + fourth
 
 
