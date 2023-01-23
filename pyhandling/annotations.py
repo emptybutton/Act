@@ -1,4 +1,4 @@
-from typing import Callable, Any
+from typing import Callable, Any, Self
 
 from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 
@@ -16,6 +16,8 @@ handler_of = AnnotationTemplate(Callable, [[input_annotation], Any])
 checker_of = AnnotationTemplate(Callable, [[input_annotation], bool])
 
 formatter_of = AnnotationTemplate(Callable, [[input_annotation], str])
+
+endofunctor_from = AnnotationTemplate(Callable, [[input_annotation], Self])
 
 reformer_of = AnnotationTemplate(Callable, [[input_annotation], input_annotation])
 
