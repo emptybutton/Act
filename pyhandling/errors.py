@@ -12,7 +12,9 @@ class HandlingRecursionError(PyhandingError):
 
 
 class HandlingRecursionDepthError(HandlingRecursionError):
-    __notes__ = ("To change the limit, call recursive with the max_recursion_depth argument, with the desired value", )
+    __notes__ = [
+        "To change the limit, call recursive with the max_recursion_depth argument, with the desired value"
+    ]
 
 
 class BadResourceError(PyhandingError, IBadResourceKeeper):
