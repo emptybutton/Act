@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
 from math import inf
 from typing import Self, Any, Final, Iterable, Callable
+from types import MappingProxyType
 
 from pyannotating import method_of
 
@@ -59,7 +60,6 @@ class ArgumentKey:
     default: Any = field(default=nothing, compare=False, kw_only=True)
 
 
-@dataclass(frozen=True)
 class ArgumentPack:
     """
     Data class for structuring the storage of any arguments.
@@ -68,15 +68,35 @@ class ArgumentPack:
     instance.
     """
 
-    args: Iterable = tuple()
-    kwargs: dict = field(default_factory=dict)
+    def __init__(self, args: Iterable = tuple(), kwargs: Optional[dict] = None):
+        self._args = tuple(args)
+        self._kwargs = MappingProxyType(kwargs if kwargs is not None else dict())
+
+    @property
+    def args(self) -> tuple:
+        return self._args
+
+    @property
+    def kwargs(self) -> MappingProxyType:
+        return self._kwargs
 
     @cached_property
-    def keys(self) -> tuple[ArgumentKey]:
+    def keys(self) -> Tuple[ArgumentKey]:
         return (
             *map(ArgumentKey, range(len(self.args))),
             *map(partial(ArgumentKey, is_keyword=True), self.kwargs.keys())
         )
+
+    def __repr__(self) -> str:
+        return "{class_name}({formatted_args}{argument_separation_part}{formatted_kwargs})".format(
+            class_name=self.__class__.__name__,
+            formatted_args=', '.join(map(str, self.args)),
+            argument_separation_part=', ' if self.args and self.kwargs else str(),
+            formatted_kwargs=', '.join(map(lambda item: f"{item[0]}={item[1]}", self.kwargs.items()))
+        )
+
+    def __eq__(self, other: Self) -> bool:
+        return self.args == other.args and self.kwargs == other.kwargs
 
     def __getitem__(self, argument: ArgumentKey) -> Any:
         return (
