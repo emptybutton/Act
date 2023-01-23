@@ -5,7 +5,7 @@ from pyhandling.tools import ArgumentPack
 
 
 def sum_of(first, second, third=3, fourth=4):
-    return first + second + third
+    return first + second + third + fourth
 
 
 def test_bind():
