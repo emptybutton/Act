@@ -1,4 +1,4 @@
-from typing import Iterable, Callable
+from typing import Iterable, Callable, Any
 from math import inf
 
 from pytest import mark
@@ -86,7 +86,7 @@ def test_argument_pack_expanding(
         (lambda: 48, ArgumentPack(), 48),
     ]
 )
-def test_argument_pack_calling(func: Callable, argument_pack: ArgumentPack, result: any):
+def test_argument_pack_calling(func: Callable, argument_pack: ArgumentPack, result: Any):
     assert argument_pack.call(func) == result
 
 
@@ -102,7 +102,7 @@ def test_argument_pack_calling(func: Callable, argument_pack: ArgumentPack, resu
 def test_argument_pack_getting_argument_by_key(
     argument_pack: ArgumentPack,
     argument_key: ArgumentKey,
-    result: any
+    result: Any
 ):
     assert argument_pack[argument_key] == result
 

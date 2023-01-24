@@ -1,82 +1,13 @@
-from enum import Enum, auto
-from functools import reduce, wraps, partial
-from typing import Iterable, Callable, Self, Optional
+from functools import reduce, wraps
+from typing import Callable, Iterable, Any, Iterator, Self
 
-from pyhandling.annotations import Handler, Event, checker_of, factory_of, handler_of
+from pyannotating import many_or_one
+
+from pyhandling.annotations import handler, factory_for, checker_of, handler_of, event
 from pyhandling.binders import post_partial
 from pyhandling.errors import HandlingRecursionDepthError
-from pyhandling.tools import DelegatingProperty, ArgumentPack, ArgumentKey, get_collection_with_reduced_nesting
+from pyhandling.tools import DelegatingProperty, get_collection_with_reduced_nesting, ArgumentPack, ArgumentKey
 from pyhandling.synonyms import return_
-
-
-class HandlerKeeper:
-    """
-    Mixin class for conveniently getting handlers from an input collection and
-    unlimited input arguments.
-    """
-
-    handlers = DelegatingProperty('_handlers')
-
-    def __init__(self, handler_resource: Handler | Iterable[Handler], *handlers: Handler):
-        self._handlers = (
-            tuple(handler_resource)
-            if isinstance(handler_resource, Iterable)
-            else (handler_resource, )
-        ) + handlers
-
-
-class ReturnFlag(Enum):
-    """
-    Enum return method flags class.
-    
-    Describe the returned result from something (MultipleHandler).
-    """
-
-    first_received = auto()
-    last_thing = auto()
-    everything = auto()
-    nothing = auto()
-
-
-class MultipleHandler(HandlerKeeper):
-    """
-    Handler proxy class for representing multiple handlers as a single
-    interface.
-
-    Applies its handlers to a single resource.
-
-    Return data is described using the ReturnFlag of the return_flag attribute.
-    """
-
-    def __init__(
-        self,
-        handler_resource: Handler | Iterable[Handler],
-        *handlers: Handler,
-        return_flag: ReturnFlag = ReturnFlag.first_received
-    ):
-        super().__init__(handler_resource, *handlers)
-        self.return_flag = return_flag
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({', '.join(map(str, self.handlers))})"
-
-    def __call__(self, resource: any) -> any:
-        result_of_all_handlers = list()
-
-        for handler in self.handlers:
-            handler_result = handler(resource)
-
-            if self.return_flag == ReturnFlag.everything:
-                result_of_all_handlers.append(handler_result)
-
-            if self.return_flag == ReturnFlag.first_received and handler_result is not None:
-                return handler_result
-
-        if self.return_flag == ReturnFlag.everything:
-            return tuple(result_of_all_handlers)
-
-        if self.return_flag == ReturnFlag.last_thing:
-            return handler_result
 
 
 class ActionChain:
@@ -103,15 +34,15 @@ class ActionChain:
     Also can be used >> to expand handlers starting from the end respectively.
 
     Has a one resource call synonyms >= and <= where is the chain on the right
-    i.e. \"resource >= chain_instance\" and \"instance <= resource\". 
+    i.e. \"resource >= chain_instance\" and \"chain_instance <= resource\". 
     """
 
     handlers = DelegatingProperty('_handlers')
 
     def __init__(
         self,
-        opening_handler_resource: Callable | Iterable[Callable] = tuple(),
-        *handlers: Handler
+        opening_handler_resource: many_or_one[Callable] = tuple(),
+        *handlers: handler
     ):
         self._handlers = get_collection_with_reduced_nesting(
             (
@@ -122,42 +53,42 @@ class ActionChain:
             + handlers
         )
 
-    def __call__(self, *args, **kwargs) -> any:
+    def __call__(self, *args, **kwargs) -> Any:
         return reduce(
             lambda resource, handler: handler(resource),
             (self.handlers[0](*args, **kwargs), *self.handlers[1:])
         ) if self.handlers else ArgumentPack(args, kwargs)
 
-    def __iter__(self) -> iter:
+    def __iter__(self) -> Iterator[Callable]:
         return iter(self.handlers)
 
-    def __rshift__(self, action_node: Handler) -> Self:
+    def __rshift__(self, action_node: handler) -> Self:
         return self.clone_with(action_node)
 
-    def __or__(self, action_node: Handler) -> Self:
+    def __or__(self, action_node: handler) -> Self:
         return self.clone_with(action_node)
 
-    def __ror__(self, action_node: Handler) -> Self:
-        return self.clone_with(action_node, is_other_handlers_on_the_left=True)
+    def __ror__(self, action_node: handler) -> Self:
+        return self.clone_with(action_node, is_other_handlers_left=True)
 
-    def __le__(self, resource: any) -> any:
+    def __le__(self, resource: Any) -> Any:
         return self(resource)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
 
-    def clone_with(self, *handlers: Handler, is_other_handlers_on_the_left: bool = False) -> Self:
+    def clone_with(self, *handlers: handler, is_other_handlers_left: bool = False) -> Self:
         """
         Method for cloning the current chain instance with additional handlers
         from unlimited arguments.
 
         Additional handlers can be added to the beginning of the chain if
-        `is_other_handlers_on_the_left = True`.
+        `is_other_handlers_left = True`.
         """
 
         handler_groph = [self.handlers, handlers]
 
-        if is_other_handlers_on_the_left:
+        if is_other_handlers_left:
             handler_groph.reverse()
 
         return self.__class__(
@@ -167,7 +98,7 @@ class ActionChain:
 
     def clone_with_intermediate(
         self,
-        intermediate_handler: Handler,
+        intermediate_handler: handler,
         *,
         is_on_input: bool = False,
         is_on_output: bool = False
@@ -195,9 +126,9 @@ class ActionChain:
 
 
 def mergely(
-    merge_function_factory: factory_of[Callable],
-    *parallel_functions: factory_of[any],
-    **keyword_parallel_functions: factory_of[any]
+    merge_function_factory: factory_for[Callable],
+    *parallel_functions: factory_for[Any],
+    **keyword_parallel_functions: factory_for[Any]
 ):
     """
     Decorator function that allows to initially separate several operations on
@@ -233,11 +164,11 @@ def mergely(
 
 
 def recursively(
-    resource_handler: Handler,
-    condition_checker: checker_of[any],
+    resource_handler: handler,
+    condition_checker: checker_of[Any],
     *,
-    max_recursion_depth: int = 1_000
-) -> any:
+    max_recursion_depth: int = 1000
+) -> Any:
     """
     Function to recursively handle input resource.
 
@@ -253,7 +184,7 @@ def recursively(
     maximum expires, it causes the corresponding error.
     """
 
-    def recursively_handle(resource: any) -> any:
+    def recursively_handle(resource: Any) -> Any:
         """
         Function emulating recursion that was created as a result of calling
         recursively.
@@ -273,7 +204,7 @@ def recursively(
 
 
 def on_condition(
-    condition_checker: Callable[..., bool],
+    condition_checker: factory_for[bool],
     positive_condition_func: Callable,
     *,
     else_: Callable
@@ -288,7 +219,7 @@ def on_condition(
     negative else_.
     """
 
-    def brancher(*args, **kwargs) -> any:
+    def brancher(*args, **kwargs) -> Any:
         """
         Function created by the on_condition function.
         See on_condition for more info.
@@ -310,7 +241,7 @@ def rollbackable(func: Callable, rollbacker: handler_of[Exception]) -> Callable:
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> any:
+    def wrapper(*args, **kwargs) -> Any:
         try:
             return func(*args, **kwargs)
         except Exception as error:
@@ -320,10 +251,10 @@ def rollbackable(func: Callable, rollbacker: handler_of[Exception]) -> Callable:
 
 
 def returnly(
-    func: Callable[[any, ...], any],
+    func: Callable[[Any, ...], Any],
     *,
     argument_key_to_return: ArgumentKey = ArgumentKey(0)
-) -> Callable[[any, ...], any]:
+) -> Callable[[Any, ...], Any]:
     """
     Decorator function that causes the input function to return not the result
     of its execution, but some argument that is incoming to it.
@@ -332,7 +263,7 @@ def returnly(
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> any:
+    def wrapper(*args, **kwargs) -> Any:
         func(*args, **kwargs)
 
         return ArgumentPack(args, kwargs)[argument_key_to_return]
@@ -340,7 +271,7 @@ def returnly(
     return wrapper
 
 
-def eventually(func: Event) -> any:
+def eventually(func: event) -> Any:
     """
     Decorator function for constructing a function to which no input attributes
     will be passed.

@@ -1,4 +1,4 @@
-from typing import Optional, Self, Type
+from typing import Any, Optional, Self, Type
 
 
 class MockObject:
@@ -16,17 +16,17 @@ class MockObject:
 class Box(MockObject):
     """MockObject class emulating context."""
     
-    def __init__(self, enter_result: any = None, **attributes):
+    def __init__(self, enter_result: Any = None, **attributes):
         super().__init__(**attributes)
         self.enter_result = enter_result
 
     def __repr__(self) -> str:
         return '<Box instance>'
 
-    def __enter__(self) -> any:
+    def __enter__(self) -> Any:
         return self.enter_result
 
-    def __exit__(self, error_type: Optional[Type[Exception]], error: Optional[Exception], traceback: any):
+    def __exit__(self, error_type: Optional[Type[Exception]], error: Optional[Exception], traceback: Any):
         pass
 
 
@@ -47,7 +47,7 @@ class MockHandler:
     def __repr__(self) -> str:
         return "<MockHandler>"
 
-    def __call__(self, resource: any) -> any:
+    def __call__(self, resource: Any) -> Any:
         return resource
 
     def __eq__(self, other: Self) -> bool:

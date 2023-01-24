@@ -1,14 +1,17 @@
 from datetime import datetime
 from functools import wraps, partial
 from math import inf
-from typing import Callable, Iterable, Type
+from typing import Iterable, Tuple, Any, Callable, Type
 
-from pyhandling.annotations import Handler, dirty, handler_of, event_for, factory_of
-from pyhandling.branchers import ActionChain, returnly, then, mergely, eventually, on_condition, rollbackable
+from pyannotating import many_or_one, Special
+
+from pyhandling.annotations import handler, dirty, handler_of, checker_of, reformer_of, decorator, factory_for, event_for
+from pyhandling.branchers import ActionChain, returnly, then, rollbackable, mergely, eventually, on_condition
 from pyhandling.binders import close, post_partial
+from pyhandling.checkers import Negationer
 from pyhandling.errors import BadResourceError
-from pyhandling.synonyms import setattr_of, return_, execute_operation, getattr_of, raise_, getitem_of, call
-from pyhandling.tools import Clock, as_argument_pack, ArgumentKey, DelegatingProperty
+from pyhandling.synonyms import return_, setattr_of, execute_operation, getattr_of, raise_
+from pyhandling.tools import Clock, IBadResourceKeeper
 
 
 class Logger:
@@ -41,7 +44,7 @@ class Logger:
             self(log)
 
     @property
-    def logs(self) -> tuple[str]:
+    def logs(self) -> Tuple[str]:
         return tuple(self._logs)
 
     def __call__(self, message: str) -> None:
@@ -55,7 +58,7 @@ class Logger:
             self._logs = self._logs[self.maximum_log_count:]
 
 
-def showly(handler: Handler, *, writer: dirty[handler_of[str]] = print) -> dirty[ActionChain]:
+def showly(handler: handler, *, writer: dirty[handler_of[str]] = print) -> dirty[ActionChain]:
     """
     Decorator function for visualizing the outcomes of intermediate stages of a
     chain of actions, or simply the input and output results of a regular handler.
@@ -70,7 +73,26 @@ def showly(handler: Handler, *, writer: dirty[handler_of[str]] = print) -> dirty
     )
 
 
-documenting_by: Callable[[str], dirty[Callable[[object], object]]] = (
+def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]) -> handler:
+    """
+    Decorator function for a handler that allows it to return a pack of its
+    input resource and the error it encountered.
+    """
+
+    @wraps(handler)
+    def wrapper(resource: Any) -> Any:
+        try:
+            return handler(resource)
+        except Exception as error:
+            if error_checker(error):
+                return BadResourceError(resource, error)
+
+            raise error
+
+    return wrapper
+
+
+documenting_by: Callable[[str], dirty[reformer_of[object]]] = (
     mergely(
         eventually(partial(return_, close(returnly(setattr_of)))),
         attribute_name=eventually(partial(return_, '__doc__')),
@@ -85,7 +107,19 @@ documenting_by.__doc__ = (
 )
 
 
-as_collection: Callable[[any], tuple] = documenting_by(
+calling_of: decorator = documenting_by(
+    """
+    Function to represent a proxy of some callable object to call it without
+    direct referring to this very object.
+
+    Can be used to later represent the proxy as a method.
+    """
+)(
+    lambda object_: lambda *args, **kwargs: object_(*args, **kwargs)
+)
+
+
+as_collection: Callable[[Any], tuple] = documenting_by(
     """
     Function to convert an input resource into a tuple collection.
     With a non-iterable resource, wraps it in a tuple.
@@ -99,7 +133,7 @@ as_collection: Callable[[any], tuple] = documenting_by(
 )
 
 
-take: Callable[[any], factory_of[any]] = documenting_by(
+take: Callable[[Any], factory_for[Any]] = documenting_by(
     """
     Shortcut function equivalent to eventually(partial(return_, input_resource).
     """
@@ -155,46 +189,34 @@ raising: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
 )
 
 
-saving_resource_on_error: Callable[[Handler], Handler] = documenting_by(
+maybe: Callable[[many_or_one[Callable]], ActionChain] = documenting_by(
     """
-    Decorator function that formats occurring errors to BadResourceError, saving
-    information about the input resource and the error itself accordingly.
-    """
-)(
-    close(
-        as_argument_pack
-        |then>> mergely(
-            post_partial(getitem_of, ArgumentKey(1)) |then>> close(call, closer=post_partial),
-            mergely(
-                take(rollbackable),
-                post_partial(getitem_of, ArgumentKey(0)),
-                (
-                    post_partial(getitem_of, ArgumentKey(1))
-                    |then>> close(BadResourceError |then>> raise_)
-                )
-            )
-        )
-    )
-)
-
-
-maybe: Callable[[Iterable[Callable] | Callable], ActionChain] = documenting_by(
-    """
-    Function that decorates the input action chain or just a collection of
-    handlers (ater on, the action chain anyway) and allowing to break this very
-    action chain in case of an error, by returning a valid result of the last of
-    the fully completed node.
+    Function to finish execution of an action chain when a bad resource keeper
+    appears in it by returning this same keeper, skipping subsequent action
+    chain nodes.
     """
 )(
     as_collection
-    |then>> partial(map, saving_resource_on_error)
-    |then>> ActionChain
-    |then>> post_partial(
-        rollbackable,
-        on_condition(
-            post_partial(isinstance, BadResourceError),
-            post_partial(getattr_of, 'resource'),
-            else_=raise_
+    |then>> close(map)(
+        partial(
+            on_condition,
+            Negationer(post_partial(isinstance, IBadResourceKeeper)),
+            else_=return_
         )
+    )
+    |then>> ActionChain
+)
+
+
+optionally_get_bad_resource_from: handler_of[Special[IBadResourceKeeper]] = documenting_by(
+    """
+    Function for getting a bad resource from his keeper when this keeper enters.
+    Returns the input resource if it is not a bad resource keeper.
+    """
+)(
+    on_condition(
+        post_partial(isinstance, IBadResourceKeeper),
+        post_partial(getattr_of, 'bad_resource'),
+        else_=return_
     )
 )

@@ -1,13 +1,13 @@
 from functools import partial
-from typing import Type, Iterable, Callable
+from typing import Any, Type, Iterable, Callable
 
 from pytest import mark, raises
 
 from pyhandling.branchers import ActionChain, eventually
 from pyhandling.errors import BadResourceError
 from pyhandling.synonyms import raise_
-from pyhandling.tools import ArgumentPack
-from pyhandling.utils import Logger, showly, documenting_by, as_collection, times, raising, saving_resource_on_error, maybe
+from pyhandling.tools import ArgumentPack, BadResourceWrapper, IBadResourceKeeper
+from pyhandling.utils import Logger, showly, documenting_by, calling_of, as_collection, times, raising, returnly_rollbackable, maybe, returnly_rollbackable, optionally_get_bad_resource_from
 from tests.mocks import Counter, MockHandler, MockObject
 
 
@@ -64,6 +64,18 @@ def test_documenting_by(documentation: str):
 
 
 @mark.parametrize(
+    "object_, args, kwargs, result",
+    [
+        (lambda x, y: x * y + x + y, (2, 3), dict(), 11),
+        (lambda x, y: x / y, (84,), dict(y=2), 42),
+        (lambda: 256, tuple(), dict(), 256)
+    ]
+)
+def test_calling_of(object_: Callable, args: Iterable, kwargs: dict, result: Any):
+    assert calling_of(object_)(*args, **kwargs) == result
+
+
+@mark.parametrize(
     "input_resource, result",
     [
         (42, (42, )),
@@ -76,7 +88,7 @@ def test_documenting_by(documentation: str):
         ('Hello', ('H', 'e', 'l', 'l', 'o'))
     ]
 )
-def test_as_collection(input_resource: any, result: tuple):
+def test_as_collection(input_resource: Any, result: tuple):
     assert as_collection(input_resource) == result
 
 
@@ -124,35 +136,71 @@ def test_error_raising_of_raising(error_type: Type[Exception], error: Exception)
 )
 def test_resource_returning_of_raising(
     error_type: Type[Exception],
-    input_resource: any
+    input_resource: Any
 ):
     assert raising(error_type)(input_resource) == input_resource
 
 
 @mark.parametrize(
-    "error, resource",
+    "handler, error_checker, input_resource, result",
     [
-        (Exception(), str()),
-        (TypeError(), int()),
-        (AttributeError(), (1, 2, 3)),
-        (AttributeError(), (item for item in range(10))),
+        (lambda x: x + 10, lambda _: True, 32, 42),
+        (
+            lambda x: x / 0,
+            lambda error: isinstance(error, ZeroDivisionError),
+            256,
+            BadResourceError(256, ZeroDivisionError())
+        ),
+        (
+            lambda x: x.non_existent_attribute,
+            lambda error: isinstance(error, AttributeError),
+            str(),
+            BadResourceError(str(), AttributeError())
+        ),
     ]
 )
-def test_saving_resource_on_error_error_raising(error: Exception, resource: any):
-    try:
-        saving_resource_on_error(eventually(partial(raise_, error)))(resource)
-    except BadResourceError as resource_error:
-        assert type(resource_error.error) is type(error)
-        assert resource_error.resource is resource
+def test_returnly_rollbackable(
+    handler: Callable[[Any], Any],
+    error_checker: Callable[[Exception], Any],
+    input_resource: Any,
+    result: Any
+):
+    returnly_rollbackable_result = returnly_rollbackable(handler, error_checker)(input_resource)
+
+    if type(result) is BadResourceError:
+        assert returnly_rollbackable_result.bad_resource == result.bad_resource
+        assert type(returnly_rollbackable_result.error) is type(result.error)
+
+    else:
+        assert returnly_rollbackable_result == result
+
+
+@mark.parametrize(
+    "handler, error_checker, input_resource, expected_error_type",
+    [
+        (lambda x: x / 0, lambda error: isinstance(error, TypeError), 32, ZeroDivisionError),
+        (lambda x: 21 + x, lambda error: isinstance(error, AttributeError), '21', TypeError),
+        (lambda x: x.non_existent_attribute, lambda error: isinstance(error, SyntaxError), tuple(), AttributeError),
+    ]
+)
+def test_returnly_rollbackable_error_returning(
+    handler: Callable[[Any], Any],
+    error_checker: Callable[[Exception], Any],
+    input_resource: Any,
+    expected_error_type: Type[Exception]
+):
+    with raises(expected_error_type):
+        returnly_rollbackable(handler, error_checker)(input_resource)
 
 
 @mark.parametrize(
     "handler_resource, input_resource, result",
     [
-        (ActionChain(lambda x: x + 1, lambda x: x / 0), 0, 1),
-        (ActionChain(lambda x: x / 0), 42, 42),
+        (ActionChain(lambda x: x + 2, BadResourceWrapper, lambda x: x.resource * 2), 40, 42),
+        (returnly_rollbackable(lambda x: x / 0, lambda error: isinstance(error, ZeroDivisionError)), 42, 42),
         (ActionChain(), 42, ArgumentPack((42, ))),
         (tuple(), 256, ArgumentPack((256, ))),
+        (lambda x: x ** x, 4, 256),
         ([lambda x: x ** 2, lambda x: x ** x], 2, 256),
         (
             [
@@ -160,7 +208,7 @@ def test_saving_resource_on_error_error_raising(error: Exception, resource: any)
                 lambda x: x ** x,
                 lambda x: x + 80,
                 lambda x: x >> 3,
-                lambda x: x.non_existent_attribute
+                BadResourceWrapper
             ],
             2,
             42
@@ -169,7 +217,25 @@ def test_saving_resource_on_error_error_raising(error: Exception, resource: any)
 )
 def test_maybe(
     handler_resource: Iterable[Callable] | Callable,
-    input_resource: any,
-    result: any
+    input_resource: Any,
+    result: Any
 ):
-    assert maybe(handler_resource)(input_resource) == result
+    maybe_result = maybe(handler_resource)(input_resource)
+
+    assert (
+        (maybe_result.bad_resource if isinstance(maybe_result, IBadResourceKeeper) else maybe_result)
+        == result
+    )
+
+
+@mark.parametrize(
+    "input_resource, result",
+    [
+        (42, 42),
+        ((item for item in range(64)), ) * 2,
+        (BadResourceWrapper("Some bad resource"), "Some bad resource"),
+        (BadResourceError(256, Exception()), 256)
+    ]
+)
+def test_optionally_get_bad_resource_from(input_resource: Any, result: Any):
+    assert optionally_get_bad_resource_from(input_resource) == result

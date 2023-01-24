@@ -1,11 +1,13 @@
 from functools import wraps, partial
-from typing import Callable, Iterable
+from typing import Callable, Any, Iterable
+
+from pyannotating import method_of
 
 from pyhandling.annotations import handler_of
 from pyhandling.tools import ArgumentPack
 
 
-def bind(func: Callable, argument_name: str, argument_value: any) -> Callable:
+def bind(func: Callable, argument_name: str, argument_value: Any) -> Callable:
     """
     Atomic partial function for a single keyword argument whose name and value
     are separate input arguments.
@@ -22,7 +24,7 @@ def post_partial(func: Callable, *args, **kwargs) -> Callable:
     """
 
     @wraps(func)
-    def wrapper(*wrapper_args, **wrapper_kwargs) -> any:
+    def wrapper(*wrapper_args, **wrapper_kwargs) -> Any:
         return func(*wrapper_args, *args, **wrapper_kwargs, **kwargs)
 
     return wrapper
@@ -37,7 +39,7 @@ def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
     return post_partial(func, *args[::-1], **kwargs)
 
 
-def close(resource: any, *, closer: Callable[[any, ...], any] = partial) -> Callable:
+def close(resource: Any, *, closer: method_of[Any] = partial) -> Callable:
     """
     Function to create a closure for the input resource.
 
@@ -55,34 +57,10 @@ def close(resource: any, *, closer: Callable[[any, ...], any] = partial) -> Call
     return partial(closer, resource)
 
 
-def unpackly(func: Callable) -> handler_of[ArgumentPack | Iterable]:
+def unpackly(func: Callable) -> handler_of[ArgumentPack]:
     """
-    Decorator function that allows to bring an ordinary function to the Handler
-    interface by unpacking the input resource into the input function.
-
-    Specifies the type of unpacking depending on the type of the input resource
-    into the resulting function.
-
-    When ArgumentPack delegates unpacking to it (Preferred Format).
-
-    When a dict or otherwise a homogeneous collection unpacks * or **
-    respectively.
-
-    Also unpacks a collection of the form [collection, dict] as * and ** from
-    this collection.
+    Decorator function that allows to bring an ordinary function to the handler
+    interface by unpacking the input argument pack into the input function.
     """
 
-    @wraps(func)
-    def wrapper(argument_collection: ArgumentPack | Iterable) -> any:
-        if isinstance(argument_collection, ArgumentPack):
-            return argument_collection.call(func)
-        elif isinstance(argument_collection, dict):
-            return func(**argument_collection)
-        elif isinstance(argument_collection, Iterable):
-            return func(*argument_collection[0], **argument_collection[1]) if (
-                len(argument_collection) == 2
-                and isinstance(argument_collection[0], Iterable)
-                and isinstance(argument_collection[1], dict)
-            ) else func(*argument_collection)
-
-    return wrapper
+    return wraps(func)(lambda pack: pack.call(func))

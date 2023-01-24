@@ -1,4 +1,6 @@
-from pyhandling.tools import DelegatingProperty
+from typing import Any
+
+from pyhandling.tools import IBadResourceKeeper, DelegatingProperty
 
 
 class PyhandingError(Exception):
@@ -10,22 +12,24 @@ class HandlingRecursionError(PyhandingError):
 
 
 class HandlingRecursionDepthError(HandlingRecursionError):
-    __notes__ = ("To change the limit, call recursive with the max_recursion_depth argument, with the desired value", )
+    __notes__ = [
+        "To change the limit, call recursive with the max_recursion_depth argument, with the desired value"
+    ]
 
 
-class BadResourceError(PyhandingError):
+class BadResourceError(PyhandingError, IBadResourceKeeper):
     """
     Error class containing another error that occurred during the handling of
     some resource and the resource itself, respectively.
     """
     
-    resource = DelegatingProperty('_resource')
+    bad_resource = DelegatingProperty('_bad_resource')
     error = DelegatingProperty('_error')
 
-    def __init__(self, resource: any, error: Exception):
-        self._resource = resource
+    def __init__(self, bad_resource: Any, error: Exception):
+        self._bad_resource = bad_resource
         self._error = error
 
         super().__init__(
-            f"Resource \"{self.resource}\" could not be handled due to {type(self.error).__name__}: {str(self.error)}"
+            f"Resource \"{self._bad_resource}\" could not be handled due to {type(self._error).__name__}: {str(self._error)}"
         )

@@ -1,4 +1,4 @@
-from typing import Callable, Union, Iterable, Mapping, Sized
+from typing import Callable, Any, Union, Iterable, Mapping, Sized
 
 from pytest import mark
 
@@ -14,7 +14,7 @@ from pyhandling.checkers import Negationer, TypeChecker, LengthChecker
         (lambda number: number > 10, 3)
     ]
 )
-def test_negationer(checker: Callable[[any], bool], resource: any):
+def test_negationer(checker: Callable[[Any], bool], resource: Any):
     assert not Negationer(checker)(resource) is checker(resource)
 
 
@@ -34,7 +34,7 @@ def test_negationer(checker: Callable[[any], bool], resource: any):
         (Union[Iterable, int, str, Mapping], 1j)
     ]
 )
-def test_type_checker(type_: type, resource: any):
+def test_type_checker(type_: type, resource: Any):
     assert TypeChecker(type_)(resource) == isinstance(resource, type_)
 
 

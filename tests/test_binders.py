@@ -5,7 +5,9 @@ from pyhandling.tools import ArgumentPack
 
 
 def sum_of(first, second, third=3, fourth=4):
-    return first + second + third
+    """Stub function for testing currying."""
+
+    return first + second + third + fourth
 
 
 def test_bind():
@@ -35,25 +37,4 @@ def test_unpackly_via_argument_pack():
     assert (
         unpackly(sum_of)(ArgumentPack.create_via_call(2, 4, third=6, fourth=8))
         == sum_of(2, 4, third=6, fourth=8)
-    )
-
-
-def test_unpackly_via_collection():
-    assert (
-        unpackly(sum_of)((4, 8, 12, 16))
-        == sum_of(4, 8, 12, 16)
-    )
-
-
-def test_unpackly_via_dict():
-    assert (
-        unpackly(partial(sum_of, 2, 4))({'third': 6, 'fourth': 8})
-        == sum_of(2, 4, third=6, fourth=8)
-    )
-
-
-def test_unpackly_via_collection_argument_pack():
-    assert (
-        unpackly(sum_of)([(4, 8), {'third': 12, 'fourth': 16}])
-        == sum_of(4, 8, 12, 16)
     )
