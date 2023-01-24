@@ -185,7 +185,9 @@ You can also interrupt by returning an error proxy that stores the error </br>th
 ```python
 div_by_zero: reformator_of[number] = post_partial(execute_operation, '/', 0)
 
-main: Callable[[number], number | BadResourceError] = post_partial(rollbackble, BadResourceError)(div_by_zero)
+main: Callable[[number], number | BadResourceError] = (
+    post_partial(rollbackble, BadResourceError)(div_by_zero)
+)
 
 256 >= main |then>> print
 ```
