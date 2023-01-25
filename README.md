@@ -62,7 +62,7 @@ Hello world!
 ### Atomicity
 Use any python atomic operations as functions
 ```python
-(lambda reource: raise_(reource) if isinstance(reource, Exception) else return_)("no error") # "no error"
+(raise_ if isinstance(reource, Exception) else return_)("no error") # "no error"
 
 execute_operation(60, '+', 4) # 64
 
