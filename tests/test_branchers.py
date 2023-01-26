@@ -256,6 +256,18 @@ def test_on_condition_by_numeric_functions(
 
 
 @mark.parametrize(
+    "is_positive_case, input_number, result",
+    [(True, 6, 8), (False, 6, None)]
+)
+def test_on_condition_with_default_else_(
+    is_positive_case: bool,
+    input_number: int | float,
+    result: Any
+):
+    assert on_condition(lambda _: is_positive_case, lambda x: x + 2)(input_number) == result
+
+
+@mark.parametrize(
     "func, input_args, input_kwargs, result",
     [
         (lambda x: 1 / x, (1, ), dict(), 1),
