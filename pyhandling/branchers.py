@@ -207,7 +207,7 @@ def on_condition(
     condition_checker: factory_for[bool],
     positive_condition_func: Callable,
     *,
-    else_: Callable
+    else_: Callable = lambda *_, **__: None
 ) -> Callable:
     """
     Function that implements the func choosing by condition.
