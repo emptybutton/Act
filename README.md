@@ -12,6 +12,9 @@ You can even integrate the entire program logic into one call
 Merge your functions into one
 
 ```python
+from pyhandling import *
+
+
 complemented_number = str |then>> (lambda line: line + '6') |then>> int
 complemented_number(25)
 ```
@@ -34,7 +37,7 @@ and get the same result
 ### Currying
 Add additional arguments to function input arguments
 ```python
-formattly_sum = lambda first, second, end_symbol: first + ' ' + second + end_symbol
+formattly_sum = "{} {}{}".format
 
 post_partial(formattly_sum, "world", '!')("Hello") 
 ```
@@ -59,10 +62,31 @@ Eventually, they all return
 Hello world!
 ```
 
-### Atomicity
+### Interface control
+Abstract the output value
+```python
+print(returnly(print)("Some input argument"))
+```
+```
+Some input argument
+Some input argument
+```
+
+or input values
+```python
+from functools import partial
+
+
+eventually(partial(print, 42))(2, 4, 8, 16, 32)
+```
+```
+42
+```
+
+### Atomic functions
 Use any python atomic operations as functions
 ```python
-(lambda reource: raise_(reource) if isinstance(reource, Exception) else return_)("no error") # "no error"
+(lambda reource: (raise_ if isinstance(reource, Exception) else return_)(reource))("no error") # "no error"
 
 execute_operation(60, '+', 4) # 64
 
@@ -71,23 +95,31 @@ transform_by('not', str()) # True
 call(range, 16) # range(16)
 
 getitem_of({"some-key": "some-value"}, "some-key") # "some-value"
+
+take(42) # lambda *_, **__: 42
 ```
 
 ### Annotating
-Use standart annotation templates for routine cases
+Use standart annotation templates from `annotations` package for routine cases
 ```python
+from pyhandling.annotations import checker_of, reformer_of, merger_of
+
 from pyannotating import number
+
 
 is_number_even: checker_of[number] = lambda number: number % 2 == 0
 
 add_hundert_to: reformer_of[number] = lambda number: number + 100
 
-format_lines: merger_of[str] = lambda first_line, second_line: first_line + ' ' + second_line + '!'
+format_lines: merger_of[str] = "{first} {second}{end_symbol}".format
 ```
 
 or annotations themselves
 ```python
 from pyannotating import many_or_one
+
+from pyhandling.annotations import handler, decorator
+
 
 executing_of: Callable[[many_or_one[handler]], decorator] = ...
 ```
@@ -137,6 +169,9 @@ ratio_of_square_to_full: reformer_of[number] = documenting_by(
 
 or in an indefinite number of iterative executions
 ```python
+from pyhandling.annotations import dirty
+
+
 increase_up_to_ten: dirty[reformer_of[number]] = documenting_by(
     """
     Function that prints numbers between the input number and 10 inclusive and
@@ -149,6 +184,14 @@ increase_up_to_ten: dirty[reformer_of[number]] = documenting_by(
     )
     |then>> returnly(print)
 )
+
+
+increase_up_to_ten(8)
+```
+```
+8
+9
+10
 ```
 
 ### Chain breaking
@@ -166,6 +209,7 @@ optionally_exponentiate: Callable[[number], number | BadResourceWrapper] = docum
         |then>> post_partial(execute_operation, '**', 2)
     )
 )
+
 
 -16 >= optionally_exponentiate |then>> print
 ```
@@ -187,11 +231,20 @@ main: dirty[reformer_of[number]] = optionally_exponentiate |then>> optionally_ge
 
 You can also interrupt by returning an error proxy that stores the error </br>that occurred while processing this resource and the resource itself
 ```python
-div_by_zero: reformator_of[number] = post_partial(execute_operation, '/', 0)
+from pyhandling.annotations import reformer_of
+
+
+div_by_zero: reformer_of[number] = documenting_by(
+    """Function for dividing an input number by zero."""
+)(
+    post_partial(execute_operation, '/', 0)
+)
+
 
 main: Callable[[number], number | BadResourceError] = (
-    post_partial(rollbackble, BadResourceError)(div_by_zero)
+    returnly_rollbackable(div_by_zero, take(True))
 )
+
 
 256 >= main |then>> print
 ```
@@ -201,14 +254,19 @@ BadResourceError('Resource "256" could not be handled due to ZeroDivisionError: 
 
 with corresponding possibilities
 ```python
-main = reformator_of[number] = (
-    post_partial(execute_operation, '/', 0)
+main: reformer_of[number] = (
+    partial(map |then>> maybe, post_partial(returnly_rollbackable, take(True)))(
+        post_partial(execute_operation, '*', 2)
+        |then>> div_by_zero
+    )
     |then>> optionally_get_bad_resource_from
 )
+
+
 16 >= main |then>> print
 ```
 ```
-16
+32
 ```
 
 ### Debugging
