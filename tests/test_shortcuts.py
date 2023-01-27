@@ -34,6 +34,14 @@ def test_previous_action_decorator_of(first_node: Callable, second_node: Callabl
 
 
 @mark.parametrize(
+    "func, arguments, extra_arguments",
+    [(pow, (4, 2), tuple()), (pow, (4, 4), (1, 2, 3))]
+)
+def test_event_as(func: Callable, arguments: Iterable, extra_arguments: Iterable):
+    assert event_as(func, *arguments)(extra_arguments) == func(*arguments)
+
+
+@mark.parametrize(
     "resource, arguments",
     [
         (256, tuple()),

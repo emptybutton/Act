@@ -15,6 +15,13 @@ def call_method(object_: object, method_name: str, *args, **kwargs) -> Any:
     return getattr(object_, method_name)(*args, **kwargs)
 
 
+event_as: binder = documenting_by(
+    """Shortcut for creating an event using caring."""
+)(
+    partial |then>> eventually
+)
+
+
 
 
 take: Callable[[Any], factory_for[Any]] = documenting_by(
