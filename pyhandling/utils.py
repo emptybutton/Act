@@ -7,7 +7,7 @@ from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import handler, dirty, handler_of, checker_of, reformer_of, decorator, factory_for, event_for
 from pyhandling.branchers import ActionChain, returnly, then, rollbackable, mergely, eventually, on_condition
-from pyhandling.binders import close, post_partial
+from pyhandling.binders import close, post_partial, bind
 from pyhandling.checkers import Negationer
 from pyhandling.errors import BadResourceError
 from pyhandling.synonyms import return_, setattr_of, execute_operation, getattr_of, raise_
@@ -219,4 +219,26 @@ optionally_get_bad_resource_from: handler_of[Special[IBadResourceKeeper]] = docu
         post_partial(getattr_of, 'bad_resource'),
         else_=return_
     )
+)
+
+
+previous_action_decorator_of: Callable[[handler], decorator] = documenting_by(
+    """
+    Creates a decorator that adds a action before an input function.
+
+    Shortcut for ActionChain(...).clone_with.
+    """
+)(
+    ActionChain |then>> post_partial(getattr, "clone_with")
+)
+
+
+next_action_decorator_of: Callable[[Callable], decorator] = documenting_by(
+    """
+    Creates a decorator that adds a post action to the function.
+
+    Shortcut for partial(ActionChain(...).clone_with, is_other_handlers_left=True).
+    """
+)(
+    previous_action_decorator_of |then>> post_partial(bind, "is_other_handlers_left", True)
 )

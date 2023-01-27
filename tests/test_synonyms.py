@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Callable, Any
 
-from pyhandling.synonyms import return_, raise_, call, call_method, getattr_of, setattr_of, getitem_of, setitem_of, execute_operation, handle_context_by, transform_by, assert_
+from pyhandling.synonyms import return_, raise_, call, call_method, getattr_of, setattr_of, getitem_of, setitem_of, execute_operation, handle_context_by, transform_by, assert_, positionally_unpack, unpack_by_keys
 from tests.mocks import Box
 
 from pytest import mark, raises
@@ -32,6 +32,14 @@ def test_error_free_assert_(resource: Any):
 def test_assert_error_raising(resource: Any):
     with raises(AssertionError):
         assert_(resource)
+
+
+def test_positionally_unpack():
+    assert positionally_unpack(lambda a, b, c: (c, b, a), (1, 2, 3)) == (3, 2, 1)
+
+
+def test_unpack_by_keys():
+    assert unpack_by_keys(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3)) == (3, 2, 1)
 
 
 @mark.parametrize('func, result', ((partial(return_, 1), 1), (lambda: 1 + 2, 3)))
