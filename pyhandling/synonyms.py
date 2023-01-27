@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
 
 from pyhandling.annotations import event, handler
 
@@ -22,6 +22,18 @@ def assert_(resource: Any) -> None:
     """Wrapper function for functional use of assert statement."""
 
     assert resource
+
+
+def positionally_unpack(func: Callable, arguments: Iterable) -> Any:
+    """Wrapper function for functional use of positional unpacking."""
+
+    return func(*arguments)
+
+
+def unpack_by_keys(func: Callable, arguments: dict) -> Any:
+    """Wrapper function for functional use of unpacking by keyword arguments."""
+
+    return func(**arguments)
 
 
 def call(caller: Callable, *args, **kwargs) -> Any:
