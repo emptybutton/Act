@@ -10,6 +10,10 @@ dirty = FormalAnnotation(
     """
 )
 
+not_required = FormalAnnotation(
+    """Formal annotation to indicate an optional parameter in a function."""
+)
+
 
 handler_of = AnnotationTemplate(Callable, [[input_annotation], Any])
 
