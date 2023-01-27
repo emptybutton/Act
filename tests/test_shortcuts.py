@@ -41,6 +41,11 @@ def test_event_as(func: Callable, arguments: Iterable, extra_arguments: Iterable
     assert event_as(func, *arguments)(extra_arguments) == func(*arguments)
 
 
+@mark.parametrize("items", [(1, 2, 3), "Hello world!", range(10)])
+def test_collection_from(items: Iterable):
+    assert collection_from(*items) == tuple(items)
+
+
 @mark.parametrize(
     "resource, arguments",
     [
