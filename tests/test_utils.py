@@ -7,7 +7,7 @@ from pyhandling.branchers import ActionChain, eventually
 from pyhandling.errors import BadResourceError
 from pyhandling.synonyms import raise_
 from pyhandling.tools import ArgumentPack, BadResourceWrapper, IBadResourceKeeper
-from pyhandling.utils import Logger, showly, documenting_by, calling_of, as_collection, times, raising, returnly_rollbackable, maybe, returnly_rollbackable, optionally_get_bad_resource_from
+from pyhandling.utils import Logger, showly, documenting_by, calling_of, as_collection, times, raising, returnly_rollbackable, maybe, returnly_rollbackable, optionally_get_bad_resource_from, next_action_decorator_of, previous_action_decorator_of
 from tests.mocks import Counter, MockHandler, MockObject
 
 
@@ -239,3 +239,25 @@ def test_maybe(
 )
 def test_optionally_get_bad_resource_from(input_resource: Any, result: Any):
     assert optionally_get_bad_resource_from(input_resource) == result
+
+
+@mark.parametrize(
+    "first_node, second_node, input_resource",
+    [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
+)
+def test_next_action_decorator_of(first_node: Callable, second_node: Callable[[Any], Any], input_resource: Any):
+    assert (
+        next_action_decorator_of(second_node)(first_node)(input_resource)
+        == ActionChain(first_node, second_node)(input_resource)
+    )
+
+
+@mark.parametrize(
+    "first_node, second_node, input_resource",
+    [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
+)
+def test_previous_action_decorator_of(first_node: Callable, second_node: Callable[[Any], Any], input_resource: Any):
+    assert (
+        previous_action_decorator_of(first_node)(second_node)(input_resource)
+        == ActionChain(first_node, second_node)(input_resource)
+    )
