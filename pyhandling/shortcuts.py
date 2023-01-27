@@ -29,6 +29,14 @@ collection_from: Callable[[Iterable], tuple] = documenting_by(
 )
 
 
+summed_collection_from: event_for[tuple] = documenting_by(
+    """
+    Shortcut function for creating a collection with elements from input
+    positional collections.
+    """
+)(
+    collection_from |then>> (collection_with_reduced_nesting_to |of| 1)
+)
 
 
 take: Callable[[Any], factory_for[Any]] = documenting_by(
