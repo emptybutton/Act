@@ -9,6 +9,12 @@ from pyhandling.synonyms import positionally_unpack_to, return_, bind
 from pyhandling.tools import documenting_by, collection_with_reduced_nesting_to, ArgumentPack
 
 
+def call_method(object_: object, method_name: str, *args, **kwargs) -> Any:
+    """Shortcut function to call a method on an input object."""
+
+    return getattr(object_, method_name)(*args, **kwargs)
+
+
 
 
 take: Callable[[Any], factory_for[Any]] = documenting_by(

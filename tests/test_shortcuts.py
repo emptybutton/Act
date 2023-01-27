@@ -6,6 +6,11 @@ from tests.mocks import Box
 from pytest import mark
 
 
+@mark.parametrize('result, object_, method_name', (('<Box instance>', Box(), '__repr__'), ))
+def test_call_method(result: Any, object_: object, method_name: str):
+    assert call_method(object_, method_name) == result
+
+
 @mark.parametrize(
     "first_node, second_node, input_resource",
     [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
