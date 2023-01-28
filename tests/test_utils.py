@@ -48,22 +48,6 @@ def test_showly_by_logger(number_of_handlers: int, number_of_writer_calls: int):
 
 
 @mark.parametrize(
-    "documentation",
-    (
-        "Is a handler.", "Is a checker.", "Something.", str(),
-        "\n\tIs something.\n\tOr not?", "\tIs a handler.\n\tIs a handler",
-    )
-)
-def test_documenting_by(documentation: str):
-    mock = MockObject()
-
-    documenting_by(documentation)(mock)
-
-    assert '__doc__' in mock.__dict__.keys()
-    assert mock.__doc__ == documentation
-
-
-@mark.parametrize(
     "object_, args, kwargs, result",
     [
         (lambda x, y: x * y + x + y, (2, 3), dict(), 11),
