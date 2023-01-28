@@ -42,11 +42,6 @@ def test_unpack_by_keys_to():
     assert unpack_by_keys_to(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3)) == (3, 2, 1)
 
 
-@mark.parametrize('func, result', ((partial(return_, 1), 1), (lambda: 1 + 2, 3)))
-def test_call(func: Callable[[], Any], result: Any):
-    assert call(func) == result
-
-
 @mark.parametrize('result, object_, method_name', (('<Box instance>', Box(), '__repr__'), ))
 def test_call_method(result: Any, object_: object, method_name: str):
     assert call_method(object_, method_name) == result
@@ -56,6 +51,9 @@ def test_bind():
     assert bind(func_to_bind, 'second', 3)(1) == func_to_bind(1, second=3)
 
 
+@mark.parametrize('func, result', ((partial(return_, 1), 1), (lambda: 1 + 2, 3)))
+def test_call(func: Callable[[], Any], result: Any):
+    assert call(func) == result
 
 
 @mark.parametrize('object_, key, result', ((dict(a=1), 'a', 1), (dict(b=2), 'b', 2)))
