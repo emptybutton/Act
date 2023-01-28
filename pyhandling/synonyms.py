@@ -24,13 +24,13 @@ def assert_(resource: Any) -> None:
     assert resource
 
 
-def positionally_unpack(func: Callable, arguments: Iterable) -> Any:
+def positionally_unpack_to(func: Callable, arguments: Iterable) -> Any:
     """Wrapper function for functional use of positional unpacking."""
 
     return func(*arguments)
 
 
-def unpack_by_keys(func: Callable, arguments: dict) -> Any:
+def unpack_by_keys_to(func: Callable, arguments: dict) -> Any:
     """Wrapper function for functional use of unpacking by keyword arguments."""
 
     return func(**arguments)

@@ -34,12 +34,12 @@ def test_assert_error_raising(resource: Any):
         assert_(resource)
 
 
-def test_positionally_unpack():
-    assert positionally_unpack(lambda a, b, c: (c, b, a), (1, 2, 3)) == (3, 2, 1)
+def test_positionally_unpack_to():
+    assert positionally_unpack_to(lambda a, b, c: (c, b, a), (1, 2, 3)) == (3, 2, 1)
 
 
-def test_unpack_by_keys():
-    assert unpack_by_keys(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3)) == (3, 2, 1)
+def test_unpack_by_keys_to():
+    assert unpack_by_keys_to(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3)) == (3, 2, 1)
 
 
 @mark.parametrize('func, result', ((partial(return_, 1), 1), (lambda: 1 + 2, 3)))
