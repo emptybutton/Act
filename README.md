@@ -137,7 +137,7 @@ is_number_even: checker_of[number] = lambda number: number % 2 == 0
 
 add_hundert_to: reformer_of[number] = lambda number: number + 100
 
-format_lines: merger_of[str] = "{first} {second}{end_symbol}".format
+format_lines: merger_of[str] = "{} {}!".format
 ```
 
 or annotations themselves
