@@ -104,7 +104,7 @@ def test_action_chain_connection_through_operators(handlers: Iterable[Callable[[
         [(MockHandler(), lambda x: x - 1), lambda x: x ** x, True, False, 2, 255],
         [(MockHandler(), lambda x: x * 2), lambda x: x * x, False, True, 2, 64],
         [(MockHandler(), MockHandler(), MockHandler()), lambda x: x + 1, True, True, 0, 4],
-        [tuple(), lambda x: x + 1, False, False, 128, ArgumentPack.create_via_call(128)],
+        [tuple(), lambda x: x + 1, False, False, 128, ArgumentPack.of(128)],
         [tuple(), lambda x: x * x, True, False, 8, 64],
         [tuple(), lambda x: x * x, False, True, 8, 64],
         [tuple(), lambda x: x * x, True, True, 4, 256]

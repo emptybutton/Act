@@ -32,7 +32,7 @@ event_as: binder = documenting_by(
 collection_from: Callable[[Iterable], tuple] = documenting_by(
     """Shortcut to get collection with elements from input positional arguments."""
 )(
-    ArgumentPack.create_via_call |then>> (getattr |by| 'args')
+    ArgumentPack.of |then>> (getattr |by| 'args')
 )
 
 

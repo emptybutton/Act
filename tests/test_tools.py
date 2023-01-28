@@ -28,7 +28,7 @@ def test_to_clone():
     ]
 )
 def test_argument_pack_creation_via_call(args: Iterable, kwargs: dict):
-    assert ArgumentPack.create_via_call(*args, **kwargs) == ArgumentPack(args, kwargs)
+    assert ArgumentPack.of(*args, **kwargs) == ArgumentPack(args, kwargs)
 
 
 @mark.parametrize(
@@ -50,7 +50,7 @@ def test_argument_pack_merger(
 ):
     assert (
         ArgumentPack(first_args, first_kwargs).merge_with(ArgumentPack(second_args, second_kwargs))
-        == ArgumentPack.create_via_call(*first_args, *second_args, **(first_kwargs | second_kwargs))
+        == ArgumentPack.of(*first_args, *second_args, **(first_kwargs | second_kwargs))
     )
 
 
@@ -73,7 +73,7 @@ def test_argument_pack_expanding(
 ):
     assert (
         ArgumentPack(first_args, first_kwargs).expand_with(*second_args, **second_kwargs)
-        == ArgumentPack.create_via_call(*first_args, *second_args, **(first_kwargs | second_kwargs))
+        == ArgumentPack.of(*first_args, *second_args, **(first_kwargs | second_kwargs))
     )
 
 

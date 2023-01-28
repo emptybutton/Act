@@ -154,7 +154,7 @@ class ArgumentPack:
         return caller(*self.args, **self.kwargs)
 
     @classmethod
-    def create_via_call(cls, *args, **kwargs) -> Self:
+    def of(cls, *args, **kwargs) -> Self:
         """Method for creating a pack with this method's input arguments."""
 
         return cls(args, kwargs)

@@ -31,6 +31,6 @@ def test_returning_close():
 
 def test_unpackly_via_argument_pack():
     assert (
-        unpackly(sum_of)(ArgumentPack.create_via_call(2, 4, third=6, fourth=8))
+        unpackly(sum_of)(ArgumentPack.of(2, 4, third=6, fourth=8))
         == sum_of(2, 4, third=6, fourth=8)
     )
