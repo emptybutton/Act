@@ -227,9 +227,26 @@ def test_next_action_decorator_of(first_node: Callable, second_node: Callable[[A
 @mark.parametrize(
     "first_node, second_node, input_resource",
     [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
+    "error_checker, chain, input_resource, expected_result",
+    [
+        (lambda err: isinstance(err, ZeroDivisionError), [lambda x: x + 1, lambda x: x / 0], 255, 256),
+        (lambda err: isinstance(err, ZeroDivisionError), [lambda x: x / 2, lambda x: x / 0], 128, 64),
+        (lambda err: isinstance(err, ZeroDivisionError), [lambda x: x / 2, lambda x: x * 4], 128, 256),
+    ]
 )
 def test_previous_action_decorator_of(first_node: Callable, second_node: Callable[[Any], Any], input_resource: Any):
     assert (
         previous_action_decorator_of(first_node)(second_node)(input_resource)
         == ActionChain(first_node, second_node)(input_resource)
-    )
+    )def test_chain_breaking_on_error_that(
+    error_checker: Callable[[Exception], bool],
+    chain: Iterable[Callable],
+    input_resource: Any,
+    expected_result: Any
+):
+    result = chain_breaking_on_error_that(error_checker)(chain)(input_resource)
+    
+    if isinstance(result, IBadResourceKeeper):
+        assert result.bad_resource == expected_result
+    else:
+        assert result == expected_result

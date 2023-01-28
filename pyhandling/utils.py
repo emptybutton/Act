@@ -207,11 +207,15 @@ previous_action_decorator_of: Callable[[handler], decorator] = documenting_by(
 
 
 next_action_decorator_of: Callable[[Callable], decorator] = documenting_by(
+chain_breaking_on_error_that: Callable[[checker_of[Exception]], chain_constructor] = documenting_by(
     """
     Creates a decorator that adds a post action to the function.
 
     Shortcut for partial(ActionChain(...).clone_with, is_other_handlers_left=True).
+    Shortcut for maybe which is triggered on an error that satisfies the input
+    checker conditions.
     """
 )(
     previous_action_decorator_of |then>> post_partial(bind, "is_other_handlers_left", True)
+    close(returnly_rollbackable, closer=post_partial) |then>> close(map |then>> maybe)
 )
