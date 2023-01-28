@@ -160,7 +160,7 @@ total_sum: Callable[[Iterable[many_or_one[number]]], number] = documenting_by(
     """
 )(
     close(map |then>> tuple)(
-        on_condition(post_partial(isinstance, Iterable), sum, else_=return_)
+        on_condition(isinstance |by| Iterable, sum, else_=return_)
     )
     |then>> sum
 )
@@ -281,7 +281,7 @@ BadResourceError('Resource "256" could not be handled due to ZeroDivisionError: 
 with corresponding possibilities
 ```python
 main: reformer_of[number] = (
-    partial(map |then>> maybe, post_partial(returnly_rollbackable, take(True)))(
+    partial(map |then>> maybe, returnly_rollbackable |by| take(True))(
         post_partial(execute_operation, '*', 2)
         |then>> div_by_zero
     )
