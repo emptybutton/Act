@@ -341,6 +341,15 @@ as_collection([1, 2, 3])
 (64, )
 (1, 2, 3)
 ```
+
+to confirm something multiple times
+```python
+runner = times(3)
+tuple(runner() for _ in range(8))
+```
+```
+(True, True, True, False, True, True, True, False)
+```
 ### Debugging
 Display intermediate results
 ```python
