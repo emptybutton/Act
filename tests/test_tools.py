@@ -182,13 +182,13 @@ def test_get_collection_from(input_collections: Iterable[Iterable], output_colle
         [[[[[[[[[[[[[[[[[[[[[[[[[[[42]]]]]]]]]]]]]]]]]]]]]]]]]], inf, (42, )],
     ]
 )
-def test_get_collection_with_reduced_nesting(
+def test_collection_with_reduced_nesting_to(
     input_collection: Iterable,
     reducing_number: int,
     output_collection: tuple
 ):
     assert (
-        get_collection_with_reduced_nesting(input_collection, reducing_number)
+        collection_with_reduced_nesting_to(reducing_number, input_collection)
         == output_collection
     )
 

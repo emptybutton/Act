@@ -248,7 +248,7 @@ class BadResourceWrapper(IBadResourceKeeper):
 
 
 
-def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int | float = inf) -> tuple:
+def collection_with_reduced_nesting_to(number_of_reductions: int | float, collection: Iterable) -> Tuple:
     """Function that allows to get a collection with a reduced nesting level."""
 
     if isinstance(number_of_reductions, float) and number_of_reductions != inf:
@@ -262,7 +262,7 @@ def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductio
             continue
 
         reduced_collection.extend(
-            get_collection_with_reduced_nesting(item, number_of_reductions - 1)
+            collection_with_reduced_nesting_to(number_of_reductions - 1, item)
             if number_of_reductions > 1
             else item
         )
