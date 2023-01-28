@@ -6,8 +6,8 @@ from typing import Iterable, Tuple, Any, Callable, Type
 from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import handler, dirty, handler_of, checker_of, reformer_of, decorator, factory_for, event_for
-from pyhandling.binders import close, post_partial, bind
 from pyhandling.branchers import ActionChain, returnly, rollbackable, mergely, eventually, on_condition, chain_constructor
+from pyhandling.binders import close, post_partial
 from pyhandling.checkers import Negationer
 from pyhandling.language import then
 from pyhandling.errors import BadResourceError
