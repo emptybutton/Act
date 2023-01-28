@@ -245,10 +245,7 @@ class BadResourceWrapper(IBadResourceKeeper):
         return f"<Wrapper of bad {self.bad_resource}>"
 
 
-def get_collection_from(*collections: Iterable) -> tuple:
-    """Function to get a collection with elements from input collections."""
 
-    return get_collection_with_reduced_nesting(collections, 1)
 
 
 def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int | float = inf) -> tuple:
