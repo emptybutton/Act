@@ -92,19 +92,37 @@ eventually(partial(print, 16))(1, 2, 3)
 ```
 
 ### Atomic functions
-Use any python atomic operations as functions
+Use synonyms for operators
 ```python
-(lambda reource: (raise_ if isinstance(reource, Exception) else return_)(reource))("no error") # "no error"
+return_(256)
+raise_(Exception("Something is wrong"))
+```
+```
+256
 
-execute_operation(60, '+', 4) # 64
+Traceback ...
+Exception: Something is wrong
+```
 
-transform_by('not', str()) # True
+for atomic operations
+```python
+execute_operation(60, '+', 4)
+transform(str(), 'not')
+```
+```
+64
+True
+```
 
-call(range, 16) # range(16)
+for syntax operations
+```python
+call(range, 16)
 
-getitem_of({"some-key": "some-value"}, "some-key") # "some-value"
-
-take(42) # lambda *_, **__: 42
+getitem_of({"some-key": "some-value"}, "some-key")
+```
+```
+range(16)
+some-value
 ```
 
 ### Annotating
