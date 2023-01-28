@@ -80,8 +80,8 @@ def test_execute_operation(first: Any, operator: str, second: Any, result: Any):
         ('~', 0, -1)
     ]
 )
-def test_transform_by(operator: str, operand: Any, result: Any):
-    assert transform_by(operator, operand) == result
+def test_transform(operator: str, operand: Any, result: Any):
+    assert transform(operand, operator) == result
 
 
 @mark.parametrize(

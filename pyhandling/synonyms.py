@@ -79,7 +79,7 @@ def execute_operation(first_operand: Any, operator: str, second_operand: Any) ->
     )
 
 
-def transform_by(operator: str, operand: Any) -> Any:
+def transform(operand: Any, operator: str) -> Any:
     """
     Function to use single operand operator in functional way.
 
