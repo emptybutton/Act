@@ -8,7 +8,7 @@ from typing import Self, Final, Any, Iterable, Optional, Tuple, Callable
 
 from pyannotating import method_of
 
-from pyhandling.annotations import factory_for, handler
+from pyhandling.annotations import factory_for, handler, dirty, reformer_of, checker_of
 
 
 def to_clone(method: method_of[object]) -> factory_for[object]:
@@ -274,11 +274,27 @@ def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductio
 
 
 def as_argument_pack(*args, **kwargs) -> ArgumentPack:
+def documenting_by(documentation: str) -> dirty[reformer_of[object]]:
+    """
+    Function of getting other function that getting resource with the input 
+    documentation from this first function.
     """
     Function to optionally convert input arguments into an ArgumentPack with
     that input arguments.
 
     When passed a single positional ArgumentPack to the function, it returns it.
+    def document(object_: object) -> object:
+        """
+        Function created with the documenting_by function that sets the __doc__
+        attribute and returns the input object.
+        """
+
+        object_.__doc__ = documentation
+        return object_
+
+    return document
+
+
     """
 
     if len(args) == 1 and isinstance(args[0], ArgumentPack) and not kwargs:

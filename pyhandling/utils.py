@@ -11,7 +11,7 @@ from pyhandling.binders import close, post_partial, bind
 from pyhandling.checkers import Negationer
 from pyhandling.errors import BadResourceError
 from pyhandling.synonyms import return_, setattr_of, execute_operation, getattr_of, raise_
-from pyhandling.tools import Clock, IBadResourceKeeper
+from pyhandling.tools import documenting_by, Clock, IBadResourceKeeper
 
 
 class Logger:
@@ -90,21 +90,6 @@ def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]
             raise error
 
     return wrapper
-
-
-documenting_by: Callable[[str], dirty[reformer_of[object]]] = (
-    mergely(
-        eventually(partial(return_, close(returnly(setattr_of)))),
-        attribute_name=eventually(partial(return_, '__doc__')),
-        attribute_value=return_
-    )
-)
-documenting_by.__doc__ = (
-    """
-    Function of getting other function that getting resource with the input 
-    documentation from this first function.
-    """
-)
 
 
 as_collection: Callable[[Any], tuple] = documenting_by(
