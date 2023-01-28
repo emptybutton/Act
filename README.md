@@ -410,7 +410,7 @@ False
 ### Immutable classes
 Create immutable classes
 ```python
-from typing import Iterable, Callable, Self
+from typing import Iterable, Callable
 
 
 @publicly_immutable
@@ -434,27 +434,34 @@ class CallingPublisher:
         self._followers.append(follower)
 
 
-print(CallingPublisher.with_follower.__annotations__["return"])
+original = CallingPublisher("Some publisher", [print])
+```
 
-original = CallingPublisher(0, [print])
+that can't change any public attribute
+```python
+original.some_attr = "some value"
+```
+```
+Traceback ...
+AttributeError: Type CallingPublisher is immutable
+```
 
-print(original.followers, '\n')
-
+and automatically clone without manual creation
+```python
 other = original.with_follower(operation_by('**', 4) |then>> print)
 
+CallingPublisher.with_follower.__annotations__["return"]
+original.followers
+other.followers
 
 other(4)
-
-other.some_attr = "some value"
 ```
 ```
 typing.Self
-(<built-in function print>,) 
-
+(<built-in function print>,)
+(<built-in function print>, ActionChain(...))
 4
 256
-Traceback ...
-AttributeError: Type CallingPublisher is immutable
 ```
 
 ### Debugging
