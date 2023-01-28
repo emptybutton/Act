@@ -259,6 +259,20 @@ def as_argument_pack(*args, **kwargs) -> ArgumentPack:
     return ArgumentPack(args, kwargs)
 
 
+def open_collection_items(collection: Iterable) -> Tuple:
+    """Function to expand input collection's subcollections to it."""
+
+    collection_with_opened_items = list()
+
+    for item in collection:
+        if not isinstance(item, Iterable):
+            collection_with_opened_items.append(item)
+            continue
+
+        collection_with_opened_items.extend(item)
+
+    return tuple(collection_with_opened_items)
+
 
 
 
