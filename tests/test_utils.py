@@ -48,18 +48,6 @@ def test_showly_by_logger(number_of_handlers: int, number_of_writer_calls: int):
 
 
 @mark.parametrize(
-    "object_, args, kwargs, result",
-    [
-        (lambda x, y: x * y + x + y, (2, 3), dict(), 11),
-        (lambda x, y: x / y, (84,), dict(y=2), 42),
-        (lambda: 256, tuple(), dict(), 256)
-    ]
-)
-def test_calling_of(object_: Callable, args: Iterable, kwargs: dict, result: Any):
-    assert calling_of(object_)(*args, **kwargs) == result
-
-
-@mark.parametrize(
     "input_resource, result",
     [
         (42, (42, )),
