@@ -364,6 +364,16 @@ TypeError()
 Traceback ...
 ZeroDivisionError: can't divide by zero
 ```
+
+to execute operations
+```python
+operation_by('*', 4)(64)
+callmethod(', ', 'join', ("first", "second"))
+```
+```
+256
+first, second
+```
 ### Debugging
 Display intermediate results
 ```python
