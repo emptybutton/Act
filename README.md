@@ -407,7 +407,8 @@ True
 False
 ```
 
-Also you can more conveniently create immutable classes
+### Immutable classes
+Create immutable classes
 ```python
 from typing import Iterable, Callable, Self
 
