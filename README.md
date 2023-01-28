@@ -295,6 +295,16 @@ main(16)
 32
 ```
 
+### Batteries
+Use out-of-the-box functions to abstract from input arguments
+```python
+take(256)(1, 2, 3)
+event_as(execute_operation, 30, '+', 2)(1, 2, 3)
+```
+```
+256
+32
+```
 ### Debugging
 Display intermediate results
 ```python
