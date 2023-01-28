@@ -107,18 +107,6 @@ documenting_by.__doc__ = (
 )
 
 
-calling_of: decorator = documenting_by(
-    """
-    Function to represent a proxy of some callable object to call it without
-    direct referring to this very object.
-
-    Can be used to later represent the proxy as a method.
-    """
-)(
-    lambda object_: lambda *args, **kwargs: object_(*args, **kwargs)
-)
-
-
 as_collection: Callable[[Any], tuple] = documenting_by(
     """
     Function to convert an input resource into a tuple collection.
