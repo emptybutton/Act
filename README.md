@@ -305,6 +305,42 @@ event_as(execute_operation, 30, '+', 2)(1, 2, 3)
 256
 32
 ```
+
+to create collection via call
+```python
+collection_from(1, 2, 3)
+```
+```
+(1, 2, 3)
+```
+
+to connect collections
+```python
+summed_collection_from((1, 2), (3, 4))
+```
+```
+(1, 2, 3, 4)
+```
+
+to manage collection nesting
+```python
+wrap_in_collection(8)
+open_collection_items(((1, 2), [3], 4))
+```
+```
+(8, )
+(1, 2, 3, 4)
+```
+
+to represent something as a collection
+```python
+as_collection(64)
+as_collection([1, 2, 3])
+```
+```
+(64, )
+(1, 2, 3)
+```
 ### Debugging
 Display intermediate results
 ```python
