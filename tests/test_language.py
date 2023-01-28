@@ -25,3 +25,25 @@ def test_then_operator(
     )
 
 
+def test_of_position_infix():
+    func = lambda a, b, c: (a + b) * c
+
+    assert (func |of| 2)(2, 4) == 16
+
+
+def test_of_keyword_infix():
+    func = lambda a, b, c: (a + b) * c
+
+    assert (func |of* (3, 5))(8) == 64
+
+
+def test_of_position_infix():
+    func = lambda a, b, c: (a + b) * c
+
+    assert (func |by| 4)(2, 2) == 16
+
+
+def test_of_keyword_infix():
+    func = lambda a, b, c: (a + b) * c
+
+    assert (func |by* (5, 8))(3) == 64
