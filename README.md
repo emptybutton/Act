@@ -350,6 +350,20 @@ tuple(runner() for _ in range(8))
 ```
 (True, True, True, False, True, True, True, False)
 ```
+
+to raise only a specific error
+```python
+optional_raise = optional_raising_of(ZeroDivisionError)
+
+optional_raise(TypeError())
+optional_raise(ZeroDivisionError("can't divide by zero"))
+```
+```
+TypeError()
+
+Traceback ...
+ZeroDivisionError: can't divide by zero
+```
 ### Debugging
 Display intermediate results
 ```python
