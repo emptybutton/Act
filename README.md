@@ -85,10 +85,10 @@ or input values
 from functools import partial
 
 
-eventually(partial(print, 42))(2, 4, 8, 16, 32)
+eventually(partial(print, 16))(1, 2, 3)
 ```
 ```
-42
+16
 ```
 
 ### Atomic functions
