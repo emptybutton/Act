@@ -39,3 +39,5 @@ checker = checker_of[Any]
 decorator = reformer_of[Callable]
 
 event = event_for[Any]
+
+binder = Callable[[Callable, ...], Callable] 
