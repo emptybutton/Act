@@ -120,9 +120,9 @@ def test_times(steps_to_false: int, number_of_runs: int):
         (Exception, KeyError())
     ]
 )
-def test_error_raising_of_raising(error_type: Type[Exception], error: Exception):
+def test_error_raising_of_optional_raising_of(error_type: Type[Exception], error: Exception):
     with raises(error_type):
-        raising(error_type)(error)
+        optional_raising_of(error_type)(error)
 
 
 @mark.parametrize(
@@ -134,11 +134,11 @@ def test_error_raising_of_raising(error_type: Type[Exception], error: Exception)
         (AttributeError, (item for item in range(10))),
     ]
 )
-def test_resource_returning_of_raising(
+def test_resource_returning_of_optional_raising_of(
     error_type: Type[Exception],
     input_resource: Any
 ):
-    assert raising(error_type)(input_resource) == input_resource
+    assert optional_raising_of(error_type)(input_resource) == input_resource
 
 
 @mark.parametrize(

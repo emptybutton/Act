@@ -149,7 +149,7 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
 )
 
 
-raising: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
+optional_raising_of: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
     """
     Function that selectively raises an error (the type of which is the input,
     respectively).
