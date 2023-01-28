@@ -374,6 +374,28 @@ callmethod(', ', 'join', ("first", "second"))
 256
 first, second
 ```
+
+to decoratively create action chains
+```python
+next_action_decorator_of(operation_by('**', 4))(operation_by('+', 1))(3)
+previous_action_decorator_of(operation_by('+', 2))(operation_by('**', 2))(6)
+```
+```
+256
+64
+```
+
+to stop the chain when an error occurs
+```python
+breakable_chain = chain_breaking_on_error_that(isinstance |by| ZeroDivisionError)(
+    (execute_operation |by* ('+', 4)) |then>> div_by_zero
+)
+
+breakable_chain(12)
+```
+```
+BadResourceError('Resource "16" could not be handled due to ZeroDivisionError: division by zero')
+```
 ### Debugging
 Display intermediate results
 ```python
