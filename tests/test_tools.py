@@ -208,3 +208,31 @@ def test_collection_with_reduced_nesting_to(
 )
 def test_as_argument_pack(args: Iterable, kwargs: dict, result_argument_pack: ArgumentPack):
     assert as_argument_pack(*args, **kwargs) == result_argument_pack
+
+
+
+@mark.parametrize(
+    'input_collection, result_collection',
+    [
+        ([1, 2, 3], (1, 2, 3)),
+        ([1, 2, (3, 4)], (1, 2, 3, 4)),
+        ([1, 2, (3, (4, 5))], (1, 2, 3, (4, 5))),
+        (tuple(), tuple()),
+        (str(), tuple()),
+    ]
+)
+def test_open_collection_items(input_collection: Iterable, result_collection: tuple):
+    assert open_collection_items(input_collection) == result_collection
+
+
+@mark.parametrize(
+    'resource, result_collection',
+    [
+        (42, (42, )),
+        (str(), (str(), )),
+        (tuple(), (tuple(), )),
+        ((1, 2, 3), ((1, 2, 3), ))
+    ]
+)
+def test_wrap_in_collection(resource: Any, result_collection: tuple):
+    assert wrap_in_collection(resource) == result_collection
