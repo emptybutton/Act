@@ -320,6 +320,20 @@ def documenting_by(documentation: str) -> dirty[reformer_of[object]]:
     return document
 
 
+def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]) -> handler:
+    """
+    Decorator function for a handler that allows it to return a pack of its
+    input resource and the error it encountered.
     """
 
+    @wraps(handler)
+    def wrapper(resource: Any) -> Any:
+        try:
+            return handler(resource)
+        except Exception as error:
+            if error_checker(error):
+                return BadResourceError(resource, error)
 
+            raise error
+
+    return wrapper
