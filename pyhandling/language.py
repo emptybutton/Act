@@ -76,3 +76,12 @@ of = documenting_by(
     BindingInfix(partial)
 )
 
+by = documenting_by(
+    """
+    BindingInfix instance that implements post_partial as a pseudo operator.
+
+    See BindingInfix for usage information.
+    """
+)(
+    BindingInfix(post_partial)
+)
