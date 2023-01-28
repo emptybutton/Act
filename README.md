@@ -396,6 +396,17 @@ breakable_chain(12)
 ```
 BadResourceError('Resource "16" could not be handled due to ZeroDivisionError: division by zero')
 ```
+
+to use shortcuts of routine options
+```python
+yes(1, 2, 3)
+no(1, 2, 3)
+```
+```
+True
+False
+```
+
 ### Debugging
 Display intermediate results
 ```python
