@@ -237,7 +237,7 @@ optionally_exponentiate: Callable[[number], number | BadResourceWrapper] = docum
 )
 
 
--16 >= optionally_exponentiate |then>> print
+optionally_exponentiate(-16)
 ```
 ```
 <Wrapper of bad -16>
@@ -272,7 +272,7 @@ main: Callable[[number], number | BadResourceError] = (
 )
 
 
-256 >= main |then>> print
+main(256)
 ```
 ```
 BadResourceError('Resource "256" could not be handled due to ZeroDivisionError: division by zero')
@@ -289,7 +289,7 @@ main: reformer_of[number] = (
 )
 
 
-16 >= main |then>> print
+main(16)
 ```
 ```
 32
