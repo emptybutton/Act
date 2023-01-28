@@ -114,14 +114,20 @@ class ActionChain:
 
         return ActionChain(
             ((intermediate_handler, ) if is_on_input else tuple())
-            + (((
-                self.handlers[0] |then>> ActionChain(
-                    post_partial(get_collection_with_reduced_nesting, 1)(
-                        intermediate_handler |then>> handler
-                        for handler in self.handlers[1:]
-                    )
-                )
-            ), ) if self.handlers else tuple())
+            + (
+                (
+                    ActionChain(
+                        self.handlers[0],
+                        ActionChain(
+                            partial(collection_with_reduced_nesting_to, 1)(
+                                ActionChain(intermediate_handler, handler)
+                                for handler in self.handlers[1:]
+                            )
+                        )
+                    ),
+                ) if self.handlers
+                else tuple()
+            )
             + ((intermediate_handler, ) if is_on_output else tuple())
         )
 
