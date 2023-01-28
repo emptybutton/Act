@@ -247,8 +247,8 @@ with the possibility of returning a "bad" resource
 ```python
 main: dirty[reformer_of[number]] = optionally_exponentiate |then>> optionally_get_bad_resource_from
 
-8 >= optionally_exponentiate |then>> print
--16 >= optionally_exponentiate |then>> print
+main(8)
+main(-16)
 ```
 ```
 64
