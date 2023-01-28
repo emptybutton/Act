@@ -245,6 +245,20 @@ class BadResourceWrapper(IBadResourceKeeper):
         return f"<Wrapper of bad {self.bad_resource}>"
 
 
+def as_argument_pack(*args, **kwargs) -> ArgumentPack:
+    """
+    Function to optionally convert input arguments into an ArgumentPack with
+    that input arguments.
+
+    When passed a single positional ArgumentPack to the function, it returns it.
+    """
+
+    if len(args) == 1 and isinstance(args[0], ArgumentPack) and not kwargs:
+        return args[0]
+
+    return ArgumentPack(args, kwargs)
+
+
 
 
 
@@ -270,16 +284,12 @@ def collection_with_reduced_nesting_to(number_of_reductions: int | float, collec
     return tuple(reduced_collection)
 
 
-def as_argument_pack(*args, **kwargs) -> ArgumentPack:
 def documenting_by(documentation: str) -> dirty[reformer_of[object]]:
     """
     Function of getting other function that getting resource with the input 
     documentation from this first function.
     """
-    Function to optionally convert input arguments into an ArgumentPack with
-    that input arguments.
 
-    When passed a single positional ArgumentPack to the function, it returns it.
     def document(object_: object) -> object:
         """
         Function created with the documenting_by function that sets the __doc__
@@ -294,7 +304,4 @@ def documenting_by(documentation: str) -> dirty[reformer_of[object]]:
 
     """
 
-    if len(args) == 1 and isinstance(args[0], ArgumentPack) and not kwargs:
-        return args[0]
 
-    return ArgumentPack(args, kwargs)
