@@ -167,7 +167,7 @@ def recursively(
     resource_handler: handler,
     condition_checker: checker_of[Any],
     *,
-    max_recursion_depth: int = 1000
+    max_recursion_depth: int = 1_000_000
 ) -> Any:
     """
     Function to recursively handle input resource.
