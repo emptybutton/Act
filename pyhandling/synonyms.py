@@ -37,12 +37,6 @@ def unpack_by_keys_to(func: Callable, arguments: dict) -> Any:
     return func(**arguments)
 
 
-def call_method(object_: object, method_name: str, *args, **kwargs) -> Any:
-    """Shortcut function to call a method on an input object."""
-
-    return getattr(object_, method_name)(*args, **kwargs)
-
-
 def bind(func: Callable, argument_name: str, argument_value: Any) -> Callable:
     """
     Atomic partial function for a single keyword argument whose name and value

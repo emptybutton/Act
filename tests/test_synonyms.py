@@ -42,9 +42,6 @@ def test_unpack_by_keys_to():
     assert unpack_by_keys_to(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3)) == (3, 2, 1)
 
 
-@mark.parametrize('result, object_, method_name', (('<Box instance>', Box(), '__repr__'), ))
-def test_call_method(result: Any, object_: object, method_name: str):
-    assert call_method(object_, method_name) == result
 def test_bind():
     func_to_bind = lambda first, second: first + second
 
