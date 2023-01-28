@@ -407,6 +407,63 @@ True
 False
 ```
 
+Also you can more conveniently create immutable classes
+```python
+from typing import Iterable, Callable, Self
+
+
+@publicly_immutable
+class CallingPublisher:
+    id_ = DelegatingProperty('_id')
+    followers = DelegatingProperty('_followers', getting_converter=tuple)
+
+    def __init__(self, id_: int, followers: Iterable[Callable] = tuple()):
+        self._id = id_
+        self._followers = list(followers)
+
+    def __repr__(self) -> str:
+        return f"Publisher N{self._id} with followers {self._followers}"
+
+    def __eq__(self, other: Self) -> bool:
+        return self._id == other._id
+
+    def __call__(self, *args, **kwargs) -> None:
+        for follower in self._followers:
+            follower(*args, **kwargs)
+
+    @to_clone
+    def with_follower(self, follower: Callable) -> None:
+        self._followers.append(follower)
+
+
+print(CallingPublisher.with_follower.__annotations__["return"])
+
+original = CallingPublisher(0, [print])
+
+print(original.followers, '\n')
+
+other = original.with_follower(operation_by('**', 4) |then>> print)
+
+print(f"are the same? {original is other}")
+print(f"are with the same id? {original == other}", '\n')
+
+other(4)
+
+other.some_attr = "some value"
+```
+```
+typing.Self
+(<built-in function print>,) 
+
+are the same? False
+are with the same id? True 
+
+4
+256
+Traceback ...
+AttributeError: Type CallingPublisher is immutable
+```
+
 ### Debugging
 Display intermediate results
 ```python
