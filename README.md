@@ -452,12 +452,17 @@ other = original.with_follower(operation_by('**', 4) |then>> print)
 
 original.followers
 other.followers
-
-other(4)
 ```
 ```
 (<built-in function print>,)
 (<built-in function print>, ActionChain(...))
+```
+
+what would eventually
+```python
+other(4)
+```
+```
 4
 256
 ```
