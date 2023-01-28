@@ -10,7 +10,7 @@ from pyhandling.branchers import ActionChain, returnly, then, rollbackable, merg
 from pyhandling.binders import close, post_partial, bind
 from pyhandling.checkers import Negationer
 from pyhandling.errors import BadResourceError
-from pyhandling.synonyms import return_, setattr_of, execute_operation, getattr_of, raise_
+from pyhandling.synonyms import return_, execute_operation, raise_
 from pyhandling.tools import documenting_by, Clock, IBadResourceKeeper
 
 
@@ -128,18 +128,18 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
         returnly(on_condition(
             lambda clock: not clock,
             mergely(
-                close(setattr_of),
+                close(setattr),
                 take('ticks_to_disability'),
-                post_partial(getattr_of, 'initial_ticks_to_disability')
+                post_partial(getattr, 'initial_ticks_to_disability')
             ),
             else_=return_
         ))
         |then>> returnly(
             mergely(
-                close(setattr_of),
+                close(setattr),
                 take('ticks_to_disability'),
                 (
-                    post_partial(getattr_of, 'ticks_to_disability')
+                    post_partial(getattr, 'ticks_to_disability')
                     |then>> post_partial(execute_operation, '-', 1)
                 )
             )
@@ -189,7 +189,7 @@ optionally_get_bad_resource_from: handler_of[Special[IBadResourceKeeper]] = docu
 )(
     on_condition(
         post_partial(isinstance, IBadResourceKeeper),
-        post_partial(getattr_of, 'bad_resource'),
+        post_partial(getattr, 'bad_resource'),
         else_=return_
     )
 )
