@@ -425,8 +425,6 @@ class CallingPublisher:
     def __repr__(self) -> str:
         return f"Publisher N{self._id} with followers {self._followers}"
 
-    def __eq__(self, other: Self) -> bool:
-        return self._id == other._id
 
     def __call__(self, *args, **kwargs) -> None:
         for follower in self._followers:
@@ -445,8 +443,6 @@ print(original.followers, '\n')
 
 other = original.with_follower(operation_by('**', 4) |then>> print)
 
-print(f"are the same? {original is other}")
-print(f"are with the same id? {original == other}", '\n')
 
 other(4)
 
@@ -455,9 +451,6 @@ other.some_attr = "some value"
 ```
 typing.Self
 (<built-in function print>,) 
-
-are the same? False
-are with the same id? True 
 
 4
 256
