@@ -73,7 +73,7 @@ class ArgumentPack:
         self._kwargs = MappingProxyType(kwargs if kwargs is not None else dict())
 
     @property
-    def args(self) -> tuple:
+    def args(self) -> Tuple:
         return self._args
 
     @property
