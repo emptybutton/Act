@@ -42,7 +42,15 @@ formattly_sum = "{} {}{}".format
 post_partial(formattly_sum, "world", '!')("Hello") 
 ```
 
-not necessarily now
+using pseudo-operators
+```python
+(formattly_sum |to| "Hello")("world", '!')
+(formattly_sum |to* ("Hello", "world"))('!')
+
+(formattly_sum |by| '!')("Hello", "world")
+```
+
+or not necessarily now
 ```python
 container = close(formattly_sum)
 opened_container = container("Hello")
