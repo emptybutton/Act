@@ -1,6 +1,6 @@
 from functools import partial
 
-from pyhandling.binders import bind, post_partial, mirror_partial, close, unpackly
+from pyhandling.binders import post_partial, mirror_partial, close, unpackly
 from pyhandling.tools import ArgumentPack
 
 
@@ -8,10 +8,6 @@ def sum_of(first, second, third=3, fourth=4):
     """Stub function for testing currying."""
 
     return first + second + third + fourth
-
-
-def test_bind():
-    assert bind(sum_of, 'second', 3)(1) == sum_of(1, second=3)
 
 
 def test_post_partial():
