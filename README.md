@@ -42,7 +42,7 @@ formattly_sum = "{} {}{}".format
 post_partial(formattly_sum, "world", '!')("Hello") 
 ```
 
-using pseudo-operators
+using pseudo operators
 ```python
 (formattly_sum |to| "Hello")("world", '!')
 (formattly_sum |to* ("Hello", "world"))('!')
