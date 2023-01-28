@@ -29,6 +29,23 @@ def to_clone(method: method_of[object]) -> factory_for[object]:
     return wrapper
 
 
+def publicly_immutable(class_: type) -> type:
+    """Decorator for an input class that forbids it change its public fields."""
+
+    old_setattr = class_.__setattr__
+
+    @wraps(old_setattr)
+    def new_setattr(instance: object, attribute_name: str, attribute_value: Any) -> Any:
+        if attribute_name and attribute_name[0] != '_':
+            raise AttributeError(f"Type {type(instance).__name__} is immutable")
+
+        return old_setattr(instance, attribute_name, attribute_value)
+
+    class_.__setattr__ = new_setattr
+
+    return class_
+
+
 class Flag:
     """Class for creating generic flags without using enum."""
 
