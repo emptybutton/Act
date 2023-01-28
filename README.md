@@ -415,16 +415,15 @@ from typing import Iterable, Callable, Self
 
 @publicly_immutable
 class CallingPublisher:
-    id_ = DelegatingProperty('_id')
+    name = DelegatingProperty('_name')
     followers = DelegatingProperty('_followers', getting_converter=tuple)
 
-    def __init__(self, id_: int, followers: Iterable[Callable] = tuple()):
-        self._id = id_
+    def __init__(self, name: int, followers: Iterable[Callable] = tuple()):
+        self._name = name
         self._followers = list(followers)
 
     def __repr__(self) -> str:
-        return f"Publisher N{self._id} with followers {self._followers}"
-
+        return f"Publisher {self._name} with followers {self._followers}"
 
     def __call__(self, *args, **kwargs) -> None:
         for follower in self._followers:
