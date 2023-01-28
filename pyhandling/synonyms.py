@@ -37,12 +37,6 @@ def unpack_by_keys_to(func: Callable, arguments: dict) -> Any:
     return func(**arguments)
 
 
-def call(caller: Callable, *args, **kwargs) -> Any:
-    """Function to call an input object and return the results of that call."""
-
-    return caller(*args, **kwargs)
-
-
 def call_method(object_: object, method_name: str, *args, **kwargs) -> Any:
     """Shortcut function to call a method on an input object."""
 
@@ -58,7 +52,10 @@ def bind(func: Callable, argument_name: str, argument_value: Any) -> Callable:
     return wraps(func)(partial(func, **{argument_name: argument_value}))
 
 
+def call(caller: Callable, *args, **kwargs) -> Any:
+    """Function to call an input object and return the results of that call."""
 
+    return caller(*args, **kwargs)
 
 
 def getitem_of(object_: object, item_key: Any) -> Any:
