@@ -302,4 +302,4 @@ then.__doc__ = (
 
     See ActionChain for more info.
     """
-)
+)chain_constructor = Callable[[many_or_one[Callable]], ActionChain]
