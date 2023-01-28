@@ -274,6 +274,10 @@ def open_collection_items(collection: Iterable) -> Tuple:
     return tuple(collection_with_opened_items)
 
 
+def wrap_in_collection(resource: Any) -> tuple[Any]:
+    """Function to represent the input resource as a single collection."""
+
+    return (resource, )
 
 
 def collection_with_reduced_nesting_to(number_of_reductions: int | float, collection: Iterable) -> Tuple:
