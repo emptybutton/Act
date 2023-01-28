@@ -7,8 +7,8 @@ from pytest import mark
 
 
 @mark.parametrize('result, object_, method_name', (('<Box instance>', Box(), '__repr__'), ))
-def test_call_method(result: Any, object_: object, method_name: str):
-    assert call_method(object_, method_name) == result
+def test_callmethod(result: Any, object_: object, method_name: str):
+    assert callmethod(object_, method_name) == result
 
 
 @mark.parametrize(
