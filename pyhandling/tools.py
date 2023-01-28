@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from copy import copy
+from copy import deepcopy
 from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
 from math import inf
@@ -19,7 +19,7 @@ def to_clone(method: method_of[object]) -> factory_for[object]:
 
     @wraps(method)
     def wrapper(instance: object, *args, **kwargs) -> object:
-        clone = copy(instance)
+        clone = deepcopy(instance)
         method(clone, *args, **kwargs)
 
         return clone
