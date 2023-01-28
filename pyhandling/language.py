@@ -64,3 +64,15 @@ then = documenting_by(
 )(
     ActionChain()
 )
+
+
+of = documenting_by(
+    """
+    BindingInfix instance that implements partial as a pseudo operator.
+
+    See BindingInfix for usage information.
+    """
+)(
+    BindingInfix(partial)
+)
+
