@@ -6,8 +6,8 @@ from typing import Iterable, Tuple, Any, Callable, Type
 from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import handler, dirty, handler_of, checker_of, reformer_of, decorator, factory_for, event_for
-from pyhandling.branchers import ActionChain, returnly, then, rollbackable, mergely, eventually, on_condition
 from pyhandling.binders import close, post_partial, bind
+from pyhandling.branchers import ActionChain, returnly, rollbackable, mergely, eventually, on_condition, chain_constructor
 from pyhandling.checkers import Negationer
 from pyhandling.errors import BadResourceError
 from pyhandling.synonyms import return_, execute_operation, raise_
@@ -162,7 +162,7 @@ optional_raising_of: Callable[[Type[Exception]], handler_of[Exception]] = docume
 )
 
 
-maybe: Callable[[many_or_one[Callable]], ActionChain] = documenting_by(
+maybe: chain_constructor = documenting_by(
     """
     Function to finish execution of an action chain when a bad resource keeper
     appears in it by returning this same keeper, skipping subsequent action
