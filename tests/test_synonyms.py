@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Callable, Any
 
-from pyhandling.synonyms import return_, raise_, call, call_method, getattr_of, setattr_of, getitem_of, setitem_of, execute_operation, handle_context_by, transform_by, assert_, positionally_unpack, unpack_by_keys
+from pyhandling.synonyms import *
 from tests.mocks import Box
 
 from pytest import mark, raises

@@ -3,7 +3,7 @@ from math import inf
 
 from pytest import mark
 
-from pyhandling.tools import to_clone, ArgumentPack, ArgumentKey, DelegatingProperty, Clock, get_collection_from, get_collection_with_reduced_nesting, as_argument_pack
+from pyhandling.tools import *
 from tests.mocks import MockObject
 
 

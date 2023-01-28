@@ -1,3 +1,4 @@
+from functools import wraps, partial
 from typing import Any, Callable, Iterable
 
 from pyhandling.annotations import event, handler
@@ -48,9 +49,13 @@ def call_method(object_: object, method_name: str, *args, **kwargs) -> Any:
     return getattr(object_, method_name)(*args, **kwargs)
 
 
+def bind(func: Callable, argument_name: str, argument_value: Any) -> Callable:
     """
+    Atomic partial function for a single keyword argument whose name and value
+    are separate input arguments.
     """
 
+    return wraps(func)(partial(func, **{argument_name: argument_value}))
 
 
 
