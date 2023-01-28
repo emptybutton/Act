@@ -4,8 +4,8 @@ from typing import Any, Callable, Iterable
 from pyhandling.annotations import binder, event_for, factory_for, handler, decorator
 from pyhandling.binders import close
 from pyhandling.branchers import eventually, ActionChain
-from pyhandling.language import then, by, of
 from pyhandling.synonyms import positionally_unpack_to, return_, bind
+from pyhandling.language import then, by, to
 from pyhandling.tools import documenting_by, collection_with_reduced_nesting_to, ArgumentPack
 
 
@@ -35,7 +35,7 @@ summed_collection_from: event_for[tuple] = documenting_by(
     positional collections.
     """
 )(
-    collection_from |then>> (collection_with_reduced_nesting_to |of| 1)
+    collection_from |then>> (collection_with_reduced_nesting_to |to| 1)
 )
 
 

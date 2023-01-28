@@ -66,7 +66,7 @@ then = documenting_by(
 )
 
 
-of = documenting_by(
+to = documenting_by(
     """
     BindingInfix instance that implements partial as a pseudo operator.
 

@@ -3,7 +3,7 @@ from typing import Callable, Iterable
 from pytest import mark
 
 from pyhandling.branchers import ActionChain
-from pyhandling.language import then, of, by
+from pyhandling.language import then, to, by
 
 
 @mark.parametrize(
@@ -25,16 +25,16 @@ def test_then_operator(
     )
 
 
-def test_of_position_infix():
+def test_to_position_infix():
     func = lambda a, b, c: (a + b) * c
 
-    assert (func |of| 2)(2, 4) == 16
+    assert (func |to| 2)(2, 4) == 16
 
 
-def test_of_keyword_infix():
+def test_to_keyword_infix():
     func = lambda a, b, c: (a + b) * c
 
-    assert (func |of* (3, 5))(8) == 64
+    assert (func |to* (3, 5))(8) == 64
 
 
 def test_of_position_infix():
