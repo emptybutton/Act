@@ -287,19 +287,4 @@ def eventually(func: event) -> Any:
     return wraps(func)(lambda *args, **kwargs: func())
 
 
-then = ActionChain()
-then.__doc__ = (
-    """
-    Neutral instance of the ActionChain class.
-
-    Used as an operator emulator for convenient construction of ActionChains.
-    Assumes usage like \"first_handler |then>> second_handler\".
-
-    Additional you can add any resource to the beginning of the construction
-    and >= after it to call the constructed chain with this resource.
-
-    You get something like this \"resource >= first_handler |then>> second_handler\".
-
-    See ActionChain for more info.
-    """
-)chain_constructor = Callable[[many_or_one[Callable]], ActionChain]chain_constructor = Callable[[many_or_one[Callable]], ActionChain]
+chain_constructor = Callable[[many_or_one[Callable]], ActionChain]

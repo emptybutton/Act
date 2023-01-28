@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Any, Iterable, Callable, Type, Optional
 
-from pyhandling.branchers import ActionChain, mergely, recursively, on_condition, rollbackable, returnly, eventually, then
+from pyhandling.branchers import ActionChain, mergely, recursively, on_condition, rollbackable, returnly, eventually
 from pyhandling.errors import HandlingRecursionDepthError
 from pyhandling.tools import ArgumentPack, ArgumentKey
 from tests.mocks import MockHandler, Counter
@@ -369,25 +369,6 @@ def test_eventually(binded_numbers: Iterable[int | float], not_counted_numbers: 
     assert eventually(
         partial(lambda *numbers: sum(numbers), *binded_numbers)
     )(*not_counted_numbers) == sum(binded_numbers)
-
-
-@mark.parametrize(
-    'opening_handler, node_handler, input_args',
-    [
-        (lambda x, y: x + y, lambda x: x ** x, (5, 3)),
-        (lambda x: x**2 + 12, lambda x: x ** 4, (42, )),
-        (lambda: 12, lambda x: x + 30, tuple())
-    ]
-)
-def test_then_operator(
-    opening_handler: Callable,
-    node_handler: Callable,
-    input_args: Iterable
-):
-    assert (
-        (opening_handler |then>> node_handler)(*input_args)
-        == ActionChain(opening_handler, node_handler)(*input_args)
-    )
 
 
 def test_action_chain_one_resource_call_operator(input_resource: int | float = 30):
