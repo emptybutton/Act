@@ -306,7 +306,7 @@ event_as(execute_operation, 30, '+', 2)(1, 2, 3)
 32
 ```
 
-to create collection via call
+to create a collection via call
 ```python
 collection_from(1, 2, 3)
 ```
