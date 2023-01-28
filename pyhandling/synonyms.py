@@ -48,24 +48,12 @@ def call_method(object_: object, method_name: str, *args, **kwargs) -> Any:
     return getattr(object_, method_name)(*args, **kwargs)
 
 
-def getattr_of(object_: object, attribute_name: str) -> Any:
     """
-    Synonym function for getattr.
-
-    Unlike original getattr arguments can be keyword.
     """
 
-    return getattr(object_, attribute_name)
 
 
-def setattr_of(object_: object, attribute_name: str, attribute_value: Any) -> Any:
-    """
-    Synonym function for setattr.
 
-    Unlike original setattr arguments can be keyword.
-    """
-
-    return setattr(object_, attribute_name, attribute_value)
 
 
 def getitem_of(object_: object, item_key: Any) -> Any:

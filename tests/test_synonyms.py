@@ -52,16 +52,7 @@ def test_call_method(result: Any, object_: object, method_name: str):
     assert call_method(object_, method_name) == result
 
 
-@mark.parametrize('object_, attribute_name, result', ((Box(a=1), 'a', 1), (Box(b=2), 'b', 2)))
-def test_getattr_of(object_: object, attribute_name: str, result: Any):
-    assert getattr_of(object_, attribute_name) == result
 
-
-@mark.parametrize('object_, attribute_name, attribute_value', ((Box(), 'a', 1), (Box(), 'b', 2)))
-def test_setattr_of(object_: object, attribute_name: str, attribute_value: Any):
-    setattr_of(object_, attribute_name, attribute_value)
-
-    assert getattr(object_, attribute_name) == attribute_value
 
 
 @mark.parametrize('object_, key, result', ((dict(a=1), 'a', 1), (dict(b=2), 'b', 2)))
