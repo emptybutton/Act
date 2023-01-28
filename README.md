@@ -450,14 +450,12 @@ and automatically clone without manual creation
 ```python
 other = original.with_follower(operation_by('**', 4) |then>> print)
 
-CallingPublisher.with_follower.__annotations__["return"]
 original.followers
 other.followers
 
 other(4)
 ```
 ```
-typing.Self
 (<built-in function print>,)
 (<built-in function print>, ActionChain(...))
 4
