@@ -1,3 +1,4 @@
+from functools import wraps, partial
 from typing import Any, Callable, Iterable
 
 from pyhandling.annotations import event, handler
@@ -24,48 +25,31 @@ def assert_(resource: Any) -> None:
     assert resource
 
 
-def positionally_unpack(func: Callable, arguments: Iterable) -> Any:
+def positionally_unpack_to(func: Callable, arguments: Iterable) -> Any:
     """Wrapper function for functional use of positional unpacking."""
 
     return func(*arguments)
 
 
-def unpack_by_keys(func: Callable, arguments: dict) -> Any:
+def unpack_by_keys_to(func: Callable, arguments: dict) -> Any:
     """Wrapper function for functional use of unpacking by keyword arguments."""
 
     return func(**arguments)
+
+
+def bind(func: Callable, argument_name: str, argument_value: Any) -> Callable:
+    """
+    Atomic partial function for a single keyword argument whose name and value
+    are separate input arguments.
+    """
+
+    return wraps(func)(partial(func, **{argument_name: argument_value}))
 
 
 def call(caller: Callable, *args, **kwargs) -> Any:
     """Function to call an input object and return the results of that call."""
 
     return caller(*args, **kwargs)
-
-
-def call_method(object_: object, method_name: str, *args, **kwargs) -> Any:
-    """Shortcut function to call a method on an input object."""
-
-    return getattr(object_, method_name)(*args, **kwargs)
-
-
-def getattr_of(object_: object, attribute_name: str) -> Any:
-    """
-    Synonym function for getattr.
-
-    Unlike original getattr arguments can be keyword.
-    """
-
-    return getattr(object_, attribute_name)
-
-
-def setattr_of(object_: object, attribute_name: str, attribute_value: Any) -> Any:
-    """
-    Synonym function for setattr.
-
-    Unlike original setattr arguments can be keyword.
-    """
-
-    return setattr(object_, attribute_name, attribute_value)
 
 
 def getitem_of(object_: object, item_key: Any) -> Any:
@@ -95,7 +79,7 @@ def execute_operation(first_operand: Any, operator: str, second_operand: Any) ->
     )
 
 
-def transform_by(operator: str, operand: Any) -> Any:
+def transform(operand: Any, operator: str) -> Any:
     """
     Function to use single operand operator in functional way.
 

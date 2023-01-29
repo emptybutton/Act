@@ -3,7 +3,7 @@ from math import inf
 
 from pytest import mark
 
-from pyhandling.tools import to_clone, ArgumentPack, ArgumentKey, DelegatingProperty, Clock, get_collection_from, get_collection_with_reduced_nesting, as_argument_pack
+from pyhandling.tools import *
 from tests.mocks import MockObject
 
 
@@ -28,7 +28,7 @@ def test_to_clone():
     ]
 )
 def test_argument_pack_creation_via_call(args: Iterable, kwargs: dict):
-    assert ArgumentPack.create_via_call(*args, **kwargs) == ArgumentPack(args, kwargs)
+    assert ArgumentPack.of(*args, **kwargs) == ArgumentPack(args, kwargs)
 
 
 @mark.parametrize(
@@ -50,7 +50,7 @@ def test_argument_pack_merger(
 ):
     assert (
         ArgumentPack(first_args, first_kwargs).merge_with(ArgumentPack(second_args, second_kwargs))
-        == ArgumentPack.create_via_call(*first_args, *second_args, **(first_kwargs | second_kwargs))
+        == ArgumentPack.of(*first_args, *second_args, **(first_kwargs | second_kwargs))
     )
 
 
@@ -73,7 +73,7 @@ def test_argument_pack_expanding(
 ):
     assert (
         ArgumentPack(first_args, first_kwargs).expand_with(*second_args, **second_kwargs)
-        == ArgumentPack.create_via_call(*first_args, *second_args, **(first_kwargs | second_kwargs))
+        == ArgumentPack.of(*first_args, *second_args, **(first_kwargs | second_kwargs))
     )
 
 
@@ -105,6 +105,22 @@ def test_argument_pack_getting_argument_by_key(
     result: Any
 ):
     assert argument_pack[argument_key] == result
+
+
+@mark.parametrize(
+    "documentation",
+    (
+        "Is a handler.", "Is a checker.", "Something.", str(),
+        "\n\tIs something.\n\tOr not?", "\tIs a handler.\n\tIs a handler",
+    )
+)
+def test_documenting_by(documentation: str):
+    mock = MockObject()
+
+    documenting_by(documentation)(mock)
+
+    assert '__doc__' in mock.__dict__.keys()
+    assert mock.__doc__ == documentation
 
 
 @mark.parametrize(
@@ -159,20 +175,6 @@ def test_clock(clock: Clock, ticks_to_subtract: int, result_ticks: int):
 
 
 @mark.parametrize(
-    'input_collections, output_collection',
-    [
-        [((1, 2, 3), (4, 5)), (1, 2, 3, 4, 5)],
-        [((1, 2), tuple(), (3, 4, 5), tuple(), (6, 7)), (1, 2, 3, 4, 5, 6, 7)],
-        [((1, 2, 3), (4, (5, 6))), (1, 2, 3, 4, (5, 6))],
-        [[[[[[42]]]]], ([[[42]]], )],
-        [tuple(), tuple()],
-    ]
-)
-def test_get_collection_from(input_collections: Iterable[Iterable], output_collection: tuple):
-    assert get_collection_from(*input_collections) == output_collection
-
-
-@mark.parametrize(
     'input_collection, reducing_number, output_collection',
     [
         [(1, 2, (3, 4, 5)), 1, (1, 2, 3, 4, 5)],
@@ -182,13 +184,13 @@ def test_get_collection_from(input_collections: Iterable[Iterable], output_colle
         [[[[[[[[[[[[[[[[[[[[[[[[[[[42]]]]]]]]]]]]]]]]]]]]]]]]]], inf, (42, )],
     ]
 )
-def test_get_collection_with_reduced_nesting(
+def test_collection_with_reduced_nesting_to(
     input_collection: Iterable,
     reducing_number: int,
     output_collection: tuple
 ):
     assert (
-        get_collection_with_reduced_nesting(input_collection, reducing_number)
+        collection_with_reduced_nesting_to(reducing_number, input_collection)
         == output_collection
     )
 
@@ -208,3 +210,31 @@ def test_get_collection_with_reduced_nesting(
 )
 def test_as_argument_pack(args: Iterable, kwargs: dict, result_argument_pack: ArgumentPack):
     assert as_argument_pack(*args, **kwargs) == result_argument_pack
+
+
+
+@mark.parametrize(
+    'input_collection, result_collection',
+    [
+        ([1, 2, 3], (1, 2, 3)),
+        ([1, 2, (3, 4)], (1, 2, 3, 4)),
+        ([1, 2, (3, (4, 5))], (1, 2, 3, (4, 5))),
+        (tuple(), tuple()),
+        (str(), tuple()),
+    ]
+)
+def test_open_collection_items(input_collection: Iterable, result_collection: tuple):
+    assert open_collection_items(input_collection) == result_collection
+
+
+@mark.parametrize(
+    'resource, result_collection',
+    [
+        (42, (42, )),
+        (str(), (str(), )),
+        (tuple(), (tuple(), )),
+        ((1, 2, 3), ((1, 2, 3), ))
+    ]
+)
+def test_wrap_in_collection(resource: Any, result_collection: tuple):
+    assert wrap_in_collection(resource) == result_collection

@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Callable, Any
 
-from pyhandling.synonyms import return_, raise_, call, call_method, getattr_of, setattr_of, getitem_of, setitem_of, execute_operation, handle_context_by, transform_by, assert_, positionally_unpack, unpack_by_keys
+from pyhandling.synonyms import *
 from tests.mocks import Box
 
 from pytest import mark, raises
@@ -34,34 +34,23 @@ def test_assert_error_raising(resource: Any):
         assert_(resource)
 
 
-def test_positionally_unpack():
-    assert positionally_unpack(lambda a, b, c: (c, b, a), (1, 2, 3)) == (3, 2, 1)
+def test_positionally_unpack_to():
+    assert positionally_unpack_to(lambda a, b, c: (c, b, a), (1, 2, 3)) == (3, 2, 1)
 
 
-def test_unpack_by_keys():
-    assert unpack_by_keys(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3)) == (3, 2, 1)
+def test_unpack_by_keys_to():
+    assert unpack_by_keys_to(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3)) == (3, 2, 1)
+
+
+def test_bind():
+    func_to_bind = lambda first, second: first + second
+
+    assert bind(func_to_bind, 'second', 3)(1) == func_to_bind(1, second=3)
 
 
 @mark.parametrize('func, result', ((partial(return_, 1), 1), (lambda: 1 + 2, 3)))
 def test_call(func: Callable[[], Any], result: Any):
     assert call(func) == result
-
-
-@mark.parametrize('result, object_, method_name', (('<Box instance>', Box(), '__repr__'), ))
-def test_call_method(result: Any, object_: object, method_name: str):
-    assert call_method(object_, method_name) == result
-
-
-@mark.parametrize('object_, attribute_name, result', ((Box(a=1), 'a', 1), (Box(b=2), 'b', 2)))
-def test_getattr_of(object_: object, attribute_name: str, result: Any):
-    assert getattr_of(object_, attribute_name) == result
-
-
-@mark.parametrize('object_, attribute_name, attribute_value', ((Box(), 'a', 1), (Box(), 'b', 2)))
-def test_setattr_of(object_: object, attribute_name: str, attribute_value: Any):
-    setattr_of(object_, attribute_name, attribute_value)
-
-    assert getattr(object_, attribute_name) == attribute_value
 
 
 @mark.parametrize('object_, key, result', ((dict(a=1), 'a', 1), (dict(b=2), 'b', 2)))
@@ -91,8 +80,8 @@ def test_execute_operation(first: Any, operator: str, second: Any, result: Any):
         ('~', 0, -1)
     ]
 )
-def test_transform_by(operator: str, operand: Any, result: Any):
-    assert transform_by(operator, operand) == result
+def test_transform(operator: str, operand: Any, result: Any):
+    assert transform(operand, operator) == result
 
 
 @mark.parametrize(

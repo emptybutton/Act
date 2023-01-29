@@ -1,19 +1,10 @@
 from functools import wraps, partial
-from typing import Callable, Any, Iterable
+from typing import Callable, Any
 
 from pyannotating import method_of
 
 from pyhandling.annotations import handler_of
 from pyhandling.tools import ArgumentPack
-
-
-def bind(func: Callable, argument_name: str, argument_value: Any) -> Callable:
-    """
-    Atomic partial function for a single keyword argument whose name and value
-    are separate input arguments.
-    """
-
-    return wraps(func)(partial(func, **{argument_name: argument_value}))
 
 
 def post_partial(func: Callable, *args, **kwargs) -> Callable:

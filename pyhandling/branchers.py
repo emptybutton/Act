@@ -1,4 +1,5 @@
-from functools import reduce, wraps
+from functools import partial, reduce, wraps
+from math import inf
 from typing import Callable, Iterable, Any, Iterator, Self
 
 from pyannotating import many_or_one
@@ -6,7 +7,7 @@ from pyannotating import many_or_one
 from pyhandling.annotations import handler, factory_for, checker_of, handler_of, event
 from pyhandling.binders import post_partial
 from pyhandling.errors import HandlingRecursionDepthError
-from pyhandling.tools import DelegatingProperty, get_collection_with_reduced_nesting, ArgumentPack, ArgumentKey
+from pyhandling.tools import DelegatingProperty, collection_with_reduced_nesting_to, ArgumentPack, ArgumentKey
 from pyhandling.synonyms import return_
 
 
@@ -44,7 +45,7 @@ class ActionChain:
         opening_handler_resource: many_or_one[Callable] = tuple(),
         *handlers: handler
     ):
-        self._handlers = get_collection_with_reduced_nesting(
+        self._handlers = partial(collection_with_reduced_nesting_to, inf)(
             (
                 tuple(opening_handler_resource)
                 if isinstance(opening_handler_resource, Iterable)
@@ -113,14 +114,20 @@ class ActionChain:
 
         return ActionChain(
             ((intermediate_handler, ) if is_on_input else tuple())
-            + (((
-                self.handlers[0] |then>> ActionChain(
-                    post_partial(get_collection_with_reduced_nesting, 1)(
-                        intermediate_handler |then>> handler
-                        for handler in self.handlers[1:]
-                    )
-                )
-            ), ) if self.handlers else tuple())
+            + (
+                (
+                    ActionChain(
+                        self.handlers[0],
+                        ActionChain(
+                            partial(collection_with_reduced_nesting_to, 1)(
+                                ActionChain(intermediate_handler, handler)
+                                for handler in self.handlers[1:]
+                            )
+                        )
+                    ),
+                ) if self.handlers
+                else tuple()
+            )
             + ((intermediate_handler, ) if is_on_output else tuple())
         )
 
@@ -167,7 +174,7 @@ def recursively(
     resource_handler: handler,
     condition_checker: checker_of[Any],
     *,
-    max_recursion_depth: int = 1000
+    max_recursion_depth: int = 1_000_000
 ) -> Any:
     """
     Function to recursively handle input resource.
@@ -280,19 +287,4 @@ def eventually(func: event) -> Any:
     return wraps(func)(lambda *args, **kwargs: func())
 
 
-then = ActionChain()
-then.__doc__ = (
-    """
-    Neutral instance of the ActionChain class.
-
-    Used as an operator emulator for convenient construction of ActionChains.
-    Assumes usage like \"first_handler |then>> second_handler\".
-
-    Additional you can add any resource to the beginning of the construction
-    and >= after it to call the constructed chain with this resource.
-
-    You get something like this \"resource >= first_handler |then>> second_handler\".
-
-    See ActionChain for more info.
-    """
-)
+chain_constructor = Callable[[many_or_one[Callable]], ActionChain]

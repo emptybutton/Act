@@ -6,12 +6,14 @@ from typing import Iterable, Tuple, Any, Callable, Type
 from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import handler, dirty, handler_of, checker_of, reformer_of, decorator, factory_for, event_for
-from pyhandling.branchers import ActionChain, returnly, then, rollbackable, mergely, eventually, on_condition
-from pyhandling.binders import close, post_partial, bind
+from pyhandling.branchers import ActionChain, returnly, rollbackable, mergely, eventually, on_condition, chain_constructor
+from pyhandling.binders import close, post_partial
 from pyhandling.checkers import Negationer
+from pyhandling.language import then
 from pyhandling.errors import BadResourceError
-from pyhandling.synonyms import return_, setattr_of, execute_operation, getattr_of, raise_
-from pyhandling.tools import Clock, IBadResourceKeeper
+from pyhandling.shortcuts import take
+from pyhandling.synonyms import return_, execute_operation, raise_
+from pyhandling.tools import documenting_by, Clock, IBadResourceKeeper
 
 
 class Logger:
@@ -92,33 +94,6 @@ def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]
     return wrapper
 
 
-documenting_by: Callable[[str], dirty[reformer_of[object]]] = (
-    mergely(
-        eventually(partial(return_, close(returnly(setattr_of)))),
-        attribute_name=eventually(partial(return_, '__doc__')),
-        attribute_value=return_
-    )
-)
-documenting_by.__doc__ = (
-    """
-    Function of getting other function that getting resource with the input 
-    documentation from this first function.
-    """
-)
-
-
-calling_of: decorator = documenting_by(
-    """
-    Function to represent a proxy of some callable object to call it without
-    direct referring to this very object.
-
-    Can be used to later represent the proxy as a method.
-    """
-)(
-    lambda object_: lambda *args, **kwargs: object_(*args, **kwargs)
-)
-
-
 as_collection: Callable[[Any], tuple] = documenting_by(
     """
     Function to convert an input resource into a tuple collection.
@@ -130,15 +105,6 @@ as_collection: Callable[[Any], tuple] = documenting_by(
         tuple,
         else_=lambda resource: (resource, )
     )
-)
-
-
-take: Callable[[Any], factory_for[Any]] = documenting_by(
-    """
-    Shortcut function equivalent to eventually(partial(return_, input_resource).
-    """
-)(
-    close(return_) |then>> eventually
 )
 
 
@@ -155,18 +121,18 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
         returnly(on_condition(
             lambda clock: not clock,
             mergely(
-                close(setattr_of),
+                close(setattr),
                 take('ticks_to_disability'),
-                post_partial(getattr_of, 'initial_ticks_to_disability')
+                post_partial(getattr, 'initial_ticks_to_disability')
             ),
             else_=return_
         ))
         |then>> returnly(
             mergely(
-                close(setattr_of),
+                close(setattr),
                 take('ticks_to_disability'),
                 (
-                    post_partial(getattr_of, 'ticks_to_disability')
+                    post_partial(getattr, 'ticks_to_disability')
                     |then>> post_partial(execute_operation, '-', 1)
                 )
             )
@@ -176,7 +142,7 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
 )
 
 
-raising: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
+optional_raising_of: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
     """
     Function that selectively raises an error (the type of which is the input,
     respectively).
@@ -189,7 +155,7 @@ raising: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
 )
 
 
-maybe: Callable[[many_or_one[Callable]], ActionChain] = documenting_by(
+maybe: chain_constructor = documenting_by(
     """
     Function to finish execution of an action chain when a bad resource keeper
     appears in it by returning this same keeper, skipping subsequent action
@@ -216,29 +182,17 @@ optionally_get_bad_resource_from: handler_of[Special[IBadResourceKeeper]] = docu
 )(
     on_condition(
         post_partial(isinstance, IBadResourceKeeper),
-        post_partial(getattr_of, 'bad_resource'),
+        post_partial(getattr, 'bad_resource'),
         else_=return_
     )
 )
 
 
-previous_action_decorator_of: Callable[[handler], decorator] = documenting_by(
+chain_breaking_on_error_that: Callable[[checker_of[Exception]], chain_constructor] = documenting_by(
     """
-    Creates a decorator that adds a action before an input function.
-
-    Shortcut for ActionChain(...).clone_with.
-    """
-)(
-    ActionChain |then>> post_partial(getattr, "clone_with")
-)
-
-
-next_action_decorator_of: Callable[[Callable], decorator] = documenting_by(
-    """
-    Creates a decorator that adds a post action to the function.
-
-    Shortcut for partial(ActionChain(...).clone_with, is_other_handlers_left=True).
+    Shortcut for maybe which is triggered on an error that satisfies the input
+    checker conditions.
     """
 )(
-    previous_action_decorator_of |then>> post_partial(bind, "is_other_handlers_left", True)
+    close(returnly_rollbackable, closer=post_partial) |then>> close(map |then>> maybe)
 )

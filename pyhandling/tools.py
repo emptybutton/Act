@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from copy import copy
+from copy import deepcopy
 from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
 from math import inf
@@ -8,7 +8,7 @@ from typing import Self, Final, Any, Iterable, Optional, Tuple, Callable
 
 from pyannotating import method_of
 
-from pyhandling.annotations import factory_for, handler
+from pyhandling.annotations import factory_for, handler, dirty, reformer_of, checker_of
 
 
 def to_clone(method: method_of[object]) -> factory_for[object]:
@@ -19,7 +19,7 @@ def to_clone(method: method_of[object]) -> factory_for[object]:
 
     @wraps(method)
     def wrapper(instance: object, *args, **kwargs) -> object:
-        clone = copy(instance)
+        clone = deepcopy(instance)
         method(clone, *args, **kwargs)
 
         return clone
@@ -27,6 +27,23 @@ def to_clone(method: method_of[object]) -> factory_for[object]:
     wrapper.__annotations__['return'] = Self
 
     return wrapper
+
+
+def publicly_immutable(class_: type) -> type:
+    """Decorator for an input class that forbids it change its public fields."""
+
+    old_setattr = class_.__setattr__
+
+    @wraps(old_setattr)
+    def new_setattr(instance: object, attribute_name: str, attribute_value: Any) -> Any:
+        if attribute_name and attribute_name[0] != '_':
+            raise AttributeError(f"Type {type(instance).__name__} is immutable")
+
+        return old_setattr(instance, attribute_name, attribute_value)
+
+    class_.__setattr__ = new_setattr
+
+    return class_
 
 
 class Flag:
@@ -73,7 +90,7 @@ class ArgumentPack:
         self._kwargs = MappingProxyType(kwargs if kwargs is not None else dict())
 
     @property
-    def args(self) -> tuple:
+    def args(self) -> Tuple:
         return self._args
 
     @property
@@ -154,7 +171,7 @@ class ArgumentPack:
         return caller(*self.args, **self.kwargs)
 
     @classmethod
-    def create_via_call(cls, *args, **kwargs) -> Self:
+    def of(cls, *args, **kwargs) -> Self:
         """Method for creating a pack with this method's input arguments."""
 
         return cls(args, kwargs)
@@ -173,16 +190,16 @@ class DelegatingProperty:
         delegated_attribute_name: str,
         *,
         settable: bool = False,
-        geting_value_converter: handler = lambda resource: resource,
-        seting_value_converter: handler = lambda resource: resource
+        getting_converter: handler = lambda resource: resource,
+        setting_converter: handler = lambda resource: resource
     ):
         self.delegated_attribute_name = delegated_attribute_name
         self.settable = settable
-        self.geting_value_converter = geting_value_converter
-        self.seting_value_converter = seting_value_converter
+        self.getting_converter = getting_converter
+        self.setting_converter = setting_converter
 
     def __get__(self, instance: object, owner: type) -> Any:
-        return self.geting_value_converter(getattr(instance, self.delegated_attribute_name))
+        return self.getting_converter(getattr(instance, self.delegated_attribute_name))
 
     def __set__(self, instance: object, value: Any) -> None:
         if not self.settable:
@@ -193,7 +210,7 @@ class DelegatingProperty:
                 )
             )
 
-        setattr(instance, self.delegated_attribute_name, self.seting_value_converter(value))
+        setattr(instance, self.delegated_attribute_name, self.setting_converter(value))
 
 
 class Clock:
@@ -245,13 +262,42 @@ class BadResourceWrapper(IBadResourceKeeper):
         return f"<Wrapper of bad {self.bad_resource}>"
 
 
-def get_collection_from(*collections: Iterable) -> tuple:
-    """Function to get a collection with elements from input collections."""
+def as_argument_pack(*args, **kwargs) -> ArgumentPack:
+    """
+    Function to optionally convert input arguments into an ArgumentPack with
+    that input arguments.
 
-    return get_collection_with_reduced_nesting(collections, 1)
+    When passed a single positional ArgumentPack to the function, it returns it.
+    """
+
+    if len(args) == 1 and isinstance(args[0], ArgumentPack) and not kwargs:
+        return args[0]
+
+    return ArgumentPack(args, kwargs)
 
 
-def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductions: int | float = inf) -> tuple:
+def open_collection_items(collection: Iterable) -> Tuple:
+    """Function to expand input collection's subcollections to it."""
+
+    collection_with_opened_items = list()
+
+    for item in collection:
+        if not isinstance(item, Iterable):
+            collection_with_opened_items.append(item)
+            continue
+
+        collection_with_opened_items.extend(item)
+
+    return tuple(collection_with_opened_items)
+
+
+def wrap_in_collection(resource: Any) -> tuple[Any]:
+    """Function to represent the input resource as a single collection."""
+
+    return (resource, )
+
+
+def collection_with_reduced_nesting_to(number_of_reductions: int | float, collection: Iterable) -> Tuple:
     """Function that allows to get a collection with a reduced nesting level."""
 
     if isinstance(number_of_reductions, float) and number_of_reductions != inf:
@@ -265,7 +311,7 @@ def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductio
             continue
 
         reduced_collection.extend(
-            get_collection_with_reduced_nesting(item, number_of_reductions - 1)
+            collection_with_reduced_nesting_to(number_of_reductions - 1, item)
             if number_of_reductions > 1
             else item
         )
@@ -273,15 +319,38 @@ def get_collection_with_reduced_nesting(collection: Iterable, number_of_reductio
     return tuple(reduced_collection)
 
 
-def as_argument_pack(*args, **kwargs) -> ArgumentPack:
+def documenting_by(documentation: str) -> dirty[reformer_of[object]]:
     """
-    Function to optionally convert input arguments into an ArgumentPack with
-    that input arguments.
-
-    When passed a single positional ArgumentPack to the function, it returns it.
+    Function of getting other function that getting resource with the input 
+    documentation from this first function.
     """
 
-    if len(args) == 1 and isinstance(args[0], ArgumentPack) and not kwargs:
-        return args[0]
+    def document(object_: object) -> object:
+        """
+        Function created with the documenting_by function that sets the __doc__
+        attribute and returns the input object.
+        """
 
-    return ArgumentPack(args, kwargs)
+        object_.__doc__ = documentation
+        return object_
+
+    return document
+
+
+def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]) -> handler:
+    """
+    Decorator function for a handler that allows it to return a pack of its
+    input resource and the error it encountered.
+    """
+
+    @wraps(handler)
+    def wrapper(resource: Any) -> Any:
+        try:
+            return handler(resource)
+        except Exception as error:
+            if error_checker(error):
+                return BadResourceError(resource, error)
+
+            raise error
+
+    return wrapper

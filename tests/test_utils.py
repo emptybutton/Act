@@ -7,7 +7,7 @@ from pyhandling.branchers import ActionChain, eventually
 from pyhandling.errors import BadResourceError
 from pyhandling.synonyms import raise_
 from pyhandling.tools import ArgumentPack, BadResourceWrapper, IBadResourceKeeper
-from pyhandling.utils import Logger, showly, documenting_by, calling_of, as_collection, times, raising, returnly_rollbackable, maybe, returnly_rollbackable, optionally_get_bad_resource_from, next_action_decorator_of, previous_action_decorator_of
+from pyhandling.utils import *
 from tests.mocks import Counter, MockHandler, MockObject
 
 
@@ -45,34 +45,6 @@ def test_showly_by_logger(number_of_handlers: int, number_of_writer_calls: int):
     )(None)
 
     assert writing_counter.counted == number_of_writer_calls
-
-
-@mark.parametrize(
-    "documentation",
-    (
-        "Is a handler.", "Is a checker.", "Something.", str(),
-        "\n\tIs something.\n\tOr not?", "\tIs a handler.\n\tIs a handler",
-    )
-)
-def test_documenting_by(documentation: str):
-    mock = MockObject()
-
-    documenting_by(documentation)(mock)
-
-    assert '__doc__' in mock.__dict__.keys()
-    assert mock.__doc__ == documentation
-
-
-@mark.parametrize(
-    "object_, args, kwargs, result",
-    [
-        (lambda x, y: x * y + x + y, (2, 3), dict(), 11),
-        (lambda x, y: x / y, (84,), dict(y=2), 42),
-        (lambda: 256, tuple(), dict(), 256)
-    ]
-)
-def test_calling_of(object_: Callable, args: Iterable, kwargs: dict, result: Any):
-    assert calling_of(object_)(*args, **kwargs) == result
 
 
 @mark.parametrize(
@@ -120,9 +92,9 @@ def test_times(steps_to_false: int, number_of_runs: int):
         (Exception, KeyError())
     ]
 )
-def test_error_raising_of_raising(error_type: Type[Exception], error: Exception):
+def test_error_raising_of_optional_raising_of(error_type: Type[Exception], error: Exception):
     with raises(error_type):
-        raising(error_type)(error)
+        optional_raising_of(error_type)(error)
 
 
 @mark.parametrize(
@@ -134,11 +106,11 @@ def test_error_raising_of_raising(error_type: Type[Exception], error: Exception)
         (AttributeError, (item for item in range(10))),
     ]
 )
-def test_resource_returning_of_raising(
+def test_resource_returning_of_optional_raising_of(
     error_type: Type[Exception],
     input_resource: Any
 ):
-    assert raising(error_type)(input_resource) == input_resource
+    assert optional_raising_of(error_type)(input_resource) == input_resource
 
 
 @mark.parametrize(
@@ -242,22 +214,22 @@ def test_optionally_get_bad_resource_from(input_resource: Any, result: Any):
 
 
 @mark.parametrize(
-    "first_node, second_node, input_resource",
-    [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
+    "error_checker, chain, input_resource, expected_result",
+    [
+        (lambda err: isinstance(err, ZeroDivisionError), [lambda x: x + 1, lambda x: x / 0], 255, 256),
+        (lambda err: isinstance(err, ZeroDivisionError), [lambda x: x / 2, lambda x: x / 0], 128, 64),
+        (lambda err: isinstance(err, ZeroDivisionError), [lambda x: x / 2, lambda x: x * 4], 128, 256),
+    ]
 )
-def test_next_action_decorator_of(first_node: Callable, second_node: Callable[[Any], Any], input_resource: Any):
-    assert (
-        next_action_decorator_of(second_node)(first_node)(input_resource)
-        == ActionChain(first_node, second_node)(input_resource)
-    )
-
-
-@mark.parametrize(
-    "first_node, second_node, input_resource",
-    [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
-)
-def test_previous_action_decorator_of(first_node: Callable, second_node: Callable[[Any], Any], input_resource: Any):
-    assert (
-        previous_action_decorator_of(first_node)(second_node)(input_resource)
-        == ActionChain(first_node, second_node)(input_resource)
-    )
+def test_chain_breaking_on_error_that(
+    error_checker: Callable[[Exception], bool],
+    chain: Iterable[Callable],
+    input_resource: Any,
+    expected_result: Any
+):
+    result = chain_breaking_on_error_that(error_checker)(chain)(input_resource)
+    
+    if isinstance(result, IBadResourceKeeper):
+        assert result.bad_resource == expected_result
+    else:
+        assert result == expected_result

@@ -42,7 +42,15 @@ formattly_sum = "{} {}{}".format
 post_partial(formattly_sum, "world", '!')("Hello") 
 ```
 
-not necessarily now
+using pseudo operators
+```python
+(formattly_sum |to| "Hello")("world", '!')
+(formattly_sum |to* ("Hello", "world"))('!')
+
+(formattly_sum |by| '!')("Hello", "world")
+```
+
+or not necessarily now
 ```python
 container = close(formattly_sum)
 opened_container = container("Hello")
@@ -77,26 +85,44 @@ or input values
 from functools import partial
 
 
-eventually(partial(print, 42))(2, 4, 8, 16, 32)
+eventually(partial(print, 16))(1, 2, 3)
 ```
 ```
-42
+16
 ```
 
 ### Atomic functions
-Use any python atomic operations as functions
+Use synonyms for operators
 ```python
-(lambda reource: (raise_ if isinstance(reource, Exception) else return_)(reource))("no error") # "no error"
+return_(256)
+raise_(Exception("Something is wrong"))
+```
+```
+256
 
-execute_operation(60, '+', 4) # 64
+Traceback ...
+Exception: Something is wrong
+```
 
-transform_by('not', str()) # True
+for atomic operations
+```python
+execute_operation(60, '+', 4)
+transform(str(), 'not')
+```
+```
+64
+True
+```
 
-call(range, 16) # range(16)
+for syntax operations
+```python
+call(range, 16)
 
-getitem_of({"some-key": "some-value"}, "some-key") # "some-value"
-
-take(42) # lambda *_, **__: 42
+getitem_of({"some-key": "some-value"}, "some-key")
+```
+```
+range(16)
+some-value
 ```
 
 ### Annotating
@@ -111,7 +137,7 @@ is_number_even: checker_of[number] = lambda number: number % 2 == 0
 
 add_hundert_to: reformer_of[number] = lambda number: number + 100
 
-format_lines: merger_of[str] = "{first} {second}{end_symbol}".format
+format_lines: merger_of[str] = "{} {}!".format
 ```
 
 or annotations themselves
@@ -134,7 +160,7 @@ total_sum: Callable[[Iterable[many_or_one[number]]], number] = documenting_by(
     """
 )(
     close(map |then>> tuple)(
-        on_condition(post_partial(isinstance, Iterable), sum, else_=return_)
+        on_condition(isinstance |by| Iterable, sum, else_=return_)
     )
     |then>> sum
 )
@@ -211,7 +237,7 @@ optionally_exponentiate: Callable[[number], number | BadResourceWrapper] = docum
 )
 
 
--16 >= optionally_exponentiate |then>> print
+optionally_exponentiate(-16)
 ```
 ```
 <Wrapper of bad -16>
@@ -221,8 +247,8 @@ with the possibility of returning a "bad" resource
 ```python
 main: dirty[reformer_of[number]] = optionally_exponentiate |then>> optionally_get_bad_resource_from
 
-8 >= optionally_exponentiate |then>> print
--16 >= optionally_exponentiate |then>> print
+main(8)
+main(-16)
 ```
 ```
 64
@@ -246,7 +272,7 @@ main: Callable[[number], number | BadResourceError] = (
 )
 
 
-256 >= main |then>> print
+main(256)
 ```
 ```
 BadResourceError('Resource "256" could not be handled due to ZeroDivisionError: division by zero')
@@ -255,7 +281,7 @@ BadResourceError('Resource "256" could not be handled due to ZeroDivisionError: 
 with corresponding possibilities
 ```python
 main: reformer_of[number] = (
-    partial(map |then>> maybe, post_partial(returnly_rollbackable, take(True)))(
+    partial(map |then>> maybe, returnly_rollbackable |by| take(True))(
         post_partial(execute_operation, '*', 2)
         |then>> div_by_zero
     )
@@ -263,10 +289,182 @@ main: reformer_of[number] = (
 )
 
 
-16 >= main |then>> print
+main(16)
 ```
 ```
 32
+```
+
+### Batteries
+Use out-of-the-box functions to abstract from input arguments
+```python
+take(256)(1, 2, 3)
+event_as(execute_operation, 30, '+', 2)(1, 2, 3)
+```
+```
+256
+32
+```
+
+to create a collection via call
+```python
+collection_from(1, 2, 3)
+```
+```
+(1, 2, 3)
+```
+
+to connect collections
+```python
+summed_collection_from((1, 2), (3, 4))
+```
+```
+(1, 2, 3, 4)
+```
+
+to manage collection nesting
+```python
+wrap_in_collection(8)
+open_collection_items(((1, 2), [3], 4))
+```
+```
+(8, )
+(1, 2, 3, 4)
+```
+
+to represent something as a collection
+```python
+as_collection(64)
+as_collection([1, 2, 3])
+```
+```
+(64, )
+(1, 2, 3)
+```
+
+to confirm something multiple times
+```python
+runner = times(3)
+tuple(runner() for _ in range(8))
+```
+```
+(True, True, True, False, True, True, True, False)
+```
+
+to raise only a specific error
+```python
+optional_raise = optional_raising_of(ZeroDivisionError)
+
+optional_raise(TypeError())
+optional_raise(ZeroDivisionError("can't divide by zero"))
+```
+```
+TypeError()
+
+Traceback ...
+ZeroDivisionError: can't divide by zero
+```
+
+to execute operations
+```python
+operation_by('*', 4)(64)
+callmethod(', ', 'join', ("first", "second"))
+```
+```
+256
+first, second
+```
+
+to decoratively create action chains
+```python
+next_action_decorator_of(operation_by('**', 4))(operation_by('+', 1))(3)
+previous_action_decorator_of(operation_by('+', 2))(operation_by('**', 2))(6)
+```
+```
+256
+64
+```
+
+to stop the chain when an error occurs
+```python
+breakable_chain = chain_breaking_on_error_that(isinstance |by| ZeroDivisionError)(
+    (execute_operation |by* ('+', 4)) |then>> div_by_zero
+)
+
+breakable_chain(12)
+```
+```
+BadResourceError('Resource "16" could not be handled due to ZeroDivisionError: division by zero')
+```
+
+to use shortcuts of routine options
+```python
+yes(1, 2, 3)
+no(1, 2, 3)
+```
+```
+True
+False
+```
+
+### Immutable classes
+Create immutable classes
+```python
+from typing import Iterable, Callable
+
+
+@publicly_immutable
+class CallingPublisher:
+    name = DelegatingProperty('_name')
+    followers = DelegatingProperty('_followers', getting_converter=tuple)
+
+    def __init__(self, name: int, followers: Iterable[Callable] = tuple()):
+        self._name = name
+        self._followers = list(followers)
+
+    def __repr__(self) -> str:
+        return f"Publisher {self._name} with followers {self._followers}"
+
+    def __call__(self, *args, **kwargs) -> None:
+        for follower in self._followers:
+            follower(*args, **kwargs)
+
+    @to_clone
+    def with_follower(self, follower: Callable) -> None:
+        self._followers.append(follower)
+
+
+original = CallingPublisher("Some publisher", [print])
+```
+
+that can't change any public attribute
+```python
+original.some_attr = "some value"
+```
+```
+Traceback ...
+AttributeError: Type CallingPublisher is immutable
+```
+
+and automatically clone without manual creation
+```python
+other = original.with_follower(operation_by('**', 4) |then>> print)
+
+original.followers
+other.followers
+```
+```
+(<built-in function print>,)
+(<built-in function print>, ActionChain(...))
+```
+
+what would eventually
+```python
+other(4)
+```
+```
+4
+256
 ```
 
 ### Debugging
