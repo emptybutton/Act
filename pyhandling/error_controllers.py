@@ -41,3 +41,19 @@ error_storage_of = partial(AnnotationTemplate, Union)(
 )
 
 
+def errors_from(error_storage: error_storage_of[ErrorT]) -> Tuple[ErrorT]:
+    """
+    Function to recursively get all (including nested) errors from unstructured
+    error storage.
+    """
+
+    errors = (error_storage, ) if isinstance(error_storage, Exception) else tuple()
+
+    if isinstance(error_storage, SingleErrorKepper):
+        errors += errors_from(error_storage.error)
+    if isinstance(error_storage, ErrorKepper):
+        errors += open_collection_items(map(errors_from, error_storage.errors))
+
+    return errors
+
+
