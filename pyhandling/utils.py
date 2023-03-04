@@ -76,7 +76,10 @@ def showly(
     ))
 
 
-def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]) -> handler:
+def returnly_rollbackable(
+    handler: Callable[[ResourceT], ResultT],
+    error_checker: checker_of[ErrorT]
+) -> Callable[[ResourceT], ResultT | BadResourceError[ResourceT, ErrorT]]:
     """
     Decorator function for a handler that allows it to return a pack of its
     input resource and the error it encountered.
