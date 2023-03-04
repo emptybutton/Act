@@ -95,17 +95,14 @@ def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]
     return wrapper
 
 
-as_collection: Callable[[Any], tuple] = documenting_by(
+as_collection: Callable[[many_or_one[ResourceT]], Tuple[ResourceT]]
+as_collection = documenting_by(
     """
     Function to convert an input resource into a tuple collection.
     With a non-iterable resource, wraps it in a tuple.
     """
 )(
-    on_condition(
-        post_partial(isinstance, Iterable),
-        tuple,
-        else_=lambda resource: (resource, )
-    )
+    on_condition(isinstance |by| Iterable, tuple, else_=wrap_in_collection)
 )
 
 
