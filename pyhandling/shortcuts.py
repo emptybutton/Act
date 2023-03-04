@@ -59,11 +59,23 @@ yes: event_for[bool] = documenting_by("""Shortcut for take(True).""")(take(True)
 no: event_for[bool] = documenting_by("""Shortcut for take(False).""")(take(False))
 
 
+collection_unpacking_in: Callable[[factory_for[ResourceT]], Callable[[Iterable], ResourceT]]
+collection_unpacking_in = documenting_by(
+    """
+    Decorator for unpacking the collection of the output function when it is
+    called.
     """
 )(
+    unpackly |then>> left_action_binding_of(ArgumentPack |by| dict())
 )
 
 
+mapping_unpacking_in: Callable[[factory_for[ResourceT]], Callable[[Mapping], ResourceT]]
+mapping_unpacking_in = documenting_by(
     """
+    Decorator for unpacking the mapping object of the output function when it is
+    called.
     """
 )(
+    unpackly |then>> left_action_binding_of(ArgumentPack |to| tuple())
+)
