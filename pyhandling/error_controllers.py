@@ -34,3 +34,10 @@ class ErrorKepper(Protocol, Generic[ErrorT]):
     errors: Iterable[Self | SingleErrorKepper[ErrorT] | ErrorT]
 
 
+error_storage_of = partial(AnnotationTemplate, Union)(
+    AnnotationTemplate(ErrorKepper, [input_annotation]),
+    AnnotationTemplate(SingleErrorKepper, [input_annotation]),
+    input_annotation
+)
+
+
