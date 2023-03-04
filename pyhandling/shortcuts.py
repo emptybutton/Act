@@ -15,7 +15,7 @@ def callmethod(object_: object, method_name: str, *args, **kwargs) -> Any:
     return getattr(object_, method_name)(*args, **kwargs)
 
 
-operation_by = documenting_by(
+operation_by: Callable[[...], factory_for[Any]] = documenting_by(
     """Shortcut for post_partial(execute_operation, ...)."""
 )(
     close(execute_operation, closer=post_partial)
