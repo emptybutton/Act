@@ -4,7 +4,7 @@ from typing import Callable, Iterable, Any, Iterator, Self
 
 from pyannotating import many_or_one, Special
 
-from pyhandling.annotations import handler, factory_for, checker_of, handler_of, event
+from pyhandling.annotations import ResultT, handler, ArgumentsT, ResourceT, checker_of, PositiveConditionResultT, NegativeConditionResultT, FuncT, ErrorHandlingResultT, event_for
 from pyhandling.binders import post_partial
 from pyhandling.errors import HandlingRecursionDepthError
 from pyhandling.tools import DelegatingProperty, collection_with_reduced_nesting_to, ArgumentPack, ArgumentKey
@@ -187,10 +187,6 @@ def recursively(
     return recursively_handle
 
 
-PositiveConditionResultT = TypeVar("PositiveResultT")
-NegativeConditionResultT = TypeVar("NegativeConditionResultT")
-
-
 def on_condition(
     condition_checker: Callable[[*ArgumentsT], bool],
     positive_condition_func: Callable[[*ArgumentsT], PositiveConditionResultT],
@@ -220,9 +216,6 @@ def on_condition(
         )(*args, **kwargs)
 
     return brancher
-
-
-ErrorHandlingResultT = TypeVar("ErrorHandlingResultT")
 
 
 def rollbackable(func: FuncT, rollbacker: Callable[[Exception], ErrorHandlingResultT]) -> FuncT | ErrorHandlingResultT:
