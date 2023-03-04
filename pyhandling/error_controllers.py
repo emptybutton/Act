@@ -22,3 +22,15 @@ class BadResourceError(MechanicalError, IBadResourceKeeper, Generic[ResourceT, E
         super().__init__(
             f"Resource \"{self._bad_resource}\" could not be handled due to {type(self._error).__name__}: {str(self._error)}"
         )
+
+
+@runtime_checkable
+class SingleErrorKepper(Protocol, Generic[ErrorT]):
+    error: ErrorT
+
+
+@runtime_checkable
+class ErrorKepper(Protocol, Generic[ErrorT]):
+    errors: Iterable[Self | SingleErrorKepper[ErrorT] | ErrorT]
+
+
