@@ -70,7 +70,7 @@ def showly(
     chain of actions, or simply the input and output results of a regular handler.
     """
 
-    return ActionChain(*map(
+    return ActionChain(map(
         action_binding_of(returnly(str |then>> writer)),
         as_collection(handler_resource)
     ))
