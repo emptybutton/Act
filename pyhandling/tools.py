@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
 from math import inf
 from types import MappingProxyType
-from typing import Self, Final, Any, Iterable, Optional, Tuple, Callable
+from typing import Self, Final, Any, Iterable, Optional, Tuple, Callable, Generic
 
 from pyannotating import method_of
 
@@ -44,6 +44,27 @@ def publicly_immutable(class_: Type[ResourceT]) -> Type[ResourceT]:
     class_.__setattr__ = new_setattr
 
     return class_
+
+
+@runtime_checkable
+class ItemGetter(Protocol, Generic[KeyT, ResultT]):
+    @abstractmethod
+    def __getitem__(self, key: KeyT) -> ResultT: ...
+
+
+@runtime_checkable
+class ItemSetter(Protocol, Generic[KeyT, ResourceT]):
+    @abstractmethod
+    def __setitem__(self, key: KeyT, value: ResourceT) -> Any: ...
+
+
+@runtime_checkable
+class ItemKeeper(Protocol, Generic[KeyT, ResourceT]):
+    @abstractmethod
+    def __getitem__(self, key: KeyT) -> ResultT: ...
+
+    @abstractmethod
+    def __setitem__(self, key: KeyT, value: ResourceT) -> Any: ...
 
 
 class Flag:
