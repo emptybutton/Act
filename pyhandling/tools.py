@@ -77,15 +77,15 @@ class Flag:
     def __repr__(self) -> str:
         return f"<{'positive' if self._is_positive else 'negative'} {type(self).__name__} \"{self._name}\">"
 
+    def __bool__(self) -> bool:
+        return self._is_positive
+
     def __eq__(self, other: Special[Self]) -> bool:
         return isinstance(other, Flag) and self._name == other._name
 
     @property
     def name(self) -> str:
         return self._name
-
-    def __bool__(self) -> bool:
-        return self._is_positive
 
 
 nothing: Final[Flag] = Flag('nothing', is_positive=False)
