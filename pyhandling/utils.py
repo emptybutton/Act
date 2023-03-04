@@ -60,19 +60,20 @@ class Logger:
             self._logs = self._logs[self.maximum_log_count:]
 
 
-def showly(handler: handler, *, writer: dirty[handler_of[str]] = print) -> dirty[ActionChain]:
+def showly(
+    handler_resource: many_or_one[handler],
+    *,
+    writer: dirty[handler_of[str]] = print
+) -> dirty[ActionChain]:
     """
     Decorator function for visualizing the outcomes of intermediate stages of a
     chain of actions, or simply the input and output results of a regular handler.
     """
 
-    writer = returnly(str |then>> writer)
-
-    return (
-        handler.clone_with_intermediate(writer, is_on_input=True, is_on_output=True)
-        if isinstance(handler, ActionChain)
-        else wraps(handler)(writer |then>> handler |then>> writer)
-    )
+    return ActionChain(*map(
+        action_binding_of(returnly(str |then>> writer)),
+        as_collection(handler_resource)
+    ))
 
 
 def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]) -> handler:
