@@ -9,8 +9,8 @@ from pyhandling.annotations import handler, dirty, handler_of, checker_of, event
 from pyhandling.branchers import ActionChain, returnly, rollbackable, mergely, eventually, on_condition, chain_constructor
 from pyhandling.binders import close, post_partial
 from pyhandling.checkers import Negationer
-from pyhandling.language import then
-from pyhandling.errors import BadResourceError
+from pyhandling.language import then, by
+from pyhandling.error_controllers import BadResourceError
 from pyhandling.shortcuts import take
 from pyhandling.synonyms import return_, execute_operation, raise_
 from pyhandling.tools import documenting_by, Clock, IBadResourceKeeper
