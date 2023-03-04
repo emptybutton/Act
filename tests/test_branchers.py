@@ -30,6 +30,8 @@ def test_neutral_action_chain_error_raising(args: Iterable, kwargs: Mapping):
         [(MockHandler(), ), 1, 1],
         [(MockHandler(), ), str(), str()],
         [(lambda x: None, ), 256, None],
+        [tuple(), 64, 64],
+        [tuple(), None, None],
     ]
 )
 def test_action_chain_calling(handlers: Iterable[handler], input_resource: Any, result: Any):
