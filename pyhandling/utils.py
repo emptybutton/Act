@@ -208,28 +208,20 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
     passed, True again n times, and so on.
     """
 )(
-    post_partial(execute_operation, '+', 1)
+    operation_by('+', 1)
     |then>> Clock
     |then>> close(
-        returnly(on_condition(
-            lambda clock: not clock,
-            mergely(
-                close(setattr),
-                take("ticks_to_disability"),
-                post_partial(getattr, "initial_ticks_to_disability")
-            ),
-            else_=return_
-        ))
-        |then>> returnly(
-            mergely(
-                close(setattr),
-                take("ticks_to_disability"),
-                (
-                    post_partial(getattr, "ticks_to_disability")
-                    |then>> post_partial(execute_operation, '-', 1)
-                )
+        (on_condition |then>> returnly)(
+            transform |by| 'not',
+            lambda clock: (setattr |to| clock)(
+                "ticks_to_disability",
+                clock.initial_ticks_to_disability
             )
         )
+        |then>> returnly(lambda clock: (setattr |to| clock)(
+            "ticks_to_disability",
+            clock.ticks_to_disability - 1
+        ))
         |then>> bool
     )
 )
