@@ -65,3 +65,22 @@ class ErrorReport(Protocol, Generic[ErrorT]):
     document: Mapping
 
 
+class ReportingError(MechanicalError, Generic[ErrorT]):
+    """Error class to store the context of another error and itself."""
+    
+    document = DelegatingProperty("_document")
+
+    def __init__(self, error: ErrorT, document: Mapping):
+        self.__error = error
+        self.__document = MappingProxyType(document)
+
+        super().__init__(self._error_message)
+
+    @cached_property
+    def _error_message(self) -> str:
+        formatted_report = format_dict(self.__document, line_between_key_and_value='=')
+
+        return (
+            str(self.__error)
+            + (" when {formatted_document}" if self.__document else str())
+        )
