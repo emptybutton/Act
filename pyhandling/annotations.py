@@ -47,5 +47,10 @@ ArgumentsT = TypeVarTuple("ArgumentsT")
 
 ResourceT = TypeVar("ResourceT")
 
+ObjectT = TypeVar("ObjectT")
+
 ResultT = TypeVar("ResultT")
 
+KeyT = TypeVar("KeyT")
+
+ErrorT = TypeVar("ErrorT", bound=Exception)
