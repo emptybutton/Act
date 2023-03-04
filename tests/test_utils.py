@@ -166,13 +166,22 @@ def test_returnly_rollbackable_error_returning(
 
 
 @mark.parametrize(
-    "handler_resource, input_resource, result",
+    "nodes, input_resource, result",
     [
-        (ActionChain(lambda x: x + 2, BadResourceWrapper, lambda x: x.resource * 2), 40, 42),
-        (returnly_rollbackable(lambda x: x / 0, lambda error: isinstance(error, ZeroDivisionError)), 42, 42),
-        (ActionChain(), 42, ArgumentPack((42, ))),
-        (tuple(), 256, ArgumentPack((256, ))),
-        (lambda x: x ** x, 4, 256),
+        (ActionChain((lambda x: x + 2, BadResourceWrapper, lambda x: x.resource * 2)), 40, 42),
+        (
+            [
+                returnly_rollbackable(
+                    lambda x: x / 0,
+                    lambda error: isinstance(error, ZeroDivisionError)
+                )
+            ],
+            42,
+            42
+        ),
+        (ActionChain(), 42, 42),
+        (tuple(), 256, 256),
+        ([lambda x: x ** x], 4, 256),
         ([lambda x: x ** 2, lambda x: x ** x], 2, 256),
         (
             [
@@ -188,11 +197,11 @@ def test_returnly_rollbackable_error_returning(
     ]
 )
 def test_maybe(
-    handler_resource: Iterable[Callable] | Callable,
+    nodes: Iterable[Callable],
     input_resource: Any,
     result: Any
 ):
-    maybe_result = maybe(handler_resource)(input_resource)
+    maybe_result = maybe(nodes)(input_resource)
 
     assert (
         (maybe_result.bad_resource if isinstance(maybe_result, IBadResourceKeeper) else maybe_result)
