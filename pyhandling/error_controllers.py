@@ -91,30 +91,32 @@ def errors_from(error_storage: error_storage_of[ErrorT]) -> Tuple[ErrorT]:
     return errors
 
 
+ContextT = TypeVar("ContextT")
+
+
 @runtime_checkable
-class ErrorReport(Protocol, Generic[ErrorT]):
-    """Protocol for saving error context as a document."""
+class ErrorReport(Protocol, Generic[ErrorT, ContextT]):
+    """Protocol for saving error context."""
 
     error: ErrorT
-    document: Mapping
+    context: ContextT
 
 
-class ReportingError(MechanicalError, Generic[ErrorT]):
+class ContextualError(MechanicalError, Generic[ErrorT, ContextT]):
     """Error class to store the context of another error and itself."""
-    
-    document = DelegatingProperty("_document")
+   
+    error = DelegatingProperty("__error")
+    context = DelegatingProperty("__context")
 
-    def __init__(self, error: ErrorT, document: Mapping):
+    def __init__(self, error: ErrorT, context: ContextT):
         self.__error = error
-        self.__document = MappingProxyType(document)
+        self.__context = context
 
         super().__init__(self._error_message)
 
     @cached_property
     def _error_message(self) -> str:
-        formatted_report = format_dict(self.__document, line_between_key_and_value='=')
+        return f"{str(self.__error)} in context {self.__context}"
 
-        return (
-            str(self.__error)
-            + (" when {formatted_document}" if self.__document else str())
+
         )
