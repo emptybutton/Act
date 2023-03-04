@@ -13,29 +13,31 @@ from pyhandling.synonyms import return_
 
 class ActionChain(Generic[ResultT]):
     """
-    Class that implements handling as a chain of actions of handlers.
+    Class combining calls of several functions together in sequential execution.
 
-    In the presence of basic chains (strictly instances of the ActionChain class)
-    in the rows of handlers, takes their handlers instead of them.
+    Iterable by its nodes.
 
-    Each next handler gets the output of the previous one.
-    Data returned when called is data exited from the last handler.
+    Each next node gets the output of the previous one.
+    Data returned when called is data exited from the last node.
 
-    The first handler is not bound to the standard handler interface and can be
+    The first node is not bound to the standard handler interface and can be
     any callable object.
 
     Accordingly, delegates the call to that first handler, so it emulates its
     calling interface.
 
-    If there are no handlers, returns an argument pack from an input arguments.
+    If there are no nodes, returns the input resource back. If the arguments
+    were not transmitted or there were too many, it throws
+    NeutralActionChainError.
 
     Can be connected to another chain or handler using | between them with
     maintaining the position of the call.
 
-    Also can be used >> to expand handlers starting from the end respectively.
+    Also can be used >> to expand nodes starting from the end respectively.
 
     Has a one resource call synonyms >= and <= where is the chain on the right
-    i.e. \"resource >= chain_instance\" and \"chain_instance <= resource\". 
+    i.e. \"resource_to_call >= chain_instance\" and
+    \"chain_instance <= resource_to_call\". 
     """
 
     def __init__(self, nodes: Iterable[Callable] = tuple()):
