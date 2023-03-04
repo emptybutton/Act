@@ -25,25 +25,21 @@ def test_then_operator(
     )
 
 
-def test_to_position_infix():
-    func = lambda a, b, c: (a + b) * c
-
-    assert (func |to| 2)(2, 4) == 16
-
-
-def test_to_keyword_infix():
-    func = lambda a, b, c: (a + b) * c
-
-    assert (func |to* (3, 5))(8) == 64
+@mark.parametrize(
+    'infix, result',
+    [
+        (to, 16), (by, 12)
+    ]
+)
+def test_single_binding_infix(infix: BindingInfix, result: Any):
+    assert ((lambda a, b, c: (a + b) * c) |infix| 2)(2, 4) == result
 
 
-def test_of_position_infix():
-    func = lambda a, b, c: (a + b) * c
-
-    assert (func |by| 4)(2, 2) == 16
-
-
-def test_of_keyword_infix():
-    func = lambda a, b, c: (a + b) * c
-
-    assert (func |by* (5, 8))(3) == 64
+@mark.parametrize(
+    'infix, result',
+    [
+        (to, 39), (by, 64)
+    ]
+)
+def test_keyword_binding_infix(infix: BindingInfix, result: Any):
+    assert ((lambda a, b, c: (a + b) * c) |infix* (5, 8))(3) == result
