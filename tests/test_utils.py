@@ -11,6 +11,123 @@ from pyhandling.utils import *
 from tests.mocks import Counter, MockHandler, MockObject
 
 
+@mark.parametrize('result, object_, method_name', (('<Box instance>', Box(), '__repr__'), ))
+def test_callmethod(result: Any, object_: object, method_name: str):
+    assert callmethod(object_, method_name) == result
+
+
+
+
+@mark.parametrize(
+    "checker, resource, result",
+    (
+        ((lambda number: number <= 0), 4, 4),
+        ((lambda number: number <= 0), 0, BadResourceWrapper(0)),
+        ((lambda number: number <= 0), -64, BadResourceWrapper(-64))
+    )
+)
+def test_bad_resource_wrapping_on(checker: checker_of[ResourceT], resource: ResourceT, result: Any):
+    resource_wrapper = bad_resource_wrapping_on(checker)(resource)
+
+    if type(resource_wrapper) is BadResourceWrapper and type(result) is BadResourceWrapper:
+        assert resource_wrapper.bad_resource == result.bad_resource
+    else:
+        assert resource_wrapper == result
+
+
+@mark.parametrize(
+    "checker, number, result",
+    ((lambda number: number < 10, 3, 3), (lambda number: number < 10, 11, 12))
+)
+def test_passing_on(checker: checker_of[number], number: number, result: Any):
+    assert passing_on(checker)(lambda number: number + 1)(number) == result
+
+
+@mark.parametrize(
+    "func, arguments",
+    (
+        (lambda a, b, c: a + b + c, (1, 2, 3)),
+        (lambda number: number + 4, (60, )),
+        (lambda: 256, tuple()),
+    )
+)
+def test_collection_unpacking_in(func: Callable, arguments: Iterable):
+    assert collection_unpacking_in(func)(arguments) == func(*arguments)
+
+
+@mark.parametrize(
+    "func, arguments",
+    (
+        (lambda a, b, c: a + b + c, dict(a=1, b=2, c=3)),
+        (lambda number: number + 4, dict(number=60)),
+        (lambda: 256, dict()),
+    )
+)
+def test_keyword_unpacking_in(func: Callable, arguments: Mapping):
+    assert keyword_unpacking_in(func)(arguments) == func(**arguments)
+
+
+@mark.parametrize(
+    'input_collections, output_collection',
+    [
+        [((1, 2, 3), (4, 5)), (1, 2, 3, 4, 5)],
+        [((1, 2), tuple(), (3, 4, 5), tuple(), (6, 7)), (1, 2, 3, 4, 5, 6, 7)],
+        [((1, 2, 3), (4, (5, 6))), (1, 2, 3, 4, (5, 6))],
+        [[[[[[42]]]]], ([[[42]]], )],
+        [tuple(), tuple()],
+    ]
+)
+def test_summed_collection_from(input_collections: Iterable[Iterable], output_collection: tuple):
+    assert summed_collection_from(*input_collections) == output_collection
+
+
+@mark.parametrize(
+    "first_node, second_node, input_resource",
+    [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
+)
+def test_action_binding_of(first_node: Callable, second_node: Callable[[Any], Any], input_resource: Any):
+    assert (
+        action_binding_of(second_node)(first_node)(input_resource)
+        == ActionChain((first_node, second_node))(input_resource)
+    )
+
+
+@mark.parametrize(
+    "first_node, second_node, input_resource",
+    [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
+)
+def test_left_action_binding_of(first_node: Callable, second_node: Callable[[Any], Any], input_resource: Any):
+    assert (
+        left_action_binding_of(first_node)(second_node)(input_resource)
+        == ActionChain((first_node, second_node))(input_resource)
+    )
+
+
+@mark.parametrize(
+    "func, arguments, extra_arguments",
+    [(pow, (4, 2), tuple()), (pow, (4, 4), (1, 2, 3))]
+)
+def test_event_as(func: Callable, arguments: Iterable, extra_arguments: Iterable):
+    assert event_as(func, *arguments)(extra_arguments) == func(*arguments)
+
+
+@mark.parametrize("items", [(1, 2, 3), "Hello world!", range(10)])
+def test_collection_from(items: Iterable):
+    assert collection_from(*items) == tuple(items)
+
+
+@mark.parametrize(
+    "resource, arguments",
+    [
+        (256, tuple()),
+        (42, (1, 2, 3)),
+        (None, (1, 2, 3)),
+    ]
+)
+def test_take(resource: Any, arguments: Iterable):
+    assert take(resource)(*arguments) == resource
+
+
 @mark.parametrize(
     'initial_log_number, logging_amount',
     [(0, 0), (4, 0), (4, 8), (0, 8), (32, 16), (128, 128)]
