@@ -47,8 +47,8 @@ class ActionChain(Generic[ResultT]):
         if not self._nodes:
             if len(args) != 1 or kwargs:
                 raise NeutralActionChainError(
-                    "ActionChain without nodes accepts only one argument and not{argumet_part}".format(
-                        argumet_part=f"{' ' + str(len(args)) if len(args) != 1 else str()}{' with keyword' if kwargs else str()}"
+                    "ActionChain without nodes accepts only one argument, not{argumet_part}".format(
+                        argumet_part=f"{' ' + str(len(args)) if len(args) != 1 else str()}{' with keywords' if kwargs else str()}"
                     )
                 )
 
