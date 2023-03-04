@@ -88,7 +88,7 @@ class Flag:
         return self._name
 
 
-nothing: Final[Flag] = Flag('nothing', is_positive=False)
+nothing: Final[Flag] = Flag("nothing", is_positive=False)
 nothing.__doc__ = """Flag to indicate the absence of anything, including None."""
 
 
