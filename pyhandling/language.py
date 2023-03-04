@@ -1,8 +1,9 @@
 from functools import partial
-from typing import Callable, Optional, Iterable, Any, Self
+from typing import Generic, Callable, Optional, Iterable, Any, Self
 
 from pyannotating import Special
 
+from pyhandling.annotations import ResultT
 from pyhandling.binders import post_partial
 from pyhandling.branchers import ActionChain
 from pyhandling.tools import DelegatingProperty, documenting_by

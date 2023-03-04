@@ -1,9 +1,14 @@
 from abc import ABC, abstractmethod
+from functools import cached_property
+from types import MappingProxyType
 from typing import Generic, Union, runtime_checkable, Protocol, Iterable, Self, Tuple, TypeVar, NamedTuple
+
+from pyannotating import AnnotationTemplate, input_annotation
 
 from pyhandling.annotations import ResourceT, ErrorT, ResultT
 from pyhandling.errors import PyhandingError
-from pyhandling.tools import IBadResourceKeeper, DelegatingProperty, open_collection_items
+from pyhandling.language import to
+from pyhandling.tools import DelegatingProperty, open_collection_items
 
 
 class MechanicalError(PyhandingError):

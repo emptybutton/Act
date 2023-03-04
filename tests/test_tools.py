@@ -1,5 +1,4 @@
 from typing import Iterable, Callable, Any
-from math import inf
 
 from pytest import mark
 

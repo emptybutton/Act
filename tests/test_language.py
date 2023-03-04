@@ -1,9 +1,9 @@
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Any
 
 from pytest import mark
 
 from pyhandling.branchers import ActionChain
-from pyhandling.language import then, to, by
+from pyhandling.language import then, BindingInfix, to, by
 
 
 @mark.parametrize(

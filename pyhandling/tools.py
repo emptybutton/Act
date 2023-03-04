@@ -1,14 +1,13 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
-from math import inf
 from types import MappingProxyType
-from typing import Self, Final, Any, Iterable, Optional, Tuple, Callable, Generic
+from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Generic, Final, Iterable, Optional, Tuple
 
-from pyannotating import method_of
+from pyannotating import method_of, Special
 
-from pyhandling.annotations import factory_for, handler, ResourceT, dirty, reformer_of, checker_of
+from pyhandling.annotations import ObjectT, ResourceT, ResultT, handler, dirty, reformer_of, KeyT
 
 
 def to_clone(method: method_of[ObjectT]) -> Callable[[ObjectT, ...], ObjectT]:

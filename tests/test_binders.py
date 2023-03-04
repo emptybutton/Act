@@ -1,5 +1,3 @@
-from functools import partial
-
 from pyhandling.binders import post_partial, mirror_partial, close, unpackly
 from pyhandling.tools import ArgumentPack
 

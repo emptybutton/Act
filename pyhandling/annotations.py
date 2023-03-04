@@ -1,4 +1,4 @@
-from typing import Callable, Any, Self, TypeVar, TypeVarTuple
+from typing import Callable, Any, TypeVar, TypeVarTuple
 
 from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 

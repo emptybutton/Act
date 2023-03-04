@@ -1,19 +1,18 @@
 from datetime import datetime
 from functools import wraps, partial
 from math import inf
-from typing import Iterable, Tuple, Any, Callable, Type
+from typing import Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn
 
-from pyannotating import many_or_one, Special
+from pyannotating import many_or_one
 
-from pyhandling.annotations import handler, dirty, handler_of, checker_of, event_for, ResourceT
-from pyhandling.branchers import ActionChain, returnly, rollbackable, mergely, eventually, on_condition, chain_constructor
-from pyhandling.binders import close, post_partial
+from pyhandling.annotations import handler, dirty, handler_of, ResourceT, ResultT, checker_of, ErrorT, factory_for, merger_of, ArgumentsT, binder, event_for
+from pyhandling.binders import close, post_partial, unpackly
+from pyhandling.branchers import ActionChain, returnly, eventually, on_condition, chain_constructor
 from pyhandling.checkers import Negationer
-from pyhandling.language import then, by
-from pyhandling.error_controllers import BadResourceError
-from pyhandling.shortcuts import take
-from pyhandling.synonyms import return_, execute_operation, raise_
-from pyhandling.tools import documenting_by, Clock, IBadResourceKeeper
+from pyhandling.language import then, by, to
+from pyhandling.error_controllers import BadResourceError, IBadResourceKeeper, bad_wrapped_or_not, BadResourceWrapper, ResultWithError
+from pyhandling.synonyms import execute_operation, return_, transform, raise_
+from pyhandling.tools import documenting_by, wrap_in_collection, ArgumentPack, open_collection_items, Clock
 
 
 class Logger:

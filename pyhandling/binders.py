@@ -1,9 +1,7 @@
 from functools import wraps, partial
 from typing import Callable, Any
 
-from pyannotating import method_of
-
-from pyhandling.annotations import handler_of
+from pyhandling.annotations import FuncT, ResourceT, ResultT, event_for
 from pyhandling.tools import ArgumentPack
 
 

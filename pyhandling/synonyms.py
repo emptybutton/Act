@@ -1,7 +1,8 @@
 from functools import wraps, partial
-from typing import Any, Callable, Iterable
+from typing import NoReturn, Any, Iterable, Callable
 
-from pyhandling.annotations import event, handler
+from pyhandling.annotations import ResourceT, event_for, ResultT, KeyT, event
+from pyhandling.tools import ItemGetter, ItemSetter
 
 
 def return_(resource: ResourceT) -> ResourceT:

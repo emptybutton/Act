@@ -1,14 +1,15 @@
-from functools import partial
-from typing import Any, Type, Iterable, Callable
+from typing import Any, Iterable, Type, Callable, Mapping
 
+from pyannotating import number
 from pytest import mark, raises
 
-from pyhandling.branchers import ActionChain, eventually
-from pyhandling.errors import BadResourceError
+from pyhandling.annotations import checker_of, ResourceT
+from pyhandling.branchers import ActionChain
+from pyhandling.error_controllers import BadResourceWrapper, BadResourceError, IBadResourceKeeper
 from pyhandling.synonyms import raise_
-from pyhandling.tools import ArgumentPack, BadResourceWrapper, IBadResourceKeeper
+from pyhandling.tools import ArgumentPack
 from pyhandling.utils import *
-from tests.mocks import Counter, MockHandler, MockObject
+from tests.mocks import Box, Counter, MockHandler
 
 
 @mark.parametrize('result, object_, method_name', (('<Box instance>', Box(), '__repr__'), ))
