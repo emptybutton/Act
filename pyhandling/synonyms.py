@@ -4,7 +4,7 @@ from typing import Any, Callable, Iterable
 from pyhandling.annotations import event, handler
 
 
-def return_(resource: Any) -> Any:
+def return_(resource: ResourceT) -> ResourceT:
     """
     Wrapper function for handling emulation through the functional use of the
     return statement.
@@ -13,7 +13,7 @@ def return_(resource: Any) -> Any:
     return resource
 
 
-def raise_(error: Exception) -> None:
+def raise_(error: Exception) -> NoReturn:
     """Wrapper function for functional use of raise statement."""
 
     raise error
@@ -25,19 +25,19 @@ def assert_(resource: Any) -> None:
     assert resource
 
 
-def positionally_unpack_to(func: Callable, arguments: Iterable) -> Any:
+def positionally_unpack_to(func: event_for[ResultT], arguments: Iterable) -> ResultT:
     """Wrapper function for functional use of positional unpacking."""
 
     return func(*arguments)
 
 
-def unpack_by_keys_to(func: Callable, arguments: dict) -> Any:
+def unpack_by_keys_to(func: event_for[ResultT], arguments: dict) -> ResultT:
     """Wrapper function for functional use of unpacking by keyword arguments."""
 
     return func(**arguments)
 
 
-def bind(func: Callable, argument_name: str, argument_value: Any) -> Callable:
+def bind(func: event_for[ResultT], argument_name: str, argument_value: Any) -> ResultT:
     """
     Atomic partial function for a single keyword argument whose name and value
     are separate input arguments.
@@ -46,19 +46,19 @@ def bind(func: Callable, argument_name: str, argument_value: Any) -> Callable:
     return wraps(func)(partial(func, **{argument_name: argument_value}))
 
 
-def call(caller: Callable, *args, **kwargs) -> Any:
+def call(caller: event_for[ResultT], *args, **kwargs) -> ResultT:
     """Function to call an input object and return the results of that call."""
 
     return caller(*args, **kwargs)
 
 
-def getitem_of(object_: object, item_key: Any) -> Any:
+def getitem_of(object_: ItemGetter[KeyT, ResourceT], item_key: KeyT) -> ResourceT:
     """Function for functional use of [] getting."""
 
     return object_[item_key]
 
 
-def setitem_of(object_: object, item_key: Any, item_value: Any) -> None:
+def setitem_of(object_: ItemSetter[KeyT, ResourceT], item_key: KeyT, item_value: ResourceT) -> None:
     """Function for functional use of [] setting."""
 
     object_[item_key] = item_value
@@ -90,7 +90,7 @@ def transform(operand: Any, operator: str) -> Any:
     return eval(f"{operator} operand", dict(), {'operand': operand})
 
 
-def handle_context_by(context_factory: event, context_handler: handler) -> Any:
+def handle_context_by(context_factory: event, context_handler: Callable[[Any], ResultT]) -> ResultT:
     """
     Function for emulating the "with as" context manager.
 

@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Any, Callable, Iterable
 
-from pyhandling.annotations import binder, event_for, factory_for, handler, decorator
+from pyhandling.annotations import binder, event_for, factory_for, ResourceT, ResultT
 from pyhandling.binders import close, post_partial
 from pyhandling.branchers import eventually, ActionChain
 from pyhandling.language import then, by, to

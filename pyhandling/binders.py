@@ -7,7 +7,7 @@ from pyhandling.annotations import handler_of
 from pyhandling.tools import ArgumentPack
 
 
-def post_partial(func: Callable, *args, **kwargs) -> Callable:
+def post_partial(func: FuncT, *args, **kwargs) -> FuncT:
     """
     Function equivalent to functools.partial but with the difference that
     additional arguments are added not before the incoming ones from the final
@@ -30,7 +30,7 @@ def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
     return post_partial(func, *args[::-1], **kwargs)
 
 
-def close(resource: Any, *, closer: method_of[Any] = partial) -> Callable:
+def close(resource: ResourceT, *, closer: Callable[[ResourceT, ...], ResultT] = partial) -> event_for[ResultT]:
     """
     Function to create a closure for the input resource.
 
@@ -48,7 +48,7 @@ def close(resource: Any, *, closer: method_of[Any] = partial) -> Callable:
     return partial(closer, resource)
 
 
-def unpackly(func: Callable) -> handler_of[ArgumentPack]:
+def unpackly(func: event_for[ResultT]) -> Callable[[ArgumentPack], ResultT]:
     """
     Decorator function that allows to bring an ordinary function to the handler
     interface by unpacking the input argument pack into the input function.

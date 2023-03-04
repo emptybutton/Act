@@ -8,10 +8,10 @@ from typing import Self, Final, Any, Iterable, Optional, Tuple, Callable
 
 from pyannotating import method_of
 
-from pyhandling.annotations import factory_for, handler, dirty, reformer_of, checker_of
+from pyhandling.annotations import factory_for, handler, ResourceT, dirty, reformer_of, checker_of
 
 
-def to_clone(method: method_of[object]) -> factory_for[object]:
+def to_clone(method: method_of[ObjectT]) -> Callable[[ObjectT, ...], ObjectT]:
     """
     Decorator function to spawn new objects by cloning and applying an input
     method to them.
@@ -29,7 +29,7 @@ def to_clone(method: method_of[object]) -> factory_for[object]:
     return wrapper
 
 
-def publicly_immutable(class_: type) -> type:
+def publicly_immutable(class_: Type[ResourceT]) -> Type[ResourceT]:
     """Decorator for an input class that forbids it change its public fields."""
 
     old_setattr = class_.__setattr__
@@ -255,7 +255,7 @@ class BadResourceWrapper(IBadResourceKeeper):
 
     bad_resource = DelegatingProperty('_bad_resource')
 
-    def __init__(self, resource: Any):
+    def __init__(self, resource: ResourceT):
         self._bad_resource = resource
 
     def __repr__(self) -> str:
@@ -291,7 +291,7 @@ def open_collection_items(collection: Iterable) -> Tuple:
     return tuple(collection_with_opened_items)
 
 
-def wrap_in_collection(resource: Any) -> tuple[Any]:
+def wrap_in_collection(resource: ResourceT) -> tuple[ResourceT]:
     """Function to represent the input resource as a single collection."""
 
     return (resource, )
@@ -319,7 +319,7 @@ def collection_with_reduced_nesting_to(number_of_reductions: int | float, collec
     return tuple(reduced_collection)
 
 
-def documenting_by(documentation: str) -> dirty[reformer_of[object]]:
+def documenting_by(documentation: str) -> dirty[reformer_of[ObjectT]]:
     """
     Function of getting other function that getting resource with the input 
     documentation from this first function.
@@ -337,7 +337,10 @@ def documenting_by(documentation: str) -> dirty[reformer_of[object]]:
     return document
 
 
-def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]) -> handler:
+def returnly_rollbackable(
+    handler: Callable[[ResourceT], ResultT],
+    error_checker: checker_of[ErrorT]
+) -> Callable[[ResourceT], ResultT | BadResourceError[ResourceT, ErrorT]]:
     """
     Decorator function for a handler that allows it to return a pack of its
     input resource and the error it encountered.

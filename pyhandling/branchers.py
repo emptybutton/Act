@@ -2,7 +2,7 @@ from functools import partial, reduce, wraps
 from math import inf
 from typing import Callable, Iterable, Any, Iterator, Self
 
-from pyannotating import many_or_one
+from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import handler, factory_for, checker_of, handler_of, event
 from pyhandling.binders import post_partial
@@ -171,11 +171,11 @@ def mergely(
 
 
 def recursively(
-    resource_handler: handler,
-    condition_checker: checker_of[Any],
+    resource_handler: Callable[[ResourceT], ResourceT],
+    condition_checker: checker_of[ResourceT],
     *,
     max_recursion_depth: int = 1_000_000
-) -> Any:
+) -> Callable[[ResourceT], ResourceT]:
     """
     Function to recursively handle input resource.
 
@@ -191,7 +191,7 @@ def recursively(
     maximum expires, it causes the corresponding error.
     """
 
-    def recursively_handle(resource: Any) -> Any:
+    def recursively_handle(resource: ResourceT) -> ResourceT:
         """
         Function emulating recursion that was created as a result of calling
         recursively.
@@ -210,12 +210,16 @@ def recursively(
     return recursively_handle
 
 
+PositiveConditionResultT = TypeVar("PositiveResultT")
+NegativeConditionResultT = TypeVar("NegativeConditionResultT")
+
+
 def on_condition(
-    condition_checker: factory_for[bool],
-    positive_condition_func: Callable,
+    condition_checker: Callable[[*ArgumentsT], bool],
+    positive_condition_func: Callable[[*ArgumentsT], PositiveConditionResultT],
     *,
-    else_: Callable = lambda *_, **__: None
-) -> Callable:
+    else_: Callable[[*ArgumentsT], NegativeConditionResultT] = lambda *_, **__: None
+) -> Callable[[*ArgumentsT], PositiveConditionResultT | NegativeConditionResultT]:
     """
     Function that implements the func choosing by condition.
 
@@ -241,7 +245,10 @@ def on_condition(
     return brancher
 
 
-def rollbackable(func: Callable, rollbacker: handler_of[Exception]) -> Callable:
+ErrorHandlingResultT = TypeVar("ErrorHandlingResultT")
+
+
+def rollbackable(func: FuncT, rollbacker: Callable[[Exception], ErrorHandlingResultT]) -> FuncT | ErrorHandlingResultT:
     """
     Decorator function providing handling of possible errors.
     Delegates error handling to rollbacker.
@@ -278,7 +285,7 @@ def returnly(
     return wrapper
 
 
-def eventually(func: event) -> Any:
+def eventually(func: event_for[ResultT]) -> ResultT:
     """
     Decorator function for constructing a function to which no input attributes
     will be passed.
