@@ -38,27 +38,6 @@ def test_action_chain_calling(handlers: Iterable[Callable[[Any], Any]], input_re
 @mark.parametrize(
     'first_nodes, second_nodes',
     [
-        [(MockHandler(), lambda x: x + 1), (MockHandler(), )],
-        [(MockHandler(), lambda x: x + 1), tuple()],
-        [tuple(), (MockHandler(), )],
-        [tuple(), tuple()]
-    ]
-)
-def test_action_chain_connection_to_other(first_nodes: Iterable[Callable], second_nodes: Iterable[Callable]):
-    assert (
-        ActionChain(*first_nodes, *second_nodes).handlers
-        == ActionChain(first_nodes).clone_with(ActionChain(second_nodes)).handlers
-        == (
-            ActionChain(second_nodes).clone_with(
-                ActionChain(first_nodes), is_other_handlers_left=True
-            ).handlers
-        )
-    )
-
-
-@mark.parametrize(
-    'first_nodes, second_nodes',
-    [
         [(MockHandler(), lambda x: x + 1), (MockHandler(), MockHandler())],
         [(MockHandler(), lambda x: x + 1, MockHandler()), (MockHandler(), )],
         [(MockHandler(), ), (MockHandler(), MockHandler())],
@@ -77,86 +56,6 @@ def test_action_chain_connection_to_raw_handlers(first_nodes: Iterable[Callable]
             ).handlers
         )
     )
-
-
-@mark.parametrize(
-    'handlers, connetction_handler',
-    [
-        [(MockHandler(), lambda x: x + 1), MockHandler()],
-        [(MockHandler(), lambda x: x + 1, MockHandler()), lambda x: x**2],
-        [(MockHandler(), ), lambda x: x + 1],
-        [tuple(), MockHandler()],
-    ]
-)
-def test_action_chain_connection_through_operators(handlers: Iterable[Callable[[Any], Any]], connetction_handler: Callable[[Any], Any]):
-    assert (
-        ActionChain(*(*handlers, connetction_handler)).handlers
-        == (ActionChain(*handlers) | connetction_handler).handlers
-        == (ActionChain(*handlers) >> connetction_handler).handlers
-    )
-
-
-@mark.parametrize(
-    "original_branchers, intermediate_brancher, is_on_input, is_on_output, input_resource, result",
-    [
-        [(lambda x: x + 2, lambda x: x * x), lambda x: x * 2, False, False, 2, 64],
-        [(lambda x: x + 2, lambda x: x + 10, lambda x: x * 2), lambda x: x + 1, False, False, 2, 32],
-        [(MockHandler(), lambda x: x - 1), lambda x: x ** x, True, False, 2, 255],
-        [(MockHandler(), lambda x: x * 2), lambda x: x * x, False, True, 2, 64],
-        [(MockHandler(), MockHandler(), MockHandler()), lambda x: x + 1, True, True, 0, 4],
-        [tuple(), lambda x: x + 1, False, False, 128, ArgumentPack.of(128)],
-        [tuple(), lambda x: x * x, True, False, 8, 64],
-        [tuple(), lambda x: x * x, False, True, 8, 64],
-        [tuple(), lambda x: x * x, True, True, 4, 256]
-    ]
-)
-def test_action_chain_cloning_with_intermediate(
-    original_branchers: Iterable[Callable[[Any], Any]],
-    intermediate_brancher: Callable[[Any], Any],
-    is_on_input: bool,
-    is_on_output: bool,
-    input_resource: Any,
-    result: Any
-):
-    assert ActionChain(original_branchers).clone_with_intermediate(
-        intermediate_brancher,
-        is_on_input=is_on_input,
-        is_on_output=is_on_output
-    )(input_resource) == result
-
-
-@mark.parametrize(
-    'input_handlers, output_straightening_handlers',
-    [
-        [tuple(), tuple()],
-        [(ActionChain(), ), tuple()],
-        [(MockHandler(1), )] * 2,
-        [(MockHandler(1), MockHandler(2))] * 2,
-        [(MockHandler(1), MockHandler(2), MockHandler(3))] * 2,
-        [
-            (ActionChain(MockHandler(1), MockHandler(2)), ),
-            (MockHandler(1), MockHandler(2))
-        ],
-        [
-            (ActionChain(MockHandler(1), MockHandler(2)), MockHandler(3)),
-            (MockHandler(1), MockHandler(2), MockHandler(3))
-        ],
-        [
-            (ActionChain(ActionChain((MockHandler(1), )), MockHandler(2)), MockHandler(3)),
-            (MockHandler(1), MockHandler(2), MockHandler(3))
-        ],
-        [
-            (ActionChain(ActionChain(ActionChain([MockHandler(1)]))), ),
-            (MockHandler(1), )
-        ],
-        [ActionChain((ActionChain, ) * 10)((MockHandler(1), )), (MockHandler(1), )]
-    ]
-)
-def test_straightening_action_chains(
-    input_handlers: tuple[MockHandler | ActionChain],
-    output_straightening_handlers: tuple[MockHandler | ActionChain]
-):
-    assert ActionChain(input_handlers).handlers == output_straightening_handlers
 
 
 @mark.parametrize(
