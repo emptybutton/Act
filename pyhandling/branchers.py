@@ -76,14 +76,35 @@ class ActionChain(Generic[ResultT]):
         return f"{self.__class__.__name__}({' -> '.join(map(str, self._nodes))})"
 
 
+def merge(*funcs: Callable, return_from: Special[None] = None) -> Special[tuple]:
+    """
+    Function to merge multiple functions with the same input interface into one.
 
+    Functions are called in parallel, after which a tuple of their results is
+    returned, in the order in which the functions were passed.
 
+    It has an additional keyword only parameter return_from, which, if specified,
+    will determine the result of the output function by getting a value from the
+    resulting tuple by key.
+    """
 
+    def merged(*args, **kwargs) -> Special[tuple]:
+        """
+        Function that came out of the merge function is merged from other
+        functions passed to the merge function.
+
+        See merge for more info.
         """
 
-        """
-
+        return (
+            return_
+            if return_from is None
+            else post_partial(getitem_of, return_from)
+        )(
+            tuple(func(*args, **kwargs) for func in funcs)
         )
+
+    return merged
 
 
 def mergely(
