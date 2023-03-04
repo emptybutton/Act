@@ -45,5 +45,7 @@ FuncT = TypeVar("FuncT", bound=Callable)
 
 ArgumentsT = TypeVarTuple("ArgumentsT")
 
+ResourceT = TypeVar("ResourceT")
+
 ResultT = TypeVar("ResultT")
 
