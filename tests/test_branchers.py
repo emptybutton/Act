@@ -32,7 +32,7 @@ def test_neutral_action_chain_error_raising(args: Iterable, kwargs: Mapping):
         [(lambda x: None, ), 256, None],
     ]
 )
-def test_action_chain_calling(handlers: Iterable[Callable[[Any], Any]], input_resource: Any, result: Any):
+def test_action_chain_calling(handlers: Iterable[handler], input_resource: Any, result: Any):
     assert ActionChain(handlers)(input_resource) == result
 
 
