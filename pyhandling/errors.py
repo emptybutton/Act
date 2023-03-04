@@ -1,9 +1,11 @@
 from typing import Any
 
 from pyhandling.tools import IBadResourceKeeper, DelegatingProperty
-
-
 class PyhandingError(Exception):
+    pass
+
+
+class NeutralActionChainError(PyhandingError):
     pass
 
 
