@@ -1,4 +1,4 @@
-from typing import Callable, Any, Self
+from typing import Callable, Any, Self, TypeVar, TypeVarTuple
 
 from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 
@@ -38,4 +38,12 @@ decorator = reformer_of[Callable]
 
 event = event_for[Any]
 
-binder = Callable[[Callable, ...], Callable] 
+binder = Callable[[Callable, ...], Callable]
+
+
+FuncT = TypeVar("FuncT", bound=Callable)
+
+ArgumentsT = TypeVarTuple("ArgumentsT")
+
+ResultT = TypeVar("ResultT")
+
