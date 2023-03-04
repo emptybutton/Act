@@ -161,14 +161,13 @@ maybe: chain_constructor = documenting_by(
     """
 )(
     as_collection
-    |then>> close(map)(
+    |then>> close(map |then>> ActionChain)(
         partial(
             on_condition,
-            Negationer(post_partial(isinstance, IBadResourceKeeper)),
+            Negationer(isinstance |by| IBadResourceKeeper),
             else_=return_
         )
     )
-    |then>> ActionChain
 )
 
 
