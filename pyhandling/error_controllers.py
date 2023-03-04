@@ -1,9 +1,43 @@
+from abc import ABC, abstractmethod
+from typing import Generic, Union, runtime_checkable, Protocol, Iterable, Self, Tuple, TypeVar, NamedTuple
+
+from pyhandling.annotations import ResourceT, ErrorT, ResultT
 from pyhandling.errors import PyhandingError
 from pyhandling.tools import IBadResourceKeeper, DelegatingProperty, open_collection_items
 
 
 class MechanicalError(PyhandingError):
     pass
+
+
+class IBadResourceKeeper(ABC, Generic[ResourceT]):
+    """Class for annotating a resource that is invalid under some circumstances."""
+
+    @property
+    @abstractmethod
+    def bad_resource(self) -> ResourceT:
+        pass
+
+
+class BadResourceWrapper(IBadResourceKeeper, Generic[ResourceT]):
+    """
+    Implementation class for the BadResourceKeeper interface for storing a
+    resource without the context of its badness.
+    """
+
+    bad_resource = DelegatingProperty('_bad_resource')
+
+    def __init__(self, resource: ResourceT):
+        self._bad_resource = resource
+
+    def __repr__(self) -> str:
+        return f"<Wrapper of bad {self.bad_resource}>"
+
+
+bad_wrapped_or_not = (AnnotationTemplate |to| Union)([
+    AnnotationTemplate(BadResourceWrapper, [input_annotation]),
+    input_annotation
+])
 
 
 class BadResourceError(MechanicalError, IBadResourceKeeper, Generic[ResourceT, ErrorT]):
