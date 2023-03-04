@@ -11,6 +11,12 @@ from pyhandling.tools import open_collection_items, ArgumentKey, ArgumentPack
 from pyhandling.synonyms import return_
 
 
+__all__ = (
+    "ActionChain", "merge", "mergely", "recursively", "on_condition",
+    "rollbackable", "returnly", "eventually", "chain_constructor"
+)
+
+
 class ActionChain(Generic[ResultT]):
     """
     Class combining calls of several functions together in sequential execution.

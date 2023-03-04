@@ -5,6 +5,9 @@ from pyhandling.annotations import FuncT, ResourceT, ResultT, event_for
 from pyhandling.tools import ArgumentPack
 
 
+__all__ = ("post_partial", "mirror_partial", "close", "unpackly")
+
+
 def post_partial(func: FuncT, *args, **kwargs) -> FuncT:
     """
     Function equivalent to functools.partial but with the difference that

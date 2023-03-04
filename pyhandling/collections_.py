@@ -3,6 +3,9 @@ from typing import Container, Any, Tuple, Self, Generator
 from pyannotating import many_or_one
 
 
+__all__ = ("NonInclusiveCollection", "MultiRange")
+
+
 class NonInclusiveCollection:
     """Class that explicitly stores entities that are not stored in it."""
 

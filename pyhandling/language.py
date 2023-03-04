@@ -9,6 +9,9 @@ from pyhandling.branchers import ActionChain
 from pyhandling.tools import DelegatingProperty, documenting_by
 
 
+__all__ = ("then", "to", "by")
+
+
 class BindingInfix(Generic[ResultT]):
     """
     Infix class for binding functions with arguments.

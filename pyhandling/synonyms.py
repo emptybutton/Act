@@ -5,6 +5,13 @@ from pyhandling.annotations import ResourceT, event_for, ResultT, KeyT, event
 from pyhandling.tools import ItemGetter, ItemSetter
 
 
+__all__ = (
+    "return_", "raise_", "assert_", "positionally_unpack_to", "unpack_by_keys_to",
+    "bind", "call", "getitem_of", "setitem_of", "execute_operation", "transform",
+    "handle_context_by"
+)
+
+
 def return_(resource: ResourceT) -> ResourceT:
     """
     Wrapper function for handling emulation through the functional use of the
