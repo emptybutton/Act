@@ -218,8 +218,8 @@ def test_maybe(
         (BadResourceError(256, Exception()), 256)
     ]
 )
-def test_optionally_get_bad_resource_from(input_resource: Any, result: Any):
-    assert optionally_get_bad_resource_from(input_resource) == result
+def test_optional_bad_resource_from(input_resource: Any, result: Any):
+    assert optional_bad_resource_from(input_resource) == result
 
 
 @mark.parametrize(
