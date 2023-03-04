@@ -96,8 +96,8 @@ def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]
 
 
 left_action_binding_of: Callable[
-    [factory_for[ResourceT]],
-    Callable[[Callable[ResourceT], ResultT], ResultT]
+    [Callable[[*ArgumentsT], ResourceT]],
+    Callable[[Callable[[ResourceT], ResultT]], Callable[[*ArgumentsT], ResultT]]
 ]
 left_action_binding_of = documenting_by(
     """Creates a decorator that adds a action before an input function."""
@@ -108,7 +108,7 @@ left_action_binding_of = documenting_by(
 
 action_binding_of: Callable[
     [Callable[[ResourceT], ResultT]],
-    Callable[[factory_for[ResourceT]], ResultT]
+    Callable[[Callable[[*ArgumentsT], ResourceT]], Callable[[*ArgumentsT], ResultT]]
 ]
 action_binding_of = documenting_by(
     """Creates a decorator that adds a post action to the function."""
