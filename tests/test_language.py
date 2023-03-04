@@ -7,7 +7,7 @@ from pyhandling.language import then, to, by
 
 
 @mark.parametrize(
-    'opening_handler, node_handler, input_args',
+    'first_node, second_node, input_args',
     [
         (lambda x, y: x + y, lambda x: x ** x, (5, 3)),
         (lambda x: x**2 + 12, lambda x: x ** 4, (42, )),
@@ -15,13 +15,13 @@ from pyhandling.language import then, to, by
     ]
 )
 def test_then_operator(
-    opening_handler: Callable,
-    node_handler: Callable,
+    first_node: Callable,
+    second_node: Callable,
     input_args: Iterable
 ):
     assert (
-        (opening_handler |then>> node_handler)(*input_args)
-        == ActionChain(opening_handler, node_handler)(*input_args)
+        (first_node |then>> second_node)(*input_args)
+        == ActionChain((first_node, second_node))(*input_args)
     )
 
 
