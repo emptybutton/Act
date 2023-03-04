@@ -98,7 +98,7 @@ class ArgumentKey(Generic[KeyT, ResourceT]):
 
     key: KeyT
     is_keyword: bool = field(default=False, kw_only=True)
-    default: ResourceT = field(default=nothing, compare=False, kw_only=True)
+    default: ResourceT = field(default_factory=lambda: nothing, compare=False, kw_only=True)
 
 
 class ArgumentPack:
