@@ -271,7 +271,7 @@ def test_eventually(binded_numbers: Iterable[int | float], not_counted_numbers: 
 
 
 def test_action_chain_one_resource_call_operator(input_resource: int | float = 30):
-    chain = ActionChain(lambda x: x * x + 12, lambda x: x ** x)
+    chain = ActionChain((lambda x: x * x + 12, lambda x: x ** x))
 
     result_of_chain_normal_call = chain(input_resource)
 
