@@ -95,6 +95,17 @@ def returnly_rollbackable(handler: handler, error_checker: checker_of[Exception]
     return wrapper
 
 
+def callmethod(object_: object, method_name: str, *args, **kwargs) -> Any:
+    """Shortcut function to call a method on an input object."""
+
+    return getattr(object_, method_name)(*args, **kwargs)
+
+
+operation_by: Callable[[...], factory_for[Any]] = documenting_by(
+    """Shortcut for post_partial(execute_operation, ...)."""
+)(
+    close(execute_operation, closer=post_partial)
+)
 left_action_binding_of: Callable[
     [Callable[[*ArgumentsT], ResourceT]],
     Callable[[Callable[[ResourceT], ResultT]], Callable[[*ArgumentsT], ResultT]]
@@ -117,6 +128,22 @@ action_binding_of = documenting_by(
 )
 
 
+take: Callable[[Any], factory_for[Any]] = documenting_by(
+    """
+    Shortcut function equivalent to eventually(partial(return_, input_resource).
+    """
+)(
+    close(return_) |then>> eventually
+)
+
+
+event_as: binder = documenting_by(
+    """Shortcut for creating an event using caring."""
+)(
+    partial |then>> eventually
+)
+
+
 as_collection: Callable[[many_or_one[ResourceT]], Tuple[ResourceT]]
 as_collection = documenting_by(
     """
@@ -126,6 +153,49 @@ as_collection = documenting_by(
 )(
     on_condition(isinstance |by| Iterable, tuple, else_=wrap_in_collection)
 )
+
+
+collection_from: Callable[[Iterable], tuple] = documenting_by(
+    """Shortcut to get collection with elements from input positional arguments."""
+)(
+    ArgumentPack.of |then>> (getattr |by| 'args')
+)
+
+
+summed_collection_from: event_for[tuple] = documenting_by(
+    """
+    Shortcut function for creating a collection with elements from input
+    positional collections.
+    """
+)(
+    collection_from |then>> open_collection_items
+)
+
+
+collection_unpacking_in: Callable[[factory_for[ResourceT]], Callable[[Iterable], ResourceT]]
+collection_unpacking_in = documenting_by(
+    """
+    Decorator for unpacking the collection of the output function when it is
+    called.
+    """
+)(
+    unpackly |then>> left_action_binding_of(ArgumentPack |by| dict())
+)
+
+
+keyword_unpacking_in: Callable[[factory_for[ResourceT]], Callable[[Mapping], ResourceT]]
+keyword_unpacking_in = documenting_by(
+    """
+    Decorator for unpacking the mapping object of the output function when it is
+    called.
+    """
+)(
+    unpackly |then>> left_action_binding_of(ArgumentPack |to| tuple())
+)
+
+
+yes: event_for[bool] = documenting_by("""Shortcut for take(True).""")(take(True))
+no: event_for[bool] = documenting_by("""Shortcut for take(False).""")(take(False))
 
 
 times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
