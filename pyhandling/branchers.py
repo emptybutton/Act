@@ -108,10 +108,10 @@ def merge(*funcs: Callable, return_from: Special[None] = None) -> Special[tuple]
 
 
 def mergely(
-    merge_function_factory: factory_for[Callable],
-    *parallel_functions: factory_for[Any],
-    **keyword_parallel_functions: factory_for[Any]
-):
+    merge_function_factory: Callable[[*ArgumentsT], Callable[[...], ResultT]],
+    *parallel_functions: Callable[[*ArgumentsT], Any],
+    **keyword_parallel_functions: Callable[[*ArgumentsT], Any]
+) -> Callable[[*ArgumentsT], ResultT]:
     """
     Decorator function that allows to initially separate several operations on
     input arguments and then combine these results in final operation.
