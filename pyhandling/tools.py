@@ -93,12 +93,12 @@ nothing.__doc__ = """Flag to indicate the absence of anything, including None.""
 
 
 @dataclass(frozen=True)
-class ArgumentKey:
+class ArgumentKey(Generic[KeyT, ResourceT]):
     """Data class for structuring getting value from ArgumentPack via []."""
 
-    key: Any
+    key: KeyT
     is_keyword: bool = field(default=False, kw_only=True)
-    default: Any = field(default=nothing, compare=False, kw_only=True)
+    default: ResourceT = field(default=nothing, compare=False, kw_only=True)
 
 
 class ArgumentPack:
