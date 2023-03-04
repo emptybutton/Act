@@ -10,16 +10,17 @@ from pytest import mark, fail, raises
 
 
 @mark.parametrize(
-    'args, kwargs',
+    "args, kwargs",
     [
-        [(1, 2, 3), {'a': 1, 'b': 2}],
-        [(1, 2, 3), dict()],
-        [tuple(), {'a': 1, 'b': 2}],
-        [tuple(), dict()]
+        ((1, 2, 3), dict()),
+        (tuple(), dict(first=1, second=2)),
+        ((1, 2, 3), dict(first=1, second=2)),
+        (tuple(), dict()),
     ]
 )
-def test_neutral_action_chain_calling(args: Iterable, kwargs: dict):
-    assert ActionChain()(*args, **kwargs) == ArgumentPack(args, kwargs)
+def test_neutral_action_chain_error_raising(args: Iterable, kwargs: Mapping):
+    with raises(NeutralActionChainError):
+        ActionChain()(*args, **kwargs)
 
 
 @mark.parametrize(
