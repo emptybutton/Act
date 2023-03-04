@@ -21,8 +21,6 @@ checker_of = AnnotationTemplate(Callable, [[input_annotation], bool])
 
 formatter_of = AnnotationTemplate(Callable, [[input_annotation], str])
 
-endofunctor_from = AnnotationTemplate(Callable, [[input_annotation], Self])
-
 reformer_of = AnnotationTemplate(Callable, [[input_annotation], input_annotation])
 
 merger_of = AnnotationTemplate(Callable, [[input_annotation, input_annotation], input_annotation])
