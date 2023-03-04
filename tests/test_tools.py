@@ -175,27 +175,6 @@ def test_clock(clock: Clock, ticks_to_subtract: int, result_ticks: int):
 
 
 @mark.parametrize(
-    'input_collection, reducing_number, output_collection',
-    [
-        [(1, 2, (3, 4, 5)), 1, (1, 2, 3, 4, 5)],
-        [(1, 2, (3, 4, (5, 6))), 1, (1, 2, 3, 4, (5, 6))],
-        [(1, 2, (3, 4, (5, 6))), 2, (1, 2, 3, 4, 5, 6)],
-        [(0, (1, (2, (3, ))), 0, (1, (2, (3, (4, ))))), 3, (0, 1, 2, 3, 0, 1, 2, 3, (4, ))],
-        [[[[[[[[[[[[[[[[[[[[[[[[[[[42]]]]]]]]]]]]]]]]]]]]]]]]]], inf, (42, )],
-    ]
-)
-def test_collection_with_reduced_nesting_to(
-    input_collection: Iterable,
-    reducing_number: int,
-    output_collection: tuple
-):
-    assert (
-        collection_with_reduced_nesting_to(reducing_number, input_collection)
-        == output_collection
-    )
-
-
-@mark.parametrize(
     'args, kwargs, result_argument_pack',
     [
         ((1, 2, 3), dict(), ArgumentPack((1, 2, 3))),

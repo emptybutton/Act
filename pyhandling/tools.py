@@ -321,28 +321,6 @@ def wrap_in_collection(resource: ResourceT) -> tuple[ResourceT]:
     return (resource, )
 
 
-def collection_with_reduced_nesting_to(number_of_reductions: int | float, collection: Iterable) -> Tuple:
-    """Function that allows to get a collection with a reduced nesting level."""
-
-    if isinstance(number_of_reductions, float) and number_of_reductions != inf:
-        number_of_reductions = int(number_of_reductions)
-
-    reduced_collection = list()
-
-    for item in collection:
-        if not isinstance(item, Iterable):
-            reduced_collection.append(item)
-            continue
-
-        reduced_collection.extend(
-            collection_with_reduced_nesting_to(number_of_reductions - 1, item)
-            if number_of_reductions > 1
-            else item
-        )
-
-    return tuple(reduced_collection)
-
-
 def documenting_by(documentation: str) -> dirty[reformer_of[ObjectT]]:
     """
     Function of getting other function that getting resource with the input 
