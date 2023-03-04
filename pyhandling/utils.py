@@ -285,7 +285,7 @@ chain_breaking_on_error_that: Callable[[checker_of[Exception]], chain_constructo
 
 bad_resource_wrapping_on: Callable[
     [checker_of[ResourceT]],
-    Callable[[ResourceT], BadResourceWrapper[ResourceT] | ResourceT]
+    Callable[[ResourceT], bad_wrapped_or_not[ResourceT]]
 ]
 bad_resource_wrapping_on = documenting_by(
     """
@@ -296,8 +296,9 @@ bad_resource_wrapping_on = documenting_by(
     is negative.
     """
 )(
-    close(post_partial(on_condition, BadResourceWrapper, else_=return_))
+    post_partial(on_condition, BadResourceWrapper, else_=return_)
 )
+
 
 passing_on: Callable[[checker_of[ResourceT]], Callable[[Callable[[ResourceT], ResultT]], ResultT]]
 passing_on = documenting_by(
