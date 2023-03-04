@@ -57,3 +57,11 @@ def errors_from(error_storage: error_storage_of[ErrorT]) -> Tuple[ErrorT]:
     return errors
 
 
+@runtime_checkable
+class ErrorReport(Protocol, Generic[ErrorT]):
+    """Protocol for saving error context as a document."""
+
+    error: ErrorT
+    document: Mapping
+
+
