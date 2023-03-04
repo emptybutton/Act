@@ -118,7 +118,7 @@ def test_recursively_handler_execution_sequences(
 
 @mark.parametrize(
     "max_recursion_depth",
-    tuple(range(4)) + (10, 24, 128, 1000, 1256, 10_000, 100_000)
+    (*range(4), 10, 24, 128, 1000, 1256, 10_000, 100_000)
 )
 def test_recursively_depth_exceedance(max_recursion_depth: int):
     handling_counter = Counter()
