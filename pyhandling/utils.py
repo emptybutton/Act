@@ -227,7 +227,8 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
 )
 
 
-optional_raising_of: Callable[[Type[Exception]], handler_of[Exception]] = documenting_by(
+optional_raising_of: Callable[[Type[ErrorT]], Callable[[ErrorT | ResourceT], NoReturn | ResourceT]]
+optional_raising_of = documenting_by(
     """
     Function that selectively raises an error (the type of which is the input,
     respectively).
@@ -273,7 +274,8 @@ optional_bad_resource_from = documenting_by(
 )
 
 
-chain_breaking_on_error_that: Callable[[checker_of[Exception]], chain_constructor] = documenting_by(
+chain_breaking_on_error_that: Callable[[checker_of[Exception]], chain_constructor]
+chain_breaking_on_error_that = documenting_by(
     """
     Shortcut for maybe which is triggered on an error that satisfies the input
     checker conditions.
