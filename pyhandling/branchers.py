@@ -11,7 +11,7 @@ from pyhandling.tools import DelegatingProperty, collection_with_reduced_nesting
 from pyhandling.synonyms import return_
 
 
-class ActionChain:
+class ActionChain(Generic[ResultT]):
     """
     Class that implements handling as a chain of actions of handlers.
 
@@ -38,97 +38,51 @@ class ActionChain:
     i.e. \"resource >= chain_instance\" and \"chain_instance <= resource\". 
     """
 
-    handlers = DelegatingProperty('_handlers')
+    def __init__(self, nodes: Iterable[Callable] = tuple()):
+        self._nodes = tuple(nodes)
 
-    def __init__(
-        self,
-        opening_handler_resource: many_or_one[Callable] = tuple(),
-        *handlers: handler
-    ):
-        self._handlers = partial(collection_with_reduced_nesting_to, inf)(
-            (
-                tuple(opening_handler_resource)
-                if isinstance(opening_handler_resource, Iterable)
-                else (opening_handler_resource, )
-            )
-            + handlers
+    def __call__(self, *args, **kwargs) -> ResultT:
+        if not self._nodes:
+            if len(args) != 1 or kwargs:
+                raise NeutralActionChainError(
+                    "ActionChain without nodes accepts only one argument and not{argumet_part}".format(
+                        argumet_part=f"{' ' + str(len(args)) if len(args) != 1 else str()}{' with keyword' if kwargs else str()}"
+                    )
+                )
+
+            return args[0]
+
+        return reduce(
+            lambda resource, node: node(resource),
+            (self._nodes[0](*args, **kwargs), *self._nodes[1:])
         )
 
-    def __call__(self, *args, **kwargs) -> Any:
-        return reduce(
-            lambda resource, handler: handler(resource),
-            (self.handlers[0](*args, **kwargs), *self.handlers[1:])
-        ) if self.handlers else ArgumentPack(args, kwargs)
-
-    def __iter__(self) -> Iterator[Callable]:
-        return iter(self.handlers)
+    def __iter__(self) -> Tuple[Callable]:
+        return iter(self._nodes)
 
     def __rshift__(self, action_node: handler) -> Self:
-        return self.clone_with(action_node)
+        return self.__class__((*self.nodes, node))
 
     def __or__(self, action_node: handler) -> Self:
-        return self.clone_with(action_node)
+        return self.__class__((*self.nodes, node))
 
-    def __ror__(self, action_node: handler) -> Self:
-        return self.clone_with(action_node, is_other_handlers_left=True)
+    def __ror__(self, node: handler) -> Self:
+        return self.__class__((node, *self.nodes))
 
-    def __le__(self, resource: Any) -> Any:
+    def __le__(self, resource: Any) -> ResultT:
         return self(resource)
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({' -> '.join(map(str, self.handlers))})"
+        return f"{self.__class__.__name__}({' -> '.join(map(str, self._nodes))})"
 
-    def clone_with(self, *handlers: handler, is_other_handlers_left: bool = False) -> Self:
-        """
-        Method for cloning the current chain instance with additional handlers
-        from unlimited arguments.
 
-        Additional handlers can be added to the beginning of the chain if
-        `is_other_handlers_left = True`.
+
+
+
         """
 
-        handler_groph = [self.handlers, handlers]
-
-        if is_other_handlers_left:
-            handler_groph.reverse()
-
-        return self.__class__(
-            *handler_groph[0],
-            *handler_groph[1],
-        )
-
-    def clone_with_intermediate(
-        self,
-        intermediate_handler: handler,
-        *,
-        is_on_input: bool = False,
-        is_on_output: bool = False
-    ) -> Self:
-        """
-        Method for cloning the current chain with an additional handler between
-        the current chain handlers.
-
-        Also, the intermediate handler can add to the end and/or to the beginning
-        of the chain with is_on_input and/or is_on_output = True.
         """
 
-        return ActionChain(
-            ((intermediate_handler, ) if is_on_input else tuple())
-            + (
-                (
-                    ActionChain(
-                        self.handlers[0],
-                        ActionChain(
-                            partial(collection_with_reduced_nesting_to, 1)(
-                                ActionChain(intermediate_handler, handler)
-                                for handler in self.handlers[1:]
-                            )
-                        )
-                    ),
-                ) if self.handlers
-                else tuple()
-            )
-            + ((intermediate_handler, ) if is_on_output else tuple())
         )
 
 
