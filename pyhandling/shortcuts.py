@@ -55,27 +55,15 @@ take: Callable[[Any], factory_for[Any]] = documenting_by(
 )
 
 
-previous_action_decorator_of: Callable[[handler], decorator] = documenting_by(
-    """
-    Creates a decorator that adds a action before an input function.
-
-    Shortcut for ActionChain(...).clone_with.
-    """
-)(
-    ActionChain |then>> (getattr |by| "clone_with")
-)
-
-
-next_action_decorator_of: Callable[[Callable], decorator] = documenting_by(
-    """
-    Creates a decorator that adds a post action to the function.
-
-    Shortcut for partial(ActionChain(...).clone_with, is_other_handlers_left=True).
-    """
-)(
-    previous_action_decorator_of |then>> (bind |by* ("is_other_handlers_left", True))
-)
-
-
 yes: event_for[bool] = documenting_by("""Shortcut for take(True).""")(take(True))
 no: event_for[bool] = documenting_by("""Shortcut for take(False).""")(take(False))
+
+
+    """
+)(
+)
+
+
+    """
+    """
+)(
