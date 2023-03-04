@@ -262,16 +262,16 @@ class Clock:
         return self.ticks_to_disability > 0
 
 
-class IBadResourceKeeper(ABC):
+class IBadResourceKeeper(ABC, Generic[ResourceT]):
     """Class for annotating a resource that is invalid under some circumstances."""
 
     @property
     @abstractmethod
-    def bad_resource(self) -> Any:
+    def bad_resource(self) -> ResourceT:
         pass
 
 
-class BadResourceWrapper(IBadResourceKeeper):
+class BadResourceWrapper(IBadResourceKeeper, Generic[ResourceT]):
     """
     Implementation class for the BadResourceKeeper interface for storing a
     resource without the context of its badness.
