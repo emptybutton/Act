@@ -49,15 +49,12 @@ def test_action_chain_calling(handlers: Iterable[handler], input_resource: Any, 
         [tuple(), tuple()]
     ]
 )
-def test_action_chain_connection_to_raw_handlers(first_nodes: Iterable[Callable], second_nodes: Iterable[Callable]):
+def test_action_chain_connection_to_other(first_nodes: Iterable[handler], second_nodes: Iterable[handler]):
     assert (
-        ActionChain(*first_nodes, *second_nodes).handlers
-        == ActionChain(first_nodes).clone_with(*second_nodes).handlers
-        == (
-            ActionChain(second_nodes).clone_with(
-                *first_nodes, is_other_handlers_left=True
-            ).handlers
-        )
+        tuple(ActionChain((*first_nodes, *second_nodes)))
+        == tuple(ActionChain(first_nodes) >> ActionChain(second_nodes))
+        == tuple(ActionChain(first_nodes) | ActionChain(second_nodes))
+        == (*first_nodes, *second_nodes)
     )
 
 
