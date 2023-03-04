@@ -17,6 +17,12 @@ def test_callmethod(result: Any, object_: object, method_name: str):
     assert callmethod(object_, method_name) == result
 
 
+@mark.parametrize(
+    'sign, first_operand, second_operand, result',
+    (('+', 2, 2, 4), ('/', 16, 4, 4), ('+', (1, 2), (3, 4), (1, 2, 3, 4)))
+)
+def test_operation_of(sign: str, first_operand: Any, second_operand: Any, result: Any):
+    assert operation_of(sign)(first_operand, second_operand) == result
 
 
 @mark.parametrize(

@@ -17,8 +17,8 @@ from pyhandling.tools import documenting_by, wrap_in_collection, ArgumentPack, o
 
 __all__ = (
     "Logger", "showly", "returnly_rollbackable", "callmethod", "operation_by",
-    "left_action_binding_of", "action_binding_of", "take", "event_as",
-    "as_collection", "collection_from", "summed_collection_from",
+    "operation_of", "left_action_binding_of", "action_binding_of", "take",
+    "event_as", "as_collection", "collection_from", "summed_collection_from",
     "collection_unpacking_in", "keyword_unpacking_in", "yes", "no", "times",
     "optional_raising_of", "maybe", "optional_bad_resource_from",
     "chain_breaking_on_error_that", "bad_resource_wrapping_on", "passing_on",
@@ -118,6 +118,22 @@ operation_by: Callable[[...], factory_for[Any]] = documenting_by(
 )(
     close(execute_operation, closer=post_partial)
 )
+
+
+operation_of: Callable[[str], merger_of[Any]] = documenting_by(
+    """
+    Function to get the operation of the string representation of some syntax
+    operator between two elements.
+    """
+)(
+    lambda sign: lambda fitst_operand, second_operand: execute_operation(
+        fitst_operand,
+        sign,
+        second_operand
+    )
+)
+
+
 left_action_binding_of: Callable[
     [Callable[[*ArgumentsT], ResourceT]],
     Callable[[Callable[[ResourceT], ResultT]], Callable[[*ArgumentsT], ResultT]]
