@@ -53,6 +53,9 @@ class Flag:
         self._name = name
         self._is_positive = is_positive
 
+    def __eq__(self, other: Special[Self]) -> bool:
+        return isinstance(other, Flag) and self._name == other._name
+
     @property
     def name(self) -> str:
         return self._name
