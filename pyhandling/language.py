@@ -8,7 +8,7 @@ from pyhandling.branchers import ActionChain
 from pyhandling.tools import DelegatingProperty, documenting_by
 
 
-class BindingInfix:
+class BindingInfix(Generic[ResultT]):
     """
     Infix class for binding functions with arguments.
 
@@ -36,7 +36,7 @@ class BindingInfix:
     def __or__(self, argument: Any) -> Callable:
         return self._binder(self._func, argument)
 
-    def __ror__(self, func: Callable) -> Special[Self]:
+    def __ror__(self, func: Callable) -> Self | ResultT:
         return (
             type(self)(self.binder, func)
             if self.arguments is None
