@@ -26,11 +26,10 @@ def test_number_of_logger_logs(initial_log_number: int, logging_amount: int):
 
 @mark.parametrize(
     "number_of_handlers, number_of_writer_calls",
-    (
-        ((0, 2), )
-        + tuple(map(lambda x: (x, x + 1), range(1, 4)))
-        + ((31, 32), (63, 64), (127, 128), (515, 516))
-    )
+    tuple(map(
+        lambda number: (number, number),
+        (*range(0, 4), 32, 64, 128, 516)
+    ))
 )
 def test_showly_by_logger(number_of_handlers: int, number_of_writer_calls: int):
     writing_counter = Counter()
