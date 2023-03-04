@@ -194,3 +194,21 @@ chain_breaking_on_error_that: Callable[[checker_of[Exception]], chain_constructo
 )(
     close(returnly_rollbackable, closer=post_partial) |then>> close(map |then>> maybe)
 )
+
+
+bad_resource_wrapping_on: Callable[
+    [checker_of[ResourceT]],
+    Callable[[ResourceT], BadResourceWrapper[ResourceT] | ResourceT]
+]
+bad_resource_wrapping_on = documenting_by(
+    """
+    Function for optional wrapping in BadResourceWrapper under the conditions
+    given by the input checker.
+
+    The output function returns the input resource when the checker condition
+    is negative.
+    """
+)(
+    close(post_partial(on_condition, BadResourceWrapper, else_=return_))
+)
+)
