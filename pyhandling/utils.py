@@ -53,7 +53,7 @@ class Logger:
         self._logs.append(
             message
             if not self.is_date_logging
-            else f'[{datetime.now()}] {message}'
+            else f"[{datetime.now()}] {message}"
         )
 
         if len(self._logs) > self.maximum_log_count:
@@ -122,17 +122,17 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
             lambda clock: not clock,
             mergely(
                 close(setattr),
-                take('ticks_to_disability'),
-                post_partial(getattr, 'initial_ticks_to_disability')
+                take("ticks_to_disability"),
+                post_partial(getattr, "initial_ticks_to_disability")
             ),
             else_=return_
         ))
         |then>> returnly(
             mergely(
                 close(setattr),
-                take('ticks_to_disability'),
+                take("ticks_to_disability"),
                 (
-                    post_partial(getattr, 'ticks_to_disability')
+                    post_partial(getattr, "ticks_to_disability")
                     |then>> post_partial(execute_operation, '-', 1)
                 )
             )
