@@ -218,7 +218,10 @@ def on_condition(
     return brancher
 
 
-def rollbackable(func: FuncT, rollbacker: Callable[[Exception], ErrorHandlingResultT]) -> FuncT | ErrorHandlingResultT:
+def rollbackable(
+    func: FuncT,
+    rollbacker: Callable[[Exception], ErrorHandlingResultT]
+) -> FuncT | ErrorHandlingResultT:
     """
     Decorator function providing handling of possible errors.
     Delegates error handling to rollbacker.
