@@ -40,8 +40,8 @@ class ActionChain(Generic[ResultT]):
     \"chain_instance <= resource_to_call\". 
     """
 
-    def __init__(self, nodes: Iterable[Callable] = tuple()):
-        self._nodes = tuple(nodes)
+    def __init__(self, nodes: Iterable[many_or_one[NodeT]] = tuple()):
+        self._nodes = open_collection_items(nodes)
 
     def __call__(self, *args, **kwargs) -> ResultT:
         if not self._nodes:
@@ -62,14 +62,14 @@ class ActionChain(Generic[ResultT]):
     def __iter__(self) -> Tuple[Callable]:
         return iter(self._nodes)
 
-    def __rshift__(self, action_node: handler) -> Self:
-        return self.__class__((*self.nodes, node))
+    def __rshift__(self, node: handler) -> Self:
+        return self.__class__((*self._nodes, node))
 
-    def __or__(self, action_node: handler) -> Self:
-        return self.__class__((*self.nodes, node))
+    def __or__(self, node: handler) -> Self:
+        return self.__class__((*self._nodes, node))
 
     def __ror__(self, node: handler) -> Self:
-        return self.__class__((node, *self.nodes))
+        return self.__class__((node, *self._nodes))
 
     def __le__(self, resource: Any) -> ResultT:
         return self(resource)
@@ -267,4 +267,4 @@ def eventually(func: event_for[ResultT]) -> ResultT:
     return wraps(func)(lambda *args, **kwargs: func())
 
 
-chain_constructor = Callable[[many_or_one[Callable]], ActionChain]
+chain_constructor = Callable[[Iterable[Callable]], ActionChain]
