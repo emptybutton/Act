@@ -252,7 +252,10 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
 )
 
 
-optional_raising_of: Callable[[Type[ErrorT]], Callable[[ErrorT | ResourceT], NoReturn | ResourceT]]
+optional_raising_of: Callable[
+    [Type[ErrorT]],
+    Callable[[ErrorT | ResourceT], NoReturn | ResourceT]
+]
 optional_raising_of = documenting_by(
     """
     Function that selectively raises an error (the type of which is the input,
@@ -284,7 +287,10 @@ maybe: chain_constructor = documenting_by(
 )
 
 
-optional_bad_resource_from: Callable[[IBadResourceKeeper[ResourceT] | ResourceT], ResourceT] 
+optional_bad_resource_from: Callable[
+    [IBadResourceKeeper[ResourceT] | ResourceT],
+    ResourceT
+] 
 optional_bad_resource_from = documenting_by(
     """
     Function for getting a bad resource from his keeper when this keeper enters.
