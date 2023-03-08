@@ -46,8 +46,8 @@ def test_bad_resource_wrapping_on(checker: checker_of[ResourceT], resource: Reso
     "checker, number, result",
     ((lambda number: number < 10, 3, 3), (lambda number: number < 10, 11, 12))
 )
-def test_passing_on(checker: checker_of[number], number: number, result: Any):
-    assert passing_on(checker)(lambda number: number + 1)(number) == result
+def test_skipping_on(checker: checker_of[number], number: number, result: Any):
+    assert skipping_on(checker)(lambda number: number + 1)(number) == result
 
 
 @mark.parametrize(

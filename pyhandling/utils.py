@@ -333,8 +333,14 @@ bad_resource_wrapping_on = documenting_by(
 )
 
 
-passing_on: Callable[[checker_of[ResourceT]], Callable[[Callable[[ResourceT], ResultT]], ResultT]]
-passing_on = documenting_by(
+skipping_on: Callable[
+    [checker_of[ResourceT]],
+    Callable[
+        [Callable[[ResourceT], ResultT]],
+        Callable[[ResourceT], ResultT | ResourceT]
+    ]
+]
+skipping_on = documenting_by(
     """
     Function for creating a decorator for a handler, when calling which it may
     not be explored if the conditions of the input checker for this function to
