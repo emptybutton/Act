@@ -132,4 +132,8 @@ class ContextualError(MechanicalError, Generic[ErrorT, ContextT]):
         return f"{str(self.__error)} in context {self.__context}"
 
 
-        )
+class ResultWithError(NamedTuple, Generic[ResultT, ErrorT]):
+    """Named tuple storing someone's possible result or error."""
+
+    result: Optional[ResultT]
+    error: Optional[ErrorT]
