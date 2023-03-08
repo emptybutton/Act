@@ -273,4 +273,4 @@ def eventually(func: event_for[ResultT]) -> ResultT:
     return wraps(func)(lambda *args, **kwargs: func())
 
 
-chain_constructor = Callable[[Iterable[Callable]], ActionChain]
+chain_constructor = Callable[[Iterable[many_or_one[Callable]]], ActionChain]
