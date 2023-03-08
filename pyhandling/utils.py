@@ -222,8 +222,8 @@ keyword_unpacking_in = documenting_by(
 )
 
 
-yes: event_for[bool] = documenting_by("""Shortcut for take(True).""")(take(True))
-no: event_for[bool] = documenting_by("""Shortcut for take(False).""")(take(False))
+yes: factory_for[bool] = documenting_by("""Shortcut for take(True).""")(take(True))
+no: factory_for[bool] = documenting_by("""Shortcut for take(False).""")(take(False))
 
 
 times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
