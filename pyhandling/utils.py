@@ -258,7 +258,7 @@ yes: factory_for[bool] = documenting_by("""Shortcut for take(True).""")(take(Tru
 no: factory_for[bool] = documenting_by("""Shortcut for take(False).""")(take(False))
 
 
-times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
+times: Callable[[int], dirty[factory_for[bool]]] = documenting_by(
     """
     Function to create a function that will return True the input value (for
     this function) number of times, then False once after the input count has
@@ -281,6 +281,7 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
         ))
         |then>> bool
     )
+    |then>> eventually
 )
 
 
