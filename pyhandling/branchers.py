@@ -12,7 +12,7 @@ from pyhandling.synonyms import return_
 
 
 __all__ = (
-    "ActionChain", "merge", "mergely", "recursively", "on_condition",
+    "ActionChain", "merge", "mergely", "repeating", "on_condition",
     "rollbackable", "returnly", "eventually", "chain_constructor"
 )
 
@@ -156,44 +156,25 @@ def mergely(
     return merger
 
 
-def recursively(
-    resource_handler: Callable[[ResourceT], ResourceT],
-    condition_checker: checker_of[ResourceT],
-    *,
-    max_recursion_depth: int = 1_000_000
+def repeating(
+    action: reformer_of[ResourceT],
+    is_valid_to_repeat: Callable[[ResourceT], bool]
 ) -> Callable[[ResourceT], ResourceT]:
     """
-    Function to recursively handle input resource.
+    Function for repeatedly calling the input function of its own result.
 
-    If the result of handling for recursion is correct, it feeds the results
-    of recursive_resource_handler to it, until the negative results of the
-    recursion condition.
-
-    Checks the condition of execution of the recursion by the correctness of the
-    input resource or the result of the execution of the handler of the recursion
-    resource.
-
-    Limits the number of calls to max_recursion_depth by the argument. After the
-    maximum expires, it causes the corresponding error.
+    Specifies the application and repetition in particular, using the
+    `is_valid_to_repeat` parameter.
     """
 
-    def recursively_handle(resource: ResourceT) -> ResourceT:
-        """
-        Function emulating recursion that was created as a result of calling
-        recursively.
-        """
+    @wraps(action)
+    def repetitive_action(resource: ResourceT) -> ResourceT:
+        while is_valid_to_repeat(resource):
+            resource = action(resource)
+        
+        return resource
 
-        for _ in range(max_recursion_depth):
-            if condition_checker(resource):
-                resource = resource_handler(resource)
-            else:
-                return resource
-
-        raise HandlingRecursionDepthError(
-            f"The number of recursive handling calls has exceeded the {max_recursion_depth} call limit."
-        )
-
-    return recursively_handle
+    return repetitive_action
 
 
 def on_condition(
