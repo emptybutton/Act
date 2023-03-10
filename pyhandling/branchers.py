@@ -4,7 +4,7 @@ from typing import Generic, Iterable, Callable, Tuple, Self, Any
 
 from pyannotating import many_or_one, Special
 
-from pyhandling.annotations import ResultT, handler, ArgumentsT, ResourceT, checker_of, PositiveConditionResultT, NegativeConditionResultT, FuncT, ErrorHandlingResultT, event_for
+from pyhandling.annotations import ActionT, ResultT, handler, ArgumentsT, ResourceT, checker_of, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, event_for
 from pyhandling.binders import post_partial
 from pyhandling.errors import NeutralActionChainError, HandlingRecursionDepthError
 from pyhandling.tools import open_collection_items, ArgumentKey, ArgumentPack
@@ -17,7 +17,7 @@ __all__ = (
 )
 
 
-class ActionChain(Generic[ResultT]):
+class ActionChain(Generic[ActionT]):
     """
     Class combining calls of several functions together in sequential execution.
 
@@ -46,7 +46,7 @@ class ActionChain(Generic[ResultT]):
     \"chain_instance <= resource_to_call\". 
     """
 
-    def __init__(self, nodes: Iterable[many_or_one[NodeT]] = tuple()):
+    def __init__(self, nodes: Iterable[many_or_one[ActionT]] = tuple()):
         self._nodes = open_collection_items(nodes)
 
     def __call__(self, *args, **kwargs) -> ResultT:
@@ -65,7 +65,7 @@ class ActionChain(Generic[ResultT]):
             (self._nodes[0](*args, **kwargs), *self._nodes[1:])
         )
 
-    def __iter__(self) -> Tuple[Callable]:
+    def __iter__(self) -> Tuple[ActionT]:
         return iter(self._nodes)
 
     def __rshift__(self, node: handler) -> Self:
@@ -84,7 +84,7 @@ class ActionChain(Generic[ResultT]):
         return f"{self.__class__.__name__}({' -> '.join(map(str, self._nodes))})"
 
 
-def merge(*funcs: Callable, return_from: Special[None] = None) -> Special[tuple]:
+def merge(*actions: Callable, *, return_from: Special[None] = None) -> Special[tuple]:
     """
     Function to merge multiple functions with the same input interface into one.
 
@@ -109,7 +109,7 @@ def merge(*funcs: Callable, return_from: Special[None] = None) -> Special[tuple]
             if return_from is None
             else post_partial(getitem_of, return_from)
         )(
-            tuple(func(*args, **kwargs) for func in funcs)
+            tuple(action(*args, **kwargs) for action in actions)
         )
 
     return merged
@@ -225,18 +225,18 @@ def on_condition(
 
 
 def rollbackable(
-    func: FuncT,
+    action: Callable[[*ArgumentsT], ResultT],
     rollbacker: Callable[[Exception], ErrorHandlingResultT]
-) -> FuncT | ErrorHandlingResultT:
+) -> Callable[[*ArgumentsT], ResultT | ErrorHandlingResultT]:
     """
     Decorator function providing handling of possible errors.
     Delegates error handling to rollbacker.
     """
 
-    @wraps(func)
+    @wraps(action)
     def wrapper(*args, **kwargs) -> Any:
         try:
-            return func(*args, **kwargs)
+            return action(*args, **kwargs)
         except Exception as error:
             return rollbacker(error)
 
@@ -244,10 +244,10 @@ def rollbackable(
 
 
 def returnly(
-    func: Callable[[Any, ...], Any],
+    action: Callable[[*ArgumentsT], Any],
     *,
     argument_key_to_return: ArgumentKey = ArgumentKey(0)
-) -> Callable[[Any, ...], Any]:
+) -> Callable[[*ArgumentsT], ArgumentsT]:
     """
     Decorator function that causes the input function to return not the result
     of its execution, but some argument that is incoming to it.
