@@ -387,9 +387,18 @@ bad_resource_wrapping_on = documenting_by(
 )
 
 
+with_error: Callable[
+    [Callable[[*ArgumentsT], ResultT]],
+    Callable[[*ArgumentsT], ResultWithError[ResultT, Exception]]
 ]
+with_error = documenting_by(
     """
+    Decorator that causes the decorated function to return the error that
+    occurred.
 
+    Returns in `ResultWithError` format (result, error).
     """
 )(
+    action_binding_of(lambda result: (result, None))
+    |then>> (rollbackable |by| (lambda error: (None, error)))
 )
