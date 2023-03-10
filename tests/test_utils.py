@@ -365,3 +365,30 @@ def test_chain_breaking_on_error_that(
         assert result.bad_resource == expected_result
     else:
         assert result == expected_result
+
+
+@mark.parametrize(
+    "func, input_resources, result, expected_error_type",
+    [
+        (lambda x: x + 2, (30, ), 32, None),
+        (lambda x, y: x + y, (128, 128), 256, None),
+        (lambda x: x, (None, ), None, None),
+        (lambda x: x / 0, (30, ), None, ZeroDivisionError),
+        (lambda x: x.non_existent_attribute, (None, ), None, AttributeError),
+        (lambda line: line + 64, ("Some line", ), None, TypeError),
+    ]
+)
+def test_with_error(
+    func: Callable,
+    input_resources: Iterable,
+    result: Any,
+    expected_error_type: Optional[Type[Exception]]
+):
+    result, error = with_error(func)(*input_resources)
+
+    assert result == expected_result
+
+    if expected_error_type is not None:
+        assert type(error) is expected_error_type
+    else:
+        assert error is None
