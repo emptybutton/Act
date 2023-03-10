@@ -40,13 +40,20 @@ def close(
     *,
     closer: Callable[[ActionT, *ArgumentsT], ClosedT] = partial
 ) -> Callable[[*ArgumentsT], ClosedT]:
+    """
+    Function to put an input function into the context of another decorator
+    function by partially applying the input function to that decorator
+    function.
 
-    The input resource type depends on the chosen closer function.
+    The decorator function is defined by the `closer` parameter.
 
-    With a default closer function, ***it requires a Callable resource***.
+    On default `closer` value wraps the input function in a function whose
+    result is the same input function, but partially applied with the arguments
+    with which the resulting function was called.
 
-    When \"opened\" the default container function returns an input resource with
-    the bined input arguments from the function container.
+    ```
+    close(print)(1, 2)(3) # 1 2 3
+    ```
     """
 
     return partial(closer, action)
