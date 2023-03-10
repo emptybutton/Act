@@ -1,7 +1,7 @@
 from functools import wraps, partial
 from typing import Callable, Any
 
-from pyhandling.annotations import FuncT, ResourceT, ResultT, event_for
+from pyhandling.annotations import ActionT, ResourceT, ResultT, event_for
 from pyhandling.tools import ArgumentPack
 
 
@@ -28,7 +28,7 @@ def mirror_partial(func: Callable, *args, **kwargs) -> Callable:
     difference that additional arguments from this function call are unfolded.
     """
 
-    return post_partial(func, *args[::-1], **kwargs)
+    return post_partial(action, *args[::-1], **kwargs)
 
 
 def close(resource: ResourceT, *, closer: Callable[[ResourceT, ...], ResultT] = partial) -> event_for[ResultT]:

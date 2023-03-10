@@ -6,7 +6,7 @@ from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 __all__ = (
     "dirty", "not_required", "handler_of", "checker_of", "formatter_of",
     "reformer_of", "merger_of", "event_for", "factory_for", "handler", "checker",
-    "decorator", "event", "binder", "FuncT", "ArgumentsT", "ResourceT",
+    "decorator", "event", "binder", "ActionT", "ArgumentsT", "ResourceT",
     "ObjectT", "ResultT", "KeyT", "ErrorT", "PositiveResultT",
     "NegativeConditionResultT", "ErrorHandlingResultT"
 )
@@ -50,7 +50,7 @@ event = event_for[Any]
 binder = Callable[[Callable, ...], Callable]
 
 
-FuncT = TypeVar("FuncT", bound=Callable)
+ActionT = TypeVar("ActionT", bound=Callable)
 
 ArgumentsT = TypeVarTuple("ArgumentsT")
 
