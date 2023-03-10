@@ -284,6 +284,28 @@ times: Callable[[int], dirty[event_for[bool]]] = documenting_by(
 )
 
 
+skipping_on: Callable[
+    [checker_of[ResourceT]],
+    Callable[
+        [Callable[[ResourceT], ResultT]],
+        Callable[[ResourceT], ResultT | ResourceT]
+    ]
+]
+skipping_on = documenting_by(
+    """
+    Function for creating a decorator for a handler, when calling which it may
+    not be explored if the conditions of the input checker for this function to
+    the input argument of the decorated handler are true.
+
+    Under the right conditions of the input checkcaker, it returns the input
+    resource.
+    """
+)(
+    action_binding_of(transform |by| 'not')
+    |then>> close(partial(on_condition, else_=return_))
+)
+
+
 optional_raising_of: Callable[
     [Type[ErrorT]],
     Callable[[ErrorT | ResourceT], NoReturn | ResourceT]
@@ -365,23 +387,9 @@ bad_resource_wrapping_on = documenting_by(
 )
 
 
-skipping_on: Callable[
-    [checker_of[ResourceT]],
-    Callable[
-        [Callable[[ResourceT], ResultT]],
-        Callable[[ResourceT], ResultT | ResourceT]
-    ]
 ]
-skipping_on = documenting_by(
     """
-    Function for creating a decorator for a handler, when calling which it may
-    not be explored if the conditions of the input checker for this function to
-    the input argument of the decorated handler are true.
 
-    Under the right conditions of the input checkcaker, it returns the input
-    resource.
     """
 )(
-    action_binding_of(transform |by| 'not')
-    |then>> close(partial(on_condition, else_=return_))
 )
