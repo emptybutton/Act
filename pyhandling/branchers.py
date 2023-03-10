@@ -179,7 +179,7 @@ def repeating(
 
 def on_condition(
     condition_checker: Callable[[*ArgumentsT], bool],
-    positive_condition_func: Callable[[*ArgumentsT], PositiveConditionResultT],
+    positive_condition_action: Callable[[*ArgumentsT], PositiveConditionResultT],
     *,
     else_: Callable[[*ArgumentsT], NegativeConditionResultT] = lambda *_, **__: None
 ) -> Callable[[*ArgumentsT], PositiveConditionResultT | NegativeConditionResultT]:
@@ -187,10 +187,10 @@ def on_condition(
     Function that implements the func choosing by condition.
 
     Creates a function that delegates the call to one other function selected by
-    the results of condition_checker.
+    the results of `condition_checker`.
 
-    If the condition is positive, selects positive_condition_func, if it is
-    negative else_.
+    If the condition is positive, selects `positive_condition_action`, if it is
+    negative - `else_`.
     """
 
     def brancher(*args, **kwargs) -> Any:
@@ -200,7 +200,7 @@ def on_condition(
         """
 
         return (
-            positive_condition_func
+            positive_condition_action
             if condition_checker(*args, **kwargs)
             else else_
         )(*args, **kwargs)
@@ -239,9 +239,9 @@ def returnly(
     Returns the first argument by default.
     """
 
-    @wraps(func)
+    @wraps(action)
     def wrapper(*args, **kwargs) -> Any:
-        func(*args, **kwargs)
+        action(*args, **kwargs)
 
         return ArgumentPack(args, kwargs)[argument_key_to_return]
 
