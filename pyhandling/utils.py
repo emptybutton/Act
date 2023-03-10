@@ -22,6 +22,7 @@ __all__ = (
     "collection_unpacking_in", "keyword_unpacking_in", "yes", "no", "times",
     "optional_raising_of", "maybe", "optional_bad_resource_from",
     "chain_breaking_on_error_that", "bad_resource_wrapping_on", "passing_on",
+    "with_error"
 )
 
 
