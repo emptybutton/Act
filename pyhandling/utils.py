@@ -333,6 +333,12 @@ monadically = (
 )
 
 
+monada_among = (AnnotationTemplate |to| Callable)([
+    [many_or_one[ActionT]],
+    AnnotationTemplate(reformer_of, [input_resource])
+])
+
+
 maybe: monada_among[Special[IBadResourceKeeper]] = documenting_by(
     """
     Function to finish execution of an action chain when a bad resource keeper
