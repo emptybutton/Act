@@ -119,9 +119,9 @@ def merge(*actions: Callable, *, return_from: Special[None] = None) -> Special[t
 
 
 def mergely(
-    merge_function_factory: Callable[[*ArgumentsT], Callable[[...], ResultT]],
-    *parallel_functions: Callable[[*ArgumentsT], Any],
-    **keyword_parallel_functions: Callable[[*ArgumentsT], Any]
+    parallel_action_result_merging_of: Callable[[*ArgumentsT], Callable[[...], ResultT]],
+    *parallel_actions: Callable[[*ArgumentsT], Any],
+    **keyword_parallel_actions: Callable[[*ArgumentsT], Any]
 ) -> Callable[[*ArgumentsT], ResultT]:
     """
     Decorator function that allows to initially separate several operations on
@@ -140,20 +140,20 @@ def mergely(
     were specified.
     """
 
-    @wraps(merge_function_factory)
-    def wrapper(*args, **kwargs):
-        return merge_function_factory(*args, **kwargs)(
+    @wraps(parallel_action_result_merging_of)
+    def merger(*args, **kwargs) -> ResultT:
+        return parallel_action_result_merging_of(*args, **kwargs)(
             *(
-                parallel_function(*args, **kwargs)
-                for parallel_function in parallel_functions
+                parallel_action(*args, **kwargs)
+                for parallel_action in parallel_actions
             ),
             **{
-                kwarg: keyword_parallel_function(*args, **kwargs)
-                for kwarg, keyword_parallel_function in keyword_parallel_functions.items()
+                _: keyword_parallel_action(*args, **kwargs)
+                for _, keyword_parallel_action in keyword_parallel_actions.items()
             }
         )
 
-    return wrapper
+    return merger
 
 
 def recursively(
