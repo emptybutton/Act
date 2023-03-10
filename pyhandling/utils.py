@@ -346,14 +346,7 @@ maybe: monada_among[Special[IBadResourceKeeper]] = documenting_by(
     chain nodes.
     """
 )(
-    as_collection
-    |then>> close(map |then>> ActionChain)(
-        partial(
-            on_condition,
-            Negationer(isinstance |by| IBadResourceKeeper),
-            else_=return_
-        )
-    )
+    monadically(skipping_on(isinstance |by| IBadResourceKeeper))
 )
 
 
