@@ -323,7 +323,17 @@ optional_raising_of = documenting_by(
 )
 
 
-maybe: chain_constructor = documenting_by(
+monadically: Callable[
+    [Callable[[ActionT], reformer_of[ResourceT]]],
+    Callable[[many_or_one[ActionT]], reformer_of[ResourceT]]
+]
+monadically = (
+    close(map)
+    |then>> action_inserting_in(as_collection |then>> ... |then>> ActionChain)
+)
+
+
+maybe: monada_among[Special[IBadResourceKeeper]] = documenting_by(
     """
     Function to finish execution of an action chain when a bad resource keeper
     appears in it by returning this same keeper, skipping subsequent action
