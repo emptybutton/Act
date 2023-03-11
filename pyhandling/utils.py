@@ -17,12 +17,12 @@ from pyhandling.tools import documenting_by, wrap_in_collection, ArgumentPack, o
 
 __all__ = (
     "Logger", "showly", "returnly_rollbackable", "callmethod", "operation_by",
-    "operation_of", "left_action_binding_of", "action_binding_of", "take",
-    "event_as", "as_collection", "collection_from", "summed_collection_from",
-    "collection_unpacking_in", "keyword_unpacking_in", "yes", "no", "times",
-    "optional_raising_of", "maybe", "optional_bad_resource_from",
-    "chain_breaking_on_error_that", "bad_resource_wrapping_on", "passing_on",
-    "with_error"
+    "operation_of", "action_inserting_in", "left_action_binding_of",
+    "action_binding_of", "take", "event_as", "as_collection", "collection_from",
+    "summed_collection_from", "collection_unpacking_in", "keyword_unpacking_in",
+    "yes", "no", "times", "skipping_on", "optional_raising_of", "monadically",
+    "monada_among", "maybe", "optional_bad_resource_from",
+    "chain_breaking_on_error_that", "bad_resource_wrapping_on", "with_error"
 )
 
 
