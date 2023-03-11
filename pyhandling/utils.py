@@ -3,11 +3,11 @@ from functools import wraps, partial
 from math import inf
 from typing import Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn
 
-from pyannotating import many_or_one
+from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
 
-from pyhandling.annotations import atomic_action, dirty, handler_of, ResourceT, ResultT, checker_of, ErrorT, factory_for, merger_of, ArgumentsT, binder, event_for
-from pyhandling.binders import close, post_partial, unpackly
-from pyhandling.branchers import ActionChain, returnly, eventually, on_condition, chain_constructor
+from pyhandling.annotations import atomic_action, dirty, handler_of, ResourceT, ResultT, checker_of, ErrorT, factory_for, merger_of, ArgumentsT, binder, event_for, reformer_of
+from pyhandling.binders import returnly, close, post_partial, eventually, unpackly
+from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable
 from pyhandling.checkers import Negationer
 from pyhandling.language import then, by, to
 from pyhandling.error_controllers import BadResourceError, IBadResourceKeeper, bad_wrapped_or_not, BadResourceWrapper, ResultWithError

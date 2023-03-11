@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from functools import cached_property
 from types import MappingProxyType
-from typing import Generic, Union, runtime_checkable, Protocol, Iterable, Self, Tuple, TypeVar, NamedTuple
+from typing import Generic, Union, runtime_checkable, Protocol, Iterable, Self, Tuple, TypeVar, NamedTuple, Optional
 
 from pyannotating import AnnotationTemplate, input_annotation
 
