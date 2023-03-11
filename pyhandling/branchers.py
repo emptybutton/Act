@@ -13,7 +13,7 @@ from pyhandling.synonyms import return_
 
 __all__ = (
     "ActionChain", "merge", "mergely", "repeating", "on_condition",
-    "rollbackable", "returnly", "eventually", "chain_constructor"
+    "rollbackable", "chain_constructor"
 )
 
 
@@ -225,36 +225,6 @@ def rollbackable(
             return rollbacker(error)
 
     return wrapper
-
-
-def returnly(
-    action: Callable[[*ArgumentsT], Any],
-    *,
-    argument_key_to_return: ArgumentKey = ArgumentKey(0)
-) -> Callable[[*ArgumentsT], ArgumentsT]:
-    """
-    Decorator function that causes the input function to return not the result
-    of its execution, but some argument that is incoming to it.
-
-    Returns the first argument by default.
-    """
-
-    @wraps(action)
-    def wrapper(*args, **kwargs) -> Any:
-        action(*args, **kwargs)
-
-        return ArgumentPack(args, kwargs)[argument_key_to_return]
-
-    return wrapper
-
-
-def eventually(func: event_for[ResultT]) -> ResultT:
-    """
-    Decorator function for constructing a function to which no input attributes
-    will be passed.
-    """
-
-    return wraps(func)(lambda *args, **kwargs: func())
 
 
 chain_constructor = Callable[[Iterable[many_or_one[Callable]]], ActionChain]

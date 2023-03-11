@@ -5,7 +5,9 @@ from pyhandling.annotations import ActionT, ResourceT, ResultT, event_for
 from pyhandling.tools import ArgumentPack
 
 
-__all__ = ("post_partial", "mirror_partial", "close", "unpackly")
+__all__ = (
+    "post_partial", "mirror_partial", "close", "returnly", "eventually", "unpackly"
+)
 
 
 def post_partial(action: Callable[[...], ResultT], *args, **kwargs) -> Callable[[...], ResultT]:
@@ -56,6 +58,36 @@ def close(
     """
 
     return partial(closer, action)
+
+
+def returnly(
+    action: Callable[[*ArgumentsT], Any],
+    *,
+    argument_key_to_return: ArgumentKey = ArgumentKey(0)
+) -> Callable[[*ArgumentsT], ArgumentsT]:
+    """
+    Decorator function that causes the input function to return not the result
+    of its execution, but some argument that is incoming to it.
+
+    Returns the first argument by default.
+    """
+
+    @wraps(action)
+    def wrapper(*args, **kwargs) -> Any:
+        action(*args, **kwargs)
+
+        return ArgumentPack(args, kwargs)[argument_key_to_return]
+
+    return wrapper
+
+
+def eventually(func: event_for[ResultT]) -> ResultT:
+    """
+    Decorator function for constructing a function to which no input attributes
+    will be passed.
+    """
+
+    return wraps(func)(lambda *args, **kwargs: func())
 
 
 def unpackly(action: Callable[[...], ResultT]) -> Callable[[ArgumentPack], ResultT]:
