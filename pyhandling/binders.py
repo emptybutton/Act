@@ -31,7 +31,6 @@ def mirror_partial(action: Callable[[...], ResultT], *args, **kwargs) -> Callabl
     return post_partial(action, *args[::-1], **kwargs)
 
 
-
 ClosedT = TypeVar("ClosedT", bound=Callable)
 
 
