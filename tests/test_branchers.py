@@ -88,13 +88,13 @@ def test_mergely_by_formula_function(
         (lambda x: x ** x, lambda x: x > 10, 10, 10)
     ]
 )
-def test_recursively(
+def test_repeating(
     handler: Callable[[Any], Any],
     checker: Callable[[Any], bool],
     resource: Any,
     result: Any
 ):
-    assert recursively(handler, checker)(resource) == result
+    assert repeating(handler, checker)(resource) == result
 
 
 @mark.parametrize(
