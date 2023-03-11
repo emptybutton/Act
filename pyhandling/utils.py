@@ -86,20 +86,20 @@ def showly(
 
 
 def returnly_rollbackable(
-    handler: Callable[[ResourceT], ResultT],
-    error_checker: checker_of[ErrorT]
+    action: Callable[[ResourceT], ResultT],
+    is_for_returning: checker_of[ErrorT]
 ) -> Callable[[ResourceT], ResultT | BadResourceError[ResourceT, ErrorT]]:
     """
-    Decorator function for a handler that allows it to return a pack of its
+    Decorator function for an action that allows it to return a pack of its
     input resource and the error it encountered.
     """
 
-    @wraps(handler)
+    @wraps(action)
     def wrapper(resource: Any) -> Any:
         try:
-            return handler(resource)
+            return action(resource)
         except Exception as error:
-            if error_checker(error):
+            if is_for_returning(error):
                 return BadResourceError(resource, error)
 
             raise error
