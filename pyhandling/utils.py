@@ -163,7 +163,7 @@ def action_inserting_in(
             *action_template[ellipsis_index + 1:]
         ))
 
-    return bind_template_with
+    return insert_to_template
 
 
 left_action_binding_of: Callable[
@@ -337,7 +337,7 @@ monadically = (
 monada_among = (AnnotationTemplate |to| Callable)([
     [many_or_one[atomic_action]],
     (AnnotationTemplate |to| ActionChain)([
-        AnnotationTemplate(reformer_of, [input_resource])
+        AnnotationTemplate(reformer_of, [input_annotation])
     ])
 ])
 
