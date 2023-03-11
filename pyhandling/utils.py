@@ -77,7 +77,7 @@ def showly(
 ) -> dirty[ActionChain]:
     """
     Decorator function for visualizing the outcomes of intermediate stages of a
-    chain of actions, or simply the input and output results of a regular handler.
+    chain of actions, or simply the input and output results of a regular action.
     """
 
     return monadically(action_binding_of(returnly(str |then>> writer)))(
@@ -294,9 +294,9 @@ skipping_on: Callable[
 ]
 skipping_on = documenting_by(
     """
-    Function for creating a decorator for a handler, when calling which it may
+    Function for creating a decorator for an action, when calling which it may
     not be explored if the conditions of the input checker for this function to
-    the input argument of the decorated handler are true.
+    the input argument of the decorated action are true.
 
     Under the right conditions of the input checkcaker, it returns the input
     resource.

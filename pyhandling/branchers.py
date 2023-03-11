@@ -26,17 +26,17 @@ class ActionChain(Generic[ActionT]):
     Each next node gets the output of the previous one.
     Data returned when called is data exited from the last node.
 
-    The first node is not bound to the standard handler interface and can be
-    any callable object.
+    The first node is not bound to the standard `atomic_action` interface and
+    can be any callable object.
 
-    Accordingly, delegates the call to that first handler, so it emulates its
+    Accordingly, delegates the call to that first node, so it emulates its
     calling interface.
 
     If there are no nodes, returns the input resource back. If the arguments
     were not transmitted or there were too many, it throws
     NeutralActionChainError.
 
-    Can be connected to another chain or handler using | between them with
+    Can be connected to another chain or action using | between them with
     maintaining the position of the call.
 
     Also can be used >> to expand nodes starting from the end respectively.
