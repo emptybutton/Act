@@ -5,7 +5,7 @@ from typing import Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn
 
 from pyannotating import many_or_one
 
-from pyhandling.annotations import handler, dirty, handler_of, ResourceT, ResultT, checker_of, ErrorT, factory_for, merger_of, ArgumentsT, binder, event_for
+from pyhandling.annotations import atomic_action, dirty, handler_of, ResourceT, ResultT, checker_of, ErrorT, factory_for, merger_of, ArgumentsT, binder, event_for
 from pyhandling.binders import close, post_partial, unpackly
 from pyhandling.branchers import ActionChain, returnly, eventually, on_condition, chain_constructor
 from pyhandling.checkers import Negationer
@@ -71,7 +71,7 @@ class Logger:
 
 
 def showly(
-    action_resource: many_or_one[handler],
+    action_resource: many_or_one[atomic_action],
     *,
     writer: dirty[handler_of[str]] = print
 ) -> dirty[ActionChain]:
@@ -325,8 +325,8 @@ optional_raising_of = documenting_by(
 
 
 monadically: Callable[
-    [Callable[[ActionT], reformer_of[ResourceT]]],
-    Callable[[many_or_one[ActionT]], reformer_of[ResourceT]]
+    [Callable[[atomic_action], reformer_of[ResourceT]]],
+    Callable[[many_or_one[atomic_action]], ActionChain[reformer_of[ResourceT]]]
 ]
 monadically = (
     close(map)
@@ -335,8 +335,10 @@ monadically = (
 
 
 monada_among = (AnnotationTemplate |to| Callable)([
-    [many_or_one[ActionT]],
-    AnnotationTemplate(reformer_of, [input_resource])
+    [many_or_one[atomic_action]],
+    (AnnotationTemplate |to| ActionChain)([
+        AnnotationTemplate(reformer_of, [input_resource])
+    ])
 ])
 
 

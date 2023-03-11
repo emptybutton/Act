@@ -4,7 +4,7 @@ from typing import Generic, Iterable, Callable, Tuple, Self, Any
 
 from pyannotating import many_or_one, Special
 
-from pyhandling.annotations import ActionT, ResultT, handler, ArgumentsT, ResourceT, checker_of, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, event_for
+from pyhandling.annotations import ActionT, ResultT, atomic_action, ArgumentsT, ResourceT, checker_of, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, event_for
 from pyhandling.binders import post_partial
 from pyhandling.errors import NeutralActionChainError, HandlingRecursionDepthError
 from pyhandling.tools import open_collection_items, ArgumentKey, ArgumentPack
@@ -68,13 +68,13 @@ class ActionChain(Generic[ActionT]):
     def __iter__(self) -> Tuple[ActionT]:
         return iter(self._nodes)
 
-    def __rshift__(self, node: handler) -> Self:
+    def __rshift__(self, node: atomic_action) -> Self:
         return self.__class__((*self._nodes, node))
 
-    def __or__(self, node: handler) -> Self:
+    def __or__(self, node: atomic_action) -> Self:
         return self.__class__((*self._nodes, node))
 
-    def __ror__(self, node: handler) -> Self:
+    def __ror__(self, node: atomic_action) -> Self:
         return self.__class__((node, *self._nodes))
 
     def __le__(self, resource: Any) -> ResultT:

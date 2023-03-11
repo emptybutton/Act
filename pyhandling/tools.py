@@ -7,7 +7,7 @@ from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Gener
 
 from pyannotating import method_of, Special
 
-from pyhandling.annotations import ObjectT, ResourceT, ResultT, handler, dirty, reformer_of, KeyT
+from pyhandling.annotations import ObjectT, ResourceT, ResultT, atomic_action, dirty, reformer_of, KeyT
 
 
 __all__ = (
@@ -221,8 +221,8 @@ class DelegatingProperty:
         delegated_attribute_name: str,
         *,
         settable: bool = False,
-        getting_converter: handler = lambda resource: resource,
-        setting_converter: handler = lambda resource: resource
+        getting_converter: atomic_action = lambda resource: resource,
+        setting_converter: atomic_action = lambda resource: resource
     ):
         self.delegated_attribute_name = delegated_attribute_name
         self.settable = settable

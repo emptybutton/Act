@@ -39,7 +39,7 @@ event_for = AnnotationTemplate(Callable, [[], input_annotation])
 factory_for = AnnotationTemplate(Callable, [[...], input_annotation])
 
 
-handler = handler_of[Any]
+atomic_action = handler_of[Any]
 
 checker = checker_of[Any]
 
