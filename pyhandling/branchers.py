@@ -87,7 +87,7 @@ class ActionChain(Generic[ActionT]):
         )
 
 
-def merge(*actions: Callable, *, return_from: Special[None] = None) -> Special[tuple]:
+def merge(*actions: Callable, return_from: Special[None] = None) -> Special[tuple]:
     """
     Function to merge multiple functions with the same input interface into one.
 
