@@ -48,7 +48,7 @@ class BadResourceWrapper(IBadResourceKeeper, Generic[ResourceT]):
 
 
 bad_wrapped_or_not = (AnnotationTemplate |to| Union)([
-    AnnotationTemplate(BadResourceWrapper, [input_annotation]),
+    AnnotationTemplate(IBadResourceKeeper, [input_annotation]),
     input_annotation
 ])
 
