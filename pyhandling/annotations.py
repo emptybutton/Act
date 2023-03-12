@@ -36,7 +36,7 @@ merger_of = AnnotationTemplate(Callable, [[input_annotation, input_annotation], 
 
 event_for = AnnotationTemplate(Callable, [[], input_annotation])
 
-factory_for = AnnotationTemplate(Callable, [[...], input_annotation])
+action_for = AnnotationTemplate(Callable, [[...], input_annotation])
 
 
 atomic_action = handler_of[Any]

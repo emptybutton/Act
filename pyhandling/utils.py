@@ -5,8 +5,8 @@ from typing import Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
 
-from pyhandling.annotations import atomic_action, dirty, handler_of, ResourceT, ResultT, checker_of, ErrorT, factory_for, merger_of, ArgumentsT, binder, event_for, reformer_of
 from pyhandling.binders import returnly, close, post_partial, eventually, unpackly
+from pyhandling.annotations import atomic_action, dirty, handler_of, ResourceT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, binder, event_for, reformer_of
 from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable
 from pyhandling.checkers import Negationer
 from pyhandling.language import then, by, to
@@ -232,7 +232,7 @@ summed_collection_from: event_for[tuple] = documenting_by(
 )
 
 
-collection_unpacking_in: Callable[[factory_for[ResourceT]], Callable[[Iterable], ResourceT]]
+collection_unpacking_in: Callable[[action_for[ResourceT]], Callable[[Iterable], ResourceT]]
 collection_unpacking_in = documenting_by(
     """
     Decorator for unpacking the collection of the output function when it is
@@ -243,7 +243,7 @@ collection_unpacking_in = documenting_by(
 )
 
 
-keyword_unpacking_in: Callable[[factory_for[ResourceT]], Callable[[Mapping], ResourceT]]
+keyword_unpacking_in: Callable[[action_for[ResourceT]], Callable[[Mapping], ResourceT]]
 keyword_unpacking_in = documenting_by(
     """
     Decorator for unpacking the mapping object of the output function when it is
@@ -254,11 +254,11 @@ keyword_unpacking_in = documenting_by(
 )
 
 
-yes: factory_for[bool] = documenting_by("""Shortcut for take(True).""")(take(True))
-no: factory_for[bool] = documenting_by("""Shortcut for take(False).""")(take(False))
+yes: action_for[bool] = documenting_by("""Shortcut for `taken(True)`.""")(taken(True))
+no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(False))
 
 
-times: Callable[[int], dirty[factory_for[bool]]] = documenting_by(
+times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     """
     Function to create a function that will return True the input value (for
     this function) number of times, then False once after the input count has
