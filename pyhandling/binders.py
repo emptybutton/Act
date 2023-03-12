@@ -90,7 +90,7 @@ def eventually(func: event_for[ResultT]) -> ResultT:
     return wraps(func)(lambda *args, **kwargs: func())
 
 
-def unpackly(action: Callable[[...], ResultT]) -> Callable[[ArgumentPack], ResultT]:
+def unpackly(action: action_for[ResultT]) -> Callable[[ArgumentPack], ResultT]:
     """
     Decorator function that allows to bring an ordinary function to the handler
     interface by unpacking the input argument pack into the input function.
