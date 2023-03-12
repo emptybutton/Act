@@ -197,13 +197,6 @@ taken: Callable[[Any], action_for[Any]] = documenting_by(
 )
 
 
-event_as: binder = documenting_by(
-    """Shortcut for creating an event using caring."""
-)(
-    partial |then>> eventually
-)
-
-
 as_collection: Callable[[many_or_one[ResourceT]], Tuple[ResourceT]]
 as_collection = documenting_by(
     """
