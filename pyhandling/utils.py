@@ -321,7 +321,14 @@ monadically: Callable[
     [Callable[[atomic_action], reformer_of[ResourceT]]],
     Callable[[many_or_one[atomic_action]], ActionChain[reformer_of[ResourceT]]]
 ]
-monadically = (
+monadically = documenting_by(
+    """
+    Function for decorator to map actions of a certain sequence (or just one
+    action) into a chain of transformations of a certain type.
+
+    Maps actions by an input decorator one at a time.
+    """
+)(
     closed(map)
     |then>> action_inserting_in(as_collection |then>> ... |then>> ActionChain)
 )
