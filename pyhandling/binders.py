@@ -81,13 +81,12 @@ def returnly(
     return wrapper
 
 
-def eventually(func: event_for[ResultT]) -> ResultT:
+def eventually(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
     """
-    Decorator function for constructing a function to which no input attributes
-    will be passed.
+    Decorator function to call with predefined arguments instead of input ones.
     """
 
-    return wraps(func)(lambda *args, **kwargs: func())
+    return wraps(action)(lambda *_, **__: action(*args, **kwargs))
 
 
 def unpackly(action: action_for[ResultT]) -> Callable[[ArgumentPack], ResultT]:
