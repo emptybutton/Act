@@ -6,7 +6,7 @@ from pyhandling.tools import ArgumentKey, ArgumentPack
 
 
 __all__ = (
-    "post_partial", "mirror_partial", "close", "returnly", "eventually", "unpackly"
+    "post_partial", "mirror_partial", "closed", "returnly", "eventually", "unpackly"
 )
 
 
@@ -36,7 +36,7 @@ def mirror_partial(action: Callable[[...], ResultT], *args, **kwargs) -> Callabl
 ClosedT = TypeVar("ClosedT", bound=Callable)
 
 
-def close(
+def closed(
     action: ActionT,
     *,
     closer: Callable[[ActionT, *ArgumentsT], ClosedT] = partial

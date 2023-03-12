@@ -5,8 +5,8 @@ from typing import Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
 
-from pyhandling.binders import returnly, close, post_partial, eventually, unpackly
 from pyhandling.annotations import atomic_action, dirty, handler_of, ResourceT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, binder, event_for, reformer_of
+from pyhandling.binders import returnly, closed, post_partial, eventually, unpackly
 from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable
 from pyhandling.checkers import Negationer
 from pyhandling.language import then, by, to
@@ -116,7 +116,7 @@ def callmethod(object_: object, method_name: str, *args, **kwargs) -> Any:
 operation_by: action_for[action_for[Any]] = documenting_by(
     """Shortcut for post_partial(execute_operation, ...)."""
 )(
-    close(execute_operation, closer=post_partial)
+    closed(execute_operation, closer=post_partial)
 )
 
 
@@ -193,7 +193,7 @@ taken: Callable[[Any], action_for[Any]] = documenting_by(
     Shortcut function equivalent to eventually(partial(return_, input_resource).
     """
 )(
-    close(return_) |then>> eventually
+    closed(return_) |then>> eventually
 )
 
 
@@ -260,7 +260,7 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
 )(
     operation_by('+', 1)
     |then>> Clock
-    |then>> close(
+    |then>> closed(
         (on_condition |then>> returnly)(
             transform |by| 'not',
             lambda clock: (setattr |to| clock)(
@@ -296,7 +296,7 @@ skipping_on = documenting_by(
     """
 )(
     action_binding_of(transform |by| 'not')
-    |then>> close(partial(on_condition, else_=return_))
+    |then>> closed(partial(on_condition, else_=return_))
 )
 
 
@@ -312,7 +312,7 @@ optional_raising_of = documenting_by(
     When called with another resource, returns it.
     """
 )(
-    close(isinstance, closer=post_partial)
+    closed(isinstance, closer=post_partial)
     |then>> post_partial(on_condition, raise_, else_=return_)
 )
 
@@ -322,7 +322,7 @@ monadically: Callable[
     Callable[[many_or_one[atomic_action]], ActionChain[reformer_of[ResourceT]]]
 ]
 monadically = (
-    close(map)
+    closed(map)
     |then>> action_inserting_in(as_collection |then>> ... |then>> ActionChain)
 )
 
@@ -371,7 +371,7 @@ chain_breaking_on_error_that = documenting_by(
     checker conditions.
     """
 )(
-    close(returnly_rollbackable, closer=post_partial) |then>> close(map |then>> maybe)
+   closed(returnly_rollbackable, closer=post_partial) |then>> closed(map |then>> maybe)
 )
 
 
