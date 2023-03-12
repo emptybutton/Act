@@ -188,7 +188,7 @@ action_binding_of = documenting_by(
 )
 
 
-take: Callable[[Any], factory_for[Any]] = documenting_by(
+taken: Callable[[Any], action_for[Any]] = documenting_by(
     """
     Shortcut function equivalent to eventually(partial(return_, input_resource).
     """
