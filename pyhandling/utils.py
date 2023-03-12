@@ -10,7 +10,7 @@ from pyhandling.binders import returnly, closed, post_partial, eventually, unpac
 from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable
 from pyhandling.checkers import Negationer
 from pyhandling.language import then, by, to
-from pyhandling.error_controllers import BadResourceError, IBadResourceKeeper, bad_wrapped_or_not, BadResourceWrapper, ResultWithError
+from pyhandling.error_controllers import BadResourceError, IBadResourceKeeper, BadResourceWrapper, ResultWithError, bad_wrapped_or_not
 from pyhandling.synonyms import execute_operation, return_, transform, raise_
 from pyhandling.tools import documenting_by, wrap_in_collection, ArgumentPack, open_collection_items, Clock
 
@@ -18,7 +18,7 @@ from pyhandling.tools import documenting_by, wrap_in_collection, ArgumentPack, o
 __all__ = (
     "Logger", "showly", "returnly_rollbackable", "callmethod", "operation_by",
     "operation_of", "action_inserting_in", "left_action_binding_of",
-    "action_binding_of", "take", "event_as", "as_collection", "collection_from",
+    "action_binding_of", "taken", "as_collection", "collection_from",
     "summed_collection_from", "collection_unpacking_in", "keyword_unpacking_in",
     "yes", "no", "times", "skipping_on", "optional_raising_of", "monadically",
     "monada_among", "maybe", "optional_bad_resource_from",

@@ -1,3 +1,8 @@
+from pytest import mark
+
+from tests.mocks import MockObject
+
+
 @mark.parametrize(
     "error_storage, result_errors",
     [

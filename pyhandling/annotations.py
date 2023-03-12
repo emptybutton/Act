@@ -5,7 +5,7 @@ from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 
 __all__ = (
     "dirty", "not_required", "handler_of", "checker_of", "formatter_of",
-    "reformer_of", "merger_of", "event_for", "factory_for", "handler", "checker",
+    "reformer_of", "merger_of", "event_for", "action_for", "atomic_action", "checker",
     "decorator", "event", "binder", "ActionT", "ArgumentsT", "ResourceT",
     "ObjectT", "ResultT", "KeyT", "ErrorT", "PositiveResultT",
     "NegativeConditionResultT", "ErrorHandlingResultT"
