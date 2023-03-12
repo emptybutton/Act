@@ -113,7 +113,7 @@ def callmethod(object_: object, method_name: str, *args, **kwargs) -> Any:
     return getattr(object_, method_name)(*args, **kwargs)
 
 
-operation_by: Callable[[...], factory_for[Any]] = documenting_by(
+operation_by: action_for[action_for[Any]] = documenting_by(
     """Shortcut for post_partial(execute_operation, ...)."""
 )(
     close(execute_operation, closer=post_partial)
@@ -253,9 +253,9 @@ no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(
 
 times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     """
-    Function to create a function that will return True the input value (for
-    this function) number of times, then False once after the input count has
-    passed, True again n times, and so on.
+    Function to create a function that will return `True` the input value (for
+    this function) number of times, then `False` once after the input count has
+    passed, `True` again n times, and so on.
     """
 )(
     operation_by('+', 1)
