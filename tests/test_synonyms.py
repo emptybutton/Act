@@ -91,9 +91,9 @@ def test_transform(operator: str, operand: Any, result: Any):
         (partial(Box, 2), lambda number: number * 2, 4)
     )
 )
-def test_handle_context_by(
+def test_in_context_by(
     context_factory: Callable[[], Any],
     context_handler: Callable[[Any], Any],
     result: Any
 ):
-    assert handle_context_by(context_factory, context_handler) == result
+    assert in_context_by(context_factory, context_handler) == result
