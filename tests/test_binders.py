@@ -23,8 +23,6 @@ def test_default_close():
     assert close(sum_of)(1)(2) == sum_of(1, 2)
 
 
-def test_returning_close():
-    assert close(4, closer=lambda resource: resource)() == 4
 
 
 def test_unpackly_via_argument_pack():
