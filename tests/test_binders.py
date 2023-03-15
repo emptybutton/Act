@@ -1,5 +1,8 @@
-from pyhandling.binders import post_partial, mirror_partial, close, unpackly
-from pyhandling.tools import ArgumentPack
+from functools import partial
+from typing import Optional, Any, Iterable
+
+from pyhandling.binders import *
+from pyhandling.tools import ArgumentKey, ArgumentPack
 
 
 def sum_of(first, second, third=3, fourth=4):
