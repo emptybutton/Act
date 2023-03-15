@@ -13,6 +13,10 @@ class MockObject:
         )
 
 
+class MockError(MockObject, Exception):
+    pass
+
+
 class Box(MockObject):
     """MockObject class emulating context."""
     
