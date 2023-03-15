@@ -64,6 +64,8 @@ KeyT = TypeVar("KeyT")
 
 ErrorT = TypeVar("ErrorT", bound=Exception)
 
+ContextT = TypeVar("ContextT")
+
 PositiveConditionResultT = TypeVar("PositiveResultT")
 
 NegativeConditionResultT = TypeVar("NegativeConditionResultT")

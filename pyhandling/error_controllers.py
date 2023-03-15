@@ -103,9 +103,6 @@ def errors_from(error_storage: error_storage_of[ErrorT] | ErrorT) -> Tuple[Error
     return errors
 
 
-ContextT = TypeVar("ContextT")
-
-
 @runtime_checkable
 class ErrorReport(Protocol, Generic[ErrorT, ContextT]):
     """Protocol for saving error context."""
