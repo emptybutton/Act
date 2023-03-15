@@ -23,6 +23,10 @@ def test_default_closed():
     assert closed(sum_of)(1)(2) == 3
 
 
+def test_closed_by_post_partial():
+    assert closed(sum_of, closer=post_partial)(4)(60) == 64
+
+
 @mark.parametrize('call_number', tuple(range(4)) + (8, 128, 1024))
 def test_returnly_call_number(call_number: int):
     call_counter = Counter()
