@@ -1,6 +1,5 @@
 __all__ = (
-    "PyhandingError", "NeutralActionChainError", "HandlingRecursionError",
-    "HandlingRecursionDepthError"
+    "PyhandingError", "NeutralActionChainError"
 )
 
 

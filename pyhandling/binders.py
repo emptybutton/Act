@@ -1,12 +1,15 @@
-from functools import wraps, partial
+from collections import OrderedDict
+from functools import partial, wraps
+from inspect import signature, _ParameterKind, _empty
 from typing import Callable, TypeVar, Any
 
-from pyhandling.annotations import ResultT, ActionT, ArgumentsT, event_for, action_for
+from pyhandling.annotations import ArgumentsT, ResultT, action_for, ActionT
 from pyhandling.tools import ArgumentKey, ArgumentPack
 
 
 __all__ = (
-    "post_partial", "mirror_partial", "closed", "returnly", "eventually", "unpackly"
+    "fragmentarily", "post_partial", "mirror_partial", "closed", "returnly",
+    "eventually", "unpackly"
 )
 
 

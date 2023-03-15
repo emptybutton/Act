@@ -1,10 +1,10 @@
 from functools import partial, reduce, wraps
 from math import inf
-from typing import Generic, Iterable, Callable, Tuple, Self, Any
+from typing import Generic, Iterable, Tuple, Self, Any, Callable
 
 from pyannotating import many_or_one, Special
 
-from pyhandling.annotations import ActionT, ResultT, atomic_action, ArgumentsT, reformer_of, ResourceT, checker_of, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, event_for
+from pyhandling.annotations import ActionT, ResultT, atomic_action, ArgumentsT, action_for, reformer_of, ResourceT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT
 from pyhandling.binders import post_partial
 from pyhandling.errors import NeutralActionChainError
 from pyhandling.tools import open_collection_items, ArgumentKey, ArgumentPack

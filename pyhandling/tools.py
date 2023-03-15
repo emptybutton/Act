@@ -7,7 +7,7 @@ from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Gener
 
 from pyannotating import method_of, Special
 
-from pyhandling.annotations import ObjectT, ResourceT, ResultT, atomic_action, dirty, reformer_of, KeyT
+from pyhandling.annotations import ObjectT, ResourceT, KeyT, ResultT, atomic_action, dirty, reformer_of
 
 
 __all__ = (
