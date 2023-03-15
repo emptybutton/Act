@@ -96,12 +96,12 @@ class Flag:
 
 
 nothing: Final[Flag] = Flag("nothing", is_positive=False)
-nothing.__doc__ = """Flag to indicate the absence of anything, including None."""
+nothing.__doc__ = """Flag to indicate the absence of anything, including `None`."""
 
 
 @dataclass(frozen=True)
 class ArgumentKey(Generic[KeyT, ResourceT]):
-    """Data class for structuring getting value from ArgumentPack via []."""
+    """Data class for structuring getting value from `ArgumentPack` via `[]`."""
 
     key: KeyT
     is_keyword: bool = field(default=False, kw_only=True)
@@ -112,7 +112,7 @@ class ArgumentPack:
     """
     Data class for structuring the storage of any arguments.
 
-    Has the ability to get an attribute when passed to [] an ArgumentKey
+    Has the ability to get an attribute when passed to `[]` `ArgumentKey`
     instance.
     """
 
@@ -213,7 +213,7 @@ class DelegatingProperty:
     Descriptor class that takes data from an attribute that already exists on an
     object.
 
-    Has the ability to set a delegating attribute (but it's better not to do so).
+    Has the ability to set a delegating attribute (Does not set by default).
     """
 
     def __init__(
@@ -249,10 +249,7 @@ class Clock:
     Atomic class for saving state.
 
     Has a number of ticks that determines its state.
-    When ticks expire, it becomes "False" and may leave negative ticks.
-
-    The client himself determines the state of anything by the clock, so he can
-    move ticks as he pleases.
+    When ticks expire, it becomes `False` and may leave negative ticks.
 
     Keeps the original input ticks.
     """
@@ -271,10 +268,11 @@ class Clock:
 
 def as_argument_pack(*args, **kwargs) -> ArgumentPack:
     """
-    Function to optionally convert input arguments into an ArgumentPack with
+    Function to optionally convert input arguments into `ArgumentPack` with
     that input arguments.
 
-    When passed a single positional ArgumentPack to the function, it returns it.
+    When passed a single positional `ArgumentPack` to the function, it returns
+    it.
     """
 
     if len(args) == 1 and isinstance(args[0], ArgumentPack) and not kwargs:
@@ -312,7 +310,7 @@ def documenting_by(documentation: str) -> dirty[reformer_of[ObjectT]]:
 
     def document(object_: object) -> object:
         """
-        Function created with the documenting_by function that sets the __doc__
+        Function created with `documenting_by` function that sets the __doc__
         attribute and returns the input object.
         """
 

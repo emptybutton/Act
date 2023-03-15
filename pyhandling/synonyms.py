@@ -14,21 +14,21 @@ __all__ = (
 
 def return_(resource: ResourceT) -> ResourceT:
     """
-    Wrapper function for handling emulation through the functional use of the
-    return statement.
+    Function representing the absence of an action.
+    Returns the resource passed to it back.
     """
 
     return resource
 
 
 def raise_(error: Exception) -> NoReturn:
-    """Wrapper function for functional use of raise statement."""
+    """Function for functional use of `raise` statement."""
 
     raise error
 
 
 def assert_(resource: Any) -> None:
-    """Wrapper function for functional use of assert statement."""
+    """Function for functional use of `assert` statement."""
 
     assert resource
 
@@ -40,7 +40,7 @@ def positionally_unpack_to(func: event_for[ResultT], arguments: Iterable) -> Res
 
 
 def unpack_by_keys_to(func: event_for[ResultT], arguments: dict) -> ResultT:
-    """Wrapper function for functional use of unpacking by keyword arguments."""
+    """Function for functional use of unpacking by keyword arguments."""
 
     return func(**arguments)
 
@@ -61,23 +61,23 @@ def call(caller: event_for[ResultT], *args, **kwargs) -> ResultT:
 
 
 def getitem_of(object_: ItemGetter[KeyT, ResourceT], item_key: KeyT) -> ResourceT:
-    """Function for functional use of [] getting."""
+    """Function for functional use of `[]` getting."""
 
     return object_[item_key]
 
 
 def setitem_of(object_: ItemSetter[KeyT, ResourceT], item_key: KeyT, item_value: ResourceT) -> None:
-    """Function for functional use of [] setting."""
+    """Function for functional use of `[]` setting."""
 
     object_[item_key] = item_value
 
 
 def execute_operation(first_operand: Any, operator: str, second_operand: Any) -> Any:
     """
-    Function to use python operators in a functional way.
+    Function to use operators.
 
-    Since this function uses eval, do not pass operator and unchecked standard
-    type operands from the global input to it.
+    Since this function uses `eval`, do not pass `operator` from the global
+    input to it.
     """
 
     return eval(
@@ -89,10 +89,10 @@ def execute_operation(first_operand: Any, operator: str, second_operand: Any) ->
 
 def transform(operand: Any, operator: str) -> Any:
     """
-    Function to use single operand operator in functional way.
+    Function to use single operand operator.
 
-    Since this function uses eval, do not pass operator from the global input to
-    it.
+    Since this function uses `eval`, do not pass `operator` from the global
+    input to it.
     """
 
     return eval(f"{operator} operand", dict(), {'operand': operand})
@@ -100,10 +100,10 @@ def transform(operand: Any, operator: str) -> Any:
 
 def handle_context_by(context_factory: event, context_handler: Callable[[Any], ResultT]) -> ResultT:
     """
-    Function for emulating the "with as" context manager.
+    Function emulating the "with as" context manager.
 
-    Creates a context using the context_factory and returns the results of
-    handling this context by context_handler.
+    Creates a context using `get_context` and returns the results of handling
+    this context by `context_action`.
     """
 
     with context_factory() as context:

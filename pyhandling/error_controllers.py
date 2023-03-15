@@ -34,7 +34,7 @@ class IBadResourceKeeper(ABC, Generic[ResourceT]):
 
 class BadResourceWrapper(IBadResourceKeeper, Generic[ResourceT]):
     """
-    Implementation class for the BadResourceKeeper interface for storing a
+    Implementation class for `BadResourceKeeper` interface for storing a
     resource without the context of its badness.
     """
 

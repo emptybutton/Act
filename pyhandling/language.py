@@ -16,7 +16,7 @@ class BindingInfix(Generic[ResultT]):
     """
     Infix class for binding functions with arguments.
 
-    Used in the form \"func |instance| argument\" or \"func |instance* arguments\"
+    Used in the form `func |instance| argument` or `func |instance* arguments`
     if you want to unpack the arguments.
     """
 
@@ -53,17 +53,19 @@ class BindingInfix(Generic[ResultT]):
 
 then = documenting_by(
     """
-    Neutral instance of the ActionChain class.
+    Neutral instance of `ActionChain`.
 
-    Used as an operator emulator for convenient construction of ActionChains.
-    Assumes usage like \"first_handler |then>> second_handler\".
+    Used as a pseudo-operator to build an `ActionChain` and, accordingly,
+    combine calls of several functions in a pipeline.
+
+    Assumes usage like `first_action |then>> second_action`.
 
     Additional you can add any resource to the beginning of the construction
     and >= after it to call the constructed chain with this resource.
 
-    You get something like this \"resource >= first_handler |then>> second_handler\".
+    You get something like this `resource >= first_action |then>> second_action`.
 
-    See ActionChain for more info.
+    See `ActionChain` for more info.
     """
 )(
     ActionChain()
@@ -72,9 +74,9 @@ then = documenting_by(
 
 to = documenting_by(
     """
-    BindingInfix instance that implements partial as a pseudo operator.
+    `BindingInfix` instance that implements `partial` as a pseudo operator.
 
-    See BindingInfix for usage information.
+    See `BindingInfix` for usage information.
     """
 )(
     BindingInfix(partial)
@@ -82,9 +84,9 @@ to = documenting_by(
 
 by = documenting_by(
     """
-    BindingInfix instance that implements post_partial as a pseudo operator.
+    `BindingInfix` instance that implements `post_partial` as a pseudo operator.
 
-    See BindingInfix for usage information.
+    See `BindingInfix` for usage information.
     """
 )(
     BindingInfix(post_partial)

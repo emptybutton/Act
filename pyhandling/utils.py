@@ -32,9 +32,9 @@ class Logger:
     Stores messages via the input value of its call.
 
     Has the ability to clear logs when their limit is reached, controlled by the
-    maximum_log_count attribute and the keyword argument.
+    `maximum_log_count` attribute and the keyword argument.
 
-    Able to save the date of logging in the logs. Controlled by is_date_logging
+    Able to save the date of logging in the logs. Controlled by `is_date_logging`
     attribute and keyword argument.
 
     Suggested to be used with showly function.
@@ -75,8 +75,8 @@ def showly(
     writer: dirty[handler_of[str]] = print
 ) -> dirty[ActionChain]:
     """
-    Decorator function for visualizing the outcomes of intermediate stages of a
-    chain of actions, or simply the input and output results of a regular action.
+    Decorator function to render the results of a function or `ActionChain`
+    nodes.
     """
 
     return monadically(action_binding_of(returnly(str |then>> writer)))(
@@ -113,7 +113,7 @@ def callmethod(object_: object, method_name: str, *args, **kwargs) -> Any:
 
 
 operation_by: action_for[action_for[Any]] = documenting_by(
-    """Shortcut for post_partial(execute_operation, ...)."""
+    """Shortcut for `post_partial(execute_operation, ...)`."""
 )(
     closed(execute_operation, closer=post_partial)
 )
@@ -188,9 +188,7 @@ action_binding_of = documenting_by(
 
 
 taken: Callable[[Any], action_for[Any]] = documenting_by(
-    """
-    Shortcut function equivalent to eventually(partial(return_, input_resource).
-    """
+    """Shortcut function for `eventually(return_, ...)`."""
 )(
     closed(return_) |then>> eventually
 )
@@ -255,6 +253,8 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     Function to create a function that will return `True` the input value (for
     this function) number of times, then `False` once after the input count has
     passed, `True` again n times, and so on.
+
+    Resulting function is independent of its input arguments.
     """
 )(
     operation_by('+', 1)

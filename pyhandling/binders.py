@@ -26,7 +26,7 @@ def post_partial(action: Callable[[...], ResultT], *args, **kwargs) -> Callable[
 
 def mirror_partial(action: Callable[[...], ResultT], *args, **kwargs) -> Callable[[...], ResultT]:
     """
-    Function equivalent to pyhandling.handlers.rigth_partial but with the
+    Function equivalent to pyhandling.handlers.post_partial but with the
     difference that additional arguments from this function call are unfolded.
     """
 
@@ -53,7 +53,7 @@ def closed(
     with which the resulting function was called.
 
     ```
-    close(print)(1, 2)(3) # 1 2 3
+    closed(print)(1, 2)(3) # 1 2 3
     ```
     """
 
@@ -91,8 +91,7 @@ def eventually(action: action_for[ResultT], *args, **kwargs) -> action_for[Resul
 
 def unpackly(action: action_for[ResultT]) -> Callable[[ArgumentPack], ResultT]:
     """
-    Decorator function that allows to bring an ordinary function to the handler
-    interface by unpacking the input argument pack into the input function.
+    Decorator function to unpack the input `ArgumentPack` into the input function.
     """
 
     return wraps(action)(lambda pack: pack.call(action))

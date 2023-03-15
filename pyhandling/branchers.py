@@ -26,24 +26,18 @@ class ActionChain(Generic[ActionT]):
     Each next node gets the output of the previous one.
     Data returned when called is data exited from the last node.
 
-    The first node is not bound to the standard `atomic_action` interface and
-    can be any callable object.
-
-    Accordingly, delegates the call to that first node, so it emulates its
-    calling interface.
-
     If there are no nodes, returns the input resource back. If the arguments
     were not transmitted or there were too many, it throws
-    NeutralActionChainError.
+    `NeutralActionChainError`.
 
-    Can be connected to another chain or action using | between them with
+    Can be connected to another chain or action using `|` between them with
     maintaining the position of the call.
 
-    Also can be used >> to expand nodes starting from the end respectively.
+    Also can be used `>>` to expand nodes starting from the end respectively.
 
-    Has a one resource call synonyms >= and <= where is the chain on the right
-    i.e. \"resource_to_call >= chain_instance\" and
-    \"chain_instance <= resource_to_call\". 
+    Has a one resource call synonyms `>=` and `<=` where is the chain on the
+    right i.e. `resource_to_call >= chain_instance` and less preferred
+    `chain_instance <= resource_to_call`. 
     """
 
     def __init__(self, nodes: Iterable[many_or_one[ActionT]] = tuple()):
@@ -184,19 +178,19 @@ def on_condition(
     else_: Callable[[*ArgumentsT], NegativeConditionResultT] = lambda *_, **__: None
 ) -> Callable[[*ArgumentsT], PositiveConditionResultT | NegativeConditionResultT]:
     """
-    Function that implements the func choosing by condition.
+    Function that implements the function choosing by condition.
 
     Creates a function that delegates the call to one other function selected by
     the results of `condition_checker`.
 
     If the condition is positive, selects `positive_condition_action`, if it is
-    negative - `else_`.
+    negative -> `else_`.
     """
 
     def brancher(*args, **kwargs) -> Any:
         """
-        Function created by the on_condition function.
-        See on_condition for more info.
+        Function created by the `on_condition` function.
+        See `on_condition` for more info.
         """
 
         return (
@@ -214,7 +208,7 @@ def rollbackable(
 ) -> Callable[[*ArgumentsT], ResultT | ErrorHandlingResultT]:
     """
     Decorator function providing handling of possible errors.
-    Delegates error handling to rollbacker.
+    Delegates error handling to `rollbacker`.
     """
 
     @wraps(action)
