@@ -179,7 +179,7 @@ left_action_binding_of: Callable[
 left_action_binding_of = documenting_by(
     """Creates a decorator that adds a action before an input function."""
 )(
-    lambda first_node: lambda second_node: ActionChain((first_node, )) >> second_node
+    lambda first_node: lambda second_node: ActionChain((first_node, second_node))
 )
 
 
@@ -190,7 +190,7 @@ action_binding_of: Callable[
 action_binding_of = documenting_by(
     """Creates a decorator that adds a post action to the function."""
 )(
-    lambda second_node: lambda first_node: ActionChain((first_node, )) >> second_node
+    lambda second_node: lambda first_node: ActionChain((first_node, second_node))
 )
 
 
