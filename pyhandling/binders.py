@@ -10,7 +10,7 @@ __all__ = (
 )
 
 
-def post_partial(action: Callable[[...], ResultT], *args, **kwargs) -> Callable[[...], ResultT]:
+def post_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
     """
     Function equivalent to functools.partial but with the difference that
     additional arguments are added not before the incoming ones from the final
@@ -24,7 +24,7 @@ def post_partial(action: Callable[[...], ResultT], *args, **kwargs) -> Callable[
     return wrapper
 
 
-def mirror_partial(action: Callable[[...], ResultT], *args, **kwargs) -> Callable[[...], ResultT]:
+def mirror_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
     """
     Function equivalent to pyhandling.handlers.post_partial but with the
     difference that additional arguments from this function call are unfolded.

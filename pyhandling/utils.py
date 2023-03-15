@@ -194,7 +194,7 @@ action_binding_of = documenting_by(
 )
 
 
-taken: Callable[[Any], action_for[Any]] = documenting_by(
+taken: Callable[[ResourceT], action_for[ResourceT]] = documenting_by(
     """Shortcut function for `eventually(return_, ...)`."""
 )(
     closed(return_) |then>> eventually
@@ -212,14 +212,14 @@ as_collection = documenting_by(
 )
 
 
-collection_from: Callable[[Iterable], tuple] = documenting_by(
+collection_from: Callable[[*ArgumentsT], tuple[*ArgumentsT]] = documenting_by(
     """Shortcut to get collection with elements from input positional arguments."""
 )(
     ArgumentPack.of |then>> (getattr |by| 'args')
 )
 
 
-summed_collection_from: event_for[tuple] = documenting_by(
+summed_collection_from: action_for[tuple] = documenting_by(
     """
     Shortcut function for creating a collection with elements from input
     positional collections.

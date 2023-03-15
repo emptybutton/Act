@@ -308,7 +308,7 @@ def documenting_by(documentation: str) -> dirty[reformer_of[ObjectT]]:
     documentation from this first function.
     """
 
-    def document(object_: object) -> object:
+    def document(object_: ObjectT) -> ObjectT:
         """
         Function created with `documenting_by` function that sets the __doc__
         attribute and returns the input object.

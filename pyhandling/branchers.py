@@ -113,7 +113,7 @@ def merge(*actions: Callable, return_from: Special[None] = None) -> Special[tupl
 
 
 def mergely(
-    parallel_action_result_merging_of: Callable[[*ArgumentsT], Callable[[...], ResultT]],
+    parallel_action_result_merging_of: Callable[[*ArgumentsT], action_for[ResultT]],
     *parallel_actions: Callable[[*ArgumentsT], Any],
     **keyword_parallel_actions: Callable[[*ArgumentsT], Any]
 ) -> Callable[[*ArgumentsT], ResultT]:

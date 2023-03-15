@@ -33,19 +33,19 @@ def assert_(resource: Any) -> None:
     assert resource
 
 
-def positionally_unpack_to(func: event_for[ResultT], arguments: Iterable) -> ResultT:
-    """Wrapper function for functional use of positional unpacking."""
+def positionally_unpack_to(func: action_for[ResultT], arguments: Iterable) -> ResultT:
+    """Function for functional use of positional unpacking."""
 
     return func(*arguments)
 
 
-def unpack_by_keys_to(func: event_for[ResultT], arguments: dict) -> ResultT:
+def unpack_by_keys_to(func: action_for[ResultT], arguments: dict) -> ResultT:
     """Function for functional use of unpacking by keyword arguments."""
 
     return func(**arguments)
 
 
-def bind(func: event_for[ResultT], argument_name: str, argument_value: Any) -> ResultT:
+def bind(func: action_for[ResultT], argument_name: str, argument_value: Any) -> ResultT:
     """
     Atomic partial function for a single keyword argument whose name and value
     are separate input arguments.
@@ -54,7 +54,7 @@ def bind(func: event_for[ResultT], argument_name: str, argument_value: Any) -> R
     return wraps(func)(partial(func, **{argument_name: argument_value}))
 
 
-def call(caller: event_for[ResultT], *args, **kwargs) -> ResultT:
+def call(caller: action_for[ResultT], *args, **kwargs) -> ResultT:
     """Function to call an input object and return the results of that call."""
 
     return caller(*args, **kwargs)
