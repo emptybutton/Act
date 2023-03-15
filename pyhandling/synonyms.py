@@ -8,7 +8,7 @@ from pyhandling.tools import ItemGetter, ItemSetter
 __all__ = (
     "return_", "raise_", "assert_", "positionally_unpack_to", "unpack_by_keys_to",
     "bind", "call", "getitem_of", "setitem_of", "execute_operation", "transform",
-    "handle_context_by"
+    "in_context_by"
 )
 
 
@@ -98,7 +98,10 @@ def transform(operand: Any, operator: str) -> Any:
     return eval(f"{operator} operand", dict(), {'operand': operand})
 
 
-def handle_context_by(context_factory: event, context_handler: Callable[[Any], ResultT]) -> ResultT:
+def in_context_by(
+    get_context: event_for[ResourceT],
+    context_action: Callable[[ResourceT], ResultT]
+) -> ResultT:
     """
     Function emulating the "with as" context manager.
 
@@ -106,5 +109,5 @@ def handle_context_by(context_factory: event, context_handler: Callable[[Any], R
     this context by `context_action`.
     """
 
-    with context_factory() as context:
-        return context_handler(context)
+    with get_context() as context:
+        return context_action(context)
