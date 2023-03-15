@@ -125,9 +125,9 @@ operation_of: Callable[[str], merger_of[Any]] = documenting_by(
     operator between two elements.
     """
 )(
-    lambda sign: lambda fitst_operand, second_operand: execute_operation(
+    lambda operator: lambda fitst_operand, second_operand: execute_operation(
         fitst_operand,
-        sign,
+        operator,
         second_operand
     )
 )
