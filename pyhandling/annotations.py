@@ -1,4 +1,4 @@
-from typing import Callable, Any, TypeVar, TypeVarTuple
+from typing import Callable, Any, TypeAlias, TypeVar, TypeVarTuple
 
 from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 
@@ -39,15 +39,15 @@ event_for = AnnotationTemplate(Callable, [[], input_annotation])
 action_for = AnnotationTemplate(Callable, [[...], input_annotation])
 
 
-atomic_action = handler_of[Any]
+atomic_action: TypeAlias = handler_of[Any]
 
-checker = checker_of[Any]
+checker: TypeAlias = checker_of[Any]
 
-decorator = reformer_of[Callable]
+decorator: TypeAlias = reformer_of[Callable]
 
-event = event_for[Any]
+event: TypeAlias = event_for[Any]
 
-binder = Callable[[Callable, ...], Callable]
+binder: TypeAlias = Callable[[Callable, ...], Callable]
 
 
 ActionT = TypeVar("ActionT", bound=Callable)
