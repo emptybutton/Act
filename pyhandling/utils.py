@@ -288,11 +288,8 @@ skipping_on: Callable[
 skipping_on = documenting_by(
     """
     Function for creating a decorator for an action, when calling which it may
-    not be explored if the conditions of the input checker for this function to
-    the input argument of the decorated action are true.
-
-    Under the right conditions of the input checkcaker, it returns the input
-    resource.
+    not be explored if the conditions of the input (for this function) checker
+    to the input argument of the decorated action are true.
     """
 )(
     action_binding_of(transform |by| 'not')
