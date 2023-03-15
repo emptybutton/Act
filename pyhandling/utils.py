@@ -133,6 +133,13 @@ operation_of: Callable[[str], merger_of[Any]] = documenting_by(
 )
 
 
+show = documenting_by(
+    """Shortcut function for `returnly(print)`."""
+)(
+    returnly(print)
+)
+
+
 def action_inserting_in(
     action_template: Iterable[Callable | Ellipsis]
 ) -> Callable[[Callable], ActionChain]:
