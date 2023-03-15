@@ -10,6 +10,59 @@ __all__ = (
 )
 
 
+def fragmentarily(
+    action: Callable[[*ArgumentsT], ResultT],
+    *,
+    binder: Callable[[Callable[[*ArgumentsT], ResultT], ...], action_for[ResultT]] = partial
+) -> action_for[ResultT | Self]:
+    """
+    Function decorator for splitting a decorated function call into
+    non-structured sub-calls.
+
+    Partially binds subcall arguments to a decorated function using the `binder`
+    parameter.
+    """
+
+    parameters_to_call = OrderedDict(
+        (_, parameter)
+        for _, parameter in signature(action).parameters.items()
+        if (
+            parameter.kind in (
+                _ParameterKind.POSITIONAL_ONLY,
+                _ParameterKind.POSITIONAL_OR_KEYWORD
+            )
+            and parameter.default is _empty
+        )
+    )
+
+    @wraps(action)
+    def fragmentarily_action(*args, **kwargs) -> ResultT | Self:
+        action = binder(action, *args, **kwargs)
+
+        for keyword_argument_name in kwargs.keys():
+            if (
+                keyword_argument_name in parameters_to_call.keys()
+                and parameters_to_call[keyword_argument_name].default is _empty
+            ):
+                del parameters_to_call[keyword_argument_name]
+
+        parameters_to_call = OrderedDict(tuple(parameters_to_call.items())[len(args):])
+
+        return (
+            action()
+            if len(parameters_to_call) == 0
+            else fragmentarily(action, binder=binder)
+        )
+
+
+    if "return" in action.__annotations__.keys():
+        fragmentarily_action.__annotations__["return"] = (
+            action.__annotations__["return"] | Self
+        )
+
+    return fragmentarily_action
+
+
 def post_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
     """
     Function equivalent to functools.partial but with the difference that
