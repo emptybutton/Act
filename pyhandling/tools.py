@@ -31,7 +31,7 @@ def to_clone(method: method_of[ObjectT]) -> Callable[[ObjectT, ...], ObjectT]:
 
         return clone
 
-    wrapper.__annotations__['return'] = Self
+    wrapper.__annotations__["return"] = Self
 
     return wrapper
 
@@ -254,7 +254,7 @@ class Clock:
     Keeps the original input ticks.
     """
 
-    initial_ticks_to_disability = DelegatingProperty('_initial_ticks_to_disability')
+    initial_ticks_to_disability = DelegatingProperty("_initial_ticks_to_disability")
 
     def __init__(self, ticks_to_disability: int):
         self.ticks_to_disability = self._initial_ticks_to_disability = ticks_to_disability
