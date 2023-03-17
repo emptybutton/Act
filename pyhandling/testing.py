@@ -8,6 +8,9 @@ from pyannotating import many_or_one
 from pyhandling.tools import ArgumentPack
 
 
+__all__ = ("calling_test_of", "calling_test_from")
+
+
 def _calling_test_method_for(
     action: Callable, 
     expected_result: Any,
