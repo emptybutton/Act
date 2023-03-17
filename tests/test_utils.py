@@ -360,7 +360,7 @@ def test_chain_breaking_on_error_that(
 
 
 @mark.parametrize(
-    "func, input_resources, result, expected_error_type",
+    "func, input_resources, expected_result, expected_error_type",
     [
         (lambda x: x + 2, (30, ), 32, None),
         (lambda x, y: x + y, (128, 128), 256, None),
@@ -373,7 +373,7 @@ def test_chain_breaking_on_error_that(
 def test_with_error(
     func: Callable,
     input_resources: Iterable,
-    result: Any,
+    expected_result: Any,
     expected_error_type: Optional[Type[Exception]]
 ):
     result, error = with_error(func)(*input_resources)
