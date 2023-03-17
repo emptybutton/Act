@@ -1,14 +1,14 @@
 from typing import Any, Optional, Self, Type
 
 
-class MockObject:
+class _AttributeKeeper:
     """Mock class having dynamic attributes."""
 
     def __init__(self, **attributes):
         self.__dict__ = attributes
 
     def __repr__(self) -> str:
-        return "<MockObject with {attributes}>".format(
+        return "<_AttributeKeeper with {attributes}>".format(
             attributes=str(self.__dict__)[1:-1].replace(': ', '=').replace('\'', '')
         )
 
