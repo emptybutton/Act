@@ -23,7 +23,7 @@ class CustomContext(_AttributeKeeper):
         self.enter_result = enter_result
 
     def __repr__(self) -> str:
-        return '<Box instance>'
+        return "<CustomContext instance>"
 
     def __enter__(self) -> Any:
         return self.enter_result
