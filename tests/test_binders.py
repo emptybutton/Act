@@ -3,6 +3,40 @@ from typing import Optional, Any, Iterable, Callable
 
 from pytest import mark
 
+from pyhandling.binders import *
+from pyhandling.testing import calling_test_from
+from pyhandling.tools import ArgumentPack, ArgumentKey
+from tests.mocks import Counter
+
+
+test_binders = calling_test_from(
+    (post_partial, 0, [ArgumentPack.of(lambda r: r, 0), ArgumentPack()]),
+    (post_partial, 0.1, [ArgumentPack.of(lambda a, b: a / b, 10), ArgumentPack.of(1)]),
+    (post_partial, 1.1, [ArgumentPack.of(lambda a, b, *, c: a / b + c, 10, c=1), ArgumentPack.of(1)]),
+    (post_partial, 1.1, [ArgumentPack.of(lambda a, b, *, c: a / b + c, 10), ArgumentPack.of(1, c=1)]),
+    (post_partial, 12, [ArgumentPack.of(lambda a, b, *, c=10: a / b + c, 2), ArgumentPack.of(4)]),
+
+    (mirror_partial, 4, [ArgumentPack.of(lambda a, b, c: a / b + c, 2, 3, 6), ArgumentPack()]),
+    (mirror_partial, 4, [ArgumentPack.of(lambda a, b, c: a / b + c, 2, 3), ArgumentPack.of(6)]),
+    (mirror_partial, 4, [ArgumentPack.of(lambda a, b, *, c=0: a / b + c, 3, 6, c=2), ArgumentPack()]),
+    (mirror_partial, 4, [ArgumentPack.of(lambda a, b, *, c=0: a / b + c, 3, 6), ArgumentPack.of(c=2)]),
+    (mirror_partial, 4, [ArgumentPack.of(lambda a, b, c, *, f=10: a/b + c/f, 20), ArgumentPack.of(8, 4)]),
+
+    (closed, 256, [ArgumentPack.of(lambda a, b: a + b), ArgumentPack.of(250), ArgumentPack.of(6)]),
+    (closed, 64, [
+        ArgumentPack.of(lambda a, b: a / b, closer=post_partial),
+        ArgumentPack.of(2),
+        ArgumentPack.of(128)
+    ]),
+
+    (eventually, 128, [ArgumentPack.of(lambda a, b: a + b, 100, 28), ArgumentPack.of(1, 2, 3)]),
+    (eventually, 128, [ArgumentPack.of(lambda a, b: a + b, 100, 28), ArgumentPack()]),
+
+    (unpackly, 8, [
+        ArgumentPack.of(lambda a, b, c: a / b + c),
+        ArgumentPack.of(ArgumentPack.of(8, 4, 6))
+    ])
+)
 
 
 @mark.parametrize('call_number', tuple(range(4)) + (8, 128, 1024))
