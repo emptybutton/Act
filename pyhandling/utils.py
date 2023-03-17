@@ -18,10 +18,10 @@ __all__ = (
     "Logger", "showly", "returnly_rollbackable", "callmethod", "operation_by",
     "operation_of", "shown", "action_inserting_in", "left_action_binding_of",
     "action_binding_of", "taken", "as_collection", "collection_from",
-    "summed_collection_from", "collection_unpacking_in", "keyword_unpacking_in",
-    "yes", "no", "times", "skipping_on", "optional_raising_of", "monadically",
-    "monada_among", "maybe", "optional_bad_resource_from",
-    "chain_breaking_on_error_that", "bad_resource_wrapping_on", "with_error"
+    "collection_unpacking_in", "keyword_unpacking_in", "yes", "no", "times",
+    "skipping_on", "optional_raising_of", "monadically", "monada_among",
+    "maybe", "optional_bad_resource_from", "chain_breaking_on_error_that",
+    "bad_resource_wrapping_on", "with_error"
 )
 
 
@@ -214,16 +214,6 @@ collection_from: Callable[[*ArgumentsT], tuple[*ArgumentsT]] = documenting_by(
     """Shortcut to get collection with elements from input positional arguments."""
 )(
     ArgumentPack.of |then>> (getattr |by| 'args')
-)
-
-
-summed_collection_from: action_for[tuple] = documenting_by(
-    """
-    Shortcut function for creating a collection with elements from input
-    positional collections.
-    """
-)(
-    collection_from |then>> open_collection_items
 )
 
 

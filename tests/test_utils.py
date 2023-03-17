@@ -75,20 +75,6 @@ def test_keyword_unpacking_in(func: Callable, arguments: Mapping):
 
 
 @mark.parametrize(
-    'input_collections, output_collection',
-    [
-        [((1, 2, 3), (4, 5)), (1, 2, 3, 4, 5)],
-        [((1, 2), tuple(), (3, 4, 5), tuple(), (6, 7)), (1, 2, 3, 4, 5, 6, 7)],
-        [((1, 2, 3), (4, (5, 6))), (1, 2, 3, 4, (5, 6))],
-        [[[[[[42]]]]], ([[[42]]], )],
-        [tuple(), tuple()],
-    ]
-)
-def test_summed_collection_from(input_collections: Iterable[Iterable], output_collection: tuple):
-    assert summed_collection_from(*input_collections) == output_collection
-
-
-@mark.parametrize(
     "first_node, second_node, input_resource",
     [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
 )
