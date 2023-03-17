@@ -1,9 +1,9 @@
 from functools import partial
 from typing import Any, Iterable, Mapping, Callable, Type, Optional
 
-from pyhandling.annotations import handler
+from pyhandling.annotations import atomic_action
 from pyhandling.branchers import *
-from pyhandling.errors import NeutralActionChainError, HandlingRecursionDepthError
+from pyhandling.errors import NeutralActionChainError
 from pyhandling.tools import ArgumentKey
 from tests.mocks import MockAction, Counter
 
@@ -35,7 +35,7 @@ def test_neutral_action_chain_error_raising(args: Iterable, kwargs: Mapping):
         [tuple(), None, None],
     ]
 )
-def test_action_chain_calling(handlers: Iterable[handler], input_resource: Any, result: Any):
+def test_action_chain_calling(handlers: Iterable[atomic_action], input_resource: Any, result: Any):
     assert ActionChain(handlers)(input_resource) == result
 
 
@@ -50,7 +50,7 @@ def test_action_chain_calling(handlers: Iterable[handler], input_resource: Any, 
         [tuple(), tuple()]
     ]
 )
-def test_action_chain_connection_to_other(first_nodes: Iterable[handler], second_nodes: Iterable[handler]):
+def test_action_chain_connection_to_other(first_nodes: Iterable[atomic_action], second_nodes: Iterable[atomic_action]):
     assert (
         tuple(ActionChain((*first_nodes, *second_nodes)))
         == tuple(ActionChain(first_nodes) >> ActionChain(second_nodes))

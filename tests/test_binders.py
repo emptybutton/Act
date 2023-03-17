@@ -1,33 +1,8 @@
 from functools import partial
-from typing import Optional, Any, Iterable
+from typing import Optional, Any, Iterable, Callable
 
-from pyhandling.binders import *
-from pyhandling.tools import ArgumentKey, ArgumentPack
+from pytest import mark
 
-
-def sum_of(first, second, third=3, fourth=4):
-    """Stub function for testing currying."""
-
-    return first + second + third + fourth
-
-
-def test_post_partial():
-    assert post_partial(sum_of, 2)(1) == sum_of(1, 2)
-
-
-def test_mirror_partial():
-    assert (
-        mirror_partial(sum_of, (2, ), (1, ))(third=tuple(), fourth=tuple())
-        == sum_of((1, ), (2, ), tuple(), tuple())
-    )
-
-
-def test_default_closed():
-    assert closed(sum_of)(1)(2) == 3
-
-
-def test_closed_by_post_partial():
-    assert closed(sum_of, closer=post_partial)(4)(60) == 64
 
 
 @mark.parametrize('call_number', tuple(range(4)) + (8, 128, 1024))
@@ -71,24 +46,3 @@ def test_returnly_by_formula_function(
             else dict()
         )
     )(*input_args, **input_kwargs) == result
-
-
-@mark.parametrize(
-    'binded_numbers, not_counted_numbers',
-    [
-        (tuple(range(10)), ) * 2,
-        ((1, 2, 3, 6), (200, 100, 123, 54, 13, 42)),
-        (tuple(), tuple())
-    ]
-)
-def test_eventually(binded_numbers: Iterable[int | float], not_counted_numbers: Iterable[int | float]):
-    assert eventually(lambda *numbers: sum(numbers), *binded_numbers)(
-        *not_counted_numbers) == sum(binded_numbers
-    )
-
-
-def test_unpackly_via_argument_pack():
-    assert (
-        unpackly(sum_of)(ArgumentPack.of(2, 4, third=6, fourth=8))
-        == sum_of(2, 4, third=6, fourth=8)
-    )
