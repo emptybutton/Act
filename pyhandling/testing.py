@@ -1,6 +1,7 @@
 from functools import reduce
 from itertools import chain
 from typing import Callable, Any, Iterable, Type
+from unittest import TestCase
 
 from pyannotating import many_or_one
 
@@ -22,3 +23,32 @@ def _calling_test_method_for(
         test_case.assertEqual(result, expected_result)
 
     return testing_method
+
+
+def calling_test_from(*cases: tuple[Callable, Any, many_or_one[ArgumentPack]]) -> Type[TestCase]:
+    """
+    Function to create a `TestCase` type with generated methods that test
+    calling specific actions.
+
+    When passing multiple argument packs, unpacks each subsequent pack into the
+    expected callable result of calling the previous argument pack.
+    """
+
+    generated_test_case_type = type(
+        f"TestCalling",
+        (TestCase, ),
+        {
+            f"test_action_that_{case_index}": _calling_test_method_for(*case)
+            for case_index, case in enumerate(cases)
+        }
+        | {
+            "__doc__": (
+                """
+                `TestCase` class generated from
+                `pyhandling.testing.calling_test_from` for some actions
+                """
+            )
+        }
+    )
+
+    return generated_test_case_type
