@@ -125,12 +125,12 @@ def returnly(
     """
 
     @wraps(action)
-    def wrapper(*args, **kwargs) -> Any:
+    def returnly_action(*args, **kwargs) -> Any:
         action(*args, **kwargs)
 
         return ArgumentPack(args, kwargs)[argument_key_to_return]
 
-    return wrapper
+    return returnly_action
 
 
 def eventually(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
