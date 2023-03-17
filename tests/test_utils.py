@@ -9,7 +9,7 @@ from pyhandling.error_controllers import BadResourceWrapper, BadResourceError, I
 from pyhandling.synonyms import raise_
 from pyhandling.tools import ArgumentPack
 from pyhandling.utils import *
-from tests.mocks import Box, Counter, MockHandler
+from tests.mocks import with_attributes, CustomContext, Counter, MockAction
 
 
 @mark.parametrize('result, object_, method_name', (('<Box instance>', Box(), '__repr__'), ))
@@ -146,9 +146,9 @@ def test_showly_by_logger(number_of_handlers: int, number_of_writer_calls: int):
 
     showly(
         (
-            MockHandler()
+            MockAction()
             if number_of_handlers == 1
-            else ActionChain((MockHandler(), ) * number_of_handlers)
+            else ActionChain((MockAction(), ) * number_of_handlers)
         ),
         writer=lambda _: writing_counter()
     )(None)

@@ -5,7 +5,7 @@ from pyhandling.annotations import handler
 from pyhandling.branchers import *
 from pyhandling.errors import NeutralActionChainError, HandlingRecursionDepthError
 from pyhandling.tools import ArgumentKey
-from tests.mocks import MockHandler, Counter
+from tests.mocks import MockAction, Counter
 
 from pytest import mark, fail, raises
 
@@ -28,8 +28,8 @@ def test_neutral_action_chain_error_raising(args: Iterable, kwargs: Mapping):
     "handlers, input_resource, result",
     [
         [(lambda x: x + 2, lambda x: x ** x), 2, 256],
-        [(MockHandler(), ), 1, 1],
-        [(MockHandler(), ), str(), str()],
+        [(MockAction(), ), 1, 1],
+        [(MockAction(), ), str(), str()],
         [(lambda x: None, ), 256, None],
         [tuple(), 64, 64],
         [tuple(), None, None],
@@ -42,11 +42,11 @@ def test_action_chain_calling(handlers: Iterable[handler], input_resource: Any, 
 @mark.parametrize(
     'first_nodes, second_nodes',
     [
-        [(MockHandler(), lambda x: x + 1), (MockHandler(), MockHandler())],
-        [(MockHandler(), lambda x: x + 1, MockHandler()), (MockHandler(), )],
-        [(MockHandler(), ), (MockHandler(), MockHandler())],
-        [(MockHandler(), lambda x: x + 1), tuple()],
-        [tuple(), (MockHandler(), )],
+        [(MockAction(), lambda x: x + 1), (MockAction(), MockAction())],
+        [(MockAction(), lambda x: x + 1, MockAction()), (MockAction(), )],
+        [(MockAction(), ), (MockAction(), MockAction())],
+        [(MockAction(), lambda x: x + 1), tuple()],
+        [tuple(), (MockAction(), )],
         [tuple(), tuple()]
     ]
 )

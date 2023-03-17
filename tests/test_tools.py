@@ -3,11 +3,11 @@ from typing import Iterable, Callable, Any
 from pytest import mark
 
 from pyhandling.tools import *
-from tests.mocks import MockObject
+from tests.mocks import with_attributes
 
 
 def test_to_clone():
-    object_ = MockObject(mock_attribute=42)
+    object_ = with_attributes(mock_attribute=42)
 
     cloned_object = to_clone(setattr)(object_, 'mock_attribute', 4)
 
@@ -114,7 +114,7 @@ def test_argument_pack_getting_argument_by_key(
     )
 )
 def test_documenting_by(documentation: str):
-    mock = MockObject()
+    mock = with_attributes()
 
     documenting_by(documentation)(mock)
 
@@ -135,7 +135,7 @@ def test_delegating_property_getting(
     is_waiting_for_attribute_setting_error: bool,
     delegating_property_delegated_attribute_name: str = '_some_attribue'
 ):
-    mock = MockObject(**{delegating_property_delegated_attribute_name: 0})
+    mock = with_attributes(**{delegating_property_delegated_attribute_name: 0})
 
     property_ = DelegatingProperty(
         delegating_property_delegated_attribute_name,

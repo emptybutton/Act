@@ -1,18 +1,18 @@
 from pytest import mark
 
-from tests.mocks import MockObject
+from tests.mocks import with_attributes
 
 
 @mark.parametrize(
     "error_storage, result_errors",
     [
         (ZeroDivisionError(), (ZeroDivisionError(), )),
-        (MockObject(error=TypeError()), (TypeError(), )),
+        (with_attributes(error=TypeError()), (TypeError(), )),
         (
-            MockObject(errors=(
+            with_attributes(errors=(
                 TypeError(),
                 AttributeError(),
-                MockObject(error=ZeroDivisionError())
+                with_attributes(error=ZeroDivisionError())
             )),
             (TypeError(), AttributeError(), ZeroDivisionError())
         ), 

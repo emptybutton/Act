@@ -2,7 +2,7 @@ from functools import partial
 from typing import Callable, Any
 
 from pyhandling.synonyms import *
-from tests.mocks import Box
+from tests.mocks import CustomContext
 
 from pytest import mark, raises
 
@@ -86,9 +86,9 @@ def test_transform(operator: str, operand: Any, result: Any):
 
 @mark.parametrize(
     'context_factory, context_handler, result', (
-        (Box, lambda resource: resource, None),
-        (partial(Box, 1), lambda resource: resource, 1),
-        (partial(Box, 2), lambda number: number * 2, 4)
+        (CustomContext, lambda resource: resource, None),
+        (partial(CustomContext, 1), lambda resource: resource, 1),
+        (partial(CustomContext, 2), lambda number: number * 2, 4)
     )
 )
 def test_in_context_by(
