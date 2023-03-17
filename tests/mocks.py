@@ -13,10 +13,6 @@ class _AttributeKeeper:
         )
 
 
-class MockError(MockObject, Exception):
-    pass
-
-
 class CustomContext(_AttributeKeeper):
     """Class emulating context."""
     
