@@ -17,8 +17,8 @@ class MockError(MockObject, Exception):
     pass
 
 
-class Box(MockObject):
-    """MockObject class emulating context."""
+class CustomContext(_AttributeKeeper):
+    """Class emulating context."""
     
     def __init__(self, enter_result: Any = None, **attributes):
         super().__init__(**attributes)
