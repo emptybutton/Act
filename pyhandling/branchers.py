@@ -78,7 +78,7 @@ class ActionChain(Generic[ActionT]):
         return " |then>> ".join(
             node.__name__ if hasattr(node, "__name__") else str(node)
             for node in self._nodes
-        )
+        ) if self._nodes else f"{self.__class__.__name__}()"
 
 
 def merge(*actions: Callable, return_from: Special[None] = None) -> Special[tuple]:
