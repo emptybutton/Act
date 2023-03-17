@@ -16,7 +16,7 @@ from pyhandling.tools import documenting_by, wrap_in_collection, ArgumentPack, o
 
 __all__ = (
     "Logger", "showly", "returnly_rollbackable", "callmethod", "operation_by",
-    "operation_of", "show", "action_inserting_in", "left_action_binding_of",
+    "operation_of", "shown", "action_inserting_in", "left_action_binding_of",
     "action_binding_of", "taken", "as_collection", "collection_from",
     "summed_collection_from", "collection_unpacking_in", "keyword_unpacking_in",
     "yes", "no", "times", "skipping_on", "optional_raising_of", "monadically",
@@ -133,9 +133,7 @@ operation_of: Callable[[str], merger_of[Any]] = documenting_by(
 )
 
 
-show = documenting_by(
-    """Shortcut function for `returnly(print)`."""
-)(
+shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
     returnly(print)
 )
 
