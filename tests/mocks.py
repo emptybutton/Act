@@ -30,12 +30,10 @@ class CustomContext(_AttributeKeeper):
         pass
 
 
-class MockHandler:
+class MockAction:
     """
-    Mock class creating a handling effect by returning an input resource.
-
-    Has an additional identification when specifying equality_id, allowing you
-    to compare this handlers by this very id.
+    Mock action without action. Returns input resource.
+    Optionally compared with another by input id.
     """
 
     def __init__(self, equality_id: Optional[int] = None):
