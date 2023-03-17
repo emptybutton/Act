@@ -1,6 +1,9 @@
-from typing import Any, Optional, Type
+from typing import Any, Optional, Type, Callable
+
+from pyannotating import many_or_one
 
 from pyhandling.annotations import event_for, ObjectT
+from pyhandling.tools import ArgumentPack
 
 
 class _AttributeKeeper:

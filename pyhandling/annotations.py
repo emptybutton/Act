@@ -8,7 +8,7 @@ __all__ = (
     "reformer_of", "merger_of", "event_for", "action_for", "atomic_action",
     "checker", "decorator", "event", "binder", "ActionT", "ArgumentsT",
     "ResourceT", "ObjectT", "ResultT", "KeyT", "ErrorT", "ContextT",
-    "PositiveResultT", "NegativeConditionResultT", "ErrorHandlingResultT"
+    "PositiveConditionResultT", "NegativeConditionResultT", "ErrorHandlingResultT"
 )
 
 
@@ -66,7 +66,7 @@ ErrorT = TypeVar("ErrorT", bound=Exception)
 
 ContextT = TypeVar("ContextT")
 
-PositiveConditionResultT = TypeVar("PositiveResultT")
+PositiveConditionResultT = TypeVar("PositiveConditionResultT")
 
 NegativeConditionResultT = TypeVar("NegativeConditionResultT")
 

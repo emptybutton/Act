@@ -1,6 +1,6 @@
-from typing import Any, Iterable, Type, Callable, Mapping
+from typing import Any, Iterable, Type, Callable, Mapping, Optional
 
-from pyannotating import number
+from pyannotating import number, many_or_one
 from pytest import mark, raises
 
 from pyhandling.annotations import checker_of, ResourceT
