@@ -1,4 +1,4 @@
-from typing import Any, Optional, Self, Type
+from typing import Any, Optional, Type
 
 
 class _AttributeKeeper:
@@ -50,8 +50,8 @@ class MockHandler:
     def __call__(self, resource: Any) -> Any:
         return resource
 
-    def __eq__(self, other: Self) -> bool:
-        return (
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, MockAction) and (
             self is other
             if self.equality_id is None
             else self.equality_id == other.equality_id
