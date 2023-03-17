@@ -12,8 +12,14 @@ from pyhandling.utils import *
 from tests.mocks import with_attributes, CustomContext, Counter, MockAction
 
 
-@mark.parametrize('result, object_, method_name', (('<Box instance>', Box(), '__repr__'), ))
-def test_callmethod(result: Any, object_: object, method_name: str):
+@mark.parametrize(
+    "object_, method_name, result",
+    (
+        (CustomContext(), "__repr__", "<CustomContext instance>"),
+        (with_attributes(method=lambda: 256), "method", 256)
+    )
+)
+def test_callmethod(object_: object, method_name: str, result: Any):
     assert callmethod(object_, method_name) == result
 
 
