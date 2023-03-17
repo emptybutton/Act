@@ -12,3 +12,8 @@ test_calling_test_from = calling_test_from(
         [ArgumentPack.of(14)] * 6
     )
 )
+
+
+test_calling_test_of = calling_test_of(
+    lambda a, b, c: a + b + c, 256, ArgumentPack.of(200, 50, 6)
+)
