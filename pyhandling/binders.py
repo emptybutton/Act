@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from functools import partial, wraps
 from inspect import signature, _ParameterKind, _empty
-from typing import Callable, TypeVar, Any
+from typing import Callable, Self, TypeVar, Any
 
 from pyhandling.annotations import ArgumentsT, ResultT, action_for, ActionT
 from pyhandling.tools import ArgumentKey, ArgumentPack
@@ -13,11 +13,7 @@ __all__ = (
 )
 
 
-def fragmentarily(
-    action: Callable[[*ArgumentsT], ResultT],
-    *,
-    binder: Callable[[Callable[[*ArgumentsT], ResultT], ...], action_for[ResultT]] = partial
-) -> action_for[ResultT | Self]:
+def fragmentarily(action: Callable[[*ArgumentsT], ResultT]) -> action_for[ResultT | Self]:
     """
     Function decorator for splitting a decorated function call into
     non-structured sub-calls.
@@ -40,7 +36,7 @@ def fragmentarily(
 
     @wraps(action)
     def fragmentarily_action(*args, **kwargs) -> ResultT | Self:
-        action = binder(action, *args, **kwargs)
+        action = partial(action, *args, **kwargs)
 
         for keyword_argument_name in kwargs.keys():
             if (
@@ -54,7 +50,7 @@ def fragmentarily(
         return (
             action()
             if len(parameters_to_call) == 0
-            else fragmentarily(action, binder=binder)
+            else fragmentarily(action)
         )
 
 
