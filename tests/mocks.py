@@ -1,5 +1,7 @@
 from typing import Any, Optional, Type
 
+from pyhandling.annotations import event_for, ObjectT
+
 
 class _AttributeKeeper:
     """Mock class having dynamic attributes."""
@@ -71,3 +73,15 @@ class Counter:
 
     def __call__(self, number_of_counts: int = 1) -> None:
         self._counted += number_of_counts
+
+
+def with_attributes(
+    attribute_keeper_factory: event_for[ObjectT] = _AttributeKeeper,
+    **attributes
+) -> ObjectT:
+    """Function to create an object with arbitrary attributes."""
+
+    attribute_keeper = attribute_keeper_factory()
+    attribute_keeper.__dict__ = attributes
+
+    return attribute_keeper
