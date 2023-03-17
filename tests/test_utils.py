@@ -102,14 +102,6 @@ def test_left_action_binding_of(first_node: Callable, second_node: Callable[[Any
     )
 
 
-@mark.parametrize(
-    "func, arguments, extra_arguments",
-    [(pow, (4, 2), tuple()), (pow, (4, 4), (1, 2, 3))]
-)
-def test_event_as(func: Callable, arguments: Iterable, extra_arguments: Iterable):
-    assert event_as(func, *arguments)(extra_arguments) == func(*arguments)
-
-
 @mark.parametrize("items", [(1, 2, 3), "Hello world!", range(10)])
 def test_collection_from(items: Iterable):
     assert collection_from(*items) == tuple(items)
@@ -123,8 +115,8 @@ def test_collection_from(items: Iterable):
         (None, (1, 2, 3)),
     ]
 )
-def test_take(resource: Any, arguments: Iterable):
-    assert take(resource)(*arguments) == resource
+def test_taken(resource: Any, arguments: Iterable):
+    assert taken(resource)(*arguments) == resource
 
 
 @mark.parametrize(
