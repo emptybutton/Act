@@ -1,6 +1,6 @@
 from functools import partial, reduce, wraps
 from math import inf
-from typing import Generic, Iterable, Tuple, Self, Any, Callable
+from typing import Generic, Iterable, Tuple, Self, Any, Callable, TypeAlias
 
 from pyannotating import many_or_one, Special
 
@@ -221,4 +221,4 @@ def rollbackable(
     return wrapper
 
 
-chain_constructor = Callable[[Iterable[many_or_one[Callable]]], ActionChain]
+chain_constructor: TypeAlias = Callable[[Iterable[many_or_one[Callable]]], ActionChain]
