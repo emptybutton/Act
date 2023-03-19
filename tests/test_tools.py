@@ -1,6 +1,6 @@
 from typing import Iterable, Callable, Any
 
-from pytest import mark
+from pytest import mark, fail, raises
 
 from pyhandling.tools import *
 from tests.mocks import with_attributes
@@ -14,6 +14,25 @@ def test_to_clone():
     assert object_ is not cloned_object
     assert object_.mock_attribute == 42
     assert cloned_object.mock_attribute == 4
+
+
+def test_publicly_immutable():
+    @publicly_immutable
+    class SomeImmutable:
+        def __init__(self, attr: Any):
+            self._attr = attr
+            self.__attr = attr
+
+        @property
+        def attr(self) -> Any:
+            return self._attr
+
+    some_immutable = SomeImmutable(16)
+
+    assert some_immutable.attr == 16
+
+    with raises(AttributeError):
+        some_immutable.attr = 256
 
 
 @mark.parametrize(
