@@ -1,4 +1,4 @@
-from typing import Any, Optional, Type, Callable
+from typing import Any, Optional, Type, Callable, NoReturn
 
 from pyannotating import many_or_one
 
@@ -88,3 +88,7 @@ def with_attributes(
     attribute_keeper.__dict__ = attributes
 
     return attribute_keeper
+
+
+def fail_by_error(error: Exception) -> NoReturn:
+    fail(f"Catching the unexpected error {error.__class__.__name__} \"{str(error)}\"")
