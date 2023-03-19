@@ -58,22 +58,26 @@ def publicly_immutable(class_: Type[ResourceT]) -> Type[ResourceT]:
 @runtime_checkable
 class ItemGetter(Protocol, Generic[KeyT, ResultT]):
     @abstractmethod
-    def __getitem__(self, key: KeyT) -> ResultT: ...
+    def __getitem__(self, key: KeyT) -> ResultT:
+        ...
 
 
 @runtime_checkable
 class ItemSetter(Protocol, Generic[KeyT, ResourceT]):
     @abstractmethod
-    def __setitem__(self, key: KeyT, value: ResourceT) -> Any: ...
+    def __setitem__(self, key: KeyT, value: ResourceT) -> Any:
+        ...
 
 
 @runtime_checkable
 class ItemKeeper(Protocol, Generic[KeyT, ResourceT]):
     @abstractmethod
-    def __getitem__(self, key: KeyT) -> ResultT: ...
+    def __getitem__(self, key: KeyT) -> ResultT:
+        ...
 
     @abstractmethod
-    def __setitem__(self, key: KeyT, value: ResourceT) -> Any: ...
+    def __setitem__(self, key: KeyT, value: ResourceT) -> Any:
+        ...
 
 
 class Flag:
