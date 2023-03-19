@@ -109,3 +109,16 @@ def to_context(action: Callable[[ContextT], ResultT]) -> Callable[[ContextManage
     return contextual_action
 
 
+def with_context_by(
+    get_context: Callable[[*ArgumentsT], ContextManager[ContextT]],
+    action: Callable[[*ArgumentsT], ResultT]
+) -> Callable[[*ArgumentsT], ResultT]:
+    """Function to perform an input action in a specific context."""
+
+    @wraps(action)
+    def contextual_action(*args, **kwargs) -> Any:
+        with get_context(*args, **kwargs):
+            return action(*args, **kwargs)
+
+
+    return contextual_action
