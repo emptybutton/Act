@@ -1,14 +1,14 @@
 from functools import wraps, partial
 from typing import NoReturn, Any, Iterable, Callable
 
-from pyhandling.annotations import ResourceT, action_for, ResultT, KeyT, event_for
-from pyhandling.tools import ItemGetter, ItemSetter
+from pyhandling.annotations import ResourceT, action_for, ResultT, KeyT, event_for, ContextT, ArgumentsT
+from pyhandling.tools import ItemGetter, ItemSetter, ContextManager
 
 
 __all__ = (
     "return_", "raise_", "assert_", "positionally_unpack_to", "unpack_by_keys_to",
     "bind", "call", "getitem_of", "setitem_of", "execute_operation", "transform",
-    "in_context_by"
+    "to_context", "with_context_by"
 )
 
 
@@ -98,16 +98,14 @@ def transform(operand: Any, operator: str) -> Any:
     return eval(f"{operator} operand", dict(), {'operand': operand})
 
 
-def in_context_by(
-    get_context: event_for[ResourceT],
-    context_action: Callable[[ResourceT], ResultT]
-) -> ResultT:
-    """
-    Function emulating the "with as" context manager.
+def to_context(action: Callable[[ContextT], ResultT]) -> Callable[[ContextManager[ContextT]], ResultT]:
+    """Function emulating the `with as` context manager."""
 
-    Creates a context using `get_context` and returns the results of handling
-    this context by `context_action`.
-    """
+    @wraps(action)
+    def contextual_action(context_manager: ContextManager[ContextT]) -> ResultT:
+        with context_manager as context:
+            return action(context)
 
-    with get_context() as context:
-        return context_action(context)
+    return contextual_action
+
+
