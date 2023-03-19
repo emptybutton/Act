@@ -36,27 +36,23 @@ def fragmentarily(action: Callable[[*ArgumentsT], ResultT]) -> action_for[Result
 
     @wraps(action)
     def fragmentarily_action(*args, **kwargs) -> ResultT | Self:
-        action = partial(action, *args, **kwargs)
+        augmented_action = partial(action, *args, **kwargs)
 
-        for keyword_argument_name in kwargs.keys():
-            if (
-                keyword_argument_name in parameters_to_call.keys()
-                and parameters_to_call[keyword_argument_name].default is _empty
-            ):
-                del parameters_to_call[keyword_argument_name]
-
-        parameters_to_call = OrderedDict(tuple(parameters_to_call.items())[len(args):])
-
-        return (
-            action()
-            if len(parameters_to_call) == 0
-            else fragmentarily(action)
+        actual_parameters_to_call = OrderedDict(
+            tuple(
+                (parameter_name, parameter)
+                for parameter_name, parameter in parameters_to_call.items()
+                if (
+                    parameter_name not in kwargs.keys()
+                    and parameter.default is _empty
+                )
+            )[len(args):]
         )
 
-
-    if "return" in action.__annotations__.keys():
-        fragmentarily_action.__annotations__["return"] = (
-            action.__annotations__["return"] | Self
+        return (
+            augmented_action()
+            if len(actual_parameters_to_call) == 0
+            else fragmentarily(augmented_action)
         )
 
     return fragmentarily_action
