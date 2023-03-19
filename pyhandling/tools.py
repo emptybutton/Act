@@ -44,7 +44,9 @@ def publicly_immutable(class_: Type[ResourceT]) -> Type[ResourceT]:
     @wraps(old_setattr)
     def new_setattr(instance: object, attribute_name: str, attribute_value: Any) -> Any:
         if attribute_name and attribute_name[0] != '_':
-            raise AttributeError(f"Type {type(instance).__name__} is immutable")
+            raise AttributeError(
+                f"cannot set '{attribute_name}' attribute of publicly immutable type '{class_}'"
+            )
 
         return old_setattr(instance, attribute_name, attribute_value)
 
