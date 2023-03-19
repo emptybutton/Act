@@ -1,5 +1,5 @@
-from functools import partial
-from typing import Optional, Any, Iterable, Callable
+from inspect import signature
+from typing import Optional, Any
 
 from pytest import mark
 
@@ -48,6 +48,25 @@ test_unpackly = calling_test_from(
         ArgumentPack.of(lambda a, b, c: a / b + c),
         ArgumentPack.of(ArgumentPack.of(8, 4, 6))
     ])
+)
+
+
+test_fragmentarily = calling_test_from(
+    (fragmentarily(lambda a, b, c: a / b + c), 8, ArgumentPack.of(10, 2, 3)),
+    (fragmentarily(lambda a, b, c: a / b + c), 8, [ArgumentPack.of(10, 2), ArgumentPack.of(3)]),
+    (fragmentarily(lambda a, b, c: a / b + c), 8, [ArgumentPack.of(10), ArgumentPack.of(2, 3)]),
+    (fragmentarily(lambda a, b, c: a / b + c), 8, [ArgumentPack.of(10), ArgumentPack.of(2, 3)]),
+    (signature, signature(lambda b, c: ...), [ArgumentPack.of(fragmentarily(lambda a, b, c: ...)('a'))]),
+    (fragmentarily(lambda: 16), 16, ArgumentPack()),
+    (fragmentarily(lambda *_: 16), 16, ArgumentPack()),
+    (fragmentarily(lambda *_, a=...: 16), 16, ArgumentPack()),
+    (fragmentarily(lambda a, k=0: a + k), 64, [ArgumentPack.of(k=4), ArgumentPack.of(60)]),
+    (fragmentarily(lambda *_, **__: 16), 16, ArgumentPack()),
+    (
+        fragmentarily(lambda *numbers, **kw_nubers: sum((*numbers, *kw_nubers.values()))),
+        16,
+        [ArgumentPack.of(1, 2, 5, a=5, b=3)]
+    )
 )
 
 
