@@ -106,6 +106,15 @@ def returnly_rollbackable(
     return wrapper
 
 
+def with_result(
+    result: ResultT,
+    action: Callable[[*ArgumentsT], Any]
+) -> Callable[[*ArgumentsT], ResultT]:
+    """Function to force an input result for an input action."""
+
+    return action |then>> taken(result)
+
+
 def callmethod(object_: object, method_name: str, *args, **kwargs) -> Any:
     """Shortcut function to call a method on an input object."""
 
