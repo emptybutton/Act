@@ -4,8 +4,9 @@ from typing import Any, Iterable, Mapping, Callable, Type, Optional
 from pyhandling.annotations import atomic_action
 from pyhandling.branchers import *
 from pyhandling.errors import NeutralActionChainError
-from pyhandling.tools import ArgumentKey
-from tests.mocks import MockAction, Counter
+from pyhandling.testing import calling_test_from, calling_test_of
+from pyhandling.tools import ArgumentPack, ArgumentKey
+from tests.mocks import MockAction, Counter, fail_by_error
 
 from pytest import mark, fail, raises
 
@@ -49,6 +50,13 @@ def test_action_chain_connection_to_other(first_nodes: Iterable[atomic_action], 
         == tuple(ActionChain(first_nodes) | ActionChain(second_nodes))
         == (*first_nodes, *second_nodes)
     )
+
+
+test_merge = calling_test_of(
+    merge(lambda a: a - 1, lambda _: _, lambda a: a + 1),
+    (1, 2, 3),
+    ArgumentPack.of(2)
+)
 
 
 @mark.parametrize(
