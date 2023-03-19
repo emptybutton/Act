@@ -79,16 +79,7 @@ test_transform = calling_test_from(
 )
 
 
-@mark.parametrize(
-    'context_factory, context_handler, result', (
-        (CustomContext, lambda resource: resource, None),
-        (partial(CustomContext, 1), lambda resource: resource, 1),
-        (partial(CustomContext, 2), lambda number: number * 2, 4)
-    )
+test_to_context = calling_test_from(
+    (to_context(lambda _: _), None, ArgumentPack.of(CustomContext(None))),
+    (to_context(lambda n: n + 6), 16, ArgumentPack.of(CustomContext(10))),
 )
-def test_in_context_by(
-    context_factory: Callable[[], Any],
-    context_handler: Callable[[Any], Any],
-    result: Any
-):
-    assert in_context_by(context_factory, context_handler) == result
