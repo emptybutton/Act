@@ -9,9 +9,6 @@ from tests.mocks import CustomContext
 from pytest import mark, raises
 
 
-def add_then_divide_by_zero_f_attribute(adding_number: int, object_: object) -> None:
-    object_.f += adding_number
-    object_.f /= 0
 test_return_ = calling_test_of(return_, None, ArgumentPack.of(None))
 
 
