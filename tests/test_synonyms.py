@@ -2,6 +2,8 @@ from functools import partial
 from typing import Callable, Any
 
 from pyhandling.synonyms import *
+from pyhandling.testing import calling_test_of, calling_test_from
+from pyhandling.tools import ArgumentPack
 from tests.mocks import CustomContext
 
 from pytest import mark, raises
@@ -10,52 +12,51 @@ from pytest import mark, raises
 def add_then_divide_by_zero_f_attribute(adding_number: int, object_: object) -> None:
     object_.f += adding_number
     object_.f /= 0
+test_return_ = calling_test_of(return_, None, ArgumentPack.of(None))
 
 
-@mark.parametrize('resource', (0, 1, 2))
-def test_return_(resource: Any):
-    assert return_(resource) == resource
+test_raise_ = calling_test_of(
+    with_context_by(lambda error: raises(type(error)), raise_),
+    None,
+    ArgumentPack.of(Exception())
+)
 
 
-@mark.parametrize('error', (Exception, ))
-def test_raise_(error: Exception):
-    with raises(error):
-        raise_(error)
+test_assert_ = calling_test_from(
+    (assert_, None, ArgumentPack.of(16)),
+    (
+        with_context_by(lambda _: raises(AssertionError), assert_),
+        None,
+        ArgumentPack.of(None)
+    ),
+)
 
 
-@mark.parametrize('resource', (True, 42j, b"Hello world!", [1, 2, 3]))
-def test_error_free_assert_(resource: Any):
-    assert_(resource)
+test_positionally_unpack_to = calling_test_of(
+    positionally_unpack_to,
+    (3, 2, 1),
+    ArgumentPack.of(lambda a, b, c: (c, b, a), (1, 2, 3))
+)
 
 
-@mark.parametrize('resource', (False, int(), str(), tuple()))
-def test_assert_error_raising(resource: Any):
-    with raises(AssertionError):
-        assert_(resource)
+test_unpack_by_keys_to = calling_test_of(
+    unpack_by_keys_to,
+    (3, 2, 1),
+    ArgumentPack.of(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3))
+)
 
 
-def test_positionally_unpack_to():
-    assert positionally_unpack_to(lambda a, b, c: (c, b, a), (1, 2, 3)) == (3, 2, 1)
+test_bind = calling_test_of(
+    bind,
+    4,
+    [ArgumentPack.of(lambda a, b: a + b, 'b', 3), ArgumentPack.of(1)]
+)
 
 
-def test_unpack_by_keys_to():
-    assert unpack_by_keys_to(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3)) == (3, 2, 1)
+test_call = calling_test_of(call, 0.1, ArgumentPack.of(lambda a, b: a / b, 1, 10))
 
 
-def test_bind():
-    func_to_bind = lambda first, second: first + second
-
-    assert bind(func_to_bind, 'second', 3)(1) == func_to_bind(1, second=3)
-
-
-@mark.parametrize('func, result', ((partial(return_, 1), 1), (lambda: 1 + 2, 3)))
-def test_call(func: Callable[[], Any], result: Any):
-    assert call(func) == result
-
-
-@mark.parametrize('object_, key, result', ((dict(a=1), 'a', 1), (dict(b=2), 'b', 2)))
-def test_getitem_of(object_: object, key: Any, result: Any) -> Any:
-    assert getitem_of(object_, key) == result
+test_getitem_of = calling_test_of(getitem_of, 1, ArgumentPack.of(dict(a=1), 'a'))
 
 
 @mark.parametrize('object_, key, value', ((dict(), 'a', 1), (dict(), 'b', 2)))
@@ -65,23 +66,17 @@ def setitem_of(object_: object, key: Any, value: Any) -> None:
     assert object_[key] == value
 
 
-@mark.parametrize('first, operator, second, result', ((1, '+', 2, 3), (2, '-', 1, 1), (4, '**', 4, 256)))
-def test_execute_operation(first: Any, operator: str, second: Any, result: Any):
-    assert execute_operation(first, operator, second) == result
-
-
-@mark.parametrize(
-    'operator, operand, result',
-    [
-        ('not', True, False),
-        ('not', False, True),
-        ('not', tuple(), True),
-        ('~', -43, 42),
-        ('~', 0, -1)
-    ]
+test_execute_operation = calling_test_of(
+    execute_operation,
+    256,
+    ArgumentPack.of(200, '+', 56),
 )
-def test_transform(operator: str, operand: Any, result: Any):
-    assert transform(operand, operator) == result
+
+
+test_transform = calling_test_from(
+    (transform, True, ArgumentPack.of(False, 'not')),
+    (transform, 42, ArgumentPack.of(-43, '~')),
+)
 
 
 @mark.parametrize(

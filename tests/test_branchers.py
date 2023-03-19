@@ -24,19 +24,11 @@ def test_neutral_action_chain_error_raising(args: Iterable, kwargs: Mapping):
         ActionChain()(*args, **kwargs)
 
 
-@mark.parametrize(
-    "handlers, input_resource, result",
-    [
-        [(lambda x: x + 2, lambda x: x ** x), 2, 256],
-        [(MockAction(), ), 1, 1],
-        [(MockAction(), ), str(), str()],
-        [(lambda x: None, ), 256, None],
-        [tuple(), 64, 64],
-        [tuple(), None, None],
-    ]
+test_action_chain_calling = calling_test_from(
+    (ActionChain([lambda x: x + 2, lambda x: x ** x]), 256, [ArgumentPack.of(2)]),
+    (ActionChain([lambda _: None]), None, [ArgumentPack.of(256)]),
+    (ActionChain(), None, [ArgumentPack.of(None)]),
 )
-def test_action_chain_calling(handlers: Iterable[atomic_action], input_resource: Any, result: Any):
-    assert ActionChain(handlers)(input_resource) == result
 
 
 @mark.parametrize(
@@ -80,21 +72,10 @@ def test_mergely_by_formula_function(
     )(factor) == factor * ((factor * original_x) ** (factor * original_y) + (factor * original_z))
 
 
-@mark.parametrize(
-    "handler, checker, resource, result",
-    [
-        (lambda x: x + 1, lambda x: x < 10, 0, 10),
-        (lambda x: x - 1, lambda x: x > 10, 0, 0),
-        (lambda x: x ** x, lambda x: x > 10, 10, 10)
-    ]
+test_repeating = calling_test_from(
+    (repeating(lambda x: x + 1, lambda x: x < 10), 10, ArgumentPack.of(0)),
+    (repeating(lambda x: x - 1, lambda x: x > 0), 0, ArgumentPack.of(0)),
 )
-def test_repeating(
-    handler: Callable[[Any], Any],
-    checker: Callable[[Any], bool],
-    resource: Any,
-    result: Any
-):
-    assert repeating(handler, checker)(resource) == result
 
 
 @mark.parametrize(
@@ -138,42 +119,21 @@ def test_on_condition_by_numeric_functions(
     )(input_number) == result
 
 
-@mark.parametrize(
-    "is_positive_case, input_number, result",
-    [(True, 6, 8), (False, 6, None)]
+test_on_condition = calling_test_from(
+    (on_condition(lambda x: x > 0, lambda x: x ** x), 256, ArgumentPack.of(4)),
+    (on_condition(lambda x: x > 0, lambda x: x ** x), None, ArgumentPack.of(-4)),
+    (on_condition(lambda x: x > 0, lambda x: x ** x), None, ArgumentPack.of(-4)),
+    (on_condition(lambda x: x > 0, lambda _: _, else_=lambda x: -x), 4, ArgumentPack.of(4)),
+    (on_condition(lambda x: x > 0, lambda _: _, else_=lambda x: -x), 4, ArgumentPack.of(-4)),
 )
-def test_on_condition_with_default_else_(
-    is_positive_case: bool,
-    input_number: int | float,
-    result: Any
-):
-    assert on_condition(lambda _: is_positive_case, lambda x: x + 2)(input_number) == result
 
 
-@mark.parametrize(
-    "func, input_args, input_kwargs, result",
-    [
-        (lambda x: 1 / x, (1, ), dict(), 1),
-        (lambda x: 1 / x, (2, ), dict(), 0.5),
-        (lambda x, y: x + y, (1, 2), dict(), 3),
-        (lambda x, y, z: x + y + z, (1, 2), {'z': 3}, 6),
-        (lambda x, y, z: x + y + z, (2, ), {'y': 4, 'z': 6}, 12),
-        (lambda x, y: x + y, tuple(), {'x': 4, 'y': 6}, 10),
-        (lambda: 42, tuple(), dict(), 42),
-    ]
+test_rollbackable_without_error = calling_test_from(
+    (rollbackable(lambda a: 1 / a, fail_by_error), 0.1, ArgumentPack.of(10)),
+    (rollbackable(lambda a, b: a + b, fail_by_error), 8, ArgumentPack.of(5, 3)),
+    (rollbackable(lambda a, b: a + b, fail_by_error), 8, ArgumentPack.of(5, b=3)),
+    (rollbackable(lambda: 256, fail_by_error), 256, ArgumentPack()),
 )
-def test_rollbackable_without_error(
-    func: Callable,
-    input_args: Iterable, 
-    input_kwargs: dict,
-    result: Any
-):
-    assert rollbackable(
-        func,
-        lambda error: fail(
-            f"Catching the unexpected error {error.__class__.__name__} \"{str(error)}\""
-        )
-    )(*input_args, **input_kwargs) == result
 
 
 @mark.parametrize(
