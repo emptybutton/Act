@@ -7,14 +7,14 @@ from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Gener
 
 from pyannotating import method_of, Special
 
-from pyhandling.annotations import ObjectT, ResourceT, KeyT, ResultT, atomic_action, dirty, reformer_of
+from pyhandling.annotations import ObjectT, ResourceT, KeyT, ResultT, ContextT, atomic_action, dirty, reformer_of
 
 
 __all__ = (
     "to_clone", "publicly_immutable", "ItemGetter", "ItemSetter", "ItemKeeper",
-    "Flag", "nothing", "ArgumentKey", "ArgumentPack", "DelegatingProperty",
-    "Clock", "as_argument_pack", "open_collection_items", "wrap_in_collection",
-    "documenting_by"
+    "ContextManager", "Flag", "nothing", "ArgumentKey", "ArgumentPack",
+    "DelegatingProperty", "Clock", "as_argument_pack", "open_collection_items",
+    "wrap_in_collection", "documenting_by"
 )
 
 
@@ -77,6 +77,21 @@ class ItemKeeper(Protocol, Generic[KeyT, ResourceT]):
 
     @abstractmethod
     def __setitem__(self, key: KeyT, value: ResourceT) -> Any:
+        ...
+
+
+@runtime_checkable
+class ContextManager(Protocol, Generic[ContextT]):
+    @abstractmethod
+    def __enter__(self) -> ContextT:
+        ...
+
+    def __exit__(
+        self,
+        error_type: Optional[Type[Exception]],
+        error: Optional[Exception],
+        traceback: Any
+    ):
         ...
 
 
