@@ -1,6 +1,6 @@
 from functools import partial, reduce, wraps
 from math import inf
-from typing import Generic, Iterable, Tuple, Self, Any, Callable, TypeAlias
+from typing import TypeAlias, TypeVar, Callable, Generic, Iterable, Tuple, Self, Any
 
 from pyannotating import many_or_one, Special
 
@@ -17,7 +17,10 @@ __all__ = (
 )
 
 
-class ActionChain(Generic[ActionT]):
+NodeT: TypeAlias = TypeVar("NodeT", bound=Callable | Ellipsis)
+
+
+class ActionChain(Generic[NodeT]):
     """
     Class combining calls of several functions together in sequential execution.
 
@@ -40,7 +43,7 @@ class ActionChain(Generic[ActionT]):
     `chain_instance <= resource_to_call`. 
     """
 
-    def __init__(self, nodes: Iterable[many_or_one[ActionT]] = tuple()):
+    def __init__(self, nodes: Iterable[many_or_one[NodeT]] = tuple()):
         self._nodes = open_collection_items(nodes)
 
     def __call__(self, *args, **kwargs) -> ResultT:
@@ -59,7 +62,7 @@ class ActionChain(Generic[ActionT]):
             (self._nodes[0](*args, **kwargs), *self._nodes[1:])
         )
 
-    def __iter__(self) -> Tuple[ActionT]:
+    def __iter__(self) -> Tuple[NodeT]:
         return iter(self._nodes)
 
     def __rshift__(self, node: atomic_action) -> Self:
