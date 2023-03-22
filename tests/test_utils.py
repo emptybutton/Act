@@ -6,6 +6,8 @@ from pytest import mark, raises
 from pyhandling.annotations import checker_of, ResourceT
 from pyhandling.branchers import ActionChain
 from pyhandling.error_controllers import BadResourceWrapper, BadResourceError, IBadResourceKeeper
+from pyhandling.synonyms import with_context_by
+from pyhandling.testing import calling_test_case_of
 from pyhandling.tools import ArgumentPack
 from pyhandling.utils import *
 from tests.mocks import with_attributes, CustomContext, Counter, MockAction
@@ -28,6 +30,14 @@ def test_callmethod(object_: object, method_name: str, result: Any):
 )
 def test_operation_of(sign: str, first_operand: Any, second_operand: Any, result: Any):
     assert operation_of(sign)(first_operand, second_operand) == result
+
+
+test_action_inserting_in = calling_test_case_of(
+    (lambda: action_inserting_in([..., (lambda b: b / 2)])(lambda a: a + 3)(13), 8),
+    (lambda: action_inserting_in([(lambda a: a + 3), ...])(lambda b: b / 2)(13), 8),
+    (lambda: with_context_by(lambda _: raises(ValueError), action_inserting_in)([..., ...]), None),
+    (lambda: with_context_by(lambda _: raises(ValueError), action_inserting_in)(list()), None),
+)
 
 
 @mark.parametrize(
