@@ -229,6 +229,18 @@ test_monadically = calling_test_case_of(
 )
 
 
+test_maybe = calling_test_case_of((
+    (
+        lambda: (
+            maybe(
+                [lambda a: a + 2, BadResourceWrapper, lambda _: "last node result"]
+            )(14).bad_resource
+        )
+    ),
+    (16),
+))
+
+
 @mark.parametrize(
     "error_type, input_resource",
     [
