@@ -159,7 +159,7 @@ def action_inserting_in(
 
     if action_template.count(Ellipsis) != 1:
         raise ValueError(
-            f"There must be one Ellipsis (...) in the input template, but there are {len(action_template.count(Ellipsis))}"
+            f"There must be one Ellipsis (...) in the input template, but there are {action_template.count(Ellipsis)}"
         )
 
     def insert_to_template(action: Callable) -> ActionChain:
