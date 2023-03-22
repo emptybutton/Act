@@ -213,6 +213,22 @@ def test_error_raising_of_optional_raising_of(error_type: Type[Exception], error
         optional_raising_of(error_type)(error)
 
 
+test_monadically = calling_test_case_of(
+    (lambda: tuple(monadically(lambda _: _)(print)), (print, )),
+    (lambda: tuple(monadically(lambda _: _)([print, sum])), (print, sum)),
+    (
+        lambda: (
+            monadically(
+                lambda node: lambda resources: (*resources, node(resources[-1]))
+            )(
+                [lambda a: a + 1, lambda b: b + 2, lambda c: c + 3]
+            )
+        )([0]),
+        (0, 1, 3, 6),
+    ),
+)
+
+
 @mark.parametrize(
     "error_type, input_resource",
     [
