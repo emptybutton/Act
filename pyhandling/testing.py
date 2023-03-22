@@ -57,14 +57,3 @@ def calling_test_from(*cases: tuple[Callable, Any, many_or_one[ArgumentPack]]) -
     return generated_test_case_type
 
 
-def calling_test_of(
-    action: Callable, 
-    expected_result: Any,
-    arguments_of_calls: many_or_one[ArgumentPack] = ArgumentPack()
-) -> Type[TestCase]:
-    """
-    Function generating `TestCase` type like
-    `pyhandling.testing.calling_test_from` but with one generated method.
-    """
-
-    return calling_test_from((action, expected_result, arguments_of_calls))
