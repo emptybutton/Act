@@ -6,8 +6,8 @@ from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import ActionT, ResultT, atomic_action, ArgumentsT, action_for, reformer_of, ResourceT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT
 from pyhandling.binders import post_partial
-from pyhandling.errors import NeutralActionChainError
-from pyhandling.tools import open_collection_items, ArgumentKey, ArgumentPack
+from pyhandling.errors import TemplatedActionChainError, NeutralActionChainError
+from pyhandling.tools import DelegatingProperty, open_collection_items, ArgumentKey, ArgumentPack
 from pyhandling.synonyms import return_
 
 
@@ -43,10 +43,16 @@ class ActionChain(Generic[NodeT]):
     `chain_instance <= resource_to_call`. 
     """
 
+    is_template = DelegatingProperty("_is_template")
+
     def __init__(self, nodes: Iterable[many_or_one[NodeT]] = tuple()):
         self._nodes = open_collection_items(nodes)
+        self._is_template = Ellipsis in self._nodes
 
     def __call__(self, *args, **kwargs) -> ResultT:
+        if self._is_template:
+            raise TemplatedActionChainError("Templated ActionChain is not callable")
+
         if not self._nodes:
             if len(args) != 1 or kwargs:
                 raise NeutralActionChainError(
