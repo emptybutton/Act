@@ -6,7 +6,6 @@ from pytest import mark, raises
 from pyhandling.annotations import checker_of, ResourceT
 from pyhandling.branchers import ActionChain
 from pyhandling.error_controllers import BadResourceWrapper, BadResourceError, IBadResourceKeeper
-from pyhandling.synonyms import raise_
 from pyhandling.tools import ArgumentPack
 from pyhandling.utils import *
 from tests.mocks import with_attributes, CustomContext, Counter, MockAction
