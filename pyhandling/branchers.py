@@ -84,10 +84,13 @@ class ActionChain(Generic[NodeT]):
         return self(resource)
 
     def __repr__(self) -> str:
-        return " |then>> ".join(
-            node.__name__ if hasattr(node, "__name__") else str(node)
-            for node in self._nodes
-        ) if self._nodes else f"{self.__class__.__name__}()"
+        return (
+            " |then>> ".join(self._fromat_node(node) for node in self._nodes)
+            if self._nodes else f"{self.__class__.__name__}()"
+        )
+
+    def _fromat_node(self, node: NodeT) -> str:
+        return node.__name__ if hasattr(node, "__name__") else str(node)
 
 
 def merge(*actions: Callable, return_from: Special[None] = None) -> Special[tuple]:
