@@ -4,68 +4,64 @@ from typing import Optional, Any
 from pytest import mark
 
 from pyhandling.binders import *
-from pyhandling.testing import calling_test_from
+from pyhandling.testing import calling_test_case_of
 from pyhandling.tools import ArgumentPack, ArgumentKey
 from tests.mocks import Counter
 
 
-test_post_partial = calling_test_from(
-    (post_partial, 0, [ArgumentPack.of(lambda r: r, 0), ArgumentPack()]),
-    (post_partial, 0.1, [ArgumentPack.of(lambda a, b: a / b, 10), ArgumentPack.of(1)]),
-    (post_partial, 1.1, [ArgumentPack.of(lambda a, b, *, c: a / b + c, 10, c=1), ArgumentPack.of(1)]),
-    (post_partial, 1.1, [ArgumentPack.of(lambda a, b, *, c: a / b + c, 10), ArgumentPack.of(1, c=1)]),
-    (post_partial, 12, [ArgumentPack.of(lambda a, b, *, c=10: a / b + c, 2), ArgumentPack.of(4)])
+test_post_partial = calling_test_case_of(
+    (lambda: post_partial(lambda r: r, 0)(), 0),
+    (lambda: post_partial(lambda a, b: a / b, 10)(1), 0.1),
+    (lambda: post_partial(lambda a, b, *, c: a / b + c, 10, c=1)(1), 1.1),
+    (lambda: post_partial(lambda a, b, *, c: a / b + c, 10)(1, c=1), 1.1),
+    (lambda: post_partial(lambda a, b, *, c=10: a / b + c, 2)(4), 12),
 )
 
 
-test_mirror_partial = calling_test_from(
-    (mirror_partial, 4, [ArgumentPack.of(lambda a, b, c: a / b + c, 2, 3, 6), ArgumentPack()]),
-    (mirror_partial, 4, [ArgumentPack.of(lambda a, b, c: a / b + c, 2, 3), ArgumentPack.of(6)]),
-    (mirror_partial, 4, [ArgumentPack.of(lambda a, b, *, c=0: a / b + c, 3, 6, c=2), ArgumentPack()]),
-    (mirror_partial, 4, [ArgumentPack.of(lambda a, b, *, c=0: a / b + c, 3, 6), ArgumentPack.of(c=2)]),
-    (mirror_partial, 4, [ArgumentPack.of(lambda a, b, c, *, f=10: a/b + c/f, 20), ArgumentPack.of(8, 4)])
+test_mirror_partial = calling_test_case_of(
+    (lambda: mirror_partial(lambda a, b, c: a / b + c, 2, 3, 6)(), 4),
+    (lambda: mirror_partial(lambda a, b, c: a / b + c, 2, 3)(6), 4),
+    (lambda: mirror_partial(lambda a, b, *, c=0: a / b + c, 3, 6, c=2)(), 4),
+    (lambda: mirror_partial(lambda a, b, *, c=0: a / b + c, 3, 6)(c=2), 4),
+    (lambda: mirror_partial(lambda a, b, c, *, f=10: a/b + c/f, 20)(8, 4), 4),
 )
 
 
-test_closed = calling_test_from(
-    (closed, 256, [ArgumentPack.of(lambda a, b: a + b), ArgumentPack.of(250), ArgumentPack.of(6)]),
-    (closed, 64, [
-        ArgumentPack.of(lambda a, b: a / b, closer=post_partial),
-        ArgumentPack.of(2),
-        ArgumentPack.of(128)
-    ])
+test_closed = calling_test_case_of(
+    (lambda: closed(lambda a, b: a + b)(250)(6), 256),
+    (lambda: closed(lambda a, b: a / b, closer=post_partial)(2)(128), 64),
 )
 
 
-test_eventually = calling_test_from(
-    (eventually, 128, [ArgumentPack.of(lambda a, b: a + b, 100, 28), ArgumentPack.of(1, 2, 3)]),
-    (eventually, 128, [ArgumentPack.of(lambda a, b: a + b, 100, 28), ArgumentPack()]),
+test_eventually = calling_test_case_of(
+    (lambda: eventually(lambda a, b: a + b, 100, 28)(1, 2, 3), 128),
+    (lambda: eventually(lambda a, b: a + b, 100, 28)(), 128),
 )
 
 
-test_unpackly = calling_test_from(
-    (unpackly, 8, [
-        ArgumentPack.of(lambda a, b, c: a / b + c),
-        ArgumentPack.of(ArgumentPack.of(8, 4, 6))
-    ])
+test_unpackly = calling_test_case_of(
+    (lambda: unpackly(lambda a, b, c: a / b + c)(ArgumentPack.of(8, 4, 6)), 8),
 )
 
 
-test_fragmentarily = calling_test_from(
-    (fragmentarily(lambda a, b, c: a / b + c), 8, ArgumentPack.of(10, 2, 3)),
-    (fragmentarily(lambda a, b, c: a / b + c), 8, [ArgumentPack.of(10, 2), ArgumentPack.of(3)]),
-    (fragmentarily(lambda a, b, c: a / b + c), 8, [ArgumentPack.of(10), ArgumentPack.of(2, 3)]),
-    (fragmentarily(lambda a, b, c: a / b + c), 8, [ArgumentPack.of(10), ArgumentPack.of(2, 3)]),
-    (signature, signature(lambda b, c: ...), [ArgumentPack.of(fragmentarily(lambda a, b, c: ...)('a'))]),
-    (fragmentarily(lambda: 16), 16, ArgumentPack()),
-    (fragmentarily(lambda *_: 16), 16, ArgumentPack()),
-    (fragmentarily(lambda *_, a=...: 16), 16, ArgumentPack()),
-    (fragmentarily(lambda a, k=0: a + k), 64, [ArgumentPack.of(k=4), ArgumentPack.of(60)]),
-    (fragmentarily(lambda *_, **__: 16), 16, ArgumentPack()),
+test_fragmentarily = calling_test_case_of(
+    (lambda: fragmentarily(lambda a, b, c: a / b + c)(10, 2, 3), 8),
+    (lambda: fragmentarily(lambda a, b, c: a / b + c)(10, 2)(3), 8),
+    (lambda: fragmentarily(lambda a, b, c: a / b + c)(10)(2, 3), 8),
+    (lambda: fragmentarily(lambda a, b, c: a / b + c)(10)(2)(3), 8),
+    (lambda: signature(fragmentarily(lambda a, b, c: ...)('a')), signature(lambda b, c: ...)),
+    (lambda: fragmentarily(lambda: 16)(), 16),
+    (lambda: fragmentarily(lambda *_: 16)(), 16),
+    (lambda: fragmentarily(lambda *_, a=...: 16)(), 16),
+    (lambda: fragmentarily(lambda *_, **__: 16)(), 16),
+    (lambda: fragmentarily(lambda a, k=0: a + k)(k=4)(60), 64),
     (
-        fragmentarily(lambda *numbers, **kw_nubers: sum((*numbers, *kw_nubers.values()))),
+        lambda: (
+            fragmentarily(
+                lambda *numbers, **kw_nubers: sum((*numbers, *kw_nubers.values()))
+            )(1, 2, 5, a=5, b=3)
+        ),
         16,
-        [ArgumentPack.of(1, 2, 5, a=5, b=3)]
     )
 )
 

@@ -4,7 +4,7 @@ from typing import Any, Iterable, Mapping, Callable, Type, Optional
 from pyhandling.annotations import atomic_action
 from pyhandling.branchers import *
 from pyhandling.errors import NeutralActionChainError
-from pyhandling.testing import calling_test_from, calling_test_of
+from pyhandling.testing import calling_test_case_of
 from pyhandling.tools import ArgumentPack, ArgumentKey
 from tests.mocks import MockAction, Counter, fail_by_error
 
@@ -25,10 +25,10 @@ def test_neutral_action_chain_error_raising(args: Iterable, kwargs: Mapping):
         ActionChain()(*args, **kwargs)
 
 
-test_action_chain_calling = calling_test_from(
-    (ActionChain([lambda x: x + 2, lambda x: x ** x]), 256, [ArgumentPack.of(2)]),
-    (ActionChain([lambda _: None]), None, [ArgumentPack.of(256)]),
-    (ActionChain(), None, [ArgumentPack.of(None)]),
+test_action_chain_calling = calling_test_case_of(
+    (lambda: ActionChain([lambda x: x + 2, lambda x: x ** x])(2), 256),
+    (lambda: ActionChain([lambda _: None])(256), None),
+    (lambda: ActionChain()(None), None),
 )
 
 
@@ -52,11 +52,10 @@ def test_action_chain_connection_to_other(first_nodes: Iterable[atomic_action], 
     )
 
 
-test_merge = calling_test_of(
-    merge(lambda a: a - 1, lambda _: _, lambda a: a + 1),
-    (1, 2, 3),
-    ArgumentPack.of(2)
-)
+test_merge = calling_test_case_of((
+    lambda: merge(lambda a: a - 1, lambda _: _, lambda a: a + 1)(2),
+    (1, 2, 3)
+))
 
 
 @mark.parametrize(
@@ -80,9 +79,9 @@ def test_mergely_by_formula_function(
     )(factor) == factor * ((factor * original_x) ** (factor * original_y) + (factor * original_z))
 
 
-test_repeating = calling_test_from(
-    (repeating(lambda x: x + 1, lambda x: x < 10), 10, ArgumentPack.of(0)),
-    (repeating(lambda x: x - 1, lambda x: x > 0), 0, ArgumentPack.of(0)),
+test_repeating = calling_test_case_of(
+    (lambda: repeating(lambda x: x + 1, lambda x: x < 10)(0), 10),
+    (lambda: repeating(lambda x: x - 1, lambda x: x > 0)(0), 0),
 )
 
 
@@ -127,20 +126,20 @@ def test_on_condition_by_numeric_functions(
     )(input_number) == result
 
 
-test_on_condition = calling_test_from(
-    (on_condition(lambda x: x > 0, lambda x: x ** x), 256, ArgumentPack.of(4)),
-    (on_condition(lambda x: x > 0, lambda x: x ** x), None, ArgumentPack.of(-4)),
-    (on_condition(lambda x: x > 0, lambda x: x ** x), None, ArgumentPack.of(-4)),
-    (on_condition(lambda x: x > 0, lambda _: _, else_=lambda x: -x), 4, ArgumentPack.of(4)),
-    (on_condition(lambda x: x > 0, lambda _: _, else_=lambda x: -x), 4, ArgumentPack.of(-4)),
+test_on_condition = calling_test_case_of(
+    (lambda: on_condition(lambda x: x > 0, lambda x: x ** x)(4), 256),
+    (lambda: on_condition(lambda x: x > 0, lambda x: x ** x)(-4), None),
+    (lambda: on_condition(lambda x: x > 0, lambda x: x ** x)(-4), None),
+    (lambda: on_condition(lambda x: x > 0, lambda _: _, else_=lambda x: -x)(4), 4),
+    (lambda: on_condition(lambda x: x > 0, lambda _: _, else_=lambda x: -x)(-4), 4),
 )
 
 
-test_rollbackable_without_error = calling_test_from(
-    (rollbackable(lambda a: 1 / a, fail_by_error), 0.1, ArgumentPack.of(10)),
-    (rollbackable(lambda a, b: a + b, fail_by_error), 8, ArgumentPack.of(5, 3)),
-    (rollbackable(lambda a, b: a + b, fail_by_error), 8, ArgumentPack.of(5, b=3)),
-    (rollbackable(lambda: 256, fail_by_error), 256, ArgumentPack()),
+test_rollbackable_without_error = calling_test_case_of(
+    (lambda: rollbackable(lambda a: 1 / a, fail_by_error)(10), 0.1),
+    (lambda: rollbackable(lambda a, b: a + b, fail_by_error)(5, 3), 8),
+    (lambda: rollbackable(lambda a, b: a + b, fail_by_error)(5, b=3), 8),
+    (lambda: rollbackable(lambda: 256, fail_by_error)(), 256),
 )
 
 

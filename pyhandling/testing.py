@@ -1,59 +1,37 @@
-from functools import reduce
-from itertools import chain
-from typing import Callable, Any, Iterable, Type
+from typing import TypeAlias, Any, Callable, Type
 from unittest import TestCase
 
-from pyannotating import many_or_one
-
-from pyhandling.tools import ArgumentPack
+from pyhandling.annotations import event
 
 
-__all__ = ("calling_test_of", "calling_test_from")
+__all__ = ("calling_test_case_of", )
 
 
-def _calling_test_method_for(
-    action: Callable, 
-    expected_result: Any,
-    arguments_of_calls: many_or_one[ArgumentPack] = ArgumentPack()
-) -> Callable[[TestCase], None]:
-    """Function to create a `TestCase` method to test an input action calling."""
+test_case_pack: TypeAlias = tuple[event, Any]
 
-    if not isinstance(arguments_of_calls, Iterable):
-        arguments_of_calls = (arguments_of_calls, )
 
-    def testing_method(test_case: TestCase, action=action, arguments=arguments_of_calls, expected_result=expected_result) -> None:
-        result = reduce(lambda action, pack: pack.call(action), chain([action], arguments))
-        test_case.assertEqual(result, expected_result)
+def _calling_test_method_of(test_pack: test_case_pack) -> Callable[[TestCase], None]:
+    def testing_method(test_case: TestCase) -> None:
+        test_case.assertEqual(test_pack[0](), test_pack[1])
 
     return testing_method
 
 
-def calling_test_from(*cases: tuple[Callable, Any, many_or_one[ArgumentPack]]) -> Type[TestCase]:
-    """
-    Function to create a `TestCase` type with generated methods that test
-    calling specific actions.
 
-    When passing multiple argument packs, unpacks each subsequent pack into the
-    expected callable result of calling the previous argument pack.
-    """
-
-    generated_test_case_type = type(
-        f"TestCalling",
+def calling_test_case_of(*test_packs: test_case_pack) -> Type[TestCase]:
+    return type(
+        f"TestByCalling",
         (TestCase, ),
         {
-            f"test_action_that_{case_index}": _calling_test_method_for(*case)
-            for case_index, case in enumerate(cases)
+            f"test_action_that_{test_pack_index}": _calling_test_method_of(test_pack)
+            for test_pack_index, test_pack in enumerate(test_packs)
         }
         | {
             "__doc__": (
                 """
                 `TestCase` class generated from
-                `pyhandling.testing.calling_test_from` for some actions
+                `pyhandling.testing.calling_test_case_of` for some actions
                 """
             )
         }
     )
-
-    return generated_test_case_type
-
-
