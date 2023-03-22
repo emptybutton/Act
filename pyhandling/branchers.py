@@ -90,6 +90,9 @@ class ActionChain(Generic[NodeT]):
         )
 
     def _fromat_node(self, node: NodeT) -> str:
+        if node is Ellipsis:
+            return '...'
+
         return node.__name__ if hasattr(node, "__name__") else str(node)
 
 
