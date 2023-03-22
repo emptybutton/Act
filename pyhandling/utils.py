@@ -411,6 +411,6 @@ with_error = documenting_by(
     Returns in `ResultWithError` format (result, error).
     """
 )(
-    action_binding_of(lambda result: (result, None))
-    |then>> (rollbackable |by| (lambda error: (None, error)))
+    action_binding_of(lambda result: ResultWithError(result, None))
+    |then>> (rollbackable |by| (lambda error: ResultWithError(None, error)))
 )
