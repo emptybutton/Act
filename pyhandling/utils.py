@@ -215,7 +215,7 @@ as_collection = documenting_by(
     With a non-iterable resource, wraps it in a tuple.
     """
 )(
-    on_condition(isinstance |by| Iterable, tuple, else_=wrap_in_collection)
+    on_condition(isinstance |by| Iterable, tuple, else_=in_collection)
 )
 
 

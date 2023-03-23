@@ -317,7 +317,7 @@ def with_opened_items(collection: Iterable) -> Tuple:
     return tuple(collection_with_opened_items)
 
 
-def wrap_in_collection(resource: ResourceT) -> tuple[ResourceT]:
+def in_collection(resource: ResourceT) -> tuple[ResourceT]:
     """Function to represent the input resource as a single collection."""
 
     return (resource, )
