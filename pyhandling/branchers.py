@@ -237,3 +237,9 @@ def rollbackable(
 
 
 chain_constructor: TypeAlias = Callable[[Iterable[many_or_one[Callable]]], ActionChain]
+
+
+mapping_for_chain_among = AnnotationTemplate(
+    Callable,
+    [[many_or_one[atomic_action]], AnnotationTemplate(ActionChain, [input_annotation])]
+)

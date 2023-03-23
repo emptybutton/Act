@@ -7,7 +7,7 @@ from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Spec
 
 from pyhandling.annotations import atomic_action, dirty, handler_of, ResourceT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, reformer_of
 from pyhandling.binders import returnly, closed, post_partial, eventually, unpackly
-from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable
+from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable, mapping_for_chain_among
 from pyhandling.language import then, by, to
 from pyhandling.error_controllers import BadResourceError, IBadResourceKeeper, BadResourceWrapper, ResultWithError, bad_wrapped_or_not
 from pyhandling.synonyms import execute_operation, return_, transform, raise_
@@ -334,11 +334,8 @@ monadically = documenting_by(
 )
 
 
-monada_among = (AnnotationTemplate |to| Callable)([
-    [many_or_one[atomic_action]],
-    (AnnotationTemplate |to| ActionChain)([
-        AnnotationTemplate(reformer_of, [input_annotation])
-    ])
+monada_among = (AnnotationTemplate |to| mapping_for_chain_among)([
+    AnnotationTemplate(reformer_of, [input_annotation])
 ])
 
 
