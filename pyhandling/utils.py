@@ -378,3 +378,19 @@ with_error = documenting_by(
     action_binding_of(lambda result: ResultWithError(result, None))
     |then>> (rollbackable |by| (lambda error: ResultWithError(None, error)))
 )
+
+
+between_errors: mapping_for_chain_among[Callable[[Special[ResultWithError]], ResultWithError]]
+between_errors = documenting_by(
+    """Function for a chain of actions with the return of an error."""
+)(
+    monadically(
+        with_error
+        |then>> (lambda node: lambda resource: (
+            node(resource.result) if isinstance(resource, ResultWithError) else node(resource)
+        ))
+        |then>> skipping_on(
+            lambda resource: isinstance(resource, ResultWithError) and resource.error is not None
+        )
+    )
+)
