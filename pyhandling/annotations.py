@@ -5,9 +5,9 @@ from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 
 __all__ = (
     "dirty", "not_required", "handler_of", "checker_of", "formatter_of",
-    "reformer_of", "merger_of", "event_for", "action_for", "atomic_action",
-    "checker", "decorator", "event", "binder", "ActionT", "ArgumentsT",
-    "ResourceT", "ObjectT", "ResultT", "KeyT", "ErrorT", "ContextT",
+    "transformer_to", "reformer_of", "merger_of", "event_for", "action_for",
+    "atomic_action","checker", "decorator", "event", "binder", "ActionT",
+    "ArgumentsT", "ResourceT", "ObjectT", "ResultT", "KeyT", "ErrorT", "ContextT",
     "PositiveConditionResultT", "NegativeConditionResultT", "ErrorHandlingResultT"
 )
 
@@ -29,6 +29,8 @@ handler_of = AnnotationTemplate(Callable, [[input_annotation], Any])
 checker_of = AnnotationTemplate(Callable, [[input_annotation], bool])
 
 formatter_of = AnnotationTemplate(Callable, [[input_annotation], str])
+
+transformer_to = AnnotationTemplate(Callable, [[Any], input_annotation])
 
 reformer_of = AnnotationTemplate(Callable, [[input_annotation], input_annotation])
 
