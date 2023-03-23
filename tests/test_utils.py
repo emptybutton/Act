@@ -258,71 +258,9 @@ def test_resource_returning_of_optional_raising_of(
 
 
 @mark.parametrize(
-    "handler, error_checker, input_resource, result",
-    [
-        (lambda x: x + 10, lambda _: True, 32, 42),
-        (
-            lambda x: x / 0,
-            lambda error: isinstance(error, ZeroDivisionError),
-            256,
-            BadResourceError(256, ZeroDivisionError())
-        ),
-        (
-            lambda x: x.non_existent_attribute,
-            lambda error: isinstance(error, AttributeError),
-            str(),
-            BadResourceError(str(), AttributeError())
-        ),
-    ]
-)
-def test_returnly_rollbackable(
-    handler: Callable[[Any], Any],
-    error_checker: Callable[[Exception], Any],
-    input_resource: Any,
-    result: Any
-):
-    returnly_rollbackable_result = returnly_rollbackable(handler, error_checker)(input_resource)
-
-    if type(result) is BadResourceError:
-        assert returnly_rollbackable_result.bad_resource == result.bad_resource
-        assert type(returnly_rollbackable_result.error) is type(result.error)
-
-    else:
-        assert returnly_rollbackable_result == result
-
-
-@mark.parametrize(
-    "handler, error_checker, input_resource, expected_error_type",
-    [
-        (lambda x: x / 0, lambda error: isinstance(error, TypeError), 32, ZeroDivisionError),
-        (lambda x: 21 + x, lambda error: isinstance(error, AttributeError), '21', TypeError),
-        (lambda x: x.non_existent_attribute, lambda error: isinstance(error, SyntaxError), tuple(), AttributeError),
-    ]
-)
-def test_returnly_rollbackable_error_returning(
-    handler: Callable[[Any], Any],
-    error_checker: Callable[[Exception], Any],
-    input_resource: Any,
-    expected_error_type: Type[Exception]
-):
-    with raises(expected_error_type):
-        returnly_rollbackable(handler, error_checker)(input_resource)
-
-
-@mark.parametrize(
     "nodes, input_resource, result",
     [
         (ActionChain((lambda x: x + 2, BadResourceWrapper, lambda x: x.resource * 2)), 40, 42),
-        (
-            [
-                returnly_rollbackable(
-                    lambda x: x / 0,
-                    lambda error: isinstance(error, ZeroDivisionError)
-                )
-            ],
-            42,
-            42
-        ),
         (ActionChain(), 42, 42),
         (tuple(), 256, 256),
         ([lambda x: x ** x], 4, 256),
