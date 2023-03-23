@@ -305,28 +305,6 @@ def test_optional_bad_resource_from(input_resource: Any, result: Any):
 
 
 @mark.parametrize(
-    "error_checker, chain, input_resource, expected_result",
-    [
-        (lambda err: isinstance(err, ZeroDivisionError), [lambda x: x + 1, lambda x: x / 0], 255, 256),
-        (lambda err: isinstance(err, ZeroDivisionError), [lambda x: x / 2, lambda x: x / 0], 128, 64),
-        (lambda err: isinstance(err, ZeroDivisionError), [lambda x: x / 2, lambda x: x * 4], 128, 256),
-    ]
-)
-def test_chain_breaking_on_error_that(
-    error_checker: Callable[[Exception], bool],
-    chain: Iterable[Callable],
-    input_resource: Any,
-    expected_result: Any
-):
-    result = chain_breaking_on_error_that(error_checker)(chain)(input_resource)
-    
-    if isinstance(result, IBadResourceKeeper):
-        assert result.bad_resource == expected_result
-    else:
-        assert result == expected_result
-
-
-@mark.parametrize(
     "func, input_resources, expected_result, expected_error_type",
     [
         (lambda x: x + 2, (30, ), 32, None),

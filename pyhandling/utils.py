@@ -346,17 +346,6 @@ optional_bad_resource_from = documenting_by(
 )
 
 
-chain_breaking_on_error_that: Callable[[checker_of[Exception]], chain_constructor]
-chain_breaking_on_error_that = documenting_by(
-    """
-    Shortcut for maybe which is triggered on an error that satisfies the input
-    checker conditions.
-    """
-)(
-   closed(returnly_rollbackable, closer=post_partial) |then>> closed(map |then>> maybe)
-)
-
-
 bad_resource_wrapping_on: Callable[
     [checker_of[ResourceT]],
     Callable[[ResourceT], bad_wrapped_or_not[ResourceT]]
