@@ -15,13 +15,13 @@ from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock
 
 
 __all__ = (
-    "Logger", "showly", "returnly_rollbackable", "callmethod", "operation_by",
-    "operation_of", "shown", "action_inserting_in", "left_action_binding_of",
-    "action_binding_of", "taken", "as_collection", "collection_from",
-    "collection_unpacking_in", "keyword_unpacking_in", "yes", "no", "times",
-    "skipping_on", "optional_raising_of", "monadically", "monada_among",
-    "maybe", "optional_bad_resource_from", "chain_breaking_on_error_that",
-    "bad_resource_wrapping_on", "with_error"
+    "Logger", "showly", "callmethod", "with_result",
+    "operation_by", "operation_of", "shown", "action_inserting_in",
+    "left_action_binding_of", "action_binding_of", "taken", "as_collection",
+    "collection_from", "collection_unpacking_in", "keyword_unpacking_in",
+    "yes", "no", "times", "skipping_on", "optional_raising_of", "monadically",
+    "monada_among", "maybe", "optional_bad_resource_from",
+    "bad_resource_wrapping_on", "with_error", "between_errors"
 )
 
 

@@ -1,8 +1,8 @@
 from functools import partial, reduce, wraps
 from math import inf
-from typing import TypeAlias, TypeVar, Callable, Generic, Iterable, Tuple, Self, Any
+from typing import TypeAlias, TypeVar, Callable, Generic, Iterable, Tuple, Self, Any, Optional
 
-from pyannotating import many_or_one, Special
+from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotation
 
 from pyhandling.annotations import ActionT, ResultT, atomic_action, ArgumentsT, action_for, reformer_of, ResourceT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT
 from pyhandling.binders import post_partial
@@ -12,8 +12,8 @@ from pyhandling.synonyms import return_
 
 
 __all__ = (
-    "ActionChain", "merge", "mergely", "repeating", "on_condition",
-    "rollbackable", "chain_constructor"
+    "ActionChain", "merged", "mergely", "repeating", "on_condition",
+    "rollbackable", "chain_constructor", "mapping_for_chain_among"
 )
 
 
