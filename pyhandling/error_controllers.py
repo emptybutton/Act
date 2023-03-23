@@ -73,7 +73,7 @@ class BadResourceError(MechanicalError, IBadResourceKeeper, Generic[ResourceT, E
 
 @runtime_checkable
 class SingleErrorKepper(Protocol, Generic[ErrorT]):
-    error: ErrorT
+    error: ErrorT | Self | "ErrorKepper"
 
 
 @runtime_checkable
