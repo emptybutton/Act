@@ -8,103 +8,208 @@ You can even integrate the entire program logic into one call
 `pip install pyhandling`
 
 ## Usage examples
-### Composition
-Merge your functions into one
+### Execution flow control
+Combine your function calls into one
 
 ```python
 from pyhandling import *
 
 
-complemented_number = str |then>> (lambda line: line + '6') |then>> int
-complemented_number(25)
+complete = str |then>> (lambda line: line + '6') |then>> int
+complete(25)
 ```
-
-to later get
-```python
+```
 256
 ```
 
-or you can do the same but call the function immediately
+with a call
 ```python
 25 >= str |then>> (lambda line: line + '6') |then>> int
 ```
-
-and get the same result
-```python
+```
 256
 ```
 
-### Currying
-Add additional arguments to function input arguments
+using functions
 ```python
-formattly_sum = "{} {}{}".format
-
-post_partial(formattly_sum, "world", '!')("Hello") 
+action_binding_of(lambda b: b / 2)(lambda: a + 10)(6)
+left_action_binding_of(lambda: a + 10)(lambda b: b / 2)(6)
+```
+```
+8
+8
 ```
 
-using pseudo operators
+or templates
 ```python
-(formattly_sum |to| "Hello")("world", '!')
-(formattly_sum |to* ("Hello", "world"))('!')
-
-(formattly_sum |by| '!')("Hello", "world")
+action_inserting_in(str |then>> ... |then>> int)(lambda line: line + '6')(25)
+```
+```
+256
 ```
 
-or not necessarily now
+Merging them
 ```python
-container = close(formattly_sum)
-opened_container = container("Hello")
-
-opened_container("world", '!')
+merged(lambda a: a - 1, lambda _: _, lambda c: c + 1)(1)
+```
+```
+(0, 1, 2)
 ```
 
-using all possible ways
+choosing the result
 ```python
-post_container = close(formattly_sum, closer=post_partial)
-
-post_container('!')("Hello", "world")
+merged(print, lambda _: _, lambda c: c + 1, return_from=2)(1)
+```
+```
+1
+2
 ```
 
-Eventually, they all return
+dynamically
+```python
+mergely(
+    lambda prefix: lambda a, b: f"{a}{prefix} {b}{prefix}",
+    lambda prefix: f"{prefix}Hello",
+    lambda prefix: f"{prefix}world",
+)('~')
+```
+```
+~Hello~ ~world~
+```
+
+Repeat calls
+```python
+repeating(lambda line: f"{line}{line[-1]}", times(3))('Wry')
+```
+```
+Wryyyy
+```
+
+Choose the function to execute
+```python
+func = on_condition(lambda number: number >= 0, lambda number: number ** 2, else_=abs)
+
+func(4)
+func(-4)
+```
+```
+16
+4
+```
+
+
+with_error
+
+### Additional arguments
+Add arguments after input
+```python
+to_message_template = "{} {}{}".format
+
+post_partial(to_message_template, "world", '!')("Hello") 
+```
 ```
 Hello world!
 ```
 
-### Interface control
-Abstract the output value
+using pseudo operators
 ```python
-print(returnly(print)("Some input argument"))
+(to_message_template |to| "Hello")("world", '...')
+(to_message_template |to* ("Hello", "world"))('?')
+
+(to_message_template |by| '!')("Hello", "world")
 ```
 ```
-Some input argument
-Some input argument
+Hello world...
+Hello world?
+Hello world!
 ```
 
-or input values
+or not necessarily now
 ```python
-from functools import partial
+container = closed(to_message_template)
+opened_container = container("Hello")
 
+opened_container("container world", '!')
+```
+```
+Hello container world!
+```
 
-eventually(partial(print, 16))(1, 2, 3)
+using all possible ways
+```python
+post_container = closed(format_, closer=post_partial)
+
+post_container('!')("Hello", "post container world")
+```
+
+### Data flow control
+Ignore the output value
+```python
+with_result("Forced result", print)("Input value") + "and something"
+```
+```
+Input value
+Forced result and something
+```
+
+via arguments
+```python
+returnly(print)("Input argument")
+```
+```
+Input argument
+Input argument
+```
+
+or ignore input arguments
+```python
+eventually(print, 16)('Some', 'any', "arguments")
 ```
 ```
 16
 ```
 
+to get something
+```python
+taken("Something")('Some', 'any', "arguments")
+```
+```
+Something
+```
+
 ### Atomic functions
-Use synonyms for operators
+Transform without transforms
 ```python
 return_(256)
-raise_(Exception("Something is wrong"))
 ```
 ```
 256
+```
 
+Use synonyms to raise an error
+```python
+raise_(Exception("Something is wrong"))
+```
+```
 Traceback ...
 Exception: Something is wrong
 ```
 
-for atomic operations
+to transform a context manager's context
+```python
+to_context(lambda file: file.read())(open("some-image.png"))
+```
+
+to transform in a context manager's context
+```python
+with_context_by(taken(some_transaction), lambda number: number / 0)(64)
+```
+```
+Traceback ...
+SomeTransactionError: division by zero
+```
+
+to use syntax operations
 ```python
 execute_operation(60, '+', 4)
 transform(str(), 'not')
@@ -159,7 +264,7 @@ total_sum: Callable[[Iterable[many_or_one[number]]], number] = documenting_by(
     subcollection.
     """
 )(
-    close(map |then>> tuple)(
+    closed(map |then>> tuple)(
         on_condition(isinstance |by| Iterable, sum, else_=return_)
     )
     |then>> sum
