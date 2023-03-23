@@ -41,6 +41,8 @@ def _calling_test_method_of(test_pack: test_case_pack) -> Callable[[TestCase], N
 
 
 def calling_test_case_of(*test_packs: test_case_pack) -> Type[TestCase]:
+    """Function to create a `TestCase` type with input tests."""
+
     return type(
         f"TestByCalling",
         (TestCase, ),
