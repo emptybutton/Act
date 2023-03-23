@@ -8,7 +8,7 @@ from pyannotating import AnnotationTemplate, input_annotation
 from pyhandling.annotations import ResourceT, ErrorT, ContextT, ResultT
 from pyhandling.errors import PyhandingError
 from pyhandling.language import to
-from pyhandling.tools import DelegatingProperty, open_collection_items
+from pyhandling.tools import DelegatingProperty, with_opened_items
 
 
 __all__ = (
@@ -98,7 +98,7 @@ def errors_from(error_storage: error_storage_of[ErrorT] | ErrorT) -> Tuple[Error
     if isinstance(error_storage, SingleErrorKepper):
         errors += errors_from(error_storage.error)
     if isinstance(error_storage, ErrorKepper):
-        errors += open_collection_items(map(errors_from, error_storage.errors))
+        errors += with_opened_items(map(errors_from, error_storage.errors))
 
     return errors
 

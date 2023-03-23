@@ -13,8 +13,8 @@ from pyhandling.annotations import ObjectT, ResourceT, KeyT, ResultT, ContextT, 
 __all__ = (
     "to_clone", "publicly_immutable", "ItemGetter", "ItemSetter", "ItemKeeper",
     "ContextManager", "Flag", "nothing", "ArgumentKey", "ArgumentPack",
-    "DelegatingProperty", "Clock", "as_argument_pack", "open_collection_items",
-    "wrap_in_collection", "documenting_by"
+    "DelegatingProperty", "Clock", "as_argument_pack", "with_opened_items",
+    "in_collection", "documenting_by"
 )
 
 
@@ -302,7 +302,7 @@ def as_argument_pack(*args, **kwargs) -> ArgumentPack:
     return ArgumentPack(args, kwargs)
 
 
-def open_collection_items(collection: Iterable) -> Tuple:
+def with_opened_items(collection: Iterable) -> Tuple:
     """Function to expand input collection's subcollections to it."""
 
     collection_with_opened_items = list()

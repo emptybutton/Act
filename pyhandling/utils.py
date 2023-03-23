@@ -11,7 +11,7 @@ from pyhandling.branchers import ActionChain, on_condition, chain_constructor, r
 from pyhandling.language import then, by, to
 from pyhandling.error_controllers import BadResourceError, IBadResourceKeeper, BadResourceWrapper, ResultWithError, bad_wrapped_or_not
 from pyhandling.synonyms import execute_operation, return_, transform, raise_
-from pyhandling.tools import documenting_by, wrap_in_collection, ArgumentPack, open_collection_items, Clock
+from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock
 
 
 __all__ = (
