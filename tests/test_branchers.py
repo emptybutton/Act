@@ -52,8 +52,8 @@ def test_action_chain_connection_to_other(first_nodes: Iterable[atomic_action], 
     )
 
 
-test_merge = calling_test_case_of((
-    lambda: merge(lambda a: a - 1, lambda _: _, lambda a: a + 1)(2),
+test_merged = calling_test_case_of((
+    lambda: merged(lambda a: a - 1, lambda _: _, lambda a: a + 1)(2),
     (1, 2, 3)
 ))
 

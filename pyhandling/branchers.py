@@ -96,24 +96,27 @@ class ActionChain(Generic[NodeT]):
         return node.__name__ if hasattr(node, "__name__") else str(node)
 
 
-def merge(*actions: Callable, return_from: Special[None] = None) -> Special[tuple]:
+def merged(
+    *actions: Callable[[*ArgumentsT], Any],
+    return_from: Optional[int] = None,
+) -> Special[tuple]:
     """
     Function to merge multiple functions with the same input interface into one.
 
     Functions are called in parallel, after which a tuple of their results is
     returned, in the order in which the functions were passed.
 
-    It has an additional keyword only parameter return_from, which, if specified,
+    It has an additional keyword only parameter `return_from`, which, if specified,
     will determine the result of the output function by getting a value from the
     resulting tuple by key.
     """
 
-    def merged(*args, **kwargs) -> Special[tuple]:
+    def merged_actions(*args, **kwargs) -> Special[tuple]:
         """
-        Function that came out of the merge function is merged from other
+        Function that came out of the `merged` function is merged from other
         functions passed to the merge function.
 
-        See merge for more info.
+        See `merged` for more info.
         """
 
         return (
@@ -124,7 +127,7 @@ def merge(*actions: Callable, return_from: Special[None] = None) -> Special[tupl
             tuple(action(*args, **kwargs) for action in actions)
         )
 
-    return merged
+    return merged_actions
 
 
 def mergely(
