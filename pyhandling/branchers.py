@@ -170,7 +170,7 @@ def mergely(
 
 def repeating(
     action: reformer_of[ResourceT],
-    is_valid_to_repeat: Callable[[ResourceT], bool]
+    is_valid_to_repeat: Callable[[ResourceT], bool],
 ) -> Callable[[ResourceT], ResourceT]:
     """
     Function for repeatedly calling the input function of its own result.
