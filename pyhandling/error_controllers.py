@@ -23,52 +23,20 @@ class MechanicalError(PyhandingError):
     pass
 
 
-class IBadResourceKeeper(ABC, Generic[ResourceT]):
-    """Class for annotating a resource that is invalid under some circumstances."""
-
-    @property
-    @abstractmethod
-    def bad_resource(self) -> ResourceT:
-        pass
-
-
-class BadResourceWrapper(IBadResourceKeeper, Generic[ResourceT]):
-    """
-    Implementation class for `BadResourceKeeper` interface for storing a
-    resource without the context of its badness.
-    """
-
-    bad_resource = DelegatingProperty('_bad_resource')
-
-    def __init__(self, resource: ResourceT):
-        self._bad_resource = resource
-
-    def __repr__(self) -> str:
-        return f"<Wrapper of bad {self.bad_resource}>"
-
-
 bad_wrapped_or_not = (AnnotationTemplate |to| Union)([
     AnnotationTemplate(IBadResourceKeeper, [input_annotation]),
     input_annotation
 ])
 
 
-class BadResourceError(MechanicalError, IBadResourceKeeper, Generic[ResourceT, ErrorT]):
+class ResourceWithContext(NamedTuple, Generic[ResourceT, ContextT]):
     """
-    Error class containing another error that occurred during the handling of
-    some resource and the resource itself, respectively.
+    Class for annotating a resource that is invalid under some circumstances.
+    Storing a resource with the context of its badness.
     """
-    
-    bad_resource = DelegatingProperty('_bad_resource')
-    error = DelegatingProperty('_error')
 
-    def __init__(self, bad_resource: ResourceT, error: ErrorT):
-        self._bad_resource = bad_resource
-        self._error = error
-
-        super().__init__(
-            f"Resource \"{self._bad_resource}\" could not be handled due to {type(self._error).__name__}: {str(self._error)}"
-        )
+    resource: ResourceT
+    context: ContextT
 
 
 @runtime_checkable
