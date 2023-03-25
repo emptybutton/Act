@@ -10,7 +10,7 @@ from pyhandling.binders import returnly, closed, post_partial, eventually, unpac
 from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable, mapping_for_chain_among
 from pyhandling.language import then, by, to
 from pyhandling.error_controllers import BadResourceError, IBadResourceKeeper, BadResourceWrapper, ResultWithError, bad_wrapped_or_not
-from pyhandling.synonyms import execute_operation, return_, transform, raise_
+from pyhandling.synonyms import execute_operation, returned, transform, raise_
 from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock
 
 
@@ -180,9 +180,9 @@ action_binding_of = documenting_by(
 
 
 taken: Callable[[ResourceT], action_for[ResourceT]] = documenting_by(
-    """Shortcut function for `eventually(return_, ...)`."""
+    """Shortcut function for `eventually(returned, ...)`."""
 )(
-    closed(return_) |then>> eventually
+    closed(returned) |then>> eventually
 )
 
 
@@ -291,7 +291,7 @@ optional_raising_of = documenting_by(
     """
 )(
     closed(isinstance, closer=post_partial)
-    |then>> post_partial(on_condition, raise_, else_=return_)
+    |then>> post_partial(on_condition, raise_, else_=returned)
 )
 
 
@@ -359,7 +359,7 @@ bad_resource_wrapping_on = documenting_by(
     is negative.
     """
 )(
-    post_partial(on_condition, BadResourceWrapper, else_=return_)
+    post_partial(on_condition, BadResourceWrapper, else_=returned)
 )
 
 

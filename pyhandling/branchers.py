@@ -8,7 +8,7 @@ from pyhandling.annotations import ActionT, ResultT, atomic_action, ArgumentsT, 
 from pyhandling.binders import post_partial
 from pyhandling.errors import TemplatedActionChainError, NeutralActionChainError
 from pyhandling.tools import DelegatingProperty, with_opened_items, ArgumentKey, ArgumentPack
-from pyhandling.synonyms import return_
+from pyhandling.synonyms import returned
 
 
 __all__ = (
@@ -120,7 +120,7 @@ def merged(
         """
 
         return (
-            return_
+            returned
             if return_from is None
             else post_partial(getitem_of, return_from)
         )(

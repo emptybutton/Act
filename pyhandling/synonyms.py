@@ -12,7 +12,7 @@ __all__ = (
 )
 
 
-def return_(resource: ResourceT) -> ResourceT:
+def returned(resource: ResourceT) -> ResourceT:
     """
     Function representing the absence of an action.
     Returns the resource passed to it back.
