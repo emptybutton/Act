@@ -23,12 +23,6 @@ class MechanicalError(PyhandingError):
     pass
 
 
-bad_wrapped_or_not = (AnnotationTemplate |to| Union)([
-    AnnotationTemplate(IBadResourceKeeper, [input_annotation]),
-    input_annotation
-])
-
-
 class ResourceWithContext(NamedTuple, Generic[ResourceT, ContextT]):
     """
     Class for annotating a resource that is invalid under some circumstances.
