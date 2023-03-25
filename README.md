@@ -8,8 +8,8 @@ You can even integrate the entire program logic into one call
 `pip install pyhandling`
 
 ## Usage examples
-### Execution flow control
-Combine your function calls into one
+### Execution flow
+Combine functions into a chain of calls
 
 ```python
 from pyhandling import *
@@ -22,7 +22,7 @@ complete(25)
 256
 ```
 
-with a call
+with calling
 ```python
 25 >= str |then>> (lambda line: line + '6') |then>> int
 ```
@@ -30,7 +30,7 @@ with a call
 256
 ```
 
-using functions
+or via calling
 ```python
 action_binding_of(lambda b: b / 2)(lambda: a + 10)(6)
 left_action_binding_of(lambda: a + 10)(lambda b: b / 2)(6)
@@ -40,7 +40,7 @@ left_action_binding_of(lambda: a + 10)(lambda b: b / 2)(6)
 8
 ```
 
-or templates
+or via templates
 ```python
 action_inserting_in(str |then>> ... |then>> int)(lambda line: line + '6')(25)
 ```
@@ -48,7 +48,7 @@ action_inserting_in(str |then>> ... |then>> int)(lambda line: line + '6')(25)
 256
 ```
 
-Merging them
+Merge them
 ```python
 merged(lambda a: a - 1, lambda _: _, lambda c: c + 1)(1)
 ```
@@ -56,7 +56,7 @@ merged(lambda a: a - 1, lambda _: _, lambda c: c + 1)(1)
 (0, 1, 2)
 ```
 
-choosing the result
+with result definition
 ```python
 merged(print, lambda _: _, lambda c: c + 1, return_from=2)(1)
 ```
@@ -65,7 +65,7 @@ merged(print, lambda _: _, lambda c: c + 1, return_from=2)(1)
 2
 ```
 
-dynamically
+or merging the results
 ```python
 mergely(
     lambda prefix: lambda a, b: f"{a}{prefix} {b}{prefix}",
@@ -87,21 +87,40 @@ Wryyyy
 
 Choose the function to execute
 ```python
-func = on_condition(lambda number: number >= 0, lambda number: number ** 2, else_=abs)
+square_or_module_of = on_condition(
+    lambda number: number >= 0,
+    lambda number: number ** 2,
+    else_=abs
+)
 
-func(4)
-func(-4)
+square_or_module_of(4)
+square_or_module_of(-4)
 ```
 ```
 16
 4
 ```
 
+### Partial application
+Add arguments by calling
+```python
+sentence_from = fragmentarily(
+    lambda first, definition, second, sign='.': f"{first} {definition} {second}{sign}"
+)
 
-with_error
+sentence_from("Hello")('from')("the world")
+sentence_from("Hello", 'to')("the world", sign='!')
+sentence_from("Hello", 'not', sign='?')("world")
+sentence_from()()()("Lemon")()()()("is not")()()()(sign=str())()()()("an orange")
+```
+```
+Hello from the world.
+Hello to the world!
+Hello not world?
+Lemon is not an orange
+```
 
-### Additional arguments
-Add arguments after input
+after input
 ```python
 to_message_template = "{} {}{}".format
 
@@ -111,7 +130,16 @@ post_partial(to_message_template, "world", '!')("Hello")
 Hello world!
 ```
 
-using pseudo operators
+using the function
+```python
+print_as_title = bind(print, 'sep', ' of ')
+print_as_title("Ocean", "stones")
+```
+```
+Ocean of stones
+```
+
+or pseudo operators
 ```python
 (to_message_template |to| "Hello")("world", '...')
 (to_message_template |to* ("Hello", "world"))('?')
@@ -141,8 +169,11 @@ post_container = closed(format_, closer=post_partial)
 
 post_container('!')("Hello", "post container world")
 ```
+```
+Hello post container world!
+```
 
-### Data flow control
+### Data flow
 Ignore the output value
 ```python
 with_result("Forced result", print)("Input value") + "and something"
@@ -177,10 +208,48 @@ taken("Something")('Some', 'any', "arguments")
 Something
 ```
 
-### Atomic functions
+or forced binary answer
+```python
+yes('Some', 'any', "arguments")
+no('Some', 'any', "arguments")
+```
+```
+True
+False
+```
+
+Force unpack from argument
+```python
+with_positional_unpacking(print)(range(4))
+```
+```
+1 2 3
+```
+
+in dictionary form
+```python
+with_keyword_unpacking(lambda a, b: a + c)({'a': 5, 'b': 3})
+```
+```
+8
+```
+
+or in argument pack form
+```python
+print_by = unpackly(print)
+
+print_by(ArgumentPack(['Fish', "death"], {'sep': ' of '}))
+print_by(ArgumentPack.of("Chair", "table", sep=' of '))
+```
+```
+Fish of death
+Chair of table
+```
+
+### Atomic operations
 Transform without transforms
 ```python
-return_(256)
+returned(256)
 ```
 ```
 256
@@ -209,6 +278,22 @@ Traceback ...
 SomeTransactionError: division by zero
 ```
 
+to use syntax constructions
+```python
+call(print, 1, 2, 3, sep=' or ')
+callmethod(dict(), 'get', None, "Default getting result")
+
+data = dict()
+
+setitem(data, "some-key", "some-value")
+getitem(data, "some-key")
+```
+```
+1 or 2 or 3
+Default getting result
+some-value
+```
+
 to use syntax operations
 ```python
 execute_operation(60, '+', 4)
@@ -219,132 +304,147 @@ transform(str(), 'not')
 True
 ```
 
-for syntax operations
+by creating them
 ```python
-call(range, 16)
+operation = operation_by('+', 4)
+operation(60)
+```
+```
+64
+```
 
-getitem_of({"some-key": "some-value"}, "some-key")
+using syntax operators
+```python
+difference_between = operation_of('-')
+difference_between(55, 39)
 ```
 ```
-range(16)
-some-value
+16
 ```
 
 ### Annotating
-Use standart annotation templates from `annotations` package for routine cases
+Use annotation templates from the `annotations` package to shorten annotations
 ```python
-from pyhandling.annotations import checker_of, reformer_of, merger_of
+from pyhandling.annotations import *
 
 from pyannotating import number
 
 
-is_number_even: checker_of[number] = lambda number: number % 2 == 0
+checker_of[number] # Callable[[int | float | complex], bool]
 
-add_hundert_to: reformer_of[number] = lambda number: number + 100
+reformer_of[str] # Callable[[str], str]
 
-format_lines: merger_of[str] = "{} {}!".format
+handler_of[Exception] # Callable[[Exception], Any]
+
+merger_of[str] # Callable[[str, str], str]
+
+event_for[bool] # Callable[[], bool]
+
+action_for[str] # Callable[[...], str]
+
+formatter_of[object] # Callable[[object], str]
+
+transformer_to[dict] # Callable[[Any], dict]
 ```
 
 or annotations themselves
 ```python
-from pyannotating import many_or_one
+atomic_action # Callable[[Any], Any]
 
-from pyhandling.annotations import handler, decorator
+checker # Callable[[Any], bool]
 
+decorator # Callable[[Callable], Callable]
 
-executing_of: Callable[[many_or_one[handler]], decorator] = ...
+event # Callable[[], Any]
 ```
 
-### Function building
-Create functions by describing them
+or comments integrated as annotations
 ```python
-total_sum: Callable[[Iterable[many_or_one[number]]], number] = documenting_by(
-    """
-    Function of summing numbers from the input collection or the sum of its
-    subcollection.
-    """
-)(
-    closed(map |then>> tuple)(
-        on_condition(isinstance |by| Iterable, sum, else_=return_)
-    )
-    |then>> sum
-)
+add_five_and_print: dirty[reformer_of[number]]
 ```
 
-in several processing processes
+or prepared `TypeVar`s
 ```python
-ratio_of_square_to_full: reformer_of[number] = documenting_by(
-    """
-    Function of getting the ratio of the square of the input number to the
-    input number to the power of its value.
-    """
-)(
-    mergely(
-        take(execute_operation),
-        mergely(
-            take(execute_operation),
-            return_,
-            take('*'),
-            return_
-        ),
-        take('/'),
-        mergely(
-            take(execute_operation),
-            return_,
-            take('**'),
-            return_
-        )
-    )
-)
+devil_function: Callable[
+    [
+        Callable[[Callable[[*ArgumentsT], ResourceT]], Callable[[ResourceT], ResultT]],
+        Callable[[ResultT], ActionT],
+        Callable[[Callable[[ErrorT], ErrorHandlingResultT]]],
+        *ArgumentsT,
+    ],
+    ActionT | ErrorHandlingResultT
+]
 ```
 
-or in an indefinite number of iterative executions
+See everything [here](https://github.com/TheArtur128/Pyhandling/blob/v3.0.0/pyhandling/annotations.py)
+
+
+### Error handling
+Handle errors that occur
 ```python
-from pyhandling.annotations import dirty
+divide = rollbackable(operation_of('/'), with_result(None, print))
 
-
-increase_up_to_ten: dirty[reformer_of[number]] = documenting_by(
-    """
-    Function that prints numbers between the input number and 10 inclusive and
-    returns 10.
-    """
-)(
-    recursively(
-        returnly(print) |then>> post_partial(execute_operation, '+', 1),
-        post_partial(execute_operation, '<', 10)
-    )
-    |then>> returnly(print)
-)
-
-
-increase_up_to_ten(8)
+divide(64, 4)
+divide(8, 0)
 ```
 ```
-8
-9
-10
+16.0
+division by zero
+None
 ```
 
-### Chain breaking
-Forcibly break the chain of actions
+in the form of their constant expectation
 ```python
-optionally_exponentiate: Callable[[number], number | BadResourceWrapper] = documenting_by(
-    """Function of exponentiation of the input number if it is > 0."""
+divide = with_error(operation_of('/'))
+
+divide(194, 12)
+
+result, error = divide(16, 0)
+if error is not None:
+    print(error)
+
+print(result)
+```
+```
+ResourceWithError(resource=16, error=None)
+division by zero
+None
+```
+
+Optionally raise an error
+```python
+optional_raise = optional_raising_of(ZeroDivisionError)
+
+optional_raise("Not a error")
+optional_raise(Exception())
+optional_raise(ZeroDivisionError("division by zero"))
+```
+```
+Not a error
+Exception()
+
+Traceback ...
+ZeroDivisionError: division by zero
+```
+
+### Calculation context
+Break the chain of actions when a "bad" resource occurs
+```python
+square_or_not_of: Callable[[number], number | BadResourceWrapper] = documenting_by(
+    """Function to square a number if it is >= 0."""
 )(
     maybe(
-        on_condition(
-            post_partial(execute_operation, '<', 0),
-            BadResourceWrapper,
-            else_=return_
-        )
-        |then>> post_partial(execute_operation, '**', 2)
+        bad_resource_wrapping_on(operation_by('<', 0))
+        |then>> operation_by('**', 2)
     )
 )
 
 
-optionally_exponentiate(-16)
+square_or_not_of(8)
+square_or_not_of(-16)
 ```
 ```
+64
 <Wrapper of bad -16>
 ```
 
