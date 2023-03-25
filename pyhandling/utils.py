@@ -333,9 +333,21 @@ maybe: monada_among[Special[IBadResourceKeeper]] = documenting_by(
 )
 
 
+def for_context(
+    context_handler: Callable[[ContextT], ResultT],
+    contextual: ResourceWithContext[Any, ContextT],
+) -> ResultT:
+    return context_handler(contextual.context)
+
+
+in_context: Callable[[ResourceT], ResourceWithContext[ResourceT, None]]
+in_context = documenting_by(
     """
+    Function representing the input resource as a resource with a context (which
+    is None).
     """
 )(
+    ResourceWithContext |by| None
 )
 
 
