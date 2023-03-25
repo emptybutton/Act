@@ -351,6 +351,23 @@ in_context = documenting_by(
 )
 
 
+def wrapping_with_context_on(
+    is_valid_to_wrap: checker_of[ResourceT],
+    *,
+    context_from: Callable[[ResourceT], ContextT] = taken(None),
+) -> ResourceT | ResourceWithContext[ResourceT, ContextT]:
+    """
+    Function for the function of optionally wrapping the input resource in 
+    `ResourceWithContext`.
+    """
+
+    return on_condition(
+        is_valid_to_wrap,
+        mergely(taken(ResourceWithContext), returned, context_from),
+        else_=returned,
+    )
+
+
 bad_resource_wrapping_on: Callable[
     [checker_of[ResourceT]],
     Callable[[ResourceT], bad_wrapped_or_not[ResourceT]]
