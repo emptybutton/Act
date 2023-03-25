@@ -9,7 +9,7 @@ from pyhandling.annotations import atomic_action, dirty, handler_of, ResourceT, 
 from pyhandling.binders import returnly, closed, post_partial, eventually, unpackly
 from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable, mapping_for_chain_among
 from pyhandling.language import then, by, to
-from pyhandling.error_controllers import BadResourceError, IBadResourceKeeper, BadResourceWrapper, ResultWithError, bad_wrapped_or_not
+from pyhandling.error_controllers import BadResourceWrapper, ResourceWithError, bad_wrapped_or_not
 from pyhandling.synonyms import execute_operation, returned, transform, raise_
 from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock
 
@@ -19,7 +19,7 @@ __all__ = (
     "operation_by", "operation_of", "shown", "action_inserting_in",
     "left_action_binding_of", "action_binding_of", "taken", "as_collection",
     "collection_from", "collection_unpacking_in", "keyword_unpacking_in",
-    "yes", "no", "times", "skipping_on", "optional_raising_of", "monadically",
+    "yes", "no", "times", "becoming_skipping_on", "optional_raising_of", "monadically",
     "monada_among", "maybe", "optional_bad_resource_from",
     "bad_resource_wrapping_on", "with_error", "between_errors"
 )

@@ -6,9 +6,9 @@ from pyhandling.tools import ItemGetter, ItemSetter, ContextManager
 
 
 __all__ = (
-    "return_", "raise_", "assert_", "positionally_unpack_to", "unpack_by_keys_to",
-    "bind", "call", "getitem_of", "setitem_of", "execute_operation", "transform",
-    "to_context", "with_context_by"
+    "returned", "raise_", "assert_", "with_positional_unpacking",
+    "with_keyword_unpacking", "bind", "call", "getitem", "setitem",
+    "execute_operation", "transform", "to_context", "with_context_by"
 )
 
 

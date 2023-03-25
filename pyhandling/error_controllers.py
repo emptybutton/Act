@@ -5,17 +5,15 @@ from typing import Generic, Union, runtime_checkable, Protocol, Iterable, Self, 
 
 from pyannotating import AnnotationTemplate, input_annotation
 
-from pyhandling.annotations import ResourceT, ErrorT, ContextT, ResultT
+from pyhandling.annotations import ResourceT, ErrorT, ContextT
 from pyhandling.errors import PyhandingError
 from pyhandling.language import to
 from pyhandling.tools import DelegatingProperty, with_opened_items
 
 
 __all__ = (
-    "MechanicalError", "IBadResourceKeeper", "BadResourceWrapper",
-    "bad_wrapped_or_not", "BadResourceError", "SingleErrorKepper", "ErrorKepper",
-    "error_storage_of", "errors_from", "ErrorReport", "ContextualError",
-    "ResultWithError"
+    "MechanicalError", "ResourceWithContext", "SingleErrorKepper", "ErrorKepper",
+    "error_storage_of", "errors_from", "ErrorReport", "ContextualError"
 )
 
 
