@@ -265,22 +265,21 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
 )
 
 
-skipping_on: Callable[
+becoming_skipping_on: Callable[
     [checker_of[ResourceT]],
     Callable[
         [Callable[[ResourceT], ResultT]],
         Callable[[ResourceT], ResultT | ResourceT]
     ]
 ]
-skipping_on = documenting_by(
+becoming_skipping_on = documenting_by(
     """
     Function for creating a decorator for an action, when calling which it may
     not be explored if the conditions of the input (for this function) checker
     to the input argument of the decorated action are true.
     """
 )(
-    action_binding_of(transform |by| 'not')
-    |then>> closed(partial(on_condition, else_=return_))
+    inversion_of |then>> closed(partial(on_condition, else_=returned))
 )
 
 
