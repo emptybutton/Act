@@ -370,32 +370,32 @@ bad_resource_wrapping_on = documenting_by(
 
 with_error: Callable[
     [Callable[[*ArgumentsT], ResultT]],
-    Callable[[*ArgumentsT], ResultWithError[ResultT, Exception]]
+    Callable[[*ArgumentsT], ResourceWithContext[ResultT, Exception]]
 ]
 with_error = documenting_by(
     """
     Decorator that causes the decorated function to return the error that
     occurred.
 
-    Returns in `ResultWithError` format (result, error).
+    Returns in `ResourceWithContext` format (result, error).
     """
 )(
-    action_binding_of(lambda result: ResultWithError(result, None))
-    |then>> (rollbackable |by| (lambda error: ResultWithError(None, error)))
+    action_binding_of(lambda result: ResourceWithContext(result, None))
+    |then>> (rollbackable |by| (lambda error: ResourceWithContext(None, error)))
 )
 
 
-between_errors: mapping_for_chain_among[Callable[[Special[ResultWithError]], ResultWithError]]
+between_errors: mapping_for_chain_among[Callable[[Special[ResourceWithContext]], ResourceWithContext]]
 between_errors = documenting_by(
     """Function for a chain of actions with the return of an error."""
 )(
     monadically(
         with_error
-        |then>> (lambda node: lambda resource: (
-            node(resource.result) if isinstance(resource, ResultWithError) else node(resource)
+        |then>> left_action_binding_of(on_condition(
+            isinstance |by| ResourceWithContext, getattr |by| "resource", else_=returned
         ))
-        |then>> skipping_on(
-            lambda resource: isinstance(resource, ResultWithError) and resource.error is not None
+        |then>> becoming_skipping_on(
+            lambda resource: isinstance(resource, ResourceWithError) and resource.error is not None
         )
     )
 )
