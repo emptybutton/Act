@@ -60,13 +60,13 @@ def call(caller: action_for[ResultT], *args, **kwargs) -> ResultT:
     return caller(*args, **kwargs)
 
 
-def getitem_of(object_: ItemGetter[KeyT, ResourceT], item_key: KeyT) -> ResourceT:
+def getitem(object_: ItemGetter[KeyT, ResourceT], item_key: KeyT) -> ResourceT:
     """Function for functional use of `[]` getting."""
 
     return object_[item_key]
 
 
-def setitem_of(object_: ItemSetter[KeyT, ResourceT], item_key: KeyT, item_value: ResourceT) -> None:
+def setitem(object_: ItemSetter[KeyT, ResourceT], item_key: KeyT, item_value: ResourceT) -> None:
     """Function for functional use of `[]` setting."""
 
     object_[item_key] = item_value
