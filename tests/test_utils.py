@@ -5,7 +5,7 @@ from pytest import mark, raises
 
 from pyhandling.annotations import checker_of, ResourceT, event_for
 from pyhandling.branchers import ActionChain
-from pyhandling.error_controllers import BadResourceWrapper, BadResourceError, IBadResourceKeeper, ResultWithError
+from pyhandling.error_controllers import BadResourceWrapper, BadResourceError, IBadResourceKeeper, ResourceWithError
 from pyhandling.synonyms import with_context_by
 from pyhandling.testing import calling_test_case_of
 from pyhandling.tools import ArgumentPack
@@ -349,7 +349,7 @@ def test_with_error(
     ]
 )
 def test_func_with_error(
-    func: event_for[ResultWithError],
+    func: event_for[ResourceWithError],
     expected_result: Any,
     error_type: Type[Exception]
 ):

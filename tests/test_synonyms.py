@@ -9,7 +9,7 @@ from tests.mocks import CustomContext
 from pytest import mark, raises
 
 
-test_return_ = calling_test_case_of((lambda: return_(None), None))
+test_returned = calling_test_case_of((lambda: returned(None), None))
 
 
 test_raise_ = calling_test_case_of((
@@ -27,14 +27,14 @@ test_assert_ = calling_test_case_of(
 )
 
 
-test_positionally_unpack_to = calling_test_case_of((
-    lambda: positionally_unpack_to(lambda a, b, c: (c, b, a), (1, 2, 3)),
+test_with_positional_unpacking = calling_test_case_of((
+    lambda: with_positional_unpacking(lambda a, b, c: (c, b, a), (1, 2, 3)),
     (3, 2, 1),
 ))
 
 
-test_unpack_by_keys_to = calling_test_case_of((
-    lambda: unpack_by_keys_to(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3)),
+test_with_keyword_unpacking = calling_test_case_of((
+    lambda: with_keyword_unpacking(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3)),
     (3, 2, 1),
 ))
 
@@ -51,12 +51,12 @@ test_call = calling_test_case_of((
 ))
 
 
-test_getitem_of = calling_test_case_of((lambda: getitem_of(dict(a=1), 'a'), 1))
+test_getitem = calling_test_case_of((lambda: getitem(dict(a=1), 'a'), 1))
 
 
 @mark.parametrize('object_, key, value', ((dict(), 'a', 1), (dict(), 'b', 2)))
-def setitem_of(object_: object, key: Any, value: Any) -> None:
-    setitem_of(object_, key, value)
+def test_setitem(object_: object, key: Any, value: Any) -> None:
+    setitem(object_, key, value)
 
     assert object_[key] == value
 
