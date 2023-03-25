@@ -333,21 +333,9 @@ maybe: monada_among[Special[IBadResourceKeeper]] = documenting_by(
 )
 
 
-optional_bad_resource_from: Callable[
-    [IBadResourceKeeper[ResourceT] | ResourceT],
-    ResourceT
-] 
-optional_bad_resource_from = documenting_by(
     """
-    Function for getting a bad resource from his keeper when this keeper enters.
-    Returns the input resource if it is not a bad resource keeper.
     """
 )(
-    on_condition(
-        isinstance |by| IBadResourceKeeper,
-        getattr |by| "bad_resource",
-        else_=return_
-    )
 )
 
 
