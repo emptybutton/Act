@@ -88,10 +88,3 @@ class ContextualError(MechanicalError, Generic[ErrorT, ContextT]):
     @cached_property
     def _error_message(self) -> str:
         return f"{str(self.__error)} in context {self.__context}"
-
-
-class ResultWithError(NamedTuple, Generic[ResultT, ErrorT]):
-    """Named tuple storing someone's possible result or error."""
-
-    result: Optional[ResultT] = None
-    error: Optional[ErrorT] = None
