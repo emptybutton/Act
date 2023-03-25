@@ -230,6 +230,12 @@ yes: action_for[bool] = documenting_by("""Shortcut for `taken(True)`.""")(taken(
 no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(False))
 
 
+inversion_of: Callable[[handler_of[ResourceT]], checker_of[ResourceT]]
+inversion_of = documenting_by("""Negation adding function.""")(
+    action_binding_of(transform |by| 'not')
+)
+
+
 times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     """
     Function to create a function that will return `True` the input value (for
