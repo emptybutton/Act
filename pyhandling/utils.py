@@ -323,13 +323,21 @@ monada_among = (AnnotationTemplate |to| mapping_for_chain_among)([
 
 
 maybe: monada_among[Special[IBadResourceKeeper]] = documenting_by(
+with_context_saving: monada_among[ResourceWithContext] = documenting_by(
     """
     Function to finish execution of an action chain when a bad resource keeper
     appears in it by returning this same keeper, skipping subsequent action
     chain nodes.
+    Function that represents a chain of actions (or just an action) in the form
+    of operations on a resource from `ResourceWithContext` with preservation of
+    its context.
     """
 )(
     monadically(skipping_on(isinstance |by| IBadResourceKeeper))
+    monadically(lambda node: lambda contextual: ResourceWithContext(
+        node(contextual.resource),
+        contextual.context,
+    ))
 )
 
 
