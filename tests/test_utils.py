@@ -238,6 +238,12 @@ test_for_context = calling_test_case_of(
 )
 
 
+test_in_context = calling_test_case_of(
+    (lambda: in_context(4).resource, 4),
+    (lambda: in_context(None), ContextRoot(None, None)),
+)
+
+
 
 
 test_maybe = calling_test_case_of(
