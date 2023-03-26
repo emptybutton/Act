@@ -382,7 +382,7 @@ See everything [here](https://github.com/TheArtur128/Pyhandling/blob/v3.0.0/pyha
 ### Error handling
 Handle errors that occur
 ```python
-divide = rollbackable(operation_of('/'), with_result(None, print))
+divide = rollbackable(operation_of('/'), returned)
 
 divide(64, 4)
 divide(8, 0)
@@ -390,25 +390,18 @@ divide(8, 0)
 ```
 16.0
 division by zero
-None
 ```
 
 in the form of their constant expectation
 ```python
 divide = with_error(operation_of('/'))
 
-divide(194, 12)
-
 result, error = divide(16, 0)
-if error is not None:
-    print(error)
 
-print(result)
+print(result, error)
 ```
 ```
-ResourceWithError(resource=16, error=None)
-division by zero
-None
+None division by zero
 ```
 
 Optionally raise an error
