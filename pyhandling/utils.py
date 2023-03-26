@@ -365,7 +365,7 @@ in_context = documenting_by(
 )
 
 
-def wrapping_with_context_on(
+def wrapping_in_context_on(
     is_valid_to_wrap: checker_of[ResourceT],
     *,
     context_from: Callable[[ResourceT], ContextT] = taken(None),
