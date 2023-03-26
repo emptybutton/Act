@@ -120,6 +120,7 @@ operation_of: Callable[[str], merger_of[Any]] = documenting_by(
 )
 
 
+shown: dirty[reformer_of[ResourceT]]
 shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
     returnly(print)
 )
