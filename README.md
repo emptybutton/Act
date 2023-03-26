@@ -271,11 +271,11 @@ to_context(lambda file: file.read())(open("some-image.png"))
 
 to transform in a context manager's context
 ```python
-with_context_by(taken(some_transaction), lambda number: number / 0)(64)
+with_context_by(taken(imaginary_transaction), lambda number: number / 0)(64)
 ```
 ```
 Traceback ...
-SomeTransactionError: division by zero
+ImaginaryTransactionError: division by zero
 ```
 
 to use syntax constructions
