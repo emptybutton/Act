@@ -112,13 +112,11 @@ sentence_from = fragmentarily(
 
 sentence_from("Hello")('from')("the world")
 sentence_from("Hello", 'to')("the world", sign='!')
-sentence_from("Hello", 'not', sign='?')("world")
-sentence_from()()()("Lemon")()()()("is not")()()()(sign=str())()()()("an orange")
+sentence_from("Lemon", "is not", sign=str())("an orange")
 ```
 ```
 Hello from the world.
 Hello to the world!
-Hello not world?
 Lemon is not an orange
 ```
 
