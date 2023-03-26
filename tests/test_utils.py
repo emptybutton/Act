@@ -226,6 +226,18 @@ test_inside_context_roots = calling_test_case_of(
 )
 
 
+test_for_context = calling_test_case_of(
+    (
+        lambda: for_context(lambda c: c + 10)(ContextRoot(None, 32)),
+        ContextRoot(None, 42),
+    ),
+    (
+        lambda: for_context([lambda c: c + 5, lambda c: c * 2])(ContextRoot(None, 3)),
+        ContextRoot(None, 16),
+    )
+)
+
+
 
 
 test_maybe = calling_test_case_of(
