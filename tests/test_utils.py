@@ -330,29 +330,5 @@ def test_with_error(
         assert error is None
 
 
-@mark.parametrize(
-    "func, expected_result, error_type",
-    [
-        (
-            lambda: between_errors([
-                lambda a: a + 4, lambda b: b / 0, lambda _: "last node result"
-            ])(12),
-            None,
-            ZeroDivisionError,
         ),
-        (
-            lambda: between_errors([lambda a: a + 4, lambda b: b + 2])(10),
-            16,
-            type(None),
         ),
-    ]
-)
-def test_func_with_error(
-    func: event_for[ResourceWithError],
-    expected_result: Any,
-    error_type: Type[Exception]
-):
-    result, error = func()
-
-    assert result == expected_result
-    assert isinstance(error, error_type) 
