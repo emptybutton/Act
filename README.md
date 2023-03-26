@@ -546,6 +546,13 @@ in_context(in_context(4)) >= multi_context_incremented
 -8 on <negative Flag "bad"> on None
 10 on None on division by zero
 ```
+
+indicating special behavior
+```python
+in_context(ContextRoot(5, bad)) >= multi_context_incremented
+```
+```
+5 on <negative Flag "bad"> on None
 ```
 
 ### Batteries
