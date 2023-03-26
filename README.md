@@ -228,7 +228,7 @@ with_positional_unpacking(print)(range(4))
 
 in dictionary form
 ```python
-with_keyword_unpacking(lambda a, b: a + c)({'a': 5, 'b': 3})
+with_keyword_unpacking(lambda a, b: a + b)({'a': 5, 'b': 3})
 ```
 ```
 8
