@@ -488,10 +488,30 @@ print(number, context, sep=', ')
 -16, <negative Flag "bad">
 ```
 
+Display intermediate results
+```python
+"result is " + str(
+    8 >= showly(
+        operation_by('**', 2)
+        |then>> operation_by('*', 1.3125)
+        |then>> operation_by('+', 16)
+    )
 )
+```
+```
+64
+84.0
+100.0
+result is 100.0
+```
 
+pointwise
+```python
+showed(4) + 12
 ```
 ```
+4
+16
 ```
 
 with corresponding possibilities
