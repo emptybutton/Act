@@ -35,8 +35,7 @@ def test_operation_of(sign: str, first_operand: Any, second_operand: Any, result
 test_action_inserting_in = calling_test_case_of(
     (lambda: action_inserting_in([..., (lambda b: b / 2)])(lambda a: a + 3)(13), 8),
     (lambda: action_inserting_in([(lambda a: a + 3), ...])(lambda b: b / 2)(13), 8),
-    (lambda: with_context_by(lambda _: raises(ValueError), action_inserting_in)([..., ...]), None),
-    (lambda: with_context_by(lambda _: raises(ValueError), action_inserting_in)(list()), None),
+    (lambda: action_inserting_in([..., ...])(lambda a: a + 2)(12), 16)
 )
 
 

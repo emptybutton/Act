@@ -132,28 +132,20 @@ def action_inserting_in(
     """
     Function to create a function by insertion its input function in the input
     template.
+
+    The created function replaces `...` with an input action.
     """
 
-    action_template = tuple(action_template)
-
-    if action_template.count(Ellipsis) != 1:
-        raise ValueError(
-            f"There must be one Ellipsis (...) in the input template, but there are {action_template.count(Ellipsis)}"
-        )
-
-    def insert_to_template(action: Callable) -> ActionChain:
+    def insert_to_template(intercalary_action: Callable) -> ActionChain:
         """
         Function given as a result of calling `action_inserting_in`.
         See `action_inserting_in` for more info.
         """
 
-        ellipsis_index = action_template.index(Ellipsis)
-
-        return ActionChain((
-            *action_template[:ellipsis_index],
-            action,
-            *action_template[ellipsis_index + 1:]
-        ))
+        return ActionChain(
+            intercalary_action if action is Ellipsis else action
+            for action in action_template
+        )
 
     return insert_to_template
 
