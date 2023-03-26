@@ -43,8 +43,9 @@ test_action_inserting_in = calling_test_case_of(
     "checker, number, result",
     ((lambda number: number < 10, 3, 3), (lambda number: number < 10, 11, 12))
 )
-def test_skipping_on(checker: checker_of[number], number: number, result: Any):
-    assert skipping_on(checker)(lambda number: number + 1)(number) == result
+def test_becoming_skipping_on(checker: checker_of[number], number: number, result: Any):
+    assert becoming_skipping_on(checker)(lambda number: number + 1)(number) == result
+
 
 
 @mark.parametrize(
@@ -211,16 +212,24 @@ test_monadically = calling_test_case_of(
 )
 
 
-test_maybe = calling_test_case_of((
     (
-        lambda: (
-            maybe(
-                [lambda a: a + 2, BadResourceWrapper, lambda _: "last node result"]
-            )(14).bad_resource
-        )
     ),
-    (16),
-))
+
+
+test_maybe = calling_test_case_of(
+    (
+        lambda: ContextRoot(14, "Input context") >= maybe([
+            lambda a: a + 2, lambda _: bad, lambda _: "last node result"
+        ]),
+        ContextRoot(16, bad),
+    ),
+    (
+        lambda: ContextRoot(10, "Input context") >= maybe([
+            lambda a: a + 3, lambda b: b + 2, lambda c: c + 1
+        ]),
+        ContextRoot(16, "Input context"),
+    ),
+)
 
 
 @mark.parametrize(
@@ -238,39 +247,6 @@ def test_resource_returning_of_optional_raising_of(
 ):
     assert optional_raising_of(error_type)(input_resource) == input_resource
 
-
-@mark.parametrize(
-    "nodes, input_resource, result",
-    [
-        (ActionChain((lambda x: x + 2, BadResourceWrapper, lambda x: x.resource * 2)), 40, 42),
-        (ActionChain(), 42, 42),
-        (tuple(), 256, 256),
-        ([lambda x: x ** x], 4, 256),
-        ([lambda x: x ** 2, lambda x: x ** x], 2, 256),
-        (
-            [
-                lambda x: x ** 2,
-                lambda x: x ** x,
-                lambda x: x + 80,
-                lambda x: x >> 3,
-                BadResourceWrapper
-            ],
-            2,
-            42
-        )
-    ]
-)
-def test_maybe(
-    nodes: Iterable[Callable],
-    input_resource: Any,
-    result: Any
-):
-    maybe_result = maybe(nodes)(input_resource)
-
-    assert (
-        (maybe_result.bad_resource if isinstance(maybe_result, IBadResourceKeeper) else maybe_result)
-        == result
-    )
 
 
 @mark.parametrize(
