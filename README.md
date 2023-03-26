@@ -421,59 +421,56 @@ ZeroDivisionError: division by zero
 ```
 
 ### Calculation context
-Break the chain of actions when a "bad" resource occurs
+Break the chain of actions
 ```python
-square_or_not_of: Callable[[number], number | BadResourceWrapper] = documenting_by(
-    """Function to square a number if it is >= 0."""
+incremented_or_not: reformer_of[ContextRoot[number, Special[bad]]] = documenting_by(
+    """
+    Function to increase an input number if it is > 0.
+
+    Takes as input a number wrapped in `ContextRoot`, using the `in_context`
+    function or `ContextRoot(..., None)` directly.
+    """
 )(
     maybe(
-        bad_resource_wrapping_on(operation_by('<', 0))
+        on_condition(operation_by('<', 0), taken(bad), else_=returned)
         |then>> operation_by('**', 2)
+        |then>> operation_by('*', 1.3125)
     )
 )
 
 
-square_or_not_of(8)
-square_or_not_of(-16)
+in_context(8) >= incremented_or_not
+in_context(-16) >= incremented_or_not
 ```
 ```
-64
-<Wrapper of bad -16>
+84 on None
+-16 on <negative Flag "bad">
 ```
 
-with the possibility of returning a "bad" resource
 ```python
-main: dirty[reformer_of[number]] = optionally_exponentiate |then>> optionally_get_bad_resource_from
 
-main(8)
-main(-16)
 ```
 ```
-64
--16
 ```
 
-You can also interrupt by returning an error proxy that stores the error </br>that occurred while processing this resource and the resource itself
+with getting values
 ```python
-from pyhandling.annotations import reformer_of
+root = incremented(in_context(4))
+
+root.resource
+root.context
+```
+```
+28
+division by zero
+```
 
 
-div_by_zero: reformer_of[number] = documenting_by(
-    """Function for dividing an input number by zero."""
-)(
-    post_partial(execute_operation, '/', 0)
+
 )
 
-
-main: Callable[[number], number | BadResourceError] = (
-    returnly_rollbackable(div_by_zero, take(True))
-)
-
-
-main(256)
 ```
 ```
-BadResourceError('Resource "256" could not be handled due to ZeroDivisionError: division by zero')
 ```
 
 with corresponding possibilities
