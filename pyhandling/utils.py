@@ -382,22 +382,6 @@ def wrapping_in_context_on(
     )
 
 
-bad_resource_wrapping_on: Callable[
-    [checker_of[ResourceT]],
-    Callable[[ResourceT], bad_wrapped_or_not[ResourceT]]
-]
-bad_resource_wrapping_on = documenting_by(
-    """
-    Function for optional wrapping in BadResourceWrapper under the conditions
-    given by the input checker.
-
-    The output function returns the input resource when the checker condition
-    is negative.
-    """
-)(
-    post_partial(on_condition, BadResourceWrapper, else_=returned)
-)
-
 
 bad_resource_context = Flag("bad_resource_context")
 
