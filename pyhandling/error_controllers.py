@@ -12,8 +12,8 @@ from pyhandling.tools import DelegatingProperty, with_opened_items
 
 
 __all__ = (
-    "MechanicalError", "ResourceWithContext", "SingleErrorKepper", "ErrorKepper",
-    "error_storage_of", "errors_from", "ErrorReport", "ContextualError"
+    "MechanicalError", "SingleErrorKepper", "ErrorKepper", "error_storage_of",
+    "errors_from", "ErrorReport", "ContextualError"
 )
 
 

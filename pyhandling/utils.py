@@ -1,27 +1,27 @@
 from datetime import datetime
 from functools import wraps, partial
 from math import inf
-from typing import Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn
+from typing import NamedTuple, Generic, Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn, Optional
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
 
-from pyhandling.annotations import atomic_action, dirty, handler_of, ResourceT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, reformer_of
+from pyhandling.annotations import atomic_action, dirty, handler_of, ResourceT, ContextT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, reformer_of
 from pyhandling.binders import returnly, closed, post_partial, eventually, unpackly
-from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable, mapping_for_chain_among
+from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable, mapping_for_chain_among, mergely
 from pyhandling.language import then, by, to
-from pyhandling.error_controllers import BadResourceWrapper, ResourceWithError, bad_wrapped_or_not
 from pyhandling.synonyms import execute_operation, returned, transform, raise_
-from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock
+from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, nothing, Flag
 
 
 __all__ = (
-    "Logger", "showly", "callmethod", "with_result",
+    "ContextRoot", "Logger", "showly", "callmethod", "with_result",
     "operation_by", "operation_of", "shown", "action_inserting_in",
     "left_action_binding_of", "action_binding_of", "taken", "as_collection",
     "collection_from", "collection_unpacking_in", "keyword_unpacking_in",
-    "yes", "no", "times", "becoming_skipping_on", "optional_raising_of", "monadically",
-    "monada_among", "maybe", "optional_bad_resource_from",
-    "bad_resource_wrapping_on", "with_error", "between_errors"
+    "yes", "no", "times", "becoming_skipping_on", "optional_raising_of",
+    "monadically", "monada_among", "inside_context_roots", "for_context",
+    "in_context", "wrapping_in_context_on", "bad", "maybe", "bad_when",
+    "with_error", "until_error_occurs"
 )
 
 
