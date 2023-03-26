@@ -514,21 +514,38 @@ showed(4) + 12
 16
 ```
 
-with corresponding possibilities
+Combine compute contexts
 ```python
-main: reformer_of[number] = (
-    partial(map |then>> maybe, returnly_rollbackable |by| take(True))(
-        post_partial(execute_operation, '*', 2)
-        |then>> div_by_zero
+multi_context_incremented: reformer_of[
+    ContextRoot[ContextRoot[Any, Special[Exception]], Special[bad]]
+]
+multi_context_incremented = documenting_by(
+    """
+    Multi-Context Input Increment Function.
+
+    Each level of context evaluation requires a separate `ContextRoot` to be
+    passed.
+    """
+)(
+    (maybe |then>> until_error_occurs)(
+        operation_by('+', 4)
+        |then>> operation_by('+', 2)
+        |then>> bad_when(operation_by('<', 0))
+        |then>> (lambda number: number / (number - 10))
+        |then>> operation_by('+', 5)
     )
-    |then>> optionally_get_bad_resource_from
 )
 
 
-main(16)
+in_context(in_context(5)) >= multi_context_incremented
+in_context(in_context(-14)) >= multi_context_incremented
+in_context(in_context(4)) >= multi_context_incremented
 ```
 ```
-32
+16.0 on None on None
+-8 on <negative Flag "bad"> on None
+10 on None on division by zero
+```
 ```
 
 ### Batteries
