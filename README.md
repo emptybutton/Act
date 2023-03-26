@@ -185,11 +185,11 @@ Forced result and something
 
 via arguments
 ```python
-returnly(print)("Input argument")
+returnly(print)("Input argument") + "and something"
 ```
 ```
 Input argument
-Input argument
+Input argument and something
 ```
 
 or ignore input arguments
