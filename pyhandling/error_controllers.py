@@ -21,16 +21,6 @@ class MechanicalError(PyhandingError):
     pass
 
 
-class ResourceWithContext(NamedTuple, Generic[ResourceT, ContextT]):
-    """
-    Class for annotating a resource that is invalid under some circumstances.
-    Storing a resource with the context of its badness.
-    """
-
-    resource: ResourceT
-    context: ContextT
-
-
 @runtime_checkable
 class SingleErrorKepper(Protocol, Generic[ErrorT]):
     error: ErrorT | Self | "ErrorKepper"

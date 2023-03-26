@@ -25,6 +25,19 @@ __all__ = (
 )
 
 
+class ContextRoot(NamedTuple, Generic[ResourceT, ContextT]):
+    """
+    Class for annotating a resource with some context.
+    Storing a resource with its context.
+    """
+
+    resource: ResourceT
+    context: ContextT
+
+    def __repr__(self) -> str:
+        return f"{self.resource} on {self.context}"
+
+
 class Logger:
     """
     Class for logging any messages.
