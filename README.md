@@ -7,7 +7,7 @@ You can even integrate the entire program logic into one call
 ## Installation
 `pip install pyhandling`
 
-## Usage examples
+## Examples
 ### Execution flow
 Combine functions into a chain of calls
 
