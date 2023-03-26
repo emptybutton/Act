@@ -70,13 +70,13 @@ merged(print, lambda c: c + 1, return_from=1)(1)
 or merging the results
 ```python
 mergely(
-    lambda prefix: lambda a, b: f"{a}{prefix} {b}{prefix}",
-    lambda prefix: f"{prefix}Hello",
-    lambda prefix: f"{prefix}world",
-)('~')
+    lambda word: lambda a, b: f"_{a}_{b}",
+    lambda word: word.capitalize(),
+    lambda word: f"_{word}",
+)("hello")
 ```
 ```
-~Hello~ ~world~
+_Hello__hello
 ```
 
 Repeat calls
