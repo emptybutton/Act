@@ -382,11 +382,10 @@ def wrapping_in_context_on(
     )
 
 
+bad = Flag('bad', is_positive=False)
 
-bad_resource_context = Flag("bad_resource_context")
 
-
-maybe: monada_among[ResourceWithContext[Any, Special[bad_resource_context]]]
+maybe: monada_among[ContextRoot[Any, Special[bad]]]
 maybe = documenting_by(
     """
     Function to finish execution of an action chain when a bad resource keeper
