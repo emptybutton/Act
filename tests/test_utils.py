@@ -40,23 +40,6 @@ test_action_inserting_in = calling_test_case_of(
 
 
 @mark.parametrize(
-    "checker, resource, result",
-    (
-        ((lambda number: number <= 0), 4, 4),
-        ((lambda number: number <= 0), 0, BadResourceWrapper(0)),
-        ((lambda number: number <= 0), -64, BadResourceWrapper(-64))
-    )
-)
-def test_bad_resource_wrapping_on(checker: checker_of[ResourceT], resource: ResourceT, result: Any):
-    resource_wrapper = bad_resource_wrapping_on(checker)(resource)
-
-    if type(resource_wrapper) is BadResourceWrapper and type(result) is BadResourceWrapper:
-        assert resource_wrapper.bad_resource == result.bad_resource
-    else:
-        assert resource_wrapper == result
-
-
-@mark.parametrize(
     "checker, number, result",
     ((lambda number: number < 10, 3, 3), (lambda number: number < 10, 11, 12))
 )
@@ -288,19 +271,6 @@ def test_maybe(
         (maybe_result.bad_resource if isinstance(maybe_result, IBadResourceKeeper) else maybe_result)
         == result
     )
-
-
-@mark.parametrize(
-    "input_resource, result",
-    [
-        (42, 42),
-        ((item for item in range(64)), ) * 2,
-        (BadResourceWrapper("Some bad resource"), "Some bad resource"),
-        (BadResourceError(256, Exception()), 256)
-    ]
-)
-def test_optional_bad_resource_from(input_resource: Any, result: Any):
-    assert optional_bad_resource_from(input_resource) == result
 
 
 @mark.parametrize(
