@@ -425,8 +425,8 @@ with_error = documenting_by(
     Returns in `ContextRoot` format (result, error).
     """
 )(
-    action_binding_of(lambda result: ResourceWithContext(result, None))
-    |then>> (rollbackable |by| (lambda error: ResourceWithContext(None, error)))
+    action_binding_of(in_context)
+    |then>> post_partial(rollbackable, ContextRoot |to| None)
 )
 
 
