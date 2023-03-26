@@ -318,5 +318,23 @@ def test_with_error(
         assert error is None
 
 
+test_until_error_occurs = calling_test_case_of(
+    (
+        lambda: until_error_occurs(lambda a: a + 3)(ContextRoot(1, "input context")),
+        ContextRoot(4, "input context"),
+    ),
+    (
+        lambda: until_error_occurs([lambda a: a + 1, lambda b: b + 2])(
+            ContextRoot(1, "input context")
         ),
+        ContextRoot(4, "input context"),
+    ),
+    (
+        lambda: (lambda root: (root.resource, type(root.context)))(
+            until_error_occurs([
+                lambda a: a + 2, lambda b: b / 0, lambda _: "last node result"
+            ])(ContextRoot(4, "input context"))
         ),
+        (6, ZeroDivisionError),
+    ),
+)
