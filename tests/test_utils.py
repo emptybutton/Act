@@ -244,6 +244,18 @@ test_in_context = calling_test_case_of(
 )
 
 
+test_wrapping_in_context_on = calling_test_case_of(
+    (lambda: wrapping_in_context_on(yes)(4), ContextRoot(4, None)),
+    (lambda: wrapping_in_context_on(no)(4), 4),
+    (
+        lambda: wrapping_in_context_on(lambda a: a > 0, context_from=lambda a: a * 2)(4),
+        ContextRoot(4, 8),
+    ),
+    (
+        lambda: wrapping_in_context_on(lambda a: a > 0, context_from=lambda a: a * 2)(-4),
+        -4,
+    ),
+)
 
 
 test_maybe = calling_test_case_of(
