@@ -60,7 +60,7 @@ merged(lambda a: a - 1, lambda _: _, lambda c: c + 1)(1)
 
 with result definition
 ```python
-merged(print, lambda _: _, lambda c: c + 1, return_from=2)(1)
+merged(print, lambda c: c + 1, return_from=1)(1)
 ```
 ```
 1
