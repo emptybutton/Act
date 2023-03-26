@@ -328,16 +328,15 @@ monada_among = (AnnotationTemplate |to| mapping_for_chain_among)([
 ])
 
 
-with_context_saving: monada_among[ResourceWithContext] = documenting_by(
+inside_context_roots: monada_among[ContextRoot[Any, ContextT]] = documenting_by(
     """
     Function that represents a chain of actions (or just an action) in the form
-    of operations on a resource from `ResourceWithContext` with preservation of
-    its context.
+    of operations on a resource from `ContextRoot` with preservation of its
+    context.
     """
 )(
-    monadically(lambda node: lambda contextual: ResourceWithContext(
-        node(contextual.resource),
-        contextual.context,
+    monadically(lambda node: lambda root: ContextRoot(
+        node(root.resource), root.context
     ))
 )
 
