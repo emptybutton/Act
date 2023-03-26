@@ -447,10 +447,23 @@ in_context(-16) >= incremented_or_not
 -16 on <negative Flag "bad">
 ```
 
+in case of errors
 ```python
+incremented: reformer_of[ContextRoot[number, Special[Exception]]]
+incremented = until_error_occurs(
+    operation_by('+', 10)
+    |then>> operation_by('*', 2)
+    |then>> (lambda number: number / (number - 28))
+    |then>> operation_by('**', 2)
+)
 
+
+incremented(in_context(6))
+incremented(in_context(4))
 ```
 ```
+64.0 on None
+28 on division by zero
 ```
 
 with getting values
