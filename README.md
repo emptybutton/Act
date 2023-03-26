@@ -42,10 +42,12 @@ left_action_binding_of(lambda: a + 10)(lambda b: b / 2)(6)
 
 or via templates
 ```python
-action_inserting_in(str |then>> ... |then>> int)(lambda line: line + '6')(25)
+4 >= action_inserting_in(... |then>> (lambda a: a * 10) |then>> ...)(
+    lambda number: number + 4
+)
 ```
 ```
-256
+84
 ```
 
 Merge them
