@@ -478,7 +478,15 @@ root.context
 division by zero
 ```
 
+using unpacking
+```python
+number, context = incremented_or_not(in_context(-16))
 
+print(number, context, sep=', ')
+```
+```
+-16, <negative Flag "bad">
+```
 
 )
 
