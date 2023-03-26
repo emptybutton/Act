@@ -354,14 +354,14 @@ for_context: monada_among[ContextRoot[ResourceT, Any]] = documenting_by(
 )
 
 
-in_context: Callable[[ResourceT], ResourceWithContext[ResourceT, None]]
+in_context: Callable[[ResourceT], ContextRoot[ResourceT, None]]
 in_context = documenting_by(
     """
     Function representing the input resource as a resource with a context (which
     is None).
     """
 )(
-    ResourceWithContext |by| None
+    ContextRoot |by| None
 )
 
 
@@ -369,15 +369,15 @@ def wrapping_with_context_on(
     is_valid_to_wrap: checker_of[ResourceT],
     *,
     context_from: Callable[[ResourceT], ContextT] = taken(None),
-) -> ResourceT | ResourceWithContext[ResourceT, ContextT]:
+) -> Callable[[ResourceT], ResourceT | ContextRoot[ResourceT, ContextT]]:
     """
     Function for the function of optionally wrapping the input resource in 
-    `ResourceWithContext`.
+    `ContextRoot`.
     """
 
     return on_condition(
         is_valid_to_wrap,
-        mergely(taken(ResourceWithContext), returned, context_from),
+        mergely(taken(ContextRoot), returned, context_from),
         else_=returned,
     )
 
@@ -418,14 +418,14 @@ maybe = documenting_by(
 
 with_error: Callable[
     [Callable[[*ArgumentsT], ResultT]],
-    Callable[[*ArgumentsT], ResourceWithContext[ResultT, Exception]]
+    Callable[[*ArgumentsT], ContextRoot[Optional[ResultT], Optional[Exception]]]
 ]
 with_error = documenting_by(
     """
     Decorator that causes the decorated function to return the error that
     occurred.
 
-    Returns in `ResourceWithContext` format (result, error).
+    Returns in `ContextRoot` format (result, error).
     """
 )(
     action_binding_of(lambda result: ResourceWithContext(result, None))
