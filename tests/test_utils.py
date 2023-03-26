@@ -212,8 +212,20 @@ test_monadically = calling_test_case_of(
 )
 
 
+test_inside_context_roots = calling_test_case_of(
     (
+        lambda: inside_context_roots(lambda a: a + 10)(ContextRoot(6, None)),
+        ContextRoot(16, None),
     ),
+    (
+        lambda: inside_context_roots([lambda a: a + 1, lambda a: a + 3])(
+            ContextRoot(12, None)
+        ),
+        ContextRoot(16, None),
+    ),
+)
+
+
 
 
 test_maybe = calling_test_case_of(
