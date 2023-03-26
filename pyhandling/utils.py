@@ -393,9 +393,15 @@ maybe = documenting_by(
     chain nodes.
     """
 )(
-    with_context_saving |then>> monadically(
-        becoming_skipping_on(for_context(operation_by('is', bad_resource_context)))
-    )
+    monadically(lambda node: lambda root: (
+        root.resource >= node |then>> on_condition(
+            operation_by('is', bad),
+            taken(ContextRoot(root.resource, bad)),
+            else_=ContextRoot |by| root.context,
+        )
+        if root.context is not bad
+        else root
+    ))
 )
 
 
