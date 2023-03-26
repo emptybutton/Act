@@ -430,17 +430,16 @@ with_error = documenting_by(
 )
 
 
-between_errors: mapping_for_chain_among[Callable[[Special[ResourceWithContext]], ResourceWithContext]]
-between_errors = documenting_by(
+until_error_occurs: monada_among[ContextRoot[Any, Special[Exception]]]
+until_error_occurs = documenting_by(
     """Function for a chain of actions with the return of an error."""
 )(
-    monadically(
-        with_error
-        |then>> left_action_binding_of(on_condition(
-            isinstance |by| ResourceWithContext, getattr |by| "resource", else_=returned
-        ))
-        |then>> becoming_skipping_on(
-            lambda resource: isinstance(resource, ResourceWithError) and resource.error is not None
-        )
-    )
+    monadically(lambda node: lambda root: (
+        rollbackable(
+            node |then>> (ContextRoot |by| root.context),
+            lambda error: ContextRoot(root.resource, error),
+        )(root.resource)
+        if not isinstance(root.context, Exception)
+        else root
+    ))
 )
