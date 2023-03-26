@@ -241,7 +241,7 @@ test_maybe = calling_test_case_of(
         (AttributeError, (item for item in range(10))),
     ]
 )
-def test_resource_returning_of_optional_raising_of(
+def test_returning_of_optional_raising_of(
     error_type: Type[Exception],
     input_resource: Any
 ):
