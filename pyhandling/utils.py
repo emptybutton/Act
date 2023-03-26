@@ -341,11 +341,17 @@ inside_context_roots: monada_among[ContextRoot[Any, ContextT]] = documenting_by(
 )
 
 
-def for_context(
-    context_handler: Callable[[ContextT], ResultT],
-    contextual: ResourceWithContext[Any, ContextT],
-) -> ResultT:
-    return context_handler(contextual.context)
+for_context: monada_among[ContextRoot[ResourceT, Any]] = documenting_by(
+    """
+    Function that represents a chain of actions (or just an action) in the form
+    of operations on a context from `ContextRoot` with preservation of its
+    resource.
+    """
+)(
+    monadically(lambda node: lambda root: ContextRoot(
+        root.resource, node(root.context)
+    ))
+)
 
 
 in_context: Callable[[ResourceT], ResourceWithContext[ResourceT, None]]
