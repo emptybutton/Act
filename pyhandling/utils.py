@@ -405,6 +405,14 @@ maybe = documenting_by(
 )
 
 
+bad_when: Callable[[checker_of[ResourceT]], Callable[[ResourceT], ResourceT | bad]]
+bad_when = documenting_by(
+    """Shortcut function for `on_condition(..., taken(bad), else_=returned)`"""
+)(
+    post_partial(on_condition, taken(bad), else_=returned)
+)
+
+
 with_error: Callable[
     [Callable[[*ArgumentsT], ResultT]],
     Callable[[*ArgumentsT], ContextRoot[Optional[ResultT], Optional[Exception]]]
