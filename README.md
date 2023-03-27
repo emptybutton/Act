@@ -32,19 +32,15 @@ with calling
 
 or via calling
 ```python
-action_binding_of(lambda b: b / 2)(lambda: a + 10)(6)
-left_action_binding_of(lambda: a + 10)(lambda b: b / 2)(6)
+6 >= bind(lambda a: a + 10, lambda b: b / 2)
 ```
 ```
-8
 8
 ```
 
 or via template
 ```python
-4 >= action_inserting_in(... |then>> (lambda a: a * 10) |then>> ...)(
-    lambda number: number + 4
-)
+4 >= binding_by(... |then>> (lambda a: a * 10) |then>> ...)(lambda number: number + 4)
 ```
 ```
 84
@@ -450,7 +446,7 @@ in_context(-16) >= incremented_or_not
 in case of errors
 ```python
 incremented: reformer_of[ContextRoot[number, Special[Exception]]]
-incremented = until_error_occurs(
+incremented = until_error(
     operation_by('+', 10)
     |then>> operation_by('*', 2)
     |then>> (lambda number: number / (number - 28))
@@ -527,10 +523,10 @@ multi_context_incremented = documenting_by(
     passed.
     """
 )(
-    (maybe |then>> until_error_occurs)(
         operation_by('+', 4)
         |then>> operation_by('+', 2)
         |then>> bad_when(operation_by('<', 0))
+    (maybe |then>> until_error)(
         |then>> (lambda number: number / (number - 10))
         |then>> operation_by('+', 5)
     )
