@@ -15,13 +15,11 @@ from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock,
 
 __all__ = (
     "ContextRoot", "Logger", "showly", "callmethod", "with_result",
-    "operation_by", "operation_of", "shown", "action_inserting_in",
-    "left_action_binding_of", "action_binding_of", "taken", "as_collection",
-    "collection_from", "collection_unpacking_in", "keyword_unpacking_in",
-    "yes", "no", "times", "becoming_skipping_on", "optional_raising_of",
-    "monadically", "monada_among", "inside_context_roots", "for_context",
-    "in_context", "wrapping_in_context_on", "bad", "maybe", "bad_when",
-    "with_error", "until_error_occurs"
+    "operation_by", "operation_of", "shown", "binding_by", "bind", "taken",
+    "as_collection", "collection_from", "yes", "no", "times",
+    "becoming_skipping_on", "optional_raising_of", "monadically", "monada_among",
+    "saving_context", "for_context", "in_context", "wrapping_in_context_on", "bad",
+    "maybe", "bad_when", "with_error", "until_error"
 )
 
 
@@ -92,9 +90,8 @@ def showly(
     nodes.
     """
 
-    return monadically(action_binding_of(returnly(str |then>> writer)))(
-        action_resource
-    )
+
+    return monadically(bind |by| returnly(str |then>> writer))(action_resource)
 
 
 def with_result(
@@ -161,26 +158,13 @@ def binding_by(template: Iterable[Callable | Ellipsis]) -> Callable[[Callable], 
     return insert_to_template
 
 
-left_action_binding_of: Callable[
-    [Callable[[*ArgumentsT], ResourceT]],
-    Callable[[Callable[[ResourceT], ResultT]], Callable[[*ArgumentsT], ResultT]]
-]
-left_action_binding_of = documenting_by(
-    """Creates a decorator that adds a action before an input function."""
-)(
-    lambda first_node: lambda second_node: ActionChain((first_node, second_node))
-)
+def bind(
+    first_node: Callable[[*ArgumentsT], ResourceT],
+    second_node: Callable[[ResourceT], ResultT]
+) -> Callable[[*ArgumentsT], ResultT]:
+    """Function of binding two input functions into a sequential `ActionChain`."""
 
-
-action_binding_of: Callable[
-    [Callable[[ResourceT], ResultT]],
-    Callable[[Callable[[*ArgumentsT], ResourceT]], Callable[[*ArgumentsT], ResultT]]
-]
-action_binding_of = documenting_by(
-    """Creates a decorator that adds a post action to the function."""
-)(
-    lambda second_node: lambda first_node: ActionChain((first_node, second_node))
-)
+    return first_node |then>> second_node
 
 
 taken: Callable[[ResourceT], action_for[ResourceT]] = documenting_by(

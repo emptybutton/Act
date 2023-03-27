@@ -46,27 +46,9 @@ def test_becoming_skipping_on(checker: checker_of[number], number: number, resul
     assert becoming_skipping_on(checker)(lambda number: number + 1)(number) == result
 
 
+test_test_bind = calling_test_case_of(
+    (lambda: 4 >= bind(lambda a: a / 2, lambda a: a + 6), 8),
 )
-@mark.parametrize(
-    "first_node, second_node, input_resource",
-    [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
-)
-def test_action_binding_of(first_node: Callable, second_node: Callable[[Any], Any], input_resource: Any):
-    assert (
-        action_binding_of(second_node)(first_node)(input_resource)
-        == ActionChain((first_node, second_node))(input_resource)
-    )
-
-
-@mark.parametrize(
-    "first_node, second_node, input_resource",
-    [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
-)
-def test_left_action_binding_of(first_node: Callable, second_node: Callable[[Any], Any], input_resource: Any):
-    assert (
-        left_action_binding_of(first_node)(second_node)(input_resource)
-        == ActionChain((first_node, second_node))(input_resource)
-    )
 
 
 @mark.parametrize("items", [(1, 2, 3), "Hello world!", range(10)])
