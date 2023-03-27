@@ -7,7 +7,7 @@ from pyhandling.tools import ItemGetter, ItemSetter, ContextManager
 
 __all__ = (
     "returned", "raise_", "assert_", "with_positional_unpacking",
-    "with_keyword_unpacking", "bind", "call", "getitem", "setitem",
+    "with_keyword_unpacking", "with_keyword", "call", "getitem", "setitem",
     "execute_operation", "transform", "to_context", "with_context_by"
 )
 
@@ -45,7 +45,7 @@ def with_keyword_unpacking(func: action_for[ResultT], arguments: dict) -> Result
     return func(**arguments)
 
 
-def bind(func: action_for[ResultT], argument_name: str, argument_value: Any) -> ResultT:
+def with_keyword(argument_name: str, argument_value: Any, func: action_for[ResultT]) -> ResultT:
     """
     Atomic partial function for a single keyword argument whose name and value
     are separate input arguments.

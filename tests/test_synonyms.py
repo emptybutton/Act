@@ -39,8 +39,8 @@ test_with_keyword_unpacking = calling_test_case_of((
 ))
 
 
-test_bind = calling_test_case_of((
-    lambda: bind(lambda a, b: a + b, 'b', 3)(1),
+test_with_keyword = calling_test_case_of((
+    lambda: with_keyword('b', 3, lambda a, b: a + b)(1),
     4,
 ))
 
