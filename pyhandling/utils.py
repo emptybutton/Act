@@ -304,7 +304,7 @@ monada_among = (AnnotationTemplate |to| mapping_for_chain_among)([
 ])
 
 
-inside_context_roots: monada_among[ContextRoot[Any, ContextT]] = documenting_by(
+saving_context: monada_among[ContextRoot[Any, ContextT]] = documenting_by(
     """
     Function that represents a chain of actions (or just an action) in the form
     of operations on a resource from `ContextRoot` with preservation of its
@@ -401,7 +401,7 @@ with_error = documenting_by(
     Returns in `ContextRoot` format (result, error).
     """
 )(
-    action_binding_of(in_context)
+    binding_by(... |then>> in_context)
     |then>> post_partial(rollbackable, ContextRoot |to| None)
 )
 
