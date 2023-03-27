@@ -139,9 +139,7 @@ shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
 )
 
 
-def action_inserting_in(
-    action_template: Iterable[Callable | Ellipsis]
-) -> Callable[[Callable], ActionChain]:
+def binding_by(template: Iterable[Callable | Ellipsis]) -> Callable[[Callable], ActionChain]:
     """
     Function to create a function by insertion its input function in the input
     template.
@@ -151,13 +149,13 @@ def action_inserting_in(
 
     def insert_to_template(intercalary_action: Callable) -> ActionChain:
         """
-        Function given as a result of calling `action_inserting_in`.
-        See `action_inserting_in` for more info.
+        Function given as a result of calling `binding_by`. See `binding_by` for
+        more info.
         """
 
         return ActionChain(
             intercalary_action if action is Ellipsis else action
-            for action in action_template
+            for action in template
         )
 
     return insert_to_template
@@ -216,7 +214,7 @@ no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(
 
 inversion_of: Callable[[handler_of[ResourceT]], checker_of[ResourceT]]
 inversion_of = documenting_by("""Negation adding function.""")(
-    action_binding_of(transform |by| 'not')
+    binding_by(... |then>> (transform |by| 'not'))
 )
 
 
@@ -297,7 +295,7 @@ monadically = documenting_by(
     """
 )(
     closed(map)
-    |then>> action_inserting_in(as_collection |then>> ... |then>> ActionChain)
+    |then>> binding_by(as_collection |then>> ... |then>> ActionChain)
 )
 
 
