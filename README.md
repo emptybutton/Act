@@ -103,18 +103,15 @@ square_or_module_of(-4)
 ### Partial application
 Add arguments by calling
 ```python
-sentence_from = fragmentarily(
-    lambda first, definition, second, sign='.': f"{first} {definition} {second}{sign}"
-)
+@fragmentarily
+def sentence_from(first: str, definition: str, second: str, sign: str = '!') -> str:
+    return f"{first} {definition} {second}{sign}"
 
-sentence_from("Hello")('from')("the world")
-sentence_from("Hello", 'to')("the world", sign='!')
-sentence_from("Lemon", "is not", sign=str())("an orange")
+
+sentence_from("A lemon")("is not", sign='.')("an orange")
 ```
 ```
-Hello from the world.
-Hello to the world!
-Lemon is not an orange
+A lemon is not an orange.
 ```
 
 after input
