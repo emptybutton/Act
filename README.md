@@ -582,6 +582,27 @@ context_crossing_incremented(in_context(8))
 9.0 on division by zero
 6.0 on None
 ```
+
+Create context calculations
+```python
+from typing import Iterable
+
+
+saving_results: monada_among[Iterable] = monalically(
+    lambda node: lambda resources: (*resources, node(resources[-1]))
+)
+
+
+[0] >= saving_results(
+    operation_by('+', 1)
+    |then>> operation_by('+', 2)
+    |then>> operation_by('+', 3)
+)
+```
+```
+(0, 1, 3, 6)
+```
+
 ### Batteries
 Use out-of-the-box functions to abstract from input arguments
 ```python
