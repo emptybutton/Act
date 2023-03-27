@@ -52,10 +52,19 @@ def test_action_chain_connection_to_other(first_nodes: Iterable[atomic_action], 
     )
 
 
-test_merged = calling_test_case_of((
-    lambda: merged(lambda a: a - 1, lambda _: _, lambda a: a + 1)(2),
-    (1, 2, 3)
-))
+test_merged = calling_test_case_of(
+    (
+        lambda: merged(lambda a: a - 1, lambda _: _, lambda a: a + 1)(2),
+        (1, 2, 3),
+    ),
+    (
+        lambda: merged(
+            lambda a: a - 1, lambda _: _, lambda c: c + 1,
+            return_from=slice(0, 3, 2),
+        )(2),
+        (1, 3),
+    )
+)
 
 
 @mark.parametrize(
