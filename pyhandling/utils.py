@@ -406,8 +406,8 @@ with_error = documenting_by(
 )
 
 
-until_error_occurs: monada_among[ContextRoot[Any, Special[Exception]]]
-until_error_occurs = documenting_by(
+until_error: monada_among[ContextRoot[Any, Special[Exception]]]
+until_error = documenting_by(
     """Function for a chain of actions with the return of an error."""
 )(
     monadically(lambda node: lambda root: (
