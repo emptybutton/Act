@@ -548,6 +548,40 @@ in_context(ContextRoot(5, bad)) >= multi_context_incremented
 5 on <negative Flag "bad"> on None
 ```
 
+using one `Context Root` level for different context calculations
+```python
+context_crossing_incremented: reformer_of[ContextRoot[number, Special[bad | Exception]]]
+context_crossing_incremented = documenting_by(
+    """
+    Function that increases a number using two compute contexts with one
+    `ContextRoot`.
+    """
+)(
+    maybe(
+        operation_by('+', 4)
+        |then>> bad_when(operation_by('<=', 0))
+        |then>> operation_by('*', 2)
+    )
+    |then>> until_error(
+        operation_by('-', 14)
+        |then>> (lambda n: n / (n - 2))
+    )
+    |then>> saving_context( # Calculation context without effect
+        operation_by('+', 0.25)
+        |then>> operation_by('*', 4)
+    )
+)
+
+
+context_crossing_incremented(in_context(-4))
+context_crossing_incremented(in_context(4))
+context_crossing_incremented(in_context(8))
+```
+```
+4.5 on <negative Flag "bad">
+9.0 on division by zero
+6.0 on None
+```
 ### Batteries
 Use out-of-the-box functions to abstract from input arguments
 ```python
