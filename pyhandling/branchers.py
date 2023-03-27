@@ -98,7 +98,7 @@ class ActionChain(Generic[NodeT]):
 
 def merged(
     *actions: Callable[[*ArgumentsT], Any],
-    return_from: Optional[int] = None,
+    return_from: Optional[int | slice] = None,
 ) -> Special[tuple]:
     """
     Function to merge multiple functions with the same input interface into one.
