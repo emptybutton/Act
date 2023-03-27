@@ -3,7 +3,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
 from types import MappingProxyType
-from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Generic, Final, Iterable, Optional, Tuple
+from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Generic, Final, Iterable, Optional, Tuple, _UnionGenericAlias, Union
 
 from pyannotating import method_of, Special
 
@@ -116,6 +116,12 @@ class Flag:
 
     def __instancecheck__(self, instance: Any) -> bool:
         return self == instance
+
+    def __or__(self, other: ResourceT) -> _UnionGenericAlias:
+        return Union[self, other]
+
+    def __ror__(self, other: ResourceT) -> _UnionGenericAlias:
+        return Union[other, self]
 
     @property
     def name(self) -> str:
