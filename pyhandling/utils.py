@@ -210,28 +210,6 @@ collection_from: Callable[[*ArgumentsT], tuple[*ArgumentsT]] = documenting_by(
 )
 
 
-collection_unpacking_in: Callable[[action_for[ResourceT]], Callable[[Iterable], ResourceT]]
-collection_unpacking_in = documenting_by(
-    """
-    Decorator for unpacking the collection of the output function when it is
-    called.
-    """
-)(
-    unpackly |then>> left_action_binding_of(ArgumentPack |by| dict())
-)
-
-
-keyword_unpacking_in: Callable[[action_for[ResourceT]], Callable[[Mapping], ResourceT]]
-keyword_unpacking_in = documenting_by(
-    """
-    Decorator for unpacking the mapping object of the output function when it is
-    called.
-    """
-)(
-    unpackly |then>> left_action_binding_of(ArgumentPack |to| tuple())
-)
-
-
 yes: action_for[bool] = documenting_by("""Shortcut for `taken(True)`.""")(taken(True))
 no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(False))
 

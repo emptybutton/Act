@@ -46,31 +46,7 @@ def test_becoming_skipping_on(checker: checker_of[number], number: number, resul
     assert becoming_skipping_on(checker)(lambda number: number + 1)(number) == result
 
 
-
-@mark.parametrize(
-    "func, arguments",
-    (
-        (lambda a, b, c: a + b + c, (1, 2, 3)),
-        (lambda number: number + 4, (60, )),
-        (lambda: 256, tuple()),
-    )
 )
-def test_collection_unpacking_in(func: Callable, arguments: Iterable):
-    assert collection_unpacking_in(func)(arguments) == func(*arguments)
-
-
-@mark.parametrize(
-    "func, arguments",
-    (
-        (lambda a, b, c: a + b + c, dict(a=1, b=2, c=3)),
-        (lambda number: number + 4, dict(number=60)),
-        (lambda: 256, dict()),
-    )
-)
-def test_keyword_unpacking_in(func: Callable, arguments: Mapping):
-    assert keyword_unpacking_in(func)(arguments) == func(**arguments)
-
-
 @mark.parametrize(
     "first_node, second_node, input_resource",
     [(lambda x: x * 2, str, 16), (str, lambda x: x * 2, 1)]
