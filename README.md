@@ -127,10 +127,10 @@ Hello world!
 using a function
 ```python
 print_as_title = bind(print, 'sep', ' of ')
-print_as_title("Ocean", "stones")
+print_as_title("Table", "chairs")
 ```
 ```
-Ocean of stones
+Table of chairs
 ```
 
 or pseudo operators
@@ -260,7 +260,7 @@ Exception: Something is wrong
 
 to transform a context manager's context
 ```python
-to_context(lambda file: file.read())(open("some-image.png"))
+to_context(lambda file: file.read())(open("file.txt"))
 ```
 
 to transform in a context manager's context
@@ -521,10 +521,9 @@ multi_context_incremented = documenting_by(
     passed.
     """
 )(
-        operation_by('+', 4)
-        |then>> operation_by('+', 2)
-        |then>> bad_when(operation_by('<', 0))
     (maybe |then>> until_error)(
+        operation_by('+', 6)
+        |then>> bad_when(operation_by('<', 0)) # Shortcut to optionally return `bad`
         |then>> (lambda number: number / (number - 10))
         |then>> operation_by('+', 5)
     )
