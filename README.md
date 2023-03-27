@@ -511,11 +511,11 @@ showed(4) + 12
 Combine compute contexts
 ```python
 multi_context_incremented: reformer_of[
-    ContextRoot[ContextRoot[Any, Special[Exception]], Special[bad]]
+    ContextRoot[ContextRoot[Any, Special[bad]], Special[Exception]]
 ]
 multi_context_incremented = documenting_by(
     """
-    Multi-Context Input Increment Function.
+    Function that increases a number using a tower from contexts.
 
     Each level of context evaluation requires a separate `ContextRoot` to be
     passed.
