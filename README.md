@@ -9,7 +9,7 @@ You can even integrate the entire program logic into one call
 
 ## Examples
 ### Execution flow
-Combine functions into a chain of calls
+Connect functions in a chain
 
 ```python
 from pyhandling import *
@@ -40,7 +40,7 @@ left_action_binding_of(lambda: a + 10)(lambda b: b / 2)(6)
 8
 ```
 
-or via templates
+or via template
 ```python
 4 >= action_inserting_in(... |then>> (lambda a: a * 10) |then>> ...)(
     lambda number: number + 4
@@ -50,7 +50,7 @@ or via templates
 84
 ```
 
-Merge them
+or connect in width
 ```python
 merged(lambda a: a - 1, lambda _: _, lambda c: c + 1)(1)
 ```
@@ -67,7 +67,7 @@ merged(print, lambda c: c + 1, return_from=1)(1)
 2
 ```
 
-or merging the results
+merging the results
 ```python
 mergely(
     lambda word: lambda a, b: f"_{a}_{b}",
@@ -130,7 +130,7 @@ post_partial(to_message_template, "world", '!')("Hello")
 Hello world!
 ```
 
-using the function
+using a function
 ```python
 print_as_title = bind(print, 'sep', ' of ')
 print_as_title("Ocean", "stones")
@@ -363,7 +363,7 @@ or comments integrated as annotations
 add_five_and_print: dirty[reformer_of[number]]
 ```
 
-or prepared `TypeVar`s
+or prepared `TypeVars`
 ```python
 devil_function: Callable[
     [
@@ -376,7 +376,7 @@ devil_function: Callable[
 ]
 ```
 
-See everything [here](https://github.com/TheArtur128/Pyhandling/blob/v3.0.0/pyhandling/annotations.py)
+all of which can be viewed [here](https://github.com/TheArtur128/Pyhandling/blob/v3.0.0/pyhandling/annotations.py)
 
 
 ### Error handling
@@ -392,7 +392,7 @@ divide(8, 0)
 division by zero
 ```
 
-in the form of their constant expectation
+to receive through unpacking
 ```python
 divide = with_error(operation_of('/'))
 
