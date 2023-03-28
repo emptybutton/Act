@@ -240,3 +240,15 @@ test_until_error = calling_test_case_of(
         (6, ZeroDivisionError),
     ),
 )
+test_map_ = calling_test_case_of((
+    lambda: map_(lambda i: i + 1, range(9)), tuple(range(1, 10))
+))
+
+
+test_filter_ = calling_test_case_of((
+    lambda: filter_(lambda i: i % 2 == 0, range(11)), tuple(range(0, 11, 2))
+))
+
+test_zip_ = calling_test_case_of((
+    lambda: zip_(['a', 'b'], range(10)), (('a', 0), ('b', 1))
+))
