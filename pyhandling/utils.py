@@ -331,8 +331,8 @@ with_error = documenting_by(
     Returns in `ContextRoot` format (result, error).
     """
 )(
-    binding_by(... |then>> in_context)
     |then>> post_partial(rollbackable, ContextRoot |to| None)
+    binding_by(... |then>> contextual)
 )
 
 
