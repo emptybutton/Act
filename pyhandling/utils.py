@@ -164,6 +164,17 @@ def bind(
     return first_node |then>> second_node
 
 
+on: Callable[[checker_of[ValueT], Callable[[ValueT], ResultT]], Callable[[ValueT], ResultT | ValueT]]
+on = documenting_by(
+    """
+    Shortcut for optional execution of an input action based on the results of
+    an input check.
+    """
+)(
+    partial(on_condition, else_=returned)
+)
+
+
 taken: Callable[[ValueT], action_for[ValueT]] = documenting_by(
     """Shortcut function for `eventually(returned, ...)`."""
 )(
