@@ -100,6 +100,18 @@ square_or_module_of(-4)
 4
 ```
 
+or circumstances in which it will be called
+```python
+incremented_or_not = on(lambda n: n % 2 == 0, lambda n: n + 1)
+
+incremented_or_not(2)
+incremented_or_not(3)
+```
+```
+3
+3
+```
+
 ### Partial application
 Add arguments by calling
 ```python
