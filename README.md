@@ -92,6 +92,7 @@ square_or_module_of = on_condition(
     else_=abs
 )
 
+
 square_or_module_of(4)
 square_or_module_of(-4)
 ```
@@ -130,13 +131,13 @@ after input
 ```python
 to_message_template = "{} {}{}".format
 
-post_partial(to_message_template, "world", '!')("Hello") 
+post_partial(to_message_template, "world", '!')("Hello")
 ```
 ```
 Hello world!
 ```
 
-using a function
+under keyword
 ```python
 print_as_title = with_keyword('sep', ' of ', print)
 print_as_title("Table", "chairs")
@@ -145,7 +146,7 @@ print_as_title("Table", "chairs")
 Table of chairs
 ```
 
-or pseudo operators
+using pseudo-operators
 ```python
 (to_message_template |to| "Hello")("world", '...')
 (to_message_template |to* ("Hello", "world"))('?')
@@ -242,10 +243,10 @@ with_keyword_unpacking(lambda a, b: a + b)({'a': 5, 'b': 3})
 
 or in argument pack form
 ```python
-print_by = unpackly(print)
+print_from = unpackly(print)
 
-print_by(ArgumentPack(['Fish', "death"], {'sep': ' of '}))
-print_by(ArgumentPack.of("Chair", "table", sep=' of '))
+print_from(ArgumentPack(['Fish', "death"], {'sep': ' of '}))
+print_from(ArgumentPack.of("Chair", "table", sep=' of '))
 ```
 ```
 Fish of death
@@ -303,7 +304,7 @@ some-value
 to use syntax operations
 ```python
 execute_operation(60, '+', 4)
-transform(str(), 'not')
+transform(False, 'not')
 ```
 ```
 64
@@ -601,7 +602,7 @@ saving_results: mapping_to_chain_among[Iterable] = monadically(
 )
 
 
-[0] >= saving_results(
+(0, ) >= saving_results(
     operation_by('+', 1)
     |then>> operation_by('+', 2)
     |then>> operation_by('+', 3)
