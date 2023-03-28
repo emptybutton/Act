@@ -254,7 +254,12 @@ mapping_to_chain_among = AnnotationTemplate(mapping_to_chain_of, [
 ])
 
 
-saving_context: monada_among[ContextRoot[Any, ContextT]] = documenting_by(
+calculation_contextualizing_over = AnnotationTemplate(mapping_to_chain_among, [
+        AnnotationTemplate(ContextRoot, [Any, input_annotation])
+    ]
+)
+
+saving_context: calculation_contextualizing_over[ContextT] = documenting_by(
     """
     Function that represents a chain of actions (or just an action) in the form
     of operations on a value from `ContextRoot` with preservation of its
@@ -294,7 +299,7 @@ contextual = documenting_by(
 bad = Flag('bad', sign=False)
 
 
-maybe: monada_among[ContextRoot[Any, Special[bad]]]
+maybe: calculation_contextualizing_over[Special[bad]]
 maybe = documenting_by(
     """
     Function to finish execution of an action chain when a bad resource keeper
@@ -331,7 +336,7 @@ with_error = documenting_by(
 )
 
 
-until_error: monada_among[ContextRoot[Any, Special[Exception]]]
+until_error: calculation_contextualizing_over[Special[Exception]]
 until_error = documenting_by(
     """Function for a chain of actions with the return of an error."""
 )(
