@@ -34,7 +34,9 @@ transformer_to = AnnotationTemplate(Callable, [[Any], input_annotation])
 
 reformer_of = AnnotationTemplate(Callable, [[input_annotation], input_annotation])
 
-merger_of = AnnotationTemplate(Callable, [[input_annotation, input_annotation], input_annotation])
+merger_of = AnnotationTemplate(Callable, [
+    [input_annotation, input_annotation], input_annotation
+])
 
 event_for = AnnotationTemplate(Callable, [[], input_annotation])
 
