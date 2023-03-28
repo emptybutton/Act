@@ -64,14 +64,14 @@ ObjectT = TypeVar("ObjectT")
 
 ResultT = TypeVar("ResultT")
 
-KeyT = TypeVar("KeyT")
-
-ErrorT = TypeVar("ErrorT", bound=Exception)
-
-ContextT = TypeVar("ContextT")
-
 PositiveConditionResultT = TypeVar("PositiveConditionResultT")
 
 NegativeConditionResultT = TypeVar("NegativeConditionResultT")
 
 ErrorHandlingResultT = TypeVar("ErrorHandlingResultT")
+
+ErrorT = TypeVar("ErrorT", bound=Exception)
+
+ContextT = TypeVar("ContextT")
+
+KeyT = TypeVar("KeyT")
