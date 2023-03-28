@@ -1,4 +1,4 @@
-from pyhandling.error_controllers import errors_from
+from pyhandling.error_controllers import *
 from pyhandling.testing import calling_test_case_of
 from pyhandling.tools import with_attributes
 
@@ -34,3 +34,11 @@ test_errors_from = calling_test_case_of(
         )
     )
 )
+
+
+test_error_root_from = calling_test_case_of((
+    lambda: (lambda root: (type(root.value), root.context))(
+        error_root_from(ContextualError(ZeroDivisionError(), 16))
+    ),
+    (ZeroDivisionError, 16)
+))
