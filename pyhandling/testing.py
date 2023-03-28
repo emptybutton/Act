@@ -7,7 +7,7 @@ from pyannotating import Subgroup
 from pyhandling.annotations import event
 
 
-__all__ = ("calling_test_case_of", )
+__all__ = ("calling_test_case_of", "test_case_pack")
 
 
 test_case_pack: TypeAlias = tuple[event, Any]
