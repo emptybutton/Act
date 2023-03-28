@@ -112,6 +112,7 @@ class ContextManager(Protocol, Generic[ContextT]):
     def __enter__(self) -> ContextT:
         ...
 
+    @abstractmethod
     def __exit__(
         self,
         error_type: Optional[Type[Exception]],
