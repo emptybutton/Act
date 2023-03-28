@@ -302,9 +302,12 @@ bad = Flag('bad', sign=False)
 maybe: calculation_contextualizing_over[Special[bad]]
 maybe = documenting_by(
     """
-    Function to finish execution of an action chain when a bad resource keeper
-    appears in it by returning this same keeper, skipping subsequent action
-    chain nodes.
+    Action or action chain transformation function.
+
+    Stop a `ContextRoot` value action chain on a node that returned
+    'bad' flag.
+
+    Skips calculation of `ContextRoot` values when context is `bad`.
     """
 )(
     monadically(lambda node: lambda root: (
