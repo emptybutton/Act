@@ -288,11 +288,11 @@ for_context: mapping_to_chain_among[ContextRoot[ValueT, Any]] = documenting_by(
 contextual: Callable[[ValueT], ContextRoot[ValueT, None]]
 contextual = documenting_by(
     """
-    Function representing the input resource as a resource with a context (which
-    is None).
+    Function representing the input value as a value with a context (which
+    is `nothing`).
     """
 )(
-    ContextRoot |by| None
+    ContextRoot |by| nothing
 )
 
 
@@ -331,8 +331,8 @@ with_error = documenting_by(
     Returns in `ContextRoot` format (result, error).
     """
 )(
-    |then>> post_partial(rollbackable, ContextRoot |to| None)
     binding_by(... |then>> contextual)
+    |then>> post_partial(rollbackable, ContextRoot |to| nothing)
 )
 
 
