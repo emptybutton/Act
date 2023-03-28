@@ -138,7 +138,7 @@ Hello world!
 
 using a function
 ```python
-print_as_title = bind(print, 'sep', ' of ')
+print_as_title = with_keyword('sep', ' of ', print)
 print_as_title("Table", "chairs")
 ```
 ```
@@ -171,7 +171,7 @@ Hello container world!
 
 using all possible ways
 ```python
-post_container = closed(format_, closer=post_partial)
+post_container = closed(to_message_template, closer=post_partial)
 
 post_container('!')("Hello", "post container world")
 ```
@@ -182,7 +182,7 @@ Hello post container world!
 ### Data flow
 Ignore the output value
 ```python
-with_result("Forced result", print)("Input value") + "and something"
+with_result("Forced result", print)("Input value") + " and something"
 ```
 ```
 Input value
@@ -191,7 +191,7 @@ Forced result and something
 
 via arguments
 ```python
-returnly(print)("Input argument") + "and something"
+returnly(print)("Input argument") + " and something"
 ```
 ```
 Input argument
@@ -226,7 +226,7 @@ False
 
 Force unpack from argument
 ```python
-with_positional_unpacking(print)(range(4))
+with_positional_unpacking(print)(range(1, 4))
 ```
 ```
 1 2 3
@@ -371,11 +371,14 @@ add_five_and_print: dirty[reformer_of[number]]
 
 or prepared `TypeVars`
 ```python
+from typing import Callable
+
+
 devil_function: Callable[
     [
-        Callable[[Callable[[*ArgumentsT], ResourceT]], Callable[[ResourceT], ResultT]],
+        Callable[[Callable[[*ArgumentsT], ValueT]], Callable[[ValueT], ResultT]],
         Callable[[ResultT], ActionT],
-        Callable[[Callable[[ErrorT], ErrorHandlingResultT]]],
+        Callable[[ErrorT], ErrorHandlingResultT],
         *ArgumentsT,
     ],
     ActionT | ErrorHandlingResultT
@@ -404,26 +407,44 @@ divide = with_error(operation_of('/'))
 
 result, error = divide(16, 0)
 
-print(result, error)
+print(result, error, sep=', ')
 ```
 ```
-None division by zero
+nothing, division by zero
 ```
 
-Optionally raise an error
+keeping error context
 ```python
-optional_raise = optional_raising_of(ZeroDivisionError)
+class DomainError(ContextualError):
+    pass
 
-optional_raise("Not a error")
-optional_raise(Exception())
-optional_raise(ZeroDivisionError("division by zero"))
+
+class InfrastructureError(ContextualError):
+    pass
+
+
+error_storage = InfrastructureError(
+    DomainError(
+        ZeroDivisionError("division by zero"),
+        dict(hero="Some hero", enemy="Some enemy"),
+    ),
+    dict(first="Some hero", second="Some enemy"),
+)
+
+print(*errors_from(error_storage), sep='\n')
 ```
 ```
-Not a error
-Exception()
+division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'} when {'first': 'Some hero', 'second': 'Some enemy'}
+division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'}
+division by zero
+```
 
-Traceback ...
-ZeroDivisionError: division by zero
+as `ContextRoot`
+```python
+error_root_from(DomainError(ZeroDivisionError("division by zero"), 34))
+```
+```
+division by zero when 34
 ```
 
 ### Calculation context
@@ -433,24 +454,25 @@ incremented_or_not: reformer_of[ContextRoot[number, Special[bad]]] = documenting
     """
     Function to increase an input number if it is > 0.
 
-    Takes as input a number wrapped in `ContextRoot`, using the `in_context`
-    function or `ContextRoot(..., None)` directly.
+    Takes as input a number wrapped in `ContextRoot`, using the `contextual`
+    function or `ContextRoot(..., nothing)` directly and applies the nodes to its
+    value inside an input `ContextRoot`.
     """
 )(
     maybe(
-        on_condition(operation_by('<', 0), taken(bad), else_=returned)
+        on(operation_by('<', 0), taken(bad))
         |then>> operation_by('**', 2)
         |then>> operation_by('*', 1.3125)
     )
 )
 
 
-in_context(8) >= incremented_or_not
-in_context(-16) >= incremented_or_not
+contextual(8) >= incremented_or_not
+contextual(-16) >= incremented_or_not
 ```
 ```
-84 on None
--16 on <negative Flag "bad">
+84.0 when nothing
+-16 when bad
 ```
 
 in case of errors
@@ -464,19 +486,19 @@ incremented = until_error(
 )
 
 
-incremented(in_context(6))
-incremented(in_context(4))
+incremented(contextual(6))
+incremented(contextual(4))
 ```
 ```
-64.0 on None
-28 on division by zero
+64.0 when nothing
+28 when division by zero
 ```
 
-with getting values
+and with the ability to get values
 ```python
-root = incremented(in_context(4))
+root = incremented(contextual(4))
 
-root.resource
+root.value
 root.context
 ```
 ```
@@ -486,46 +508,20 @@ division by zero
 
 using unpacking
 ```python
-number, context = incremented_or_not(in_context(-16))
+number, context = incremented_or_not(contextual(-16))
 
 print(number, context, sep=', ')
 ```
 ```
--16, <negative Flag "bad">
-```
-
-Display intermediate results
-```python
-"result is " + str(
-    8 >= showly(
-        operation_by('**', 2)
-        |then>> operation_by('*', 1.3125)
-        |then>> operation_by('+', 16)
-    )
-)
-```
-```
-64
-84.0
-100.0
-result is 100.0
-```
-
-pointwise
-```python
-showed(4) + 12
-```
-```
-4
-16
+-16, bad
 ```
 
 Combine compute contexts
 ```python
-multi_context_incremented: reformer_of[
+incremented: reformer_of[
     ContextRoot[ContextRoot[Any, Special[bad]], Special[Exception]]
 ]
-multi_context_incremented = documenting_by(
+incremented = documenting_by(
     """
     Function that increases a number using a tower from contexts.
 
@@ -535,35 +531,35 @@ multi_context_incremented = documenting_by(
 )(
     (maybe |then>> until_error)(
         operation_by('+', 6)
-        |then>> bad_when(operation_by('<', 0)) # Shortcut to optionally return `bad`
+        |then>> on(operation_by('<', 0), taken(bad))
         |then>> (lambda number: number / (number - 10))
         |then>> operation_by('+', 5)
     )
 )
 
 
-in_context(in_context(5)) >= multi_context_incremented
-in_context(in_context(-14)) >= multi_context_incremented
-in_context(in_context(4)) >= multi_context_incremented
+contextual(contextual(5)) >= incremented
+contextual(contextual(-14)) >= incremented
+contextual(contextual(4)) >= incremented
 ```
 ```
-16.0 on None on None
--8 on <negative Flag "bad"> on None
-10 on None on division by zero
+16.0 when nothing when nothing
+-8 when bad when nothing
+10 when nothing when division by zero
 ```
 
 indicating special behavior
 ```python
-in_context(ContextRoot(5, bad)) >= multi_context_incremented
+contextual(ContextRoot(5, bad)) >= incremented
 ```
 ```
-5 on <negative Flag "bad"> on None
+5 when bad when nothing
 ```
 
 using one `Context Root` level for different context calculations
 ```python
-context_crossing_incremented: reformer_of[ContextRoot[number, Special[bad | Exception]]]
-context_crossing_incremented = documenting_by(
+incremented: reformer_of[ContextRoot[number, Special[bad | Exception]]]
+incremented = documenting_by(
     """
     Function that increases a number using two compute contexts with one
     `ContextRoot`.
@@ -571,7 +567,7 @@ context_crossing_incremented = documenting_by(
 )(
     maybe(
         operation_by('+', 4)
-        |then>> bad_when(operation_by('<=', 0))
+        |then>> on(operation_by('<=', 0), taken(bad))
         |then>> operation_by('*', 2)
     )
     |then>> until_error(
@@ -585,14 +581,14 @@ context_crossing_incremented = documenting_by(
 )
 
 
-context_crossing_incremented(in_context(-4))
-context_crossing_incremented(in_context(4))
-context_crossing_incremented(in_context(8))
+incremented(contextual(-4))
+incremented(contextual(4))
+incremented(contextual(8))
 ```
 ```
-4.5 on <negative Flag "bad">
-9.0 on division by zero
-6.0 on None
+4.5 when bad
+9.0 when division by zero
+6.0 when nothing
 ```
 
 Create context calculations
@@ -600,7 +596,7 @@ Create context calculations
 from typing import Iterable
 
 
-saving_results: monada_among[Iterable] = monalically(
+saving_results: mapping_to_chain_among[Iterable] = monadically(
     lambda node: lambda resources: (*resources, node(resources[-1]))
 )
 
@@ -790,12 +786,19 @@ other(4)
 ### Debugging
 Display intermediate results
 ```python
-showly(total_sum)([128, [100, 28]])
+"result is " + str(
+    8 >= showly(
+        operation_by('**', 2)
+        |then>> operation_by('*', 1.3125)
+        |then>> operation_by('+', 16)
+    )
+)
 ```
 ```
-[128, [100, 28]]
-(128, 128)
-256
+64
+84.0
+100.0
+result is 100.0
 ```
 
 by different ways
@@ -810,4 +813,13 @@ print(*logger.logs, sep='\n')
 [2023-01-24 21:38:28.791516] [[2, 10], [15, 15]]
 [2023-01-24 21:38:28.791516] (12, 30)
 [2023-01-24 21:38:28.791516] 42
+```
+
+pointwise
+```python
+showed(4) + 12
+```
+```
+4
+16
 ```
