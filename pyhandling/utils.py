@@ -182,13 +182,6 @@ as_collection = documenting_by(
 )
 
 
-collection_from: Callable[[*ArgumentsT], tuple[*ArgumentsT]] = documenting_by(
-    """Shortcut to get collection with elements from input positional arguments."""
-)(
-    ArgumentPack.of |then>> (getattr |by| 'args')
-)
-
-
 yes: action_for[bool] = documenting_by("""Shortcut for `taken(True)`.""")(taken(True))
 no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(False))
 

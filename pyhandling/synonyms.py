@@ -6,7 +6,7 @@ from pyhandling.tools import ItemGetter, ItemSetter, ContextManager
 
 
 __all__ = (
-    "returned", "raise_", "assert_", "with_positional_unpacking",
+    "returned", "raise_", "assert_", "collection_of", "with_positional_unpacking",
     "with_keyword_unpacking", "with_keyword", "call", "getitem", "setitem",
     "execute_operation", "transform", "to_context", "with_context_by"
 )
@@ -31,6 +31,12 @@ def assert_(value: Any) -> None:
     """Function for functional use of `assert` statement."""
 
     assert value
+
+
+def collection_of(*args) -> tuple:
+    """Function to create a `tuple` from unlimited input arguments."""
+
+    return args
 
 
 def with_positional_unpacking(func: action_for[ResultT]) -> Callable[[Iterable], ResultT]:
