@@ -53,14 +53,6 @@ def errors_from(error_storage: error_storage_of[ErrorT] | ErrorT) -> Tuple[Error
     return errors
 
 
-@runtime_checkable
-class ErrorReport(Protocol, Generic[ErrorT, ContextT]):
-    """Protocol for saving error context."""
-
-    error: ErrorT
-    context: ContextT
-
-
 class ContextualError(MechanicalError, Generic[ErrorT, ContextT]):
     """Error class to store the context of another error and itself."""
    
