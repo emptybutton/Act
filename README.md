@@ -35,7 +35,7 @@ or via calling
 6 >= bind(lambda a: a + 10, lambda b: b / 2)
 ```
 ```
-8
+8.0
 ```
 
 or via template
@@ -61,6 +61,7 @@ merged(lambda a: a - 1, lambda _: _, lambda c: c + 1, return_from=slice(0, 3, 2)
 ```
 ```
 3
+4
 (1, 3)
 ```
 
