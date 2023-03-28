@@ -9,8 +9,7 @@ from pyhandling.tools import ArgumentPack
 class CustomContext:
     """Class emulating context."""
     
-    def __init__(self, enter_result: Any = None, **attributes):
-        super().__init__(**attributes)
+    def __init__(self, enter_result: Any = None):
         self.enter_result = enter_result
 
     def __repr__(self) -> str:
