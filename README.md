@@ -613,6 +613,36 @@ saving_results: mapping_to_chain_among[Iterable] = monadically(
 ```
 
 ### Batteries
+Annotation templates not included in the `annotations` package
+```python
+mapping_to_chain_of[reformer_of[number]]
+# Callable[
+#     [Union[Callable[[Any], Any], Iterable[Callable[[Any], Any]]]],
+#     ActionChain[Callable[[int | float | complex], int | float | complex]]
+# ]
+
+mapping_to_chain
+# Callable[
+#     [Union[Callable[[Any], Any], Iterable[Callable[[Any], Any]]]],
+#     ActionChain[Callable[[Any], Any]]
+# ]
+
+mapping_to_chain_among[int]
+# Callable[
+#     [Union[Callable[[Any], Any], Iterable[Callable[[Any], Any]]]],
+#     ActionChain[Callable[[int], int]]
+# ]
+
+calculation_contextualizing_over[str]
+# Callable[
+#     [Union[Callable[[Any], Any], Iterable[Callable[[Any], Any]]]],
+#     ActionChain[Callable[[ContextRoot[Any, str]], ContextRoot[Any, str]]]
+# ]
+
+error_storage_of[ZeroDivisionError]
+# Union[ErrorKepper[ZeroDivisionError], SingleErrorKepper[ZeroDivisionError]]
+```
+
 Use out-of-the-box functions to abstract from input arguments
 ```python
 take(256)(1, 2, 3)
