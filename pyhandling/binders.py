@@ -81,14 +81,14 @@ def mirror_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[R
     return post_partial(action, *args[::-1], **kwargs)
 
 
-ClosedT = TypeVar("ClosedT", bound=Callable)
+_ClosedT = TypeVar("_ClosedT", bound=Callable)
 
 
 def closed(
     action: ActionT,
     *,
-    closer: Callable[[ActionT, *ArgumentsT], ClosedT] = partial
-) -> Callable[[*ArgumentsT], ClosedT]:
+    closer: Callable[[ActionT, *ArgumentsT], _ClosedT] = partial
+) -> Callable[[*ArgumentsT], _ClosedT]:
     """
     Function to put an input function into the context of another decorator
     function by partially applying the input function to that decorator

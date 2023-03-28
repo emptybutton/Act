@@ -17,10 +17,10 @@ __all__ = (
 )
 
 
-NodeT: TypeAlias = TypeVar("NodeT", bound=Callable | Ellipsis)
+_NodeT: TypeAlias = TypeVar("_NodeT", bound=Callable | Ellipsis)
 
 
-class ActionChain(Generic[NodeT]):
+class ActionChain(Generic[_NodeT]):
     """
     Class combining calls of several functions together in sequential execution.
 
@@ -45,7 +45,7 @@ class ActionChain(Generic[NodeT]):
 
     is_template = DelegatingProperty("_is_template")
 
-    def __init__(self, nodes: Iterable[many_or_one[NodeT]] = tuple()):
+    def __init__(self, nodes: Iterable[many_or_one[_NodeT]] = tuple()):
         self._nodes = with_opened_items(nodes)
         self._is_template = Ellipsis in self._nodes
 
@@ -68,7 +68,7 @@ class ActionChain(Generic[NodeT]):
             (self._nodes[0](*args, **kwargs), *self._nodes[1:])
         )
 
-    def __iter__(self) -> Tuple[NodeT]:
+    def __iter__(self) -> Tuple[_NodeT]:
         return iter(self._nodes)
 
     def __rshift__(self, node: atomic_action) -> Self:
@@ -80,8 +80,8 @@ class ActionChain(Generic[NodeT]):
     def __ror__(self, node: atomic_action) -> Self:
         return self.__class__((node, *self._nodes))
 
-    def __le__(self, resource: Any) -> ResultT:
-        return self(resource)
+    def __le__(self, value: Any) -> ResultT:
+        return self(value)
 
     def __repr__(self) -> str:
         return (
