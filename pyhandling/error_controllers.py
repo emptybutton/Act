@@ -56,8 +56,8 @@ def errors_from(error_storage: error_storage_of[ErrorT] | ErrorT) -> Tuple[Error
 class ContextualError(MechanicalError, Generic[ErrorT, ContextT]):
     """Error class to store the context of another error and itself."""
    
-    error = DelegatingProperty("__error")
-    context = DelegatingProperty("__context")
+    error = DelegatingProperty("_ContextualError__error")
+    context = DelegatingProperty("_ContextualError__context")
 
     def __init__(self, error: ErrorT, context: ContextT):
         self.__error = error
