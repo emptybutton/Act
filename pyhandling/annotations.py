@@ -43,7 +43,7 @@ event_for = AnnotationTemplate(Callable, [[], input_annotation])
 action_for = AnnotationTemplate(Callable, [[...], input_annotation])
 
 
-atomic_action: TypeAlias = handler_of[Any]
+atomic_action: TypeAlias = reformer_of[Any]
 
 checker: TypeAlias = checker_of[Any]
 
