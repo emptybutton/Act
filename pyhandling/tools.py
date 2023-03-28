@@ -13,8 +13,8 @@ from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, Co
 __all__ = (
     "to_clone", "publicly_immutable", "ItemGetter", "ItemSetter", "ItemKeeper",
     "ContextManager", "Flag", "nothing", "ArgumentKey", "ArgumentPack",
-    "DelegatingProperty", "Clock", "as_argument_pack", "with_opened_items",
-    "in_collection", "documenting_by"
+    "DelegatingProperty", "Clock", "with_attributes", "as_argument_pack",
+    "with_opened_items", "in_collection", "documenting_by"
 )
 
 

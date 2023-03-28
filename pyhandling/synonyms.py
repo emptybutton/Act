@@ -1,5 +1,5 @@
 from functools import wraps, partial
-from typing import NoReturn, Any, Iterable, Callable
+from typing import NoReturn, Any, Iterable, Callable, Mapping
 
 from pyhandling.annotations import ValueT, action_for, ResultT, KeyT, event_for, ContextT, ArgumentsT
 from pyhandling.tools import ItemGetter, ItemSetter, ContextManager

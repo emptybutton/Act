@@ -7,7 +7,7 @@ from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Spec
 
 from pyhandling.annotations import atomic_action, dirty, handler_of, ValueT, ContextT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, reformer_of
 from pyhandling.binders import returnly, closed, post_partial, eventually, unpackly
-from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable, mapping_for_chain_among, mergely
+from pyhandling.branchers import ActionChain, on_condition, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain
 from pyhandling.language import then, by, to
 from pyhandling.synonyms import execute_operation, returned, transform, raise_
 from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, nothing, Flag
@@ -15,11 +15,11 @@ from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock,
 
 __all__ = (
     "ContextRoot", "Logger", "showly", "callmethod", "with_result",
-    "operation_by", "operation_of", "shown", "binding_by", "bind", "taken",
-    "as_collection", "collection_from", "yes", "no", "times",
-    "becoming_skipping_on", "optional_raising_of", "monadically", "monada_among",
-    "saving_context", "for_context", "in_context", "wrapping_in_context_on", "bad",
-    "maybe", "bad_when", "with_error", "until_error"
+    "operation_by", "operation_of", "shown", "binding_by", "bind", "on", "taken",
+    "as_collection", "yes", "no", "times", "monadically",
+    "mapping_to_chain_among", "calculation_contextualizing_over",
+    "saving_context", "for_context", "contextual", "bad", "maybe", "with_error",
+    "until_error", "map_", "zip_", "filter_"
 )
 
 
