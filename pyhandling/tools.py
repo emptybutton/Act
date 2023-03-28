@@ -338,6 +338,30 @@ class Clock:
         return self.ticks_to_disability > 0
 
 
+def with_attributes(
+    get_object: event_for[ObjectT] = type(
+        "_with_attributes__default_object_type",
+        tuple(),
+        {'__doc__': (
+            """
+            Class used as a standard object factory for subsequent stuffing with
+            attributes in `with_attributes`
+            """
+        )}
+    ),
+    **attributes,
+) -> ObjectT:
+    """
+    Function to create an object with attributes from keyword arguments.
+    Sets attributes manually.
+    """
+
+    attribute_keeper = get_object()
+    attribute_keeper.__dict__ = attributes
+
+    return attribute_keeper
+
+
 def as_argument_pack(*args, **kwargs) -> ArgumentPack:
     """
     Function to optionally convert input arguments into `ArgumentPack` with

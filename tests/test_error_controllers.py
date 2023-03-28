@@ -1,6 +1,6 @@
 from pyhandling.error_controllers import errors_from
 from pyhandling.testing import calling_test_case_of
-from tests.mocks import with_attributes
+from pyhandling.tools import with_attributes
 
 
 test_errors_from = calling_test_case_of(

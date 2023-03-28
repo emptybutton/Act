@@ -6,19 +6,7 @@ from pyhandling.annotations import event_for, ObjectT
 from pyhandling.tools import ArgumentPack
 
 
-class _AttributeKeeper:
-    """Mock class having dynamic attributes."""
-
-    def __init__(self, **attributes):
-        self.__dict__ = attributes
-
-    def __repr__(self) -> str:
-        return "<_AttributeKeeper with {attributes}>".format(
-            attributes=str(self.__dict__)[1:-1].replace(': ', '=').replace('\'', '')
-        )
-
-
-class CustomContext(_AttributeKeeper):
+class CustomContext:
     """Class emulating context."""
     
     def __init__(self, enter_result: Any = None, **attributes):
@@ -76,18 +64,6 @@ class Counter:
 
     def __call__(self, number_of_counts: int = 1) -> None:
         self._counted += number_of_counts
-
-
-def with_attributes(
-    attribute_keeper_factory: event_for[ObjectT] = _AttributeKeeper,
-    **attributes
-) -> ObjectT:
-    """Function to create an object with arbitrary attributes."""
-
-    attribute_keeper = attribute_keeper_factory()
-    attribute_keeper.__dict__ = attributes
-
-    return attribute_keeper
 
 
 def fail_by_error(error: Exception) -> NoReturn:
