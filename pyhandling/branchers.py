@@ -13,7 +13,7 @@ from pyhandling.synonyms import returned, getitem
 
 __all__ = (
     "ActionChain", "merged", "mergely", "repeating", "on_condition",
-    "rollbackable", "chain_constructor", "mapping_for_chain_among"
+    "rollbackable", "mapping_to_chain_of", "mapping_to_chain"
 )
 
 
@@ -238,10 +238,9 @@ def rollbackable(
     return wrapper
 
 
-chain_constructor: TypeAlias = Callable[[Iterable[many_or_one[Callable]]], ActionChain]
-
-
-mapping_for_chain_among = AnnotationTemplate(
+mapping_to_chain_of = AnnotationTemplate(
     Callable,
     [[many_or_one[atomic_action]], AnnotationTemplate(ActionChain, [input_annotation])]
 )
+
+mapping_to_chain: TypeAlias = mapping_to_chain_of[atomic_action]

@@ -249,7 +249,7 @@ monadically = documenting_by(
 )
 
 
-monada_among = (AnnotationTemplate |to| mapping_for_chain_among)([
+mapping_to_chain_among = AnnotationTemplate(mapping_to_chain_of, [
     AnnotationTemplate(reformer_of, [input_annotation])
 ])
 
