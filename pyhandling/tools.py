@@ -282,7 +282,7 @@ class ArgumentPack:
 
 class DelegatingProperty:
     """
-    Descriptor class that takes data from an attribute that already exists on an
+    Descriptor class that takes data from an attribute that already exists in an
     object.
 
     Has the ability to set a delegating attribute (Does not set by default).
