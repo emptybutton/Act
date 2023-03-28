@@ -1,7 +1,7 @@
 from functools import wraps, partial
 from typing import NoReturn, Any, Iterable, Callable
 
-from pyhandling.annotations import ResourceT, action_for, ResultT, KeyT, event_for, ContextT, ArgumentsT
+from pyhandling.annotations import ValueT, action_for, ResultT, KeyT, event_for, ContextT, ArgumentsT
 from pyhandling.tools import ItemGetter, ItemSetter, ContextManager
 
 
@@ -12,13 +12,13 @@ __all__ = (
 )
 
 
-def returned(resource: ResourceT) -> ResourceT:
+def returned(value: ValueT) -> ValueT:
     """
     Function representing the absence of an action.
-    Returns the resource passed to it back.
+    Returns the value passed to it back.
     """
 
-    return resource
+    return value
 
 
 def raise_(error: Exception) -> NoReturn:
@@ -27,10 +27,10 @@ def raise_(error: Exception) -> NoReturn:
     raise error
 
 
-def assert_(resource: Any) -> None:
+def assert_(value: Any) -> None:
     """Function for functional use of `assert` statement."""
 
-    assert resource
+    assert value
 
 
 def with_positional_unpacking(func: action_for[ResultT], arguments: Iterable) -> ResultT:
@@ -60,13 +60,13 @@ def call(caller: action_for[ResultT], *args, **kwargs) -> ResultT:
     return caller(*args, **kwargs)
 
 
-def getitem(object_: ItemGetter[KeyT, ResourceT], item_key: KeyT) -> ResourceT:
+def getitem(object_: ItemGetter[KeyT, ValueT], item_key: KeyT) -> ValueT:
     """Function for functional use of `[]` getting."""
 
     return object_[item_key]
 
 
-def setitem(object_: ItemSetter[KeyT, ResourceT], item_key: KeyT, item_value: ResourceT) -> None:
+def setitem(object_: ItemSetter[KeyT, ValueT], item_key: KeyT, item_value: ValueT) -> None:
     """Function for functional use of `[]` setting."""
 
     object_[item_key] = item_value

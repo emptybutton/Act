@@ -5,7 +5,7 @@ from typing import NamedTuple, Generic, Iterable, Tuple, Callable, Any, Mapping,
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
 
-from pyhandling.annotations import atomic_action, dirty, handler_of, ResourceT, ContextT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, reformer_of
+from pyhandling.annotations import atomic_action, dirty, handler_of, ValueT, ContextT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, reformer_of
 from pyhandling.binders import returnly, closed, post_partial, eventually, unpackly
 from pyhandling.branchers import ActionChain, on_condition, chain_constructor, rollbackable, mapping_for_chain_among, mergely
 from pyhandling.language import then, by, to
@@ -23,17 +23,14 @@ __all__ = (
 )
 
 
-class ContextRoot(NamedTuple, Generic[ResourceT, ContextT]):
-    """
-    Class for annotating a resource with some context.
-    Storing a resource with its context.
-    """
+class ContextRoot(NamedTuple, Generic[ValueT, ContextT]):
+    """Class for annotating a value with some context."""
 
-    resource: ResourceT
+    value: ValueT
     context: ContextT
 
     def __repr__(self) -> str:
-        return f"{self.resource} on {self.context}"
+        return f"{self.value} when {self.context}"
 
 
 class Logger:
@@ -81,7 +78,7 @@ class Logger:
 
 
 def showly(
-    action_resource: many_or_one[atomic_action],
+    action_or_actions: many_or_one[atomic_action],
     *,
     writer: dirty[handler_of[str]] = print
 ) -> dirty[ActionChain]:
@@ -91,7 +88,7 @@ def showly(
     """
 
 
-    return monadically(bind |by| returnly(str |then>> writer))(action_resource)
+    return monadically(bind |by| returnly(str |then>> writer))(action_or_actions)
 
 
 def with_result(
@@ -130,7 +127,7 @@ operation_of: Callable[[str], merger_of[Any]] = documenting_by(
 )
 
 
-shown: dirty[reformer_of[ResourceT]]
+shown: dirty[reformer_of[ValueT]]
 shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
     returnly(print)
 )
@@ -159,26 +156,26 @@ def binding_by(template: Iterable[Callable | Ellipsis]) -> Callable[[Callable], 
 
 
 def bind(
-    first_node: Callable[[*ArgumentsT], ResourceT],
-    second_node: Callable[[ResourceT], ResultT]
+    first_node: Callable[[*ArgumentsT], ValueT],
+    second_node: Callable[[ValueT], ResultT]
 ) -> Callable[[*ArgumentsT], ResultT]:
     """Function of binding two input functions into a sequential `ActionChain`."""
 
     return first_node |then>> second_node
 
 
-taken: Callable[[ResourceT], action_for[ResourceT]] = documenting_by(
+taken: Callable[[ValueT], action_for[ValueT]] = documenting_by(
     """Shortcut function for `eventually(returned, ...)`."""
 )(
     closed(returned) |then>> eventually
 )
 
 
-as_collection: Callable[[many_or_one[ResourceT]], Tuple[ResourceT]]
+as_collection: Callable[[many_or_one[ValueT]], Tuple[ValueT]]
 as_collection = documenting_by(
     """
-    Function to convert an input resource into a tuple collection.
-    With a non-iterable resource, wraps it in a tuple.
+    Function to convert an input value into a tuple collection.
+    With a non-iterable value, wraps it in a tuple.
     """
 )(
     on_condition(isinstance |by| Iterable, tuple, else_=in_collection)
@@ -196,7 +193,7 @@ yes: action_for[bool] = documenting_by("""Shortcut for `taken(True)`.""")(taken(
 no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(False))
 
 
-inversion_of: Callable[[handler_of[ResourceT]], checker_of[ResourceT]]
+inversion_of: Callable[[handler_of[ValueT]], checker_of[ValueT]]
 inversion_of = documenting_by("""Negation adding function.""")(
     binding_by(... |then>> (transform |by| 'not'))
 )
@@ -267,8 +264,8 @@ optional_raising_of = documenting_by(
 
 
 monadically: Callable[
-    [Callable[[atomic_action], reformer_of[ResourceT]]],
-    Callable[[many_or_one[atomic_action]], ActionChain[reformer_of[ResourceT]]]
+    [Callable[[atomic_action], reformer_of[ValueT]]],
+    mapping_to_chain_of[reformer_of[ValueT]]
 ]
 monadically = documenting_by(
     """
@@ -291,31 +288,31 @@ monada_among = (AnnotationTemplate |to| mapping_for_chain_among)([
 saving_context: monada_among[ContextRoot[Any, ContextT]] = documenting_by(
     """
     Function that represents a chain of actions (or just an action) in the form
-    of operations on a resource from `ContextRoot` with preservation of its
+    of operations on a value from `ContextRoot` with preservation of its
     context.
     """
 )(
     monadically(lambda node: lambda root: ContextRoot(
-        node(root.resource), root.context
+        node(root.value), root.context
     ))
 )
 
 
-for_context: monada_among[ContextRoot[ResourceT, Any]] = documenting_by(
+for_context: mapping_to_chain_among[ContextRoot[ValueT, Any]] = documenting_by(
     """
     Function that represents a chain of actions (or just an action) in the form
     of operations on a context from `ContextRoot` with preservation of its
-    resource.
+    value.
     """
 )(
     monadically(lambda node: lambda root: ContextRoot(
-        root.resource, node(root.context)
+        root.value, node(root.context)
     ))
 )
 
 
-in_context: Callable[[ResourceT], ContextRoot[ResourceT, None]]
-in_context = documenting_by(
+contextual: Callable[[ValueT], ContextRoot[ValueT, None]]
+contextual = documenting_by(
     """
     Function representing the input resource as a resource with a context (which
     is None).
@@ -354,9 +351,9 @@ maybe = documenting_by(
     """
 )(
     monadically(lambda node: lambda root: (
-        root.resource >= node |then>> on_condition(
+        root.value >= node |then>> on_condition(
             operation_by('is', bad),
-            taken(ContextRoot(root.resource, bad)),
+            taken(ContextRoot(root.value, bad)),
             else_=ContextRoot |by| root.context,
         )
         if root.context is not bad
@@ -397,8 +394,8 @@ until_error = documenting_by(
     monadically(lambda node: lambda root: (
         rollbackable(
             node |then>> (ContextRoot |by| root.context),
-            lambda error: ContextRoot(root.resource, error),
-        )(root.resource)
+            lambda error: ContextRoot(root.value, error),
+        )(root.value)
         if not isinstance(root.context, Exception)
         else root
     ))

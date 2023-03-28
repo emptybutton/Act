@@ -7,7 +7,7 @@ from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Gener
 
 from pyannotating import method_of, Special
 
-from pyhandling.annotations import ObjectT, ResourceT, KeyT, ResultT, ContextT, atomic_action, dirty, reformer_of
+from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ContextT, atomic_action, dirty, reformer_of
 
 
 __all__ = (
@@ -36,7 +36,7 @@ def to_clone(method: method_of[ObjectT]) -> Callable[[ObjectT, ...], ObjectT]:
     return wrapper
 
 
-def publicly_immutable(class_: Type[ResourceT]) -> Type[ResourceT]:
+def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
     """Decorator for an input class that forbids it change its public fields."""
 
     old_setattr = class_.__setattr__
@@ -63,20 +63,20 @@ class ItemGetter(Protocol, Generic[KeyT, ResultT]):
 
 
 @runtime_checkable
-class ItemSetter(Protocol, Generic[KeyT, ResourceT]):
+class ItemSetter(Protocol, Generic[KeyT, ValueT]):
     @abstractmethod
-    def __setitem__(self, key: KeyT, value: ResourceT) -> Any:
+    def __setitem__(self, key: KeyT, value: ValueT) -> Any:
         ...
 
 
 @runtime_checkable
-class ItemKeeper(Protocol, Generic[KeyT, ResourceT]):
+class ItemKeeper(Protocol, Generic[KeyT, ValueT]):
     @abstractmethod
     def __getitem__(self, key: KeyT) -> ResultT:
         ...
 
     @abstractmethod
-    def __setitem__(self, key: KeyT, value: ResourceT) -> Any:
+    def __setitem__(self, key: KeyT, value: ValueT) -> Any:
         ...
 
 
@@ -117,10 +117,10 @@ class Flag:
     def __instancecheck__(self, instance: Any) -> bool:
         return self == instance
 
-    def __or__(self, other: ResourceT) -> _UnionGenericAlias:
+    def __or__(self, other: ValueT) -> _UnionGenericAlias:
         return Union[self, other]
 
-    def __ror__(self, other: ResourceT) -> _UnionGenericAlias:
+    def __ror__(self, other: ValueT) -> _UnionGenericAlias:
         return Union[other, self]
 
     @property
@@ -133,12 +133,12 @@ nothing.__doc__ = """Flag to indicate the absence of anything, including `None`.
 
 
 @dataclass(frozen=True)
-class ArgumentKey(Generic[KeyT, ResourceT]):
+class ArgumentKey(Generic[KeyT, ValueT]):
     """Data class for structuring getting value from `ArgumentPack` via `[]`."""
 
     key: KeyT
     is_keyword: bool = field(default=False, kw_only=True)
-    default: ResourceT = field(default_factory=lambda: nothing, compare=False, kw_only=True)
+    default: ValueT = field(default_factory=lambda: nothing, compare=False, kw_only=True)
 
 
 class ArgumentPack:
@@ -254,8 +254,8 @@ class DelegatingProperty:
         delegated_attribute_name: str,
         *,
         settable: bool = False,
-        getting_converter: atomic_action = lambda resource: resource,
-        setting_converter: atomic_action = lambda resource: resource
+        getting_converter: atomic_action = lambda value: value,
+        setting_converter: atomic_action = lambda value: value
     ):
         self.delegated_attribute_name = delegated_attribute_name
         self.settable = settable
@@ -329,15 +329,15 @@ def with_opened_items(collection: Iterable) -> Tuple:
     return tuple(collection_with_opened_items)
 
 
-def in_collection(resource: ResourceT) -> tuple[ResourceT]:
-    """Function to represent the input resource as a single collection."""
+def in_collection(value: ValueT) -> tuple[ValueT]:
+    """Function to represent the input value as a single collection."""
 
-    return (resource, )
+    return (value, )
 
 
 def documenting_by(documentation: str) -> dirty[reformer_of[ObjectT]]:
     """
-    Function of getting other function that getting resource with the input 
+    Function of getting other function that getting value with the input 
     documentation from this first function.
     """
 

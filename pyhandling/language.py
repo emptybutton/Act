@@ -60,10 +60,10 @@ then = documenting_by(
 
     Assumes usage like `first_action |then>> second_action`.
 
-    Additional you can add any resource to the beginning of the construction
-    and >= after it to call the constructed chain with this resource.
+    Additional you can add any value to the beginning of the construction
+    and >= after it to call the constructed chain with this value.
 
-    You get something like this `resource >= first_action |then>> second_action`.
+    You get something like this `value >= first_action |then>> second_action`.
 
     See `ActionChain` for more info.
     """

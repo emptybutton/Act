@@ -7,7 +7,7 @@ __all__ = (
     "dirty", "not_required", "handler_of", "checker_of", "formatter_of",
     "transformer_to", "reformer_of", "merger_of", "event_for", "action_for",
     "atomic_action","checker", "decorator", "event", "binder", "ActionT",
-    "ArgumentsT", "ResourceT", "ObjectT", "ResultT", "KeyT", "ErrorT", "ContextT",
+    "ArgumentsT", "ValueT", "ObjectT", "ResultT", "KeyT", "ErrorT", "ContextT",
     "PositiveConditionResultT", "NegativeConditionResultT", "ErrorHandlingResultT"
 )
 
@@ -58,7 +58,7 @@ ActionT = TypeVar("ActionT", bound=Callable)
 
 ArgumentsT = TypeVarTuple("ArgumentsT")
 
-ResourceT = TypeVar("ResourceT")
+ValueT = TypeVar("ValueT")
 
 ObjectT = TypeVar("ObjectT")
 

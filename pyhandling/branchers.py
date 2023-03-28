@@ -4,7 +4,7 @@ from typing import TypeAlias, TypeVar, Callable, Generic, Iterable, Tuple, Self,
 
 from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotation
 
-from pyhandling.annotations import ActionT, ResultT, atomic_action, ArgumentsT, action_for, reformer_of, ResourceT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT
+from pyhandling.annotations import ActionT, ResultT, atomic_action, ArgumentsT, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT
 from pyhandling.binders import post_partial
 from pyhandling.errors import TemplatedActionChainError, NeutralActionChainError
 from pyhandling.tools import DelegatingProperty, with_opened_items, ArgumentKey, ArgumentPack
@@ -27,20 +27,19 @@ class ActionChain(Generic[_NodeT]):
     Iterable by its nodes.
 
     Each next node gets the output of the previous one.
-    Data returned when called is data exited from the last node.
+    Value returned when called is value exited from the last node.
 
-    If there are no nodes, returns the input resource back. If the arguments
-    were not transmitted or there were too many, it throws
-    `NeutralActionChainError`.
+    If there are no nodes, returns the input value back. If the arguments were
+    not transmitted or there were too many, it throws `NeutralActionChainError`.
 
     Can be connected to another chain or action using `|` between them with
     maintaining the position of the call.
 
     Also can be used `>>` to expand nodes starting from the end respectively.
 
-    Has a one resource call synonyms `>=` and `<=` where is the chain on the
-    right i.e. `resource_to_call >= chain_instance` and less preferred
-    `chain_instance <= resource_to_call`. 
+    Has a one value call synonyms `>=` and `<=` where is the chain on the
+    right i.e. `input_value >= chain_instance` and less preferred
+    `chain_instance <= input_value`. 
     """
 
     is_template = DelegatingProperty("_is_template")
@@ -64,7 +63,7 @@ class ActionChain(Generic[_NodeT]):
             return args[0]
 
         return reduce(
-            lambda resource, node: node(resource),
+            lambda value, node: node(value),
             (self._nodes[0](*args, **kwargs), *self._nodes[1:])
         )
 
@@ -169,9 +168,9 @@ def mergely(
 
 
 def repeating(
-    action: reformer_of[ResourceT],
-    is_valid_to_repeat: Callable[[ResourceT], bool],
-) -> Callable[[ResourceT], ResourceT]:
+    action: reformer_of[ValueT],
+    is_valid_to_repeat: Callable[[ValueT], bool],
+) -> Callable[[ValueT], ValueT]:
     """
     Function for repeatedly calling the input function of its own result.
 
@@ -180,11 +179,11 @@ def repeating(
     """
 
     @wraps(action)
-    def repetitive_action(resource: ResourceT) -> ResourceT:
-        while is_valid_to_repeat(resource):
-            resource = action(resource)
+    def repetitive_action(value: ValueT) -> ValueT:
+        while is_valid_to_repeat(value):
+            value = action(value)
         
-        return resource
+        return value
 
     return repetitive_action
 
