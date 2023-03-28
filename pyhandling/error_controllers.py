@@ -67,4 +67,4 @@ class ContextualError(MechanicalError, Generic[ErrorT, ContextT]):
 
     @cached_property
     def _error_message(self) -> str:
-        return f"{str(self.__error)} in context {self.__context}"
+
