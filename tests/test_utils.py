@@ -38,22 +38,9 @@ test_action_inserting_in = calling_test_case_of(
 )
 
 
-@mark.parametrize(
-    "checker, number, result",
-    ((lambda number: number < 10, 3, 3), (lambda number: number < 10, 11, 12))
-)
-def test_becoming_skipping_on(checker: checker_of[number], number: number, result: Any):
-    assert becoming_skipping_on(checker)(lambda number: number + 1)(number) == result
-
-
 test_test_bind = calling_test_case_of(
     (lambda: 4 >= bind(lambda a: a / 2, lambda a: a + 6), 8),
 )
-
-
-@mark.parametrize("items", [(1, 2, 3), "Hello world!", range(10)])
-def test_collection_from(items: Iterable):
-    assert collection_from(*items) == tuple(items)
 
 
 @mark.parametrize(
@@ -138,21 +125,6 @@ def test_times(steps_to_false: int, number_of_runs: int):
         steps_to_false -= 1
 
 
-@mark.parametrize(
-    "error_type, error",
-    [
-        (TypeError, TypeError()),
-        (IndexError, IndexError()),
-        (KeyError, KeyError()),
-        (Exception, Exception()),
-        (Exception, KeyError())
-    ]
-)
-def test_error_raising_of_optional_raising_of(error_type: Type[Exception], error: Exception):
-    with raises(error_type):
-        optional_raising_of(error_type)(error)
-
-
 test_monadically = calling_test_case_of(
     (lambda: tuple(monadically(lambda _: _)(print)), (print, )),
     (lambda: tuple(monadically(lambda _: _)([print, sum])), (print, sum)),
@@ -201,17 +173,6 @@ test_in_context = calling_test_case_of(
 )
 
 
-test_wrapping_in_context_on = calling_test_case_of(
-    (lambda: wrapping_in_context_on(yes)(4), ContextRoot(4, None)),
-    (lambda: wrapping_in_context_on(no)(4), 4),
-    (
-        lambda: wrapping_in_context_on(lambda a: a > 0, context_from=lambda a: a * 2)(4),
-        ContextRoot(4, 8),
-    ),
-    (
-        lambda: wrapping_in_context_on(lambda a: a > 0, context_from=lambda a: a * 2)(-4),
-        -4,
-    ),
 )
 
 
@@ -232,22 +193,6 @@ test_maybe = calling_test_case_of(
 
 
 @mark.parametrize(
-    "error_type, input_resource",
-    [
-        (Exception, str()),
-        (TypeError, int()),
-        (AttributeError, (1, 2, 3)),
-        (AttributeError, (item for item in range(10))),
-    ]
-)
-def test_returning_of_optional_raising_of(
-    error_type: Type[Exception],
-    input_resource: Any
-):
-    assert optional_raising_of(error_type)(input_resource) == input_resource
-
-
-
 @mark.parametrize(
     "func, input_resources, expected_result, expected_error_type",
     [

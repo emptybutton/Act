@@ -221,41 +221,6 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
 )
 
 
-becoming_skipping_on: Callable[
-    [checker_of[ResourceT]],
-    Callable[
-        [Callable[[ResourceT], ResultT]],
-        Callable[[ResourceT], ResultT | ResourceT]
-    ]
-]
-becoming_skipping_on = documenting_by(
-    """
-    Function for creating a decorator for an action, when calling which it may
-    not be explored if the conditions of the input (for this function) checker
-    to the input argument of the decorated action are true.
-    """
-)(
-    inversion_of |then>> closed(partial(on_condition, else_=returned))
-)
-
-
-optional_raising_of: Callable[
-    [Type[ErrorT]],
-    Callable[[ErrorT | ResourceT], NoReturn | ResourceT]
-]
-optional_raising_of = documenting_by(
-    """
-    Function that selectively raises an error (the type of which is the input,
-    respectively).
-
-    When called with another resource, returns it.
-    """
-)(
-    closed(isinstance, closer=post_partial)
-    |then>> post_partial(on_condition, raise_, else_=returned)
-)
-
-
 monadically: Callable[
     [Callable[[atomic_action], reformer_of[ValueT]]],
     mapping_to_chain_of[reformer_of[ValueT]]
@@ -315,23 +280,6 @@ contextual = documenting_by(
 )
 
 
-def wrapping_in_context_on(
-    is_valid_to_wrap: checker_of[ResourceT],
-    *,
-    context_from: Callable[[ResourceT], ContextT] = taken(None),
-) -> Callable[[ResourceT], ResourceT | ContextRoot[ResourceT, ContextT]]:
-    """
-    Function for the function of optionally wrapping the input resource in 
-    `ContextRoot`.
-    """
-
-    return on_condition(
-        is_valid_to_wrap,
-        mergely(taken(ContextRoot), returned, context_from),
-        else_=returned,
-    )
-
-
 bad = Flag('bad', is_positive=False)
 
 
@@ -352,14 +300,6 @@ maybe = documenting_by(
         if root.context is not bad
         else root
     ))
-)
-
-
-bad_when: Callable[[checker_of[ResourceT]], Callable[[ResourceT], ResourceT | bad]]
-bad_when = documenting_by(
-    """Shortcut function for `on_condition(..., taken(bad), else_=returned)`"""
-)(
-    post_partial(on_condition, taken(bad), else_=returned)
 )
 
 
