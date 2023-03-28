@@ -135,7 +135,16 @@ class Variable(Protocol):
 
 
 class Flag:
-    """Class for creating generic flags without using enum."""
+    """
+    Class for creating generic flags without using enum.
+
+    Identified by its name in `==`, `isinstance(..., flag_instance) and
+    `hash(flag_instance)` forms`.
+
+    Castable to `bool` by its sign.
+
+    Creates `Union` by `|` operator.
+    """
 
     def __init__(self, name: str, *, sign: bool = True):
         self._name = name
