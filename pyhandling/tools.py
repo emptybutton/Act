@@ -122,6 +122,18 @@ class ContextManager(Protocol, Generic[ContextT]):
         ...
 
 
+@runtime_checkable
+class Variable(Protocol):
+    """
+    Protocol describing objects capable of checking another object against a
+    subvariant of the describing object (`isinstance(another, describing)`).
+    """
+
+    @abstractmethod
+    def __instancecheck__(self, instance: object) -> bool:
+        ...
+
+
 class Flag:
     """Class for creating generic flags without using enum."""
 
