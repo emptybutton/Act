@@ -137,18 +137,18 @@ class Variable(Protocol):
 class Flag:
     """Class for creating generic flags without using enum."""
 
-    def __init__(self, name: str, *, is_positive: bool = True):
+    def __init__(self, name: str, *, sign: bool = True):
         self._name = name
-        self._is_positive = is_positive
+        self._sign = sign
 
     def __repr__(self) -> str:
-        return f"<{'positive' if self._is_positive else 'negative'} {type(self).__name__} \"{self._name}\">"
+        return f"<{'positive' if self._sign else 'negative'} {type(self).__name__} \"{self._name}\">"
 
     def __hash__(self) -> int:
         return hash(self._name)
 
     def __bool__(self) -> bool:
-        return self._is_positive
+        return self._sign
 
     def __eq__(self, other: Special[Self]) -> bool:
         return isinstance(other, Flag) and self._name == other._name
@@ -167,7 +167,7 @@ class Flag:
         return self._name
 
 
-nothing: Final[Flag] = Flag("nothing", is_positive=False)
+nothing = Flag("nothing", sign=False)
 nothing.__doc__ = """Flag to indicate the absence of anything, including `None`."""
 
 

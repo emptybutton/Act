@@ -280,7 +280,7 @@ contextual = documenting_by(
 )
 
 
-bad = Flag('bad', is_positive=False)
+bad = Flag('bad', sign=False)
 
 
 maybe: monada_among[ContextRoot[Any, Special[bad]]]
