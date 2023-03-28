@@ -33,16 +33,16 @@ def assert_(value: Any) -> None:
     assert value
 
 
-def with_positional_unpacking(func: action_for[ResultT], arguments: Iterable) -> ResultT:
+def with_positional_unpacking(func: action_for[ResultT]) -> Callable[[Iterable], ResultT]:
     """Function for functional use of positional unpacking."""
 
-    return func(*arguments)
+    return wraps(func)(lambda arguments: func(*arguments))
 
 
-def with_keyword_unpacking(func: action_for[ResultT], arguments: dict) -> ResultT:
+def with_keyword_unpacking(func: action_for[ResultT]) -> Callable[[Mapping], ResultT]:
     """Function for functional use of unpacking by keyword arguments."""
 
-    return func(**arguments)
+    return wraps(func)(lambda arguments: func(**arguments))
 
 
 def with_keyword(argument_name: str, argument_value: Any, func: action_for[ResultT]) -> ResultT:

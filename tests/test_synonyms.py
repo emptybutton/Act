@@ -28,13 +28,13 @@ test_assert_ = calling_test_case_of(
 
 
 test_with_positional_unpacking = calling_test_case_of((
-    lambda: with_positional_unpacking(lambda a, b, c: (c, b, a), (1, 2, 3)),
+    lambda: with_positional_unpacking(lambda a, b, c: (c, b, a))([1, 2, 3]),
     (3, 2, 1),
 ))
 
 
 test_with_keyword_unpacking = calling_test_case_of((
-    lambda: with_keyword_unpacking(lambda a, b, c: (c, b, a), dict(a=1, b=2, c=3)),
+    lambda: with_keyword_unpacking(lambda a, b, c: (c, b, a))(dict(a=1, b=2, c=3)),
     (3, 2, 1),
 ))
 
