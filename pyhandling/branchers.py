@@ -88,7 +88,7 @@ class ActionChain(Generic[_NodeT]):
             if self._nodes else f"{self.__class__.__name__}()"
         )
 
-    def _fromat_node(self, node: NodeT) -> str:
+    def _fromat_node(self, node: _NodeT) -> str:
         if node is Ellipsis:
             return '...'
 
