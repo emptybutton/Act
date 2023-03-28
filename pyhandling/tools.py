@@ -57,6 +57,11 @@ def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
 
 @runtime_checkable
 class ItemGetter(Protocol, Generic[KeyT, ResultT]):
+    """
+    Protocol describing objects from which it is possible to get a value by
+    accessing via `[]` (`item_getter[key]`).
+    """
+
     @abstractmethod
     def __getitem__(self, key: KeyT) -> ResultT:
         ...
@@ -64,6 +69,11 @@ class ItemGetter(Protocol, Generic[KeyT, ResultT]):
 
 @runtime_checkable
 class ItemSetter(Protocol, Generic[KeyT, ValueT]):
+    """
+    Protocol describing objects from which it is possible to set a value by
+    accessing via `[]` (`item_setter[key] = value`).
+    """
+
     @abstractmethod
     def __setitem__(self, key: KeyT, value: ValueT) -> Any:
         ...
@@ -71,6 +81,17 @@ class ItemSetter(Protocol, Generic[KeyT, ValueT]):
 
 @runtime_checkable
 class ItemKeeper(Protocol, Generic[KeyT, ValueT]):
+    """
+    Protocol describing objects from which it is possible to get the value via
+    `[]` access and write the value via the same `[]` access.
+
+    In the form
+    ```
+    item_keeper[key]
+    item_keeper[key] = value
+    ```
+    """
+
     @abstractmethod
     def __getitem__(self, key: KeyT) -> ResultT:
         ...
@@ -82,6 +103,11 @@ class ItemKeeper(Protocol, Generic[KeyT, ValueT]):
 
 @runtime_checkable
 class ContextManager(Protocol, Generic[ContextT]):
+    """
+    Protocol describing objects managing a context via the syntactic
+    `with ... as ...` construct.
+    """
+
     @abstractmethod
     def __enter__(self) -> ContextT:
         ...
