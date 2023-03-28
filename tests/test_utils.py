@@ -3,13 +3,13 @@ from typing import Any, Iterable, Type, Callable, Mapping, Optional
 from pyannotating import number, many_or_one
 from pytest import mark, raises
 
-from pyhandling.annotations import checker_of, ResourceT, event_for
+from pyhandling.annotations import checker_of, event_for
 from pyhandling.branchers import ActionChain
 from pyhandling.synonyms import with_context_by
 from pyhandling.testing import calling_test_case_of
 from pyhandling.tools import with_attributes, ArgumentPack, nothing
 from pyhandling.utils import *
-from tests.mocks import with_attributes, CustomContext, Counter, MockAction
+from tests.mocks import CustomContext, Counter, MockAction
 
 
 @mark.parametrize(
@@ -44,15 +44,15 @@ test_test_bind = calling_test_case_of(
 
 
 @mark.parametrize(
-    "resource, arguments",
+    "value, arguments",
     [
         (256, tuple()),
         (42, (1, 2, 3)),
         (None, (1, 2, 3)),
     ]
 )
-def test_taken(resource: Any, arguments: Iterable):
-    assert taken(resource)(*arguments) == resource
+def test_taken(value: Any, arguments: Iterable):
+    assert taken(value)(*arguments) == value
 
 
 @mark.parametrize(
@@ -91,7 +91,7 @@ def test_showly_by_logger(number_of_handlers: int, number_of_writer_calls: int):
 
 
 @mark.parametrize(
-    "input_resource, result",
+    "input_value, result",
     [
         (42, (42, )),
         (None, (None, )),
@@ -103,8 +103,8 @@ def test_showly_by_logger(number_of_handlers: int, number_of_writer_calls: int):
         ('Hello', ('H', 'e', 'l', 'l', 'o'))
     ]
 )
-def test_as_collection(input_resource: Any, result: tuple):
-    assert as_collection(input_resource) == result
+def test_as_collection(input_value: Any, result: tuple):
+    assert as_collection(input_value) == result
 
 
 @mark.parametrize(
@@ -131,7 +131,7 @@ test_monadically = calling_test_case_of(
     (
         lambda: (
             monadically(
-                lambda node: lambda resources: (*resources, node(resources[-1]))
+                lambda node: lambda values: (*values, node(values[-1]))
             )(
                 [lambda a: a + 1, lambda b: b + 2, lambda c: c + 3]
             )
@@ -167,12 +167,9 @@ test_for_context = calling_test_case_of(
 )
 
 
-test_in_context = calling_test_case_of(
-    (lambda: in_context(4).resource, 4),
-    (lambda: in_context(None), ContextRoot(None, None)),
-)
-
-
+test_contextual = calling_test_case_of(
+    (lambda: contextual(4).value, 4),
+    (lambda: contextual(None), ContextRoot(None, nothing)),
 )
 
 
@@ -193,31 +190,30 @@ test_maybe = calling_test_case_of(
 
 
 @mark.parametrize(
-@mark.parametrize(
-    "func, input_resources, expected_result, expected_error_type",
+    "func, input_values, expected_result, expected_error_type",
     [
-        (lambda x: x + 2, (30, ), 32, None),
-        (lambda x, y: x + y, (128, 128), 256, None),
-        (lambda x: x, (None, ), None, None),
-        (lambda x: x / 0, (30, ), None, ZeroDivisionError),
-        (lambda x: x.non_existent_attribute, (None, ), None, AttributeError),
-        (lambda line: line + 64, ("Some line", ), None, TypeError),
+        (lambda x: x + 2, (30, ), 32, nothing),
+        (lambda x, y: x + y, (128, 128), 256, nothing),
+        (lambda x: x, (None, ), None, nothing),
+        (lambda x: x / 0, (30, ), nothing, ZeroDivisionError),
+        (lambda x: x.non_existent_attribute, (None, ), nothing, AttributeError),
+        (lambda line: line + 64, ("Some line", ), nothing, TypeError),
     ]
 )
 def test_with_error(
     func: Callable,
-    input_resources: Iterable,
+    input_values: Iterable,
     expected_result: Any,
     expected_error_type: Optional[Type[Exception]]
 ):
-    result, error = with_error(func)(*input_resources)
+    result, error = with_error(func)(*input_values)
 
     assert result == expected_result
 
-    if expected_error_type is not None:
+    if expected_error_type is not nothing:
         assert type(error) is expected_error_type
     else:
-        assert error is None
+        assert error is expected_error_type
 
 
 test_until_error = calling_test_case_of(
@@ -232,7 +228,7 @@ test_until_error = calling_test_case_of(
         ContextRoot(4, "input context"),
     ),
     (
-        lambda: (lambda root: (root.resource, type(root.context)))(
+        lambda: (lambda root: (root.value, type(root.context)))(
             until_error([
                 lambda a: a + 2, lambda b: b / 0, lambda _: "last node result"
             ])(ContextRoot(4, "input context"))
@@ -240,6 +236,8 @@ test_until_error = calling_test_case_of(
         (6, ZeroDivisionError),
     ),
 )
+
+
 test_map_ = calling_test_case_of((
     lambda: map_(lambda i: i + 1, range(9)), tuple(range(1, 10))
 ))

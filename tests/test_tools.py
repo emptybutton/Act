@@ -3,7 +3,6 @@ from typing import Iterable, Callable, Any
 from pytest import mark, fail, raises
 
 from pyhandling.tools import *
-from tests.mocks import with_attributes
 
 
 def test_to_clone():
