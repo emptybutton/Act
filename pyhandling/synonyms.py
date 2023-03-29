@@ -40,13 +40,15 @@ def collection_of(*args) -> tuple:
 
 
 def with_positional_unpacking(func: action_for[ResultT]) -> Callable[[Iterable], ResultT]:
-    """Function for functional use of positional unpacking."""
+    """Decorator function to unpack the passed collection into the input action."""
 
     return wraps(func)(lambda arguments: func(*arguments))
 
 
-    """Function for functional use of unpacking by keyword arguments."""
 def with_keyword_unpacking(func: action_for[ResultT]) -> Callable[[Mapping[str, Any]], ResultT]:
+    """
+    Decorator function to unpack the passed mapping object into the input action.
+    """
 
     return wraps(func)(lambda arguments: func(**arguments))
 

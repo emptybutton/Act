@@ -253,12 +253,11 @@ bad = Flag('bad', sign=False)
 maybe: execution_context_when[Special[bad]]
 maybe = documenting_by(
     """
-    Action or action chain transformation function.
+    Action execution context that stops the thread of execution When the `bad`
+    flag returns.
 
-    Stop a `ContextRoot` value action chain on a node that returned
-    'bad' flag.
-
-    Skips calculation of `ContextRoot` values when context is `bad`.
+    When stopped, returns the previous value calculated before the `bad` flag in
+    context with `bad` flag.
     """
 )(
     monadically(lambda node: lambda root: (
@@ -292,7 +291,13 @@ with_error = documenting_by(
 
 until_error: execution_context_when[Special[Exception]]
 until_error = documenting_by(
-    """Function for a chain of actions with the return of an error."""
+    """
+    Action execution context that stops the thread of execution when an error
+    occurs.
+
+    When skipping, it saves the last validly calculated value and an occurred
+    error as context.
+    """
 )(
     monadically(lambda node: lambda root: (
         rollbackable(

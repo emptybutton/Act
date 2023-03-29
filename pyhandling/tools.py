@@ -62,7 +62,7 @@ class Flag:
     Identified by its name in `==`, `isinstance(..., flag_instance) and
     `hash(flag_instance)` forms`.
 
-    Castable to `bool` by its sign.
+    Castable to `bool` by its sign which defaults to `True`.
 
     Creates `Union` by `|` operator.
     """

@@ -135,19 +135,19 @@ def mergely(
     **keyword_parallel_actions: Callable[[*ArgumentsT], Any]
 ) -> Callable[[*ArgumentsT], ResultT]:
     """
-    Decorator function that allows to initially separate several operations on
+    Decorator that allows to initially separate several operations on
     input arguments and then combine these results in final operation.
 
-    Gets the final merging function of the first input function by calling it
+    Gets the final merging action of the first input action by calling it
     with all the input arguments of the resulting (as a result of calling this
-    particular function) function.
+    particular action) action.
 
-    Passes to the final merge function the results of calls to unbounded input
-    functions (with the same arguments that were passed to the factory of this
-    final merge function).
+    Passes to the final merge action the results of calls to unbounded input
+    actions (with the same arguments that were passed to the factory of this
+    final merge action).
 
-    When specifying parallel functions using keyword arguments, sets them to the
-    final merging function through the same argument name through which they
+    When specifying parallel actions using keyword arguments, sets them to the
+    final merging action through the same argument name through which they
     were specified.
     """
 
@@ -172,10 +172,10 @@ def repeating(
     is_valid_to_repeat: checker_of[ValueT],
 ) -> reformer_of[ValueT]:
     """
-    Function for repeatedly calling the input function of its own result.
+    Function to call the input action multiple times.
 
-    Specifies the application and repetition in particular, using the
-    `is_valid_to_repeat` parameter.
+    Initially calls an input action from an input value, after repeating the
+    result of an input action itself.
     """
 
     @wraps(action)
@@ -226,8 +226,7 @@ def rollbackable(
     rollbacker: Callable[[Exception], ErrorHandlingResultT]
 ) -> Callable[[*ArgumentsT], ResultT | ErrorHandlingResultT]:
     """
-    Decorator function providing handling of possible errors.
-    Delegates error handling to `rollbacker`.
+    Decorator function providing handling of possible errors in an input action.
     """
 
     @wraps(action)

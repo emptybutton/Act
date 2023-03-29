@@ -40,7 +40,7 @@ error_storage_of = AnnotationTemplate(Union, [
 def errors_from(error_storage: error_storage_of[ErrorT] | ErrorT) -> Tuple[ErrorT]:
     """
     Function to recursively get all (including nested) errors from unstructured
-    error storage.
+    error storage (and storage itself, if it is also an error).
     """
 
     errors = (error_storage, ) if isinstance(error_storage, Exception) else tuple()
