@@ -235,19 +235,6 @@ saving_context: calculation_contextualizing_over[ContextT] = documenting_by(
 )
 
 
-for_context: mapping_to_chain_among[ContextRoot[ValueT, Any]] = documenting_by(
-    """
-    Function that represents a chain of actions (or just an action) in the form
-    of operations on a context from `ContextRoot` with preservation of its
-    value.
-    """
-)(
-    monadically(lambda node: lambda root: ContextRoot(
-        root.value, node(root.context)
-    ))
-)
-
-
 contextual: Callable[[ValueT], ContextRoot[ValueT, None]]
 contextual = documenting_by(
     """

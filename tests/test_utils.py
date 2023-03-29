@@ -155,18 +155,6 @@ test_saving_context = calling_test_case_of(
 )
 
 
-test_for_context = calling_test_case_of(
-    (
-        lambda: for_context(lambda c: c + 10)(ContextRoot(None, 32)),
-        ContextRoot(None, 42),
-    ),
-    (
-        lambda: for_context([lambda c: c + 5, lambda c: c * 2])(ContextRoot(None, 3)),
-        ContextRoot(None, 16),
-    )
-)
-
-
 test_contextual = calling_test_case_of(
     (lambda: contextual(4).value, 4),
     (lambda: contextual(None), ContextRoot(None, nothing)),
