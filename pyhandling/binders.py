@@ -3,7 +3,7 @@ from functools import partial, wraps
 from inspect import signature, _ParameterKind, _empty
 from typing import Callable, Self, TypeVar, Any
 
-from pyhandling.annotations import ArgumentsT, ResultT, action_for, ActionT
+from pyhandling.annotations import ArgumentsT, ResultT, action_for, ActionT, handler_of
 from pyhandling.tools import ArgumentKey, ArgumentPack
 
 
@@ -109,7 +109,7 @@ def closed(
 
 
 def returnly(
-    action: Callable[[*ArgumentsT], Any],
+    action: handler_of[*ArgumentsT],
     *,
     argument_key_to_return: ArgumentKey = ArgumentKey(0)
 ) -> Callable[[*ArgumentsT], ArgumentsT]:
