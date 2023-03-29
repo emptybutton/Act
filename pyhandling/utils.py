@@ -164,17 +164,6 @@ def bind(
     return first_node |then>> second_node
 
 
-on: Callable[[checker_of[ValueT], Callable[[ValueT], ResultT]], Callable[[ValueT], ResultT | ValueT]]
-on = documenting_by(
-    """
-    Shortcut for optional execution of an input action based on the results of
-    an input check.
-    """
-)(
-    partial(on_condition, else_=returned)
-)
-
-
 taken: Callable[[ValueT], action_for[ValueT]] = documenting_by(
     """Shortcut function for `eventually(returned, ...)`."""
 )(
@@ -189,7 +178,7 @@ as_collection = documenting_by(
     With a non-iterable value, wraps it in a tuple.
     """
 )(
-    on_condition(isinstance |by| Iterable, tuple, else_=in_collection)
+    on(isinstance |by| Iterable, tuple, else_=in_collection)
 )
 
 
@@ -215,12 +204,12 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     operation_by('+', 1)
     |then>> Clock
     |then>> closed(
-        (on_condition |then>> returnly)(
+        on(
             transform |by| 'not',
-            lambda clock: (setattr |to| clock)(
+            returnly(lambda clock: (setattr |to| clock)(
                 "ticks_to_disability",
                 clock.initial_ticks_to_disability
-            )
+            ))
         )
         |then>> returnly(lambda clock: (setattr |to| clock)(
             "ticks_to_disability",
@@ -311,7 +300,7 @@ maybe = documenting_by(
     """
 )(
     monadically(lambda node: lambda root: (
-        root.value >= node |then>> on_condition(
+        root.value >= node |then>> on(
             operation_by('is', bad),
             taken(ContextRoot(root.value, bad)),
             else_=ContextRoot |by| root.context,

@@ -114,33 +114,12 @@ def test_repeating_execution_sequences(
     assert number_of_checker_calls == checking_counter.counted
 
 
-@mark.parametrize(
-    "input_number, result",
-    [
-        (0, 1),
-        (3, 27),
-        (10, 10 ** 10),
-        (20, 400),
-        (100, 10_000)
-    ]
-)
-def test_on_condition_by_numeric_functions(
-    input_number: int | float,
-    result: Any
-):
-    assert on_condition(
-        lambda x: x <= 10,
-        lambda x: x ** x,
-        else_=lambda x: x * x
-    )(input_number) == result
-
-
-test_on_condition = calling_test_case_of(
-    (lambda: on_condition(lambda x: x > 0, lambda x: x ** x)(4), 256),
-    (lambda: on_condition(lambda x: x > 0, lambda x: x ** x)(-4), None),
-    (lambda: on_condition(lambda x: x > 0, lambda x: x ** x)(-4), None),
-    (lambda: on_condition(lambda x: x > 0, lambda _: _, else_=lambda x: -x)(4), 4),
-    (lambda: on_condition(lambda x: x > 0, lambda _: _, else_=lambda x: -x)(-4), 4),
+test_on = calling_test_case_of(
+    (lambda: on(lambda x: x > 0, lambda x: x ** x)(4), 256),
+    (lambda: on(lambda x: x > 0, lambda x: x ** x)(-4), -4),
+    (lambda: on(lambda x: x > 0, lambda x: x ** x)(-4), -4),
+    (lambda: on(lambda x: x > 0, lambda _: _, else_=lambda x: -x)(4), 4),
+    (lambda: on(lambda x: x > 0, lambda _: _, else_=lambda x: -x)(-4), 4),
 )
 
 

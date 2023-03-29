@@ -12,8 +12,8 @@ from pyhandling.synonyms import returned, getitem
 
 
 __all__ = (
-    "ActionChain", "merged", "mergely", "repeating", "on_condition",
-    "rollbackable", "mapping_to_chain_of", "mapping_to_chain"
+    "ActionChain", "merged", "mergely", "repeating", "on", "rollbackable",
+    "mapping_to_chain_of", "mapping_to_chain"
 )
 
 
@@ -188,26 +188,28 @@ def repeating(
     return repetitive_action
 
 
-def on_condition(
+def on(
     condition_checker: Callable[[*ArgumentsT], bool],
     positive_condition_action: Callable[[*ArgumentsT], PositiveConditionResultT],
     *,
-    else_: Callable[[*ArgumentsT], NegativeConditionResultT] = lambda *_, **__: None
+    else_: Callable[[*ArgumentsT], NegativeConditionResultT] = returned
 ) -> Callable[[*ArgumentsT], PositiveConditionResultT | NegativeConditionResultT]:
     """
-    Function that implements the function choosing by condition.
+    Function that implements action choosing by condition.
 
-    Creates a function that delegates the call to one other function selected by
+    Creates a action that delegates the call to one other action selected by
     the results of `condition_checker`.
 
     If the condition is positive, selects `positive_condition_action`, if it is
-    negative -> `else_`.
+    negative, then else_.
+
+    With default `else_` takes actions of one argument.
     """
 
     def brancher(*args, **kwargs) -> Any:
         """
-        Function created by the `on_condition` function.
-        See `on_condition` for more info.
+        Result function from `on` function.
+        See `on` for more info.
         """
 
         return (
