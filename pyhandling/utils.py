@@ -49,10 +49,20 @@ def context_oriented(root_values: tuple[ValueT, ContextT]) -> ContextRoot[Contex
     return ContextRoot(value, context)
 
 
+class atomically:
     """
+    Decorator that removes the behavior of an input action, leaving only
+    calling.
     """
 
+    def __init__(self, action: action_for[ResultT]):
+        self._action = action
 
+    def __repr__(self) -> str:
+        return f"atomically({self._action})"
+
+    def __call__(self, *args, **kwargs) -> ResultT:
+        return self._action(*args, **kwargs)
 
 
 def with_result(
