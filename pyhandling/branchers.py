@@ -151,9 +151,9 @@ def mergely(
     were specified.
     """
 
-    @wraps(parallel_action_result_merging_of)
+    @wraps(merging_of)
     def merger(*args, **kwargs) -> ResultT:
-        return parallel_action_result_merging_of(*args, **kwargs)(
+        return merging_of(*args, **kwargs)(
             *(
                 parallel_action(*args, **kwargs)
                 for parallel_action in parallel_actions
