@@ -217,12 +217,13 @@ mapping_to_chain_among = AnnotationTemplate(mapping_to_chain_of, [
 ])
 
 
-calculation_contextualizing_over = AnnotationTemplate(mapping_to_chain_among, [
+execution_context_when = AnnotationTemplate(mapping_to_chain_among, [
         AnnotationTemplate(ContextRoot, [Any, input_annotation])
     ]
 )
 
-saving_context: calculation_contextualizing_over[ContextT] = documenting_by(
+
+saving_context: execution_context_when[ContextT] = documenting_by(
     """
     Function that represents a chain of actions (or just an action) in the form
     of operations on a value from `ContextRoot` with preservation of its
@@ -249,7 +250,7 @@ contextual = documenting_by(
 bad = Flag('bad', sign=False)
 
 
-maybe: calculation_contextualizing_over[Special[bad]]
+maybe: execution_context_when[Special[bad]]
 maybe = documenting_by(
     """
     Action or action chain transformation function.
@@ -289,7 +290,7 @@ with_error = documenting_by(
 )
 
 
-until_error: calculation_contextualizing_over[Special[Exception]]
+until_error: execution_context_when[Special[Exception]]
 until_error = documenting_by(
     """Function for a chain of actions with the return of an error."""
 )(
