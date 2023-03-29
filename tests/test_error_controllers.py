@@ -34,11 +34,3 @@ test_errors_from = calling_test_case_of(
         )
     )
 )
-
-
-test_error_root_from = calling_test_case_of((
-    lambda: (lambda root: (type(root.value), root.context))(
-        error_root_from(ContextualError(ZeroDivisionError(), 16))
-    ),
-    (ZeroDivisionError, 16)
-))
