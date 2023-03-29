@@ -9,12 +9,11 @@ from pyhandling.annotations import ErrorT, ContextT
 from pyhandling.errors import PyhandingError
 from pyhandling.language import to
 from pyhandling.tools import DelegatingProperty, with_opened_items
-from pyhandling.utils import ContextRoot
 
 
 __all__ = (
     "MechanicalError", "SingleErrorKepper", "ErrorKepper", "error_storage_of",
-    "errors_from", "ContextualError", "error_root_from"
+    "errors_from", "ContextualError"
 )
 
 
@@ -71,9 +70,4 @@ class ContextualError(MechanicalError, Generic[ErrorT, ContextT]):
         return f"{str(self.__error)} when {self.__context}"
 
 
-def error_root_from(
-    error: ContextualError[ErrorT, ContextT]
-) -> ContextRoot[ErrorT, ContextT]:
-    """Converter function from `ContextualError` to `ContextRoot`."""
 
-    return ContextRoot(error.error, error.context)
