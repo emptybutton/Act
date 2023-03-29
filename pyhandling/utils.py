@@ -32,8 +32,13 @@ class ContextRoot(NamedTuple, Generic[ValueT, ContextT]):
     def __repr__(self) -> str:
         return f"{self.value} when {self.context}"
 
+    @classmethod
+    def like(cls, value_and_context: tuple[ValueT, ContextT]) -> Self:
+        """Class method to create from an unstructured collection."""
 
+        value, context = value_and_context
 
+        return cls(value, context)
 
 
 
