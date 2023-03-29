@@ -600,7 +600,7 @@ from typing import Iterable
 
 
 saving_results: mapping_to_chain_among[Iterable] = monadically(
-    lambda node: lambda resources: (*resources, node(resources[-1]))
+    lambda node: lambda results: (*results, node(results[-1]))
 )
 
 
