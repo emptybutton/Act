@@ -1,25 +1,24 @@
 from datetime import datetime
 from functools import wraps, partial
-from math import inf
-from typing import NamedTuple, Generic, Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn, Optional
+from typing import NamedTuple, Generic, Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn, Optional, Self
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
 
 from pyhandling.annotations import atomic_action, dirty, handler_of, ValueT, ContextT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, reformer_of
 from pyhandling.binders import returnly, closed, post_partial, eventually, unpackly
-from pyhandling.branchers import ActionChain, on_condition, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain
+from pyhandling.branchers import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain
 from pyhandling.language import then, by, to
 from pyhandling.synonyms import execute_operation, returned, transform, raise_
 from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, nothing, Flag
 
 
 __all__ = (
-    "ContextRoot", "Logger", "showly", "callmethod", "with_result",
-    "operation_by", "operation_of", "shown", "binding_by", "bind", "on", "taken",
-    "as_collection", "yes", "no", "times", "monadically",
-    "mapping_to_chain_among", "calculation_contextualizing_over",
-    "saving_context", "for_context", "contextual", "bad", "maybe", "with_error",
-    "until_error", "map_", "zip_", "filter_"
+    "ContextRoot", "context_oriented", "atomically", "showly", "callmethod",
+    "with_result", "operation_by", "operation_of", "shown", "binding_by", "bind",
+    "taken", "as_collection", "yes", "no", "times", "monadically",
+    "mapping_to_chain_among", "execution_context_when", "saving_context",
+    "contextual", "bad", "maybe", "with_error", "until_error", "map_", "zip_",
+    "filter_"
 )
 
 
