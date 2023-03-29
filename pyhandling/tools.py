@@ -11,10 +11,9 @@ from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, Co
 
 
 __all__ = (
-    "to_clone", "publicly_immutable", "ItemGetter", "ItemSetter", "ItemKeeper",
-    "ContextManager", "Flag", "nothing", "ArgumentKey", "ArgumentPack",
-    "DelegatingProperty", "Clock", "with_attributes", "as_argument_pack",
-    "with_opened_items", "in_collection", "documenting_by"
+    "to_clone", "publicly_immutable", "Flag", "nothing", "ArgumentKey",
+    "ArgumentPack", "DelegatingProperty", "Clock", "Logger", "with_attributes",
+    "as_argument_pack", "with_opened_items", "in_collection", "documenting_by"
 )
 
 
@@ -53,85 +52,6 @@ def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
     class_.__setattr__ = new_setattr
 
     return class_
-
-
-@runtime_checkable
-class ItemGetter(Protocol, Generic[KeyT, ResultT]):
-    """
-    Protocol describing objects from which it is possible to get a value by
-    accessing via `[]` (`item_getter[key]`).
-    """
-
-    @abstractmethod
-    def __getitem__(self, key: KeyT) -> ResultT:
-        ...
-
-
-@runtime_checkable
-class ItemSetter(Protocol, Generic[KeyT, ValueT]):
-    """
-    Protocol describing objects from which it is possible to set a value by
-    accessing via `[]` (`item_setter[key] = value`).
-    """
-
-    @abstractmethod
-    def __setitem__(self, key: KeyT, value: ValueT) -> Any:
-        ...
-
-
-@runtime_checkable
-class ItemKeeper(Protocol, Generic[KeyT, ValueT]):
-    """
-    Protocol describing objects from which it is possible to get the value via
-    `[]` access and write the value via the same `[]` access.
-
-    In the form
-    ```
-    item_keeper[key]
-    item_keeper[key] = value
-    ```
-    """
-
-    @abstractmethod
-    def __getitem__(self, key: KeyT) -> ResultT:
-        ...
-
-    @abstractmethod
-    def __setitem__(self, key: KeyT, value: ValueT) -> Any:
-        ...
-
-
-@runtime_checkable
-class ContextManager(Protocol, Generic[ContextT]):
-    """
-    Protocol describing objects managing a context via the syntactic
-    `with ... as ...` construct.
-    """
-
-    @abstractmethod
-    def __enter__(self) -> ContextT:
-        ...
-
-    @abstractmethod
-    def __exit__(
-        self,
-        error_type: Optional[Type[Exception]],
-        error: Optional[Exception],
-        traceback: Any
-    ):
-        ...
-
-
-@runtime_checkable
-class Variable(Protocol):
-    """
-    Protocol describing objects capable of checking another object against a
-    subvariant of the describing object (`isinstance(another, describing)`).
-    """
-
-    @abstractmethod
-    def __instancecheck__(self, instance: object) -> bool:
-        ...
 
 
 class Flag:
