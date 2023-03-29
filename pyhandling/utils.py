@@ -320,9 +320,11 @@ map_ = documenting_by("""`map` function returning `tuple`""")(
     partial(map |then>> tuple)
 )
 
+
 zip_ = documenting_by("""`zip` function returning `tuple`""")(
     partial(zip |then>> tuple)
 )
+
 
 filter_ = documenting_by("""`filter` function returning `tuple`""")(
     partial(filter |then>> tuple)
