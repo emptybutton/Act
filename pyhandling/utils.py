@@ -41,8 +41,12 @@ class ContextRoot(NamedTuple, Generic[ValueT, ContextT]):
         return cls(value, context)
 
 
+def context_oriented(root_values: tuple[ValueT, ContextT]) -> ContextRoot[ContextT, ValueT]:
+    """Function to swap `ContextRoot`'s context and value."""
 
+    context, value = root_values
 
+    return ContextRoot(value, context)
 
 
 
