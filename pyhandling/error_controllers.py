@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from functools import cached_property
 from types import MappingProxyType
-from typing import Generic, Union, runtime_checkable, Protocol, Iterable, Self, Tuple, NamedTuple, Optional, ClassVar
+from typing import Generic, Union, runtime_checkable, Protocol, Iterable, Self, Tuple, NamedTuple, Optional, ClassVar, Iterator
 
 from pyannotating import Special, AnnotationTemplate, input_annotation
 
@@ -54,7 +54,10 @@ def errors_from(error_storage: error_storage_of[ErrorT] | ErrorT) -> Tuple[Error
 
 
 class ContextualError(MechanicalError, Generic[ErrorT, ContextT]):
-    """Error class to store the context of another error and itself."""
+    """
+    Error class to store the context of another error and itself.
+    Iterates to unpack.
+    """
    
     error = DelegatingProperty("_ContextualError__error")
     context = DelegatingProperty("_ContextualError__context")
@@ -64,6 +67,9 @@ class ContextualError(MechanicalError, Generic[ErrorT, ContextT]):
         self.__context = context
 
         super().__init__(self._error_message)
+
+    def __iter__(self) -> Iterator:
+        return iter((self.__error, self.__context))
 
     @cached_property
     def _error_message(self) -> str:
