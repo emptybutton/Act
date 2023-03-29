@@ -45,8 +45,8 @@ def with_positional_unpacking(func: action_for[ResultT]) -> Callable[[Iterable],
     return wraps(func)(lambda arguments: func(*arguments))
 
 
-def with_keyword_unpacking(func: action_for[ResultT]) -> Callable[[Mapping], ResultT]:
     """Function for functional use of unpacking by keyword arguments."""
+def with_keyword_unpacking(func: action_for[ResultT]) -> Callable[[Mapping[str, Any]], ResultT]:
 
     return wraps(func)(lambda arguments: func(**arguments))
 

@@ -1,10 +1,10 @@
 from functools import partial, reduce, wraps
 from math import inf
-from typing import TypeAlias, TypeVar, Callable, Generic, Iterable, Tuple, Self, Any, Optional
+from typing import TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional
 
 from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotation
 
-from pyhandling.annotations import ActionT, ResultT, atomic_action, ArgumentsT, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT
+from pyhandling.annotations import ActionT, ResultT, atomic_action, ArgumentsT, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, checker_of
 from pyhandling.binders import post_partial
 from pyhandling.errors import TemplatedActionChainError, NeutralActionChainError
 from pyhandling.tools import DelegatingProperty, with_opened_items, ArgumentKey, ArgumentPack
@@ -67,7 +67,7 @@ class ActionChain(Generic[_NodeT]):
             (self._nodes[0](*args, **kwargs), *self._nodes[1:])
         )
 
-    def __iter__(self) -> Tuple[_NodeT]:
+    def __iter__(self) -> Iterator[_NodeT]:
         return iter(self._nodes)
 
     def __rshift__(self, node: atomic_action) -> Self:
@@ -88,7 +88,7 @@ class ActionChain(Generic[_NodeT]):
             if self._nodes else f"{self.__class__.__name__}()"
         )
 
-    def _fromat_node(self, node: _NodeT) -> str:
+    def _fromat_node(self, node: Special[Ellipsis, _NodeT]) -> str:
         if node is Ellipsis:
             return '...'
 
@@ -130,7 +130,7 @@ def merged(
 
 
 def mergely(
-    parallel_action_result_merging_of: Callable[[*ArgumentsT], action_for[ResultT]],
+    merging_of: Callable[[*ArgumentsT], action_for[ResultT]],
     *parallel_actions: Callable[[*ArgumentsT], Any],
     **keyword_parallel_actions: Callable[[*ArgumentsT], Any]
 ) -> Callable[[*ArgumentsT], ResultT]:
@@ -169,8 +169,8 @@ def mergely(
 
 def repeating(
     action: reformer_of[ValueT],
-    is_valid_to_repeat: Callable[[ValueT], bool],
-) -> Callable[[ValueT], ValueT]:
+    is_valid_to_repeat: checker_of[ValueT],
+) -> reformer_of[ValueT]:
     """
     Function for repeatedly calling the input function of its own result.
 
