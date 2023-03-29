@@ -49,19 +49,10 @@ def context_oriented(root_values: tuple[ValueT, ContextT]) -> ContextRoot[Contex
     return ContextRoot(value, context)
 
 
-
-def showly(
-    action_or_actions: many_or_one[atomic_action],
-    *,
-    writer: dirty[handler_of[str]] = print
-) -> dirty[ActionChain]:
     """
-    Decorator function to render the results of a function or `ActionChain`
-    nodes.
     """
 
 
-    return monadically(bind |by| returnly(str |then>> writer))(action_or_actions)
 
 
 def with_result(
@@ -314,6 +305,21 @@ until_error = documenting_by(
         else root
     ))
 )
+
+
+def showly(
+    action_or_actions: many_or_one[atomic_action],
+    *,
+    show: dirty[atomic_action] = print,
+) -> dirty[ActionChain]:
+    """
+    Action executing context with the effect of writing results.
+    Prints results by default.
+    """
+
+    return monadically(binding_by(... |then>> returnly(show)))(
+        action_or_actions
+    )
 
 
 map_ = documenting_by("""`map` function returning `tuple`""")(

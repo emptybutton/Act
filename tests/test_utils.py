@@ -84,7 +84,7 @@ def test_showly_by_logger(number_of_handlers: int, number_of_writer_calls: int):
             if number_of_handlers == 1
             else ActionChain((MockAction(), ) * number_of_handlers)
         ),
-        writer=lambda _: writing_counter()
+        show=lambda _: writing_counter()
     )(None)
 
     assert writing_counter.counted == number_of_writer_calls
