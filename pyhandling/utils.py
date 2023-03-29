@@ -109,7 +109,7 @@ def callmethod(object_: object, method_name: str, *args, **kwargs) -> Any:
 operation_by: action_for[action_for[Any]] = documenting_by(
     """Shortcut for `post_partial(execute_operation, ...)`."""
 )(
-    closed(execute_operation, closer=post_partial)
+    closed(execute_operation, close=post_partial)
 )
 
 

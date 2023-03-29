@@ -29,7 +29,7 @@ test_mirror_partial = calling_test_case_of(
 
 test_closed = calling_test_case_of(
     (lambda: closed(lambda a, b: a + b)(250)(6), 256),
-    (lambda: closed(lambda a, b: a / b, closer=post_partial)(2)(128), 64),
+    (lambda: closed(lambda a, b: a / b, close=post_partial)(2)(128), 64),
 )
 
 

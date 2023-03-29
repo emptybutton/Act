@@ -87,16 +87,16 @@ _ClosedT = TypeVar("_ClosedT", bound=Callable)
 def closed(
     action: ActionT,
     *,
-    closer: Callable[[ActionT, *ArgumentsT], _ClosedT] = partial
+    close: Callable[[ActionT, *ArgumentsT], _ClosedT] = partial
 ) -> Callable[[*ArgumentsT], _ClosedT]:
     """
     Function to put an input function into the context of another decorator
     function by partially applying the input function to that decorator
     function.
 
-    The decorator function is defined by the `closer` parameter.
+    The decorator function is defined by the `close` parameter.
 
-    On default `closer` value wraps the input function in a function whose
+    On default `close` value wraps the input function in a function whose
     result is the same input function, but partially applied with the arguments
     with which the resulting function was called.
 
@@ -105,7 +105,7 @@ def closed(
     ```
     """
 
-    return partial(closer, action)
+    return partial(close, action)
 
 
 def returnly(
