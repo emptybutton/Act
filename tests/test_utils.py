@@ -12,6 +12,11 @@ from pyhandling.utils import *
 from tests.mocks import CustomContext, Counter, MockAction
 
 
+test_context_oriented = calling_test_case_of(
+    (lambda: context_oriented(['val', 'con']), ContextRoot('con', 'val')),
+)
+
+
 @mark.parametrize(
     "object_, method_name, result",
     (
