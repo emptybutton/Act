@@ -9,14 +9,14 @@ You can even integrate the entire program logic into one call
 
 ## Examples
 ### Execution flow
-Connect functions in a chain
+Connect actions in a chain
 
 ```python
 from pyhandling import *
 
 
-complete = str |then>> (lambda line: line + '6') |then>> int
-complete(25)
+completed = str |then>> (lambda line: line + '6') |then>> int
+completed(25)
 ```
 ```
 256
@@ -40,7 +40,7 @@ or via calling
 
 or via template
 ```python
-4 >= binding_by(... |then>> (lambda a: a * 10) |then>> ...)(lambda number: number + 4)
+4 >= binding_by(... |then>> (lambda b: b * 10) |then>> ...)(lambda x: x + 4)
 ```
 ```
 84
@@ -48,15 +48,15 @@ or via template
 
 or connect in width
 ```python
-merged(lambda a: a - 1, lambda _: _, lambda c: c + 1)(1)
+merged(lambda a: a - 1, lambda _: _, lambda c: c + 1)(2)
 ```
 ```
-(0, 1, 2)
+(1, 2, 3)
 ```
 
 with result definition
 ```python
-merged(print, lambda c: c + 1, return_from=1)(3)
+merged(print, lambda b: b + 1, return_from=1)(3)
 merged(lambda a: a - 1, lambda _: _, lambda c: c + 1, return_from=slice(0, 3, 2))(2)
 ```
 ```
@@ -68,29 +68,29 @@ merged(lambda a: a - 1, lambda _: _, lambda c: c + 1, return_from=slice(0, 3, 2)
 merging the results
 ```python
 mergely(
-    lambda word: lambda a, b: f"_{a}_{b}",
-    lambda word: word.capitalize(),
-    lambda word: f"_{word}",
-)("hello")
+    lambda n: lambda a, d: a + str(n) + d,
+    lambda n: str(n + 8),
+    lambda n: str(n + 2),
+)(2)
 ```
 ```
-_Hello__hello
+1024
 ```
 
 Repeat calls
 ```python
-repeating(lambda line: f"{line}{line[-1]}", times(3))('Wry')
+repeating(lambda line: f"{line}{line[-1]}", times(3))("What?")
 ```
 ```
-Wryyyy
+What????
 ```
 
-Choose the function to execute
+Choose an action to call
 ```python
-square_or_module_of = on_condition(
+square_or_module_of = on(
     lambda number: number >= 0,
     lambda number: number ** 2,
-    else_=abs
+    else_=abs,
 )
 
 
@@ -102,9 +102,10 @@ square_or_module_of(-4)
 4
 ```
 
-or circumstances in which it will be called
+skipping input value
 ```python
 incremented_or_not = on(lambda n: n % 2 == 0, lambda n: n + 1)
+
 
 incremented_or_not(2)
 incremented_or_not(3)
@@ -112,73 +113,6 @@ incremented_or_not(3)
 ```
 3
 3
-```
-
-### Partial application
-Add arguments by calling
-```python
-@fragmentarily
-def sentence_from(first: str, definition: str, second: str, sign: str = '!') -> str:
-    return f"{first} {definition} {second}{sign}"
-
-
-sentence_from("A lemon")("is not", sign='.')("an orange")
-```
-```
-A lemon is not an orange.
-```
-
-after input
-```python
-to_message_template = "{} {}{}".format
-
-post_partial(to_message_template, "world", '!')("Hello")
-```
-```
-Hello world!
-```
-
-under keyword
-```python
-print_as_title = with_keyword('sep', ' of ', print)
-print_as_title("Table", "chairs")
-```
-```
-Table of chairs
-```
-
-using pseudo-operators
-```python
-(to_message_template |to| "Hello")("world", '...')
-(to_message_template |to* ("Hello", "world"))('?')
-
-(to_message_template |by| '!')("Hello", "world")
-```
-```
-Hello world...
-Hello world?
-Hello world!
-```
-
-or not necessarily now
-```python
-container = closed(to_message_template)
-opened_container = container("Hello")
-
-opened_container("container world", '!')
-```
-```
-Hello container world!
-```
-
-using all possible ways
-```python
-post_container = closed(to_message_template, closer=post_partial)
-
-post_container('!')("Hello", "post container world")
-```
-```
-Hello post container world!
 ```
 
 ### Data flow
@@ -229,20 +163,14 @@ False
 Force unpack from argument
 ```python
 with_positional_unpacking(print)(range(1, 4))
-```
-```
-1 2 3
-```
-
-in dictionary form
-```python
 with_keyword_unpacking(lambda a, b: a + b)({'a': 5, 'b': 3})
 ```
 ```
+1 2 3
 8
 ```
 
-or in argument pack form
+from all sorts of arguments
 ```python
 print_from = unpackly(print)
 
@@ -252,6 +180,72 @@ print_from(ArgumentPack.of("Chair", "table", sep=' of '))
 ```
 Fish of death
 Chair of table
+```
+
+### Partial application
+Add arguments by calling
+```python
+@fragmentarily
+def sentence_from(first: str, definition: str, second: str, sign: str = '!') -> str:
+    return f"{first} {definition} {second}{sign}"
+
+
+sentence_from("A lemon")("is not", sign='.')("an orange")
+```
+```
+A lemon is not an orange.
+```
+
+after input
+```python
+to_message_template = "{} {}{}".format
+
+post_partial(to_message_template, "world", '!')("Hello")
+```
+```
+Hello world!
+```
+
+under keyword
+```python
+with_keyword('n', 1, "{n}st {}".format)("day of spring")
+```
+```
+1st day of spring
+```
+
+using pseudo-operators
+```python
+(to_message_template |to| "Hello")("world", '...')
+(to_message_template |to* ("Hello", "world"))('?')
+
+(to_message_template |by| '!')("Hello", "world")
+```
+```
+Hello world...
+Hello world?
+Hello world!
+```
+
+or not necessarily now
+```python
+container = closed(to_message_template)
+opened_container = container("Hello")
+
+opened_container("container world", '!')
+```
+```
+Hello container world!
+```
+
+using all possible ways
+```python
+post_container = closed(to_message_template, close=post_partial)
+
+post_container('!')("Hello", "post container world")
+```
+```
+Hello post container world!
 ```
 
 ### Atomic operations
@@ -288,6 +282,9 @@ ImaginaryTransactionError: division by zero
 
 to use syntax constructions
 ```python
+execute_operation(60, '+', 4)
+transform(False, 'not')
+
 call(print, 1, 2, 3, sep=' or ')
 callmethod(dict(), 'get', None, "Default getting result")
 
@@ -297,19 +294,13 @@ setitem(data, "some-key", "some-value")
 getitem(data, "some-key")
 ```
 ```
-1 or 2 or 3
-Default getting result
-some-value
-```
-
-to use syntax operations
-```python
-execute_operation(60, '+', 4)
-transform(False, 'not')
-```
-```
 64
 True
+
+1 or 2 or 3
+Default getting result
+
+some-value
 ```
 
 by creating them
@@ -331,7 +322,7 @@ difference_between(55, 39)
 ```
 
 ### Annotating
-Use annotation templates from the `annotations` package to shorten annotations
+Use annotation templates to shorten annotations
 ```python
 from pyhandling.annotations import *
 
@@ -417,6 +408,17 @@ nothing, division by zero
 
 keeping error context
 ```python
+ContextualError(
+    ZeroDivisionError("division by zero"),
+    dict(hero="Some hero", enemy="Some enemy"),
+)
+```
+```
+division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'}
+```
+
+nested
+```python
 class DomainError(ContextualError):
     pass
 
@@ -425,31 +427,42 @@ class InfrastructureError(ContextualError):
     pass
 
 
-error_storage = InfrastructureError(
+root_error = InfrastructureError(
     DomainError(
         ZeroDivisionError("division by zero"),
         dict(hero="Some hero", enemy="Some enemy"),
     ),
-    dict(first="Some hero", second="Some enemy"),
+    ["Some hero", "Some enemy", "Someone else"],
 )
 
-print(*errors_from(error_storage), sep='\n')
+print(root_error)
 ```
 ```
-division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'} when {'first': 'Some hero', 'second': 'Some enemy'}
+division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'} when ['Some hero', 'Some enemy', 'Someone else']
+```
+
+with unpacking
+```python
+error, context = root_error
+
+print(error, context, sep='\n')
+```
+```
+division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'}
+['Some hero', 'Some enemy', 'Someone else']
+```
+
+and getting them all
+```python
+print(*errors_from(root_error), sep='\n')
+```
+```
+division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'} when ['Some hero', 'Some enemy', 'Someone else']
 division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'}
 division by zero
 ```
 
-as `ContextRoot`
-```python
-error_root_from(DomainError(ZeroDivisionError("division by zero"), 34))
-```
-```
-division by zero when 34
-```
-
-### Calculation context
+### Execution context
 Break the chain of actions
 ```python
 incremented_or_not: reformer_of[ContextRoot[number, Special[bad]]] = documenting_by(
@@ -457,24 +470,30 @@ incremented_or_not: reformer_of[ContextRoot[number, Special[bad]]] = documenting
     Function to increase an input number if it is > 0.
 
     Takes as input a number wrapped in `ContextRoot`, using the `contextual`
-    function or `ContextRoot(..., nothing)` directly and applies the nodes to its
-    value inside an input `ContextRoot`.
+    function or `ContextRoot(..., nothing)` directly and applies the nodes to
+    its value inside an input `ContextRoot`.
+
+    Executing in `maybe` context with the effect of saving a value computed
+    before the returned `bad` flag.
+
+    The value obtained in this way will have a `bad` context telling the
+    contextual `maybe` execution to skip the given `root`.
     """
 )(
     maybe(
         on(operation_by('<', 0), taken(bad))
         |then>> operation_by('**', 2)
-        |then>> operation_by('*', 1.3125)
+        |then>> operation_by('*', 4)
     )
 )
 
 
-contextual(8) >= incremented_or_not
-contextual(-16) >= incremented_or_not
+incremented_or_not(contextual(8))
+incremented_or_not(contextual(-4))
 ```
 ```
-84.0 when nothing
--16 when bad
+256 when nothing
+-4 when bad
 ```
 
 in case of errors
@@ -496,7 +515,21 @@ incremented(contextual(4))
 28 when division by zero
 ```
 
-and with the ability to get values
+Visualize results
+```python
+0 >= showly(
+    operation_by('+', 1)
+    |then>> operation_by('+', 2)
+    |then>> operation_by('+', 3)
+)
+```
+```
+1
+3
+6
+```
+
+Get values
 ```python
 root = incremented(contextual(4))
 
@@ -510,60 +543,20 @@ division by zero
 
 using unpacking
 ```python
-number, context = incremented_or_not(contextual(-16))
+value, context = incremented_or_not(contextual(-16))
 
-print(number, context, sep=', ')
+print(value, context, sep=', ')
 ```
 ```
 -16, bad
 ```
 
-Combine compute contexts
-```python
-incremented: reformer_of[
-    ContextRoot[ContextRoot[Any, Special[bad]], Special[Exception]]
-]
-incremented = documenting_by(
-    """
-    Function that increases a number using a tower from contexts.
-
-    Each level of context evaluation requires a separate `ContextRoot` to be
-    passed.
-    """
-)(
-    (maybe |then>> until_error)(
-        operation_by('+', 6)
-        |then>> on(operation_by('<', 0), taken(bad))
-        |then>> (lambda number: number / (number - 10))
-        |then>> operation_by('+', 5)
-    )
-)
-
-
-contextual(contextual(5)) >= incremented
-contextual(contextual(-14)) >= incremented
-contextual(contextual(4)) >= incremented
-```
-```
-16.0 when nothing when nothing
--8 when bad when nothing
-10 when nothing when division by zero
-```
-
-indicating special behavior
-```python
-contextual(ContextRoot(5, bad)) >= incremented
-```
-```
-5 when bad when nothing
-```
-
-using one `Context Root` level for different context calculations
+Combine execution contexts
 ```python
 incremented: reformer_of[ContextRoot[number, Special[bad | Exception]]]
 incremented = documenting_by(
     """
-    Function that increases a number using two compute contexts with one
+    Function that increases a number using three compute contexts with one
     `ContextRoot`.
     """
 )(
@@ -576,7 +569,7 @@ incremented = documenting_by(
         operation_by('-', 14)
         |then>> (lambda n: n / (n - 2))
     )
-    |then>> saving_context( # Calculation context without effect
+    |then>> saving_context( # Execution context without effect
         operation_by('+', 0.25)
         |then>> operation_by('*', 4)
     )
@@ -593,7 +586,15 @@ incremented(contextual(8))
 6.0 when nothing
 ```
 
-Create context calculations
+indicating special behavior
+```python
+incremented(ContextRoot(8, bad))
+```
+```
+4.0 when bad
+```
+
+Create an execution context
 ```python
 from typing import Iterable
 
@@ -611,6 +612,64 @@ saving_results: mapping_to_chain_among[Iterable] = monadically(
 ```
 ```
 (0, 1, 3, 6)
+```
+
+limiting the effect of execution context
+```python
+"result is {}".format(
+    4 >= showly(
+        operation_by('*', 2)
+        |then>> atomically(
+            operation_by('-', 3)
+            |then>> operation_by('*', 2)
+        )
+        |then>> atomically(
+            operation_by('*', 10)
+            |then>> str
+        )
+    )
+)
+```
+```
+8
+10
+100
+result is 100
+```
+
+using a unique flag
+```python
+super_ = Flag("super")
+not_super = Flag("not_super", sign=False)
+
+super_ | not_super # Union[<positive Flag "super">, <negative Flag "not_super">]
+
+isinstance(super_, super_) # True
+bool(super_), bool(not_super) # (True, False)
+
+ContextRoot(16, super_) # 16 when super
+```
+
+representing context as a value
+```python
+context_oriented(contextual(4))
+```
+```
+nothing when 4
+```
+
+or context types among themselves
+```python
+ContextRoot.like(ContextualError(
+    ZeroDivisionError("division by zero"),
+    dict(operand=4),
+))
+
+ContextualError.like(contextual(ZeroDivisionError("division by zero")))
+```
+```
+division by zero when {'operand': 4}
+division by zero when nothing
 ```
 
 ### Batteries
