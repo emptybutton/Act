@@ -75,5 +75,10 @@ class ContextualError(MechanicalError, Generic[ErrorT, ContextT]):
     def _error_message(self) -> str:
         return f"{str(self.__error)} when {self.__context}"
 
+    @classmethod
+    def like(cls, error_and_context: tuple[ErrorT, ContextT]) -> Self:
+        """Class method to create from an unstructured collection."""
 
+        error, context = error_and_context
 
+        return cls(error, context)
