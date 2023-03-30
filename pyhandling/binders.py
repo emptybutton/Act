@@ -58,18 +58,16 @@ def fragmentarily(action: Callable[[*ArgumentsT], ResultT]) -> action_for[Result
     return fragmentarily_action
 
 
-def post_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
+def post_partial(action: action_for[ResultT], *post_args, **post_kwargs) -> action_for[ResultT]:
     """
     Function equivalent to functools.partial but with the difference that
     additional arguments are added not before the incoming ones from the final
     call, but after.
     """
 
-    @wraps(action)
-    def wrapper(*wrapper_args, **wrapper_kwargs) -> ResultT:
-        return action(*wrapper_args, *args, **wrapper_kwargs, **kwargs)
-
-    return wrapper
+    return wraps(action)(lambda *args, **kwargs: action(
+        *args, *post_args, **kwargs, **post_kwargs
+    ))
 
 
 def mirror_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
