@@ -753,9 +753,26 @@ in_collection(4) # (4,)
 as_collection(16) # (16,)
 as_collection([1, 2, 3]) # (1, 2, 3)
 ```
-```
-```
 
+Testing
+```py
+from unittest import main
+
+
+good_test = calling_test_case_of(
+    (lambda: 64, 64),
+    (lambda: 4, 4),
+)
+
+if __name__ == "__main__":
+    main()
+```
+```
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
 ```
 ```
 
