@@ -217,7 +217,7 @@ def on(
     With default `else_` takes actions of one argument.
     """
 
-    def brancher(*args, **kwargs) -> Any:
+    def branch(*args, **kwargs) -> Any:
         """
         Result function from `on` function.
         See `on` for more info.
@@ -229,7 +229,7 @@ def on(
             else else_
         )(*args, **kwargs)
 
-    return brancher
+    return branch
 
 
 def rollbackable(
