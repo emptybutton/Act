@@ -720,24 +720,58 @@ execution_context_when[str]
 # ]
 ```
 
+### Batteries
+Household functions
+```py
+showed(4) + 12
+inversion_of(lambda: True)()
+```
+```
+4
+16
+False
+```
+
+Collection non-generator functions
+```py
+map_(operation_by('**', 2), range(1, 11))
+filter_(operation_by('>=', 5), range(1, 11))
+zip_(range(10), 'abc')
+```
+```
+(1, 4, 9, 16, 25, 36, 49, 64, 81, 100)
+(5, 6, 7, 8, 9, 10)
+((0, 'a'), (1, 'b'), (2, 'c'))
+```
+
+Collection functions
+```py
+with_opened_items([[1, 2, 3], 4, [5, 6]]) # (1, 2, 3, 4, 5, 6)
+
+in_collection(4) # (4,)
+
+as_collection(16) # (16,)
+as_collection([1, 2, 3]) # (1, 2, 3)
 ```
 ```
 ```
 
 ```
 ```
+
+Documentation decorator
+```py
+mega = documenting_by("""Flag indicating something.""")(
+    Flag('mega')
+)
 ```
 
+Creating arbitrary objects
+```py
+with_attributes(name="Mohammed").__dict__
 ```
 ```
-```
-
-```
-```
-```
-
-```
-```
+{'name': 'Mohammed'}
 ```
 
 ```
