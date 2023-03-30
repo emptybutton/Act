@@ -848,10 +848,30 @@ ArgumentPack.of(1, 2, 3, sep=' or ').call(print)
 1 or 2 or 3
 ```
 
+Generated property
+```py
+class Room:
+    name = DelegatingProperty("_name")
+    members = DelegatingProperty(
+        "_members",
+        settable=True,
+        setting_converter=tuple |then>> (map_ |to| str)
+    )
+
+    def __init__(self, name: str, members: Iterable):
+        self._name = name
+        self._members = tuple(members)
 
 
+room = Room('42', list())
+
+room.members = range(1, 5)
+room.name
+room.members
 ```
 ```
+42
+('1', '2', '3', '4')
 ```
 
 Immutable classes
