@@ -93,7 +93,6 @@ square_or_module_of = on(
     else_=abs,
 )
 
-
 square_or_module_of(4)
 square_or_module_of(-4)
 ```
@@ -105,7 +104,6 @@ square_or_module_of(-4)
 skipping input value
 ```py
 incremented_or_not = on(lambda n: n % 2 == 0, lambda n: n + 1)
-
 
 incremented_or_not(2)
 incremented_or_not(3)
@@ -400,6 +398,7 @@ divide = with_error(operation_of('/'))
 
 result, error = divide(16, 0)
 
+
 print(result, error, sep=', ')
 ```
 ```
@@ -550,6 +549,7 @@ print(value, context, sep=', ')
 ```
 -16, bad
 ```
+
 
 Combine execution contexts
 ```py
