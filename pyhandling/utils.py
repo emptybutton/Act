@@ -331,8 +331,41 @@ def showly(
     )
 
 
+writing = Flag("writing")
+reading = Flag("writing")
 
 
+_ReadingResultT = TypeVar("_ReadingResultT")
 
 
+@documenting_by(
+    """
+    Execution context with the ability to read and write to a context.
+
+    Writes to context by contextual node with `writing` context and reads value
+    from context by contextual node with `reading` context.
+
+    Before interacting with a context, the last calculated result must come to
+    contextual nodes, after a context itself.
+
+    When writing to a context, result of a contextual node will be a result
+    calculated before it, and when reading, a result of reading.
+    """
 )
+@monadically
+@closed
+def considering_context(
+    node: Callable[[ValueT], ResultT] | ContextRoot[
+        Callable[[ValueT], reformer_of[ContextT]] | Callable[[ValueT], Callable[[ContextT], _ReadingResultT]],
+        Special[writing | reading]
+    ],
+    root: ContextRoot[ValueT, ContextT]
+) -> ContextRoot[ResultT | _ReadingResultT, ContextT]:
+    if isinstance(node, ContextRoot):
+        if node.context is writing:
+            return ContextRoot(root.value, node.value(root.value)(root.context))
+
+        if node.context is reading:
+            return ContextRoot(node.value(root.value)(root.context), root.context)
+
+    return saving_context(node)(root)
