@@ -258,11 +258,7 @@ execution_context_when = AnnotationTemplate(mapping_to_chain_among, [
 
 
 saving_context: execution_context_when[ContextT] = documenting_by(
-    """
-    Function that represents a chain of actions (or just an action) in the form
-    of operations on a value from `ContextRoot` with preservation of its
-    context.
-    """
+    """Execution context without effect."""
 )(
     monadically(lambda node: lambda root: ContextRoot(
         node(root.value), root.context
@@ -276,8 +272,8 @@ bad = Flag('bad', sign=False)
 maybe: execution_context_when[Special[bad]]
 maybe = documenting_by(
     """
-    Action execution context that stops the thread of execution When the `bad`
-    flag returns.
+    Execution context that stops the thread of execution When the `bad` flag
+    returns.
 
     When stopped, returns the previous value calculated before the `bad` flag in
     context with `bad` flag.
@@ -298,8 +294,7 @@ maybe = documenting_by(
 until_error: execution_context_when[Special[Exception]]
 until_error = documenting_by(
     """
-    Action execution context that stops the thread of execution when an error
-    occurs.
+    Execution context that stops the thread of execution when an error occurs.
 
     When skipping, it saves the last validly calculated value and an occurred
     error as context.
@@ -322,7 +317,7 @@ def showly(
     show: dirty[one_value_action] = print,
 ) -> dirty[ActionChain]:
     """
-    Action executing context with the effect of writing results.
+    Executing context with the effect of writing results.
     Prints results by default.
     """
 

@@ -183,7 +183,7 @@ def repeating(
     is_valid_to_repeat: checker_of[ValueT],
 ) -> reformer_of[ValueT]:
     """
-    Function to call the input action multiple times.
+    Function to call an input action multiple times.
 
     Initially calls an input action from an input value, after repeating the
     result of an input action itself.
@@ -212,9 +212,9 @@ def on(
     the results of `condition_checker`.
 
     If the condition is positive, selects `positive_condition_action`, if it is
-    negative, then else_.
+    negative, selects `else_`.
 
-    With default `else_` takes actions of one argument.
+    With default `else_` takes one value actions.
     """
 
     def branch(*args, **kwargs) -> Any:
