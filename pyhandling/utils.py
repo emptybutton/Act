@@ -230,7 +230,7 @@ with_error = documenting_by(
 
 
 monadically: Callable[
-    [Callable[[atomic_action], reformer_of[ValueT]]],
+    [Callable[[one_value_action], reformer_of[ValueT]]],
     mapping_to_chain_of[reformer_of[ValueT]]
 ]
 monadically = documenting_by(
