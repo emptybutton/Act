@@ -4,11 +4,32 @@ from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 
 
 __all__ = (
-    "dirty", "not_required", "handler_of", "checker_of", "formatter_of",
-    "transformer_to", "reformer_of", "merger_of", "event_for", "action_for",
-    "atomic_action","checker", "decorator", "event", "binder", "ActionT",
-    "ArgumentsT", "ValueT", "ObjectT", "ResultT", "KeyT", "ErrorT", "ContextT",
-    "PositiveConditionResultT", "NegativeConditionResultT", "ErrorHandlingResultT"
+    "dirty",
+    "not_required",
+    "handler_of",
+    "checker_of",
+    "formatter_of",
+    "transformer_to",
+    "reformer_of",
+    "merger_of",
+    "event_for",
+    "action_for",
+    "one_value_action",
+    "checker",
+    "decorator",
+    "event",
+    "binder",
+    "ActionT",
+    "ArgumentsT",
+    "ValueT",
+    "ObjectT",
+    "ResultT",
+    "KeyT",
+    "ErrorT",
+    "ContextT",
+    "PositiveConditionResultT",
+    "NegativeConditionResultT",
+    "ErrorHandlingResultT",
 )
 
 

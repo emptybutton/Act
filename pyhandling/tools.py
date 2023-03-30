@@ -4,17 +4,31 @@ from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
 from math import inf
 from types import MappingProxyType
-from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Generic, Final, Iterable, Optional, Tuple, _UnionGenericAlias, Union
+from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Generic, Final, Iterable, Optional, Tuple, _UnionGenericAlias, Union, NamedTuple
 
 from pyannotating import method_of, Special
 
-from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ContextT, atomic_action, dirty, reformer_of
+from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ContextT, one_value_action, dirty, reformer_of
 
 
 __all__ = (
-    "to_clone", "publicly_immutable", "Flag", "nothing", "ArgumentKey",
-    "ArgumentPack", "DelegatingProperty", "Clock", "Logger", "with_attributes",
-    "as_argument_pack", "with_opened_items", "in_collection", "documenting_by"
+    "to_clone",
+    "publicly_immutable",
+    "Flag",
+    "nothing",
+    "ContextRoot",
+    "contextual",
+    "context_oriented",
+    "ArgumentKey",
+    "ArgumentPack",
+    "DelegatingProperty",
+    "Clock",
+    "Logger",
+    "with_attributes",
+    "as_argument_pack",
+    "with_opened_items",
+    "in_collection",
+    "documenting_by",
 )
 
 

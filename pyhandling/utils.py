@@ -1,24 +1,48 @@
 from datetime import datetime
 from functools import wraps, partial
-from typing import NamedTuple, Generic, Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn, Optional, Self
+from typing import NamedTuple, Generic, Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn, Optional, Self, TypeVar
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
 
-from pyhandling.annotations import atomic_action, dirty, handler_of, ValueT, ContextT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, reformer_of
+from pyhandling.annotations import one_value_action, dirty, handler_of, ValueT, ContextT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, reformer_of
 from pyhandling.binders import returnly, closed, post_partial, eventually, unpackly
-from pyhandling.branchers import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain
+from pyhandling.branchers import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain, repeating
 from pyhandling.language import then, by, to
 from pyhandling.synonyms import execute_operation, returned, transform, raise_
-from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, nothing, Flag
+from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, nothing, Flag, ContextRoot, contextual
 
 
 __all__ = (
-    "ContextRoot", "context_oriented", "atomically", "showly", "callmethod",
-    "with_result", "operation_by", "operation_of", "shown", "binding_by", "bind",
-    "taken", "as_collection", "yes", "no", "times", "monadically",
-    "mapping_to_chain_among", "execution_context_when", "saving_context",
-    "contextual", "bad", "maybe", "with_error", "until_error", "map_", "zip_",
-    "filter_"
+    "atomically",
+    "showly",
+    "callmethod",
+    "branching",
+    "with_result",
+    "operation_by",
+    "operation_of",
+    "shown",
+    "binding_by",
+    "bind",
+    "taken",
+    "as_collection",
+    "yes",
+    "no",
+    "inversion_of",
+    "map_",
+    "zip_",
+    "filter_",
+    "times",
+    "with_error",
+    "monadically",
+    "mapping_to_chain_among",
+    "execution_context_when",
+    "saving_context",
+    "bad",
+    "maybe",
+    "until_error",
+    "writing",
+    "reading",
+    "considering_context",
 )
 
 

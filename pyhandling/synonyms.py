@@ -6,9 +6,20 @@ from pyhandling.protocols import ItemGetter, ItemSetter, ContextManager
 
 
 __all__ = (
-    "returned", "raise_", "assert_", "collection_of", "with_positional_unpacking",
-    "with_keyword_unpacking", "with_keyword", "call", "getitem", "setitem",
-    "execute_operation", "transform", "to_context", "with_context_by"
+    "returned",
+    "raise_",
+    "assert_",
+    "collection_of",
+    "with_positional_unpacking",
+    "with_keyword_unpacking",
+    "with_keyword",
+    "call",
+    "getitem",
+    "setitem",
+    "execute_operation",
+    "transform",
+    "to_context",
+    "with_context_by",
 )
 
 

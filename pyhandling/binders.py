@@ -8,8 +8,13 @@ from pyhandling.tools import ArgumentKey, ArgumentPack
 
 
 __all__ = (
-    "fragmentarily", "post_partial", "mirror_partial", "closed", "returnly",
-    "eventually", "unpackly"
+    "fragmentarily",
+    "post_partial",
+    "mirror_partial",
+    "closed",
+    "returnly",
+    "eventually",
+    "unpackly",
 )
 
 
