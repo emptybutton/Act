@@ -22,32 +22,6 @@ __all__ = (
 )
 
 
-class ContextRoot(NamedTuple, Generic[ValueT, ContextT]):
-    """Class for annotating a value with some context."""
-
-    value: ValueT
-    context: ContextT
-
-    def __repr__(self) -> str:
-        return f"{self.value} when {self.context}"
-
-    @classmethod
-    def like(cls, value_and_context: tuple[ValueT, ContextT]) -> Self:
-        """Class method to create from an unstructured collection."""
-
-        value, context = value_and_context
-
-        return cls(value, context)
-
-
-def context_oriented(root_values: tuple[ValueT, ContextT]) -> ContextRoot[ContextT, ValueT]:
-    """Function to swap `ContextRoot`'s context and value."""
-
-    context, value = root_values
-
-    return ContextRoot(value, context)
-
-
 class atomically:
     """
     Decorator that removes the behavior of an input action, leaving only
@@ -232,17 +206,6 @@ saving_context: execution_context_when[ContextT] = documenting_by(
     monadically(lambda node: lambda root: ContextRoot(
         node(root.value), root.context
     ))
-)
-
-
-contextual: Callable[[ValueT], ContextRoot[ValueT, None]]
-contextual = documenting_by(
-    """
-    Function representing the input value as a value with a context (which
-    is `nothing`).
-    """
-)(
-    ContextRoot |by| nothing
 )
 
 

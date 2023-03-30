@@ -104,6 +104,41 @@ nothing = Flag("nothing", sign=False)
 nothing.__doc__ = """Flag to indicate the absence of anything, including `None`."""
 
 
+class ContextRoot(NamedTuple, Generic[ValueT, ContextT]):
+    """Class for annotating a value with some context."""
+
+    value: ValueT
+    context: ContextT
+
+    def __repr__(self) -> str:
+        return f"{self.value} when {self.context}"
+
+    @classmethod
+    def like(cls, value_and_context: tuple[ValueT, ContextT]) -> Self:
+        """Class method to create from an unstructured collection."""
+
+        value, context = value_and_context
+
+        return cls(value, context)
+
+
+def contextual(value: ValueT, *, when: ContextT = nothing) -> ContextRoot[ValueT, ContextT]:
+    """
+    Function that represents the input value as a value with a context that
+    defaults to `nothing`.
+    """
+
+    return ContextRoot(value, when)
+
+
+def context_oriented(root_values: tuple[ValueT, ContextT]) -> ContextRoot[ContextT, ValueT]:
+    """Function to swap `ContextRoot`'s context and value."""
+
+    context, value = root_values
+
+    return ContextRoot(value, context)
+
+
 @dataclass(frozen=True)
 class ArgumentKey(Generic[KeyT, ValueT]):
     """Data class for structuring getting value from `ArgumentPack` via `[]`."""
