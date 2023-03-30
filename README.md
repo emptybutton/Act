@@ -774,6 +774,20 @@ Ran 2 tests in 0.001s
 
 OK
 ```
+
+Protocols of standard functionality
+```py
+from contextlib import contextmanager
+
+
+isinstance(Iterable, ItemGetter) # True
+isinstance(Iterable, ItemSetter) # False
+isinstance(dict(), ItemKeeper) # True
+
+isinstance(type, Variable) # True
+isinstance(Flag('mega'), Variable) # True
+
+isinstance(contextmanager(lambda: None)(), ContextManager) # True
 ```
 
 Documentation decorator
