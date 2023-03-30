@@ -538,6 +538,17 @@ contextual(6) >= considering_context(
 ```
 6.4 when (10,)
 ```
+
+or don't interact
+```py
+contextual(1, when=bad) >= saving_context(
+    operation_by('+', 2)
+    |then>> operation_by('+', 3)
+    |then>> operation_by('+', 4)
+)
+```
+```
+10 when bad
 ```
 
 with the ability to get values
