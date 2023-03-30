@@ -173,11 +173,13 @@ class ArgumentPack:
         )
 
     def __repr__(self) -> str:
-        return "{class_name}({formatted_args}{argument_separation_part}{formatted_kwargs})".format(
-            class_name=self.__class__.__name__,
+        return f"{type(self).__name__}({self.__str__()})"
+
+    def __str__(self) -> str:
+        return "{formatted_args}{argument_separation_part}{formatted_kwargs}".format(
             formatted_args=', '.join(map(str, self.args)),
             argument_separation_part=', ' if self.args and self.kwargs else str(),
-            formatted_kwargs=', '.join(map(lambda item: f"{item[0]}={item[1]}", self.kwargs.items()))
+            formatted_kwargs=', '.join(map(lambda item: f"{item[0]}={item[1]}", self.kwargs.items())),
         )
 
     def __eq__(self, other: Self) -> bool:
