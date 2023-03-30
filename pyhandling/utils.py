@@ -38,6 +38,35 @@ class atomically:
         return self._action(*args, **kwargs)
 
 
+class _Fork(NamedTuple, Generic[ValueT, ResultT]):
+    """NamedTuple to store an action to execute on a condition."""
+
+    checker: Callable[[*ArgumentsT], bool]
+    action: Callable[[*ArgumentsT], ResultT]
+
+
+def branching(
+    *forks: tuple[
+        Callable[[*ArgumentsT], bool],
+        Callable[[*ArgumentsT], ResultT],
+    ],
+    else_: Callable[[*ArgumentsT], ResultT] = returned,
+) -> Callable[[*ArgumentsT], ResultT]:
+    """
+    Function for using action branching like `if`, `elif` and `else` statements.
+
+    With default `else_` takes actions of one value.
+    """
+
+    forks = map_(_Fork, forks)
+
+    return (
+        on(*forks[0], else_=else_)
+        if len(forks) == 1
+        else on(forks[0].checker, forks[0].action, else_=branching(*forks[1:]))
+    )
+
+
 def with_result(
     result: ResultT,
     action: Callable[[*ArgumentsT], Any]
