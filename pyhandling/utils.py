@@ -139,6 +139,21 @@ inversion_of = documenting_by("""Negation adding function.""")(
 )
 
 
+map_ = documenting_by("""`map` function returning `tuple`""")(
+    atomically(map |then>> tuple)
+)
+
+
+zip_ = documenting_by("""`zip` function returning `tuple`""")(
+    atomically(zip |then>> tuple)
+)
+
+
+filter_ = documenting_by("""`filter` function returning `tuple`""")(
+    atomically(filter |then>> tuple)
+)
+
+
 times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     """
     Function to create a function that will return `True` the input value (for
@@ -287,16 +302,8 @@ def showly(
     )
 
 
-map_ = documenting_by("""`map` function returning `tuple`""")(
-    atomically(map |then>> tuple)
-)
 
 
-zip_ = documenting_by("""`zip` function returning `tuple`""")(
-    atomically(zip |then>> tuple)
-)
 
 
-filter_ = documenting_by("""`filter` function returning `tuple`""")(
-    atomically(filter |then>> tuple)
 )
