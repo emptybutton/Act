@@ -519,6 +519,25 @@ and visualize results
 1
 3
 6
+result is 6
+```
+
+or interact with a context directly
+```py
+contextual(6) >= considering_context(
+    operation_by('+', 4)
+    |then>> contextual(in_collection |then>> taken, when=writing)
+    |then>> operation_by('*', 6)
+    |then>> operation_by('+', 4)
+    |then>> contextual(
+        closed(operation_of('/')) |then>> binding_by((getitem |by| 0) |then>> ...),
+        when=reading,
+    )
+)
+```
+```
+6.4 when (10,)
+```
 ```
 
 with the ability to get values
