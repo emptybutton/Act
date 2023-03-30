@@ -183,6 +183,23 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
 )
 
 
+with_error: Callable[
+    [Callable[[*ArgumentsT], ResultT]],
+    Callable[[*ArgumentsT], ContextRoot[Optional[ResultT], Optional[Exception]]]
+]
+with_error = documenting_by(
+    """
+    Decorator that causes the decorated function to return the error that
+    occurred.
+
+    Returns in `ContextRoot` format (result, error).
+    """
+)(
+    binding_by(... |then>> contextual)
+    |then>> post_partial(rollbackable, ContextRoot |to| nothing)
+)
+
+
 monadically: Callable[
     [Callable[[atomic_action], reformer_of[ValueT]]],
     mapping_to_chain_of[reformer_of[ValueT]]
@@ -246,23 +263,6 @@ maybe = documenting_by(
         if root.context is not bad
         else root
     ))
-)
-
-
-with_error: Callable[
-    [Callable[[*ArgumentsT], ResultT]],
-    Callable[[*ArgumentsT], ContextRoot[Optional[ResultT], Optional[Exception]]]
-]
-with_error = documenting_by(
-    """
-    Decorator that causes the decorated function to return the error that
-    occurred.
-
-    Returns in `ContextRoot` format (result, error).
-    """
-)(
-    binding_by(... |then>> contextual)
-    |then>> post_partial(rollbackable, ContextRoot |to| nothing)
 )
 
 
