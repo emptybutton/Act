@@ -720,115 +720,44 @@ execution_context_when[str]
 # ]
 ```
 
-Use out-of-the-box functions to abstract from input arguments
-```python
-take(256)(1, 2, 3)
-event_as(execute_operation, 30, '+', 2)(1, 2, 3)
 ```
 ```
-256
-32
 ```
 
-to create a collection via call
-```python
-collection_from(1, 2, 3)
 ```
 ```
-(1, 2, 3)
 ```
 
-to connect collections
-```python
-summed_collection_from((1, 2), (3, 4))
 ```
 ```
-(1, 2, 3, 4)
 ```
 
-to manage collection nesting
-```python
-wrap_in_collection(8)
-open_collection_items(((1, 2), [3], 4))
 ```
 ```
-(8, )
-(1, 2, 3, 4)
 ```
 
-to represent something as a collection
-```python
-as_collection(64)
-as_collection([1, 2, 3])
 ```
 ```
-(64, )
-(1, 2, 3)
 ```
 
-to confirm something multiple times
-```python
-runner = times(3)
-tuple(runner() for _ in range(8))
 ```
 ```
-(True, True, True, False, True, True, True, False)
 ```
 
-to raise only a specific error
-```python
-optional_raise = optional_raising_of(ZeroDivisionError)
 
-optional_raise(TypeError())
-optional_raise(ZeroDivisionError("can't divide by zero"))
-```
-```
-TypeError()
 
-Traceback ...
-ZeroDivisionError: can't divide by zero
+
+```
 ```
 
-to execute operations
-```python
-operation_by('*', 4)(64)
-callmethod(', ', 'join', ("first", "second"))
 ```
 ```
-256
-first, second
 ```
 
-to decoratively create action chains
-```python
-next_action_decorator_of(operation_by('**', 4))(operation_by('+', 1))(3)
-previous_action_decorator_of(operation_by('+', 2))(operation_by('**', 2))(6)
-```
-```
-256
-64
-```
 
-to stop the chain when an error occurs
-```python
-breakable_chain = chain_breaking_on_error_that(isinstance |by| ZeroDivisionError)(
-    (execute_operation |by* ('+', 4)) |then>> div_by_zero
-)
 
-breakable_chain(12)
 ```
 ```
-BadResourceError('Resource "16" could not be handled due to ZeroDivisionError: division by zero')
-```
-
-to use shortcuts of routine options
-```python
-yes(1, 2, 3)
-no(1, 2, 3)
-```
-```
-True
-False
 ```
 
 ### Immutable classes
@@ -889,45 +818,4 @@ other(4)
 ```
 4
 256
-```
-
-### Debugging
-Display intermediate results
-```python
-"result is " + str(
-    8 >= showly(
-        operation_by('**', 2)
-        |then>> operation_by('*', 1.3125)
-        |then>> operation_by('+', 16)
-    )
-)
-```
-```
-64
-84.0
-100.0
-result is 100.0
-```
-
-by different ways
-```python
-logger = Logger(is_date_logging=True)
-
-showly(total_sum, writer=logger)([[2, 10], [15, 15]])
-
-print(*logger.logs, sep='\n')
-```
-```
-[2023-01-24 21:38:28.791516] [[2, 10], [15, 15]]
-[2023-01-24 21:38:28.791516] (12, 30)
-[2023-01-24 21:38:28.791516] 42
-```
-
-pointwise
-```python
-showed(4) + 12
-```
-```
-4
-16
 ```
