@@ -273,9 +273,9 @@ until_error = documenting_by(
 
 
 def showly(
-    action_or_actions: many_or_one[atomic_action],
+    action_or_actions: many_or_one[one_value_action],
     *,
-    show: dirty[atomic_action] = print,
+    show: dirty[one_value_action] = print,
 ) -> dirty[ActionChain]:
     """
     Action executing context with the effect of writing results.

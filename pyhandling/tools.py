@@ -261,8 +261,8 @@ class DelegatingProperty:
         delegated_attribute_name: str,
         *,
         settable: bool = False,
-        getting_converter: atomic_action = lambda value: value,
-        setting_converter: atomic_action = lambda value: value
+        getting_converter: one_value_action = lambda value: value,
+        setting_converter: one_value_action = lambda value: value
     ):
         self.delegated_attribute_name = delegated_attribute_name
         self.settable = settable

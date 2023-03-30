@@ -70,13 +70,13 @@ class ActionChain(Generic[_NodeT]):
     def __iter__(self) -> Iterator[_NodeT]:
         return iter(self._nodes)
 
-    def __rshift__(self, node: atomic_action) -> Self:
+    def __rshift__(self, node: one_value_action) -> Self:
         return self.__class__((*self._nodes, node))
 
-    def __or__(self, node: atomic_action) -> Self:
+    def __or__(self, node: one_value_action) -> Self:
         return self.__class__((*self._nodes, node))
 
-    def __ror__(self, node: atomic_action) -> Self:
+    def __ror__(self, node: one_value_action) -> Self:
         return self.__class__((node, *self._nodes))
 
     def __le__(self, value: Any) -> ResultT:
@@ -241,7 +241,7 @@ def rollbackable(
 
 mapping_to_chain_of = AnnotationTemplate(
     Callable,
-    [[many_or_one[atomic_action]], AnnotationTemplate(ActionChain, [input_annotation])]
+    [[many_or_one[one_value_action]], AnnotationTemplate(ActionChain, [input_annotation])]
 )
 
-mapping_to_chain: TypeAlias = mapping_to_chain_of[atomic_action]
+mapping_to_chain: TypeAlias = mapping_to_chain_of[one_value_action]
