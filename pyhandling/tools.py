@@ -72,9 +72,6 @@ class Flag:
         self._sign = sign
 
     def __repr__(self) -> str:
-        return f"<{'positive' if self._sign else 'negative'} {type(self).__name__} \"{self._name}\">"
-
-    def __str__(self) -> str:
         return self._name
 
     def __hash__(self) -> int:
