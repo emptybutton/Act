@@ -760,9 +760,8 @@ execution_context_when[str]
 ```
 ```
 
-### Immutable classes
-Create immutable classes
-```python
+Immutable classes
+```py
 from typing import Iterable, Callable
 
 
