@@ -11,7 +11,7 @@ You can even integrate the entire program logic into one call
 ### Execution flow
 Connect actions in a chain
 
-```python
+```py
 from pyhandling import *
 
 
@@ -23,7 +23,7 @@ completed(25)
 ```
 
 with calling
-```python
+```py
 25 >= str |then>> (lambda line: line + '6') |then>> int
 ```
 ```
@@ -31,7 +31,7 @@ with calling
 ```
 
 or via calling
-```python
+```py
 6 >= bind(lambda a: a + 10, lambda b: b / 2)
 ```
 ```
@@ -39,7 +39,7 @@ or via calling
 ```
 
 or via template
-```python
+```py
 4 >= binding_by(... |then>> (lambda b: b * 10) |then>> ...)(lambda x: x + 4)
 ```
 ```
@@ -47,7 +47,7 @@ or via template
 ```
 
 or connect in width
-```python
+```py
 merged(lambda a: a - 1, lambda _: _, lambda c: c + 1)(2)
 ```
 ```
@@ -55,7 +55,7 @@ merged(lambda a: a - 1, lambda _: _, lambda c: c + 1)(2)
 ```
 
 with result definition
-```python
+```py
 merged(print, lambda b: b + 1, return_from=1)(3)
 merged(lambda a: a - 1, lambda _: _, lambda c: c + 1, return_from=slice(0, 3, 2))(2)
 ```
@@ -66,7 +66,7 @@ merged(lambda a: a - 1, lambda _: _, lambda c: c + 1, return_from=slice(0, 3, 2)
 ```
 
 merging the results
-```python
+```py
 mergely(
     lambda n: lambda a, d: a + str(n) + d,
     lambda n: str(n + 8),
@@ -78,7 +78,7 @@ mergely(
 ```
 
 Repeat calls
-```python
+```py
 repeating(lambda line: f"{line}{line[-1]}", times(3))("What?")
 ```
 ```
@@ -86,7 +86,7 @@ What????
 ```
 
 Choose an action to call
-```python
+```py
 square_or_module_of = on(
     lambda number: number >= 0,
     lambda number: number ** 2,
@@ -103,7 +103,7 @@ square_or_module_of(-4)
 ```
 
 skipping input value
-```python
+```py
 incremented_or_not = on(lambda n: n % 2 == 0, lambda n: n + 1)
 
 
@@ -117,7 +117,7 @@ incremented_or_not(3)
 
 ### Data flow
 Ignore the output value
-```python
+```py
 with_result("Forced result", print)("Input value") + " and something"
 ```
 ```
@@ -126,7 +126,7 @@ Forced result and something
 ```
 
 via arguments
-```python
+```py
 returnly(print)("Input argument") + " and something"
 ```
 ```
@@ -135,7 +135,7 @@ Input argument and something
 ```
 
 or ignore input arguments
-```python
+```py
 eventually(print, 16)('Some', 'any', "arguments")
 ```
 ```
@@ -143,7 +143,7 @@ eventually(print, 16)('Some', 'any', "arguments")
 ```
 
 to get something
-```python
+```py
 taken("Something")('Some', 'any', "arguments")
 ```
 ```
@@ -151,7 +151,7 @@ Something
 ```
 
 or forced binary answer
-```python
+```py
 yes('Some', 'any', "arguments")
 no('Some', 'any', "arguments")
 ```
@@ -161,7 +161,7 @@ False
 ```
 
 Force unpack from argument
-```python
+```py
 with_positional_unpacking(print)(range(1, 4))
 with_keyword_unpacking(lambda a, b: a + b)({'a': 5, 'b': 3})
 ```
@@ -171,7 +171,7 @@ with_keyword_unpacking(lambda a, b: a + b)({'a': 5, 'b': 3})
 ```
 
 from all sorts of arguments
-```python
+```py
 print_from = unpackly(print)
 
 print_from(ArgumentPack(['Fish', "death"], {'sep': ' of '}))
@@ -184,7 +184,7 @@ Chair of table
 
 ### Partial application
 Add arguments by calling
-```python
+```py
 @fragmentarily
 def sentence_from(first: str, definition: str, second: str, sign: str = '!') -> str:
     return f"{first} {definition} {second}{sign}"
@@ -197,7 +197,7 @@ A lemon is not an orange.
 ```
 
 after input
-```python
+```py
 to_message_template = "{} {}{}".format
 
 post_partial(to_message_template, "world", '!')("Hello")
@@ -207,7 +207,7 @@ Hello world!
 ```
 
 under keyword
-```python
+```py
 with_keyword('n', 1, "{n}st {}".format)("day of spring")
 ```
 ```
@@ -215,7 +215,7 @@ with_keyword('n', 1, "{n}st {}".format)("day of spring")
 ```
 
 using pseudo-operators
-```python
+```py
 (to_message_template |to| "Hello")("world", '...')
 (to_message_template |to* ("Hello", "world"))('?')
 
@@ -228,7 +228,7 @@ Hello world!
 ```
 
 or not necessarily now
-```python
+```py
 container = closed(to_message_template)
 opened_container = container("Hello")
 
@@ -239,7 +239,7 @@ Hello container world!
 ```
 
 using all possible ways
-```python
+```py
 post_container = closed(to_message_template, close=post_partial)
 
 post_container('!')("Hello", "post container world")
@@ -250,7 +250,7 @@ Hello post container world!
 
 ### Atomic operations
 Transform without transforms
-```python
+```py
 returned(256)
 ```
 ```
@@ -258,7 +258,7 @@ returned(256)
 ```
 
 Use synonyms to raise an error
-```python
+```py
 raise_(Exception("Something is wrong"))
 ```
 ```
@@ -267,12 +267,12 @@ Exception: Something is wrong
 ```
 
 to transform a context manager's context
-```python
+```py
 to_context(lambda file: file.read())(open("file.txt"))
 ```
 
 to transform in a context manager's context
-```python
+```py
 with_context_by(taken(imaginary_transaction), lambda number: number / 0)(64)
 ```
 ```
@@ -281,9 +281,9 @@ ImaginaryTransactionError: division by zero
 ```
 
 to use syntax constructions
-```python
 execute_operation(60, '+', 4)
 transform(False, 'not')
+```py
 
 call(print, 1, 2, 3, sep=' or ')
 callmethod(dict(), 'get', None, "Default getting result")
@@ -313,7 +313,7 @@ operation(60)
 ```
 
 using syntax operators
-```python
+```py
 difference_between = operation_of('-')
 difference_between(55, 39)
 ```
@@ -323,7 +323,7 @@ difference_between(55, 39)
 
 ### Annotating
 Use annotation templates to shorten annotations
-```python
+```py
 from pyhandling.annotations import *
 
 from pyannotating import number
@@ -347,7 +347,7 @@ transformer_to[dict] # Callable[[Any], dict]
 ```
 
 or annotations themselves
-```python
+```py
 atomic_action # Callable[[Any], Any]
 
 checker # Callable[[Any], bool]
@@ -358,12 +358,12 @@ event # Callable[[], Any]
 ```
 
 or comments integrated as annotations
-```python
+```py
 add_five_and_print: dirty[reformer_of[number]]
 ```
 
 or prepared `TypeVars`
-```python
+```py
 from typing import Callable
 
 
@@ -383,7 +383,7 @@ all of which can be viewed [here](https://github.com/TheArtur128/Pyhandling/blob
 
 ### Error handling
 Handle errors that occur
-```python
+```py
 divide = rollbackable(operation_of('/'), returned)
 
 divide(64, 4)
@@ -395,7 +395,7 @@ division by zero
 ```
 
 to receive through unpacking
-```python
+```py
 divide = with_error(operation_of('/'))
 
 result, error = divide(16, 0)
@@ -407,7 +407,7 @@ nothing, division by zero
 ```
 
 keeping error context
-```python
+```py
 ContextualError(
     ZeroDivisionError("division by zero"),
     dict(hero="Some hero", enemy="Some enemy"),
@@ -418,7 +418,7 @@ division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'}
 ```
 
 nested
-```python
+nested way
 class DomainError(ContextualError):
     pass
 
@@ -442,7 +442,7 @@ division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'} when ['Some h
 ```
 
 with unpacking
-```python
+```py
 error, context = root_error
 
 print(error, context, sep='\n')
@@ -453,7 +453,7 @@ division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'}
 ```
 
 and getting them all
-```python
+```py
 print(*errors_from(root_error), sep='\n')
 ```
 ```
@@ -464,7 +464,7 @@ division by zero
 
 ### Execution context
 Break the chain of actions
-```python
+```py
 incremented_or_not: reformer_of[ContextRoot[number, Special[bad]]] = documenting_by(
     """
     Function to increase an input number if it is > 0.
@@ -497,7 +497,7 @@ incremented_or_not(contextual(-4))
 ```
 
 in case of errors
-```python
+```py
 incremented: reformer_of[ContextRoot[number, Special[Exception]]]
 incremented = until_error(
     operation_by('+', 10)
@@ -516,11 +516,11 @@ incremented(contextual(4))
 ```
 
 Visualize results
-```python
 0 >= showly(
     operation_by('+', 1)
     |then>> operation_by('+', 2)
     |then>> operation_by('+', 3)
+```py
 )
 ```
 ```
@@ -542,7 +542,7 @@ division by zero
 ```
 
 using unpacking
-```python
+```py
 value, context = incremented_or_not(contextual(-16))
 
 print(value, context, sep=', ')
@@ -552,7 +552,7 @@ print(value, context, sep=', ')
 ```
 
 Combine execution contexts
-```python
+```py
 incremented: reformer_of[ContextRoot[number, Special[bad | Exception]]]
 incremented = documenting_by(
     """
@@ -587,15 +587,15 @@ incremented(contextual(8))
 ```
 
 indicating special behavior
-```python
 incremented(ContextRoot(8, bad))
+```py
 ```
 ```
 4.0 when bad
 ```
 
 Create an execution context
-```python
+```py
 from typing import Iterable
 
 
@@ -615,7 +615,7 @@ saving_results: mapping_to_chain_among[Iterable] = monadically(
 ```
 
 limiting the effect of execution context
-```python
+```py
 "result is {}".format(
     4 >= showly(
         operation_by('*', 2)
@@ -638,7 +638,7 @@ result is 100
 ```
 
 using a unique flag
-```python
+```py
 super_ = Flag("super")
 not_super = Flag("not_super", sign=False)
 
@@ -651,7 +651,7 @@ ContextRoot(16, super_) # 16 when super
 ```
 
 representing context as a value
-```python
+```py
 context_oriented(contextual(4))
 ```
 ```
@@ -659,7 +659,7 @@ nothing when 4
 ```
 
 or context types among themselves
-```python
+```py
 ContextRoot.like(ContextualError(
     ZeroDivisionError("division by zero"),
     dict(operand=4),
@@ -674,7 +674,7 @@ division by zero when nothing
 
 ### Batteries
 Annotation templates not included in the `annotations` package
-```python
+```py
 mapping_to_chain_of[reformer_of[number]]
 # Callable[
 #     [Union[Callable[[Any], Any], Iterable[Callable[[Any], Any]]]],
@@ -845,7 +845,7 @@ original = CallingPublisher("Some publisher", [print])
 ```
 
 that can't change any public attribute
-```python
+```py
 original.some_attr = "some value"
 ```
 ```
@@ -854,7 +854,7 @@ AttributeError: Type CallingPublisher is immutable
 ```
 
 and automatically clone without manual creation
-```python
+```py
 other = original.with_follower(operation_by('**', 4) |then>> print)
 
 original.followers
@@ -866,7 +866,7 @@ other.followers
 ```
 
 what would eventually
-```python
+```py
 other(4)
 ```
 ```
