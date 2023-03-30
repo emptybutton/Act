@@ -17,7 +17,7 @@ __all__ = (
 )
 
 
-_NodeT: TypeAlias = TypeVar("_NodeT", bound=Callable | Ellipsis)
+_NodeT: TypeAlias = TypeVar("_NodeT", bound=Callable | Ellipsis | ContextRoot[Callable, Any])
 
 
 class ActionChain(Generic[_NodeT]):
@@ -45,8 +45,19 @@ class ActionChain(Generic[_NodeT]):
     is_template = DelegatingProperty("_is_template")
 
     def __init__(self, nodes: Iterable[many_or_one[_NodeT]] = tuple()):
-        self._nodes = with_opened_items(nodes)
-        self._is_template = Ellipsis in self._nodes
+        self._is_template = False
+        self._nodes = list()
+
+        for node in nodes:
+            if node is Ellipsis:
+                self._is_template = True
+
+            if isinstance(node, Iterable) and not isinstance(node, ContextRoot):
+                self._nodes.extend(node)
+            else:
+                self._nodes.append(node)
+
+        self._nodes = tuple(self._nodes)
 
     def __call__(self, *args, **kwargs) -> ResultT:
         if self._is_template:
@@ -63,7 +74,7 @@ class ActionChain(Generic[_NodeT]):
             return args[0]
 
         return reduce(
-            lambda value, node: node(value),
+            lambda value, node: (node.value if isinstance(node, ContextRoot) else node)(value),
             (self._nodes[0](*args, **kwargs), *self._nodes[1:])
         )
 
