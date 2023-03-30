@@ -805,18 +805,47 @@ with_attributes(name="Mohammed").__dict__
 {'name': 'Mohammed'}
 ```
 
+Structured Arguments
+```py
+ArgumentPack([1, 2, 3], dict(keyword=4))
+ArgumentPack.of(1, 2, 3, keyword=4)
 ```
 ```
+1, 2, 3, keyword=4
+1, 2, 3, keyword=4
 ```
 
+as an intersection
+```py
+first = ArgumentPack.of('a', keyword="value")
+second = ArgumentPack.of('b', 'c')
 
+first | second # a, b, c, keyword=value
+first.merge_with(second) # a, b, c, keyword=value
 
+second.expand_with('d', keyword="value") # b, c, d, keyword=value
 
+# a, keyword=value
+first.merge_with(second).only_with(
+    ArgumentKey(0),
+    ArgumentKey("keyword", is_keyword=True)
+)
+```
+
+with structured receiving
+```py
+first[ArgumentKey(0)] # a
+first[ArgumentKey(0, default="default")] # a
+first[ArgumentKey(1, default="default")] # default
+first[ArgumentKey("keyword", is_keyword=True)] # value
+```
+
+and calling
+```py
+ArgumentPack.of(1, 2, 3, sep=' or ').call(print)
 ```
 ```
-
-```
-```
+1 or 2 or 3
 ```
 
 
