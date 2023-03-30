@@ -279,30 +279,21 @@ ImaginaryTransactionError: division by zero
 ```
 
 to use syntax constructions
-execute_operation(60, '+', 4)
-transform(False, 'not')
 ```py
+execute_operation(60, '+', 4) # 64
+transform(False, 'not') # True
 
-call(print, 1, 2, 3, sep=' or ')
-callmethod(dict(), 'get', None, "Default getting result")
+call(print, 1, 2, 3, sep=' or ') # 1 or 2 or 3
+callmethod(dict(), 'get', None, "Default getting result") # Default getting result
 
 data = dict()
 
 setitem(data, "some-key", "some-value")
-getitem(data, "some-key")
-```
-```
-64
-True
-
-1 or 2 or 3
-Default getting result
-
-some-value
+getitem(data, "some-key") # some-value
 ```
 
 by creating them
-```python
+```py
 operation = operation_by('+', 4)
 operation(60)
 ```
@@ -392,7 +383,7 @@ divide(8, 0)
 division by zero
 ```
 
-to receive through unpacking
+getting by unpacking
 ```py
 divide = with_error(operation_of('/'))
 
@@ -416,8 +407,8 @@ ContextualError(
 division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'}
 ```
 
-nested
 nested way
+```py
 class DomainError(ContextualError):
     pass
 
@@ -514,12 +505,14 @@ incremented(contextual(4))
 28 when division by zero
 ```
 
-Visualize results
-0 >= showly(
-    operation_by('+', 1)
-    |then>> operation_by('+', 2)
-    |then>> operation_by('+', 3)
+and visualize results
 ```py
+"result is {}".format(
+    0 >= showly(
+        operation_by('+', 1)
+        |then>> operation_by('+', 2)
+        |then>> operation_by('+', 3)
+    )
 )
 ```
 ```
@@ -528,8 +521,8 @@ Visualize results
 6
 ```
 
-Get values
-```python
+with the ability to get values
+```py
 root = incremented(contextual(4))
 
 root.value
@@ -569,7 +562,7 @@ incremented = documenting_by(
         operation_by('-', 14)
         |then>> (lambda n: n / (n - 2))
     )
-    |then>> saving_context( # Execution context without effect
+    |then>> saving_context(
         operation_by('+', 0.25)
         |then>> operation_by('*', 4)
     )
@@ -587,8 +580,8 @@ incremented(contextual(8))
 ```
 
 indicating special behavior
-incremented(ContextRoot(8, bad))
 ```py
+incremented(contextual(8, when=bad))
 ```
 ```
 4.0 when bad
@@ -642,10 +635,8 @@ using a unique flag
 super_ = Flag("super")
 not_super = Flag("not_super", sign=False)
 
-super_ | not_super # Union[<positive Flag "super">, <negative Flag "not_super">]
-
-isinstance(super_, super_) # True
-bool(super_), bool(not_super) # (True, False)
+not_super and super_ # not_super
+isinstance(super_, super_ | not_super) # True
 
 ContextRoot(16, super_) # 16 when super
 ```
@@ -672,8 +663,7 @@ division by zero when {'operand': 4}
 division by zero when nothing
 ```
 
-### Batteries
-Annotation templates not included in the `annotations` package
+Annotate execution context
 ```py
 mapping_to_chain_of[reformer_of[number]]
 # Callable[
@@ -693,14 +683,11 @@ mapping_to_chain_among[int]
 #     ActionChain[Callable[[int], int]]
 # ]
 
-calculation_contextualizing_over[str]
+execution_context_when[str]
 # Callable[
 #     [Union[Callable[[Any], Any], Iterable[Callable[[Any], Any]]]],
 #     ActionChain[Callable[[ContextRoot[Any, str]], ContextRoot[Any, str]]]
 # ]
-
-error_storage_of[ZeroDivisionError]
-# Union[ErrorKepper[ZeroDivisionError], SingleErrorKepper[ZeroDivisionError]]
 ```
 
 Use out-of-the-box functions to abstract from input arguments
