@@ -15,6 +15,10 @@ test_post_partial = calling_test_case_of(
     (lambda: post_partial(lambda a, b, *, c: a / b + c, 10, c=1)(1), 1.1),
     (lambda: post_partial(lambda a, b, *, c: a / b + c, 10)(1, c=1), 1.1),
     (lambda: post_partial(lambda a, b, *, c=10: a / b + c, 2)(4), 12),
+    (
+        lambda: post_partial(lambda a, *args, **kwargs: (a, *args, kwargs), 2, c=3)(1),
+        (1, 2, dict(c=3))
+    ),
 )
 
 
