@@ -218,6 +218,13 @@ def reversed_table(table: Mapping[KeyT, ValueT]) -> OrderedDict[ValueT, KeyT]:
     return OrderedDict(map(reversed, table.items()))
 
 
+def templately(action: action_for[ResultT], *args, **kwargs) -> Callable[[Any], ResultT]:
+    return wraps(action)(lambda argument: action(
+        *map(on(operation_by('is', Ellipsis), taken(argument)), args),
+        **value_map(on(operation_by('is', Ellipsis), taken(argument)), kwargs),
+    ))
+
+
 times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     """
     Function to create a function that will return `True` the input value (for
