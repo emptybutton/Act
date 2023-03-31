@@ -106,6 +106,9 @@ class ActionChain(Generic[_NodeT]):
         return self(value)
 
     def __repr__(self) -> str:
+        return f"ActionChain({', '.join(map(str, self._nodes))})"
+
+    def __str__(self) -> str:
         return (
             " |then>> ".join(map(self._fromat_node, self._nodes))
             if self._nodes else f"{self.__class__.__name__}()"
