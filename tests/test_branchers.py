@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Any, Iterable, Mapping, Callable, Type, Optional
 
-from pyhandling.annotations import atomic_action
+from pyhandling.annotations import one_value_action
 from pyhandling.branchers import *
 from pyhandling.errors import NeutralActionChainError
 from pyhandling.testing import calling_test_case_of
@@ -43,7 +43,7 @@ test_action_chain_calling = calling_test_case_of(
         [tuple(), tuple()]
     ]
 )
-def test_action_chain_connection_to_other(first_nodes: Iterable[atomic_action], second_nodes: Iterable[atomic_action]):
+def test_action_chain_connection_to_other(first_nodes: Iterable[one_value_action], second_nodes: Iterable[one_value_action]):
     assert (
         tuple(ActionChain((*first_nodes, *second_nodes)))
         == tuple(ActionChain(first_nodes) >> ActionChain(second_nodes))
