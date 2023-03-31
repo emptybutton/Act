@@ -12,11 +12,6 @@ from pyhandling.utils import *
 from tests.mocks import CustomContext, Counter, MockAction
 
 
-test_context_oriented = calling_test_case_of(
-    (lambda: context_oriented(['val', 'con']), ContextRoot('con', 'val')),
-)
-
-
 test_atomically = calling_test_case_of(
     (lambda: isinstance(atomically(ActionChain([int, str])), ActionChain), False),
     (lambda: len(tuple(ActionChain([atomically(ActionChain([int, str])), print]))), 2),
@@ -164,12 +159,6 @@ test_saving_context = calling_test_case_of(
         ),
         ContextRoot(16, None),
     ),
-)
-
-
-test_contextual = calling_test_case_of(
-    (lambda: contextual(4).value, 4),
-    (lambda: contextual(None), ContextRoot(None, nothing)),
 )
 
 

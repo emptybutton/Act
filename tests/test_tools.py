@@ -2,7 +2,19 @@ from typing import Iterable, Callable, Any
 
 from pytest import mark, fail, raises
 
+from pyhandling.testing import calling_test_case_of
 from pyhandling.tools import *
+
+
+test_context_oriented = calling_test_case_of(
+    (lambda: context_oriented(['val', 'con']), ContextRoot('con', 'val')),
+)
+
+
+test_contextual = calling_test_case_of(
+    (lambda: contextual(4).value, 4),
+    (lambda: contextual(None), ContextRoot(None, nothing)),
+)
 
 
 def test_to_clone():
