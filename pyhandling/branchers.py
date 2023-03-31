@@ -87,6 +87,9 @@ class ActionChain(Generic[_NodeT]):
     def __iter__(self) -> Iterator[_NodeT]:
         return iter(self._nodes)
 
+    def __len__(self) -> int:
+        return len(self._nodes)
+
     def __rshift__(self, node: one_value_action) -> Self:
         return self.__class__((*self._nodes, node))
 
