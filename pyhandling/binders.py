@@ -1,9 +1,10 @@
 from collections import OrderedDict
 from functools import partial, wraps
-from inspect import signature, _ParameterKind, _empty
-from typing import Callable, Self, TypeVar, Any
+from inspect import signature, _ParameterKind, _empty, Signature
+from typing import Callable, Self, TypeVar, Any, Iterable, NamedTuple
 
 from pyhandling.annotations import ArgumentsT, ResultT, action_for, ActionT, handler_of
+from pyhandling.synonyms import with_keyword
 from pyhandling.tools import ArgumentKey, ArgumentPack
 
 

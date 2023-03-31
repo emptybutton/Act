@@ -7,7 +7,7 @@ from pyhandling.annotations import checker_of, event_for
 from pyhandling.branchers import ActionChain
 from pyhandling.synonyms import with_context_by
 from pyhandling.testing import calling_test_case_of
-from pyhandling.tools import with_attributes, ArgumentPack, nothing, Logger
+from pyhandling.tools import with_attributes, ArgumentPack, nothing, Logger, ContextRoot
 from pyhandling.utils import *
 from tests.mocks import CustomContext, Counter, MockAction
 
