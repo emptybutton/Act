@@ -397,7 +397,7 @@ def considering_context(
         Special[writing | reading]
     ],
     root: ContextRoot[ValueT, ContextT]
-) -> ContextRoot[ResultT | _ReadingResultT, ContextT]:
+) -> ContextRoot[ResultT | ValueT |  _ReadingResultT, ContextT]:
     if isinstance(node, ContextRoot):
         if node.context is writing:
             return ContextRoot(root.value, node.value(root.value)(root.context))
