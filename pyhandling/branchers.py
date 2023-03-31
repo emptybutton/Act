@@ -90,6 +90,9 @@ class ActionChain(Generic[_NodeT]):
     def __len__(self) -> int:
         return len(self._nodes)
 
+    def __getitem__(self, key: int | slice) -> Self:
+        return type(self)(as_collection(self._nodes[key]))
+
     def __rshift__(self, node: one_value_action) -> Self:
         return self.__class__((*self._nodes, node))
 
