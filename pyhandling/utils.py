@@ -650,3 +650,7 @@ class _LambdaGenerator(Generic[ResultT]):
     def __rshift__(self, value: Special[Self]) -> Self:
         return self._like_operation(operation_of('>>'), value, is_inverted=True)
 
+
+def not_(generator: _LambdaGenerator) -> LambdaGeneratingError:
+    return generator._not()
+
