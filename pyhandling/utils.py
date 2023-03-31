@@ -654,3 +654,5 @@ class _LambdaGenerator(Generic[ResultT]):
 def not_(generator: _LambdaGenerator) -> LambdaGeneratingError:
     return generator._not()
 
+
+x = _LambdaGenerator('x')
