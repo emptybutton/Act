@@ -214,6 +214,10 @@ def value_map(
     return OrderedDict((_, mapped(value)) for _, value in table.items())
 
 
+def reversed_table(table: Mapping[KeyT, ValueT]) -> OrderedDict[ValueT, KeyT]:
+    return OrderedDict(map(reversed, table.items()))
+
+
 times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     """
     Function to create a function that will return `True` the input value (for
