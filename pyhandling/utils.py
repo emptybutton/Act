@@ -416,3 +416,31 @@ _forced_call = Flag("forced call")
 
 
 def _as_generator_validating(
+    is_valid: checker_of["_LambdaGenerator"]
+) -> reformer_of[method_of["_LambdaGenerator"]]:
+    def wrapper(method: method_of["_LambdaGenerator"]) -> method_of["_LambdaGenerator"]:
+        @wraps(method)
+        def method_wrapper(generator: "_LambdaGenerator", *args, **kwargs) -> Any:
+            if not is_valid(generator):
+                raise LambdaGeneratingError(
+                    "Non-correct generation action when "
+                    f"{generator._last_action_nature.value}"
+                )
+
+            return method(generator, *args, **kwargs)
+
+        return method_wrapper
+
+    return wrapper
+
+
+def _invalid_when(*invalid_natures: ContextRoot) -> reformer_of[method_of["_LambdaGenerator"]]:
+    return _as_generator_validating(
+        lambda generator: generator._last_action_nature.value not in invalid_natures
+    )
+
+
+def _valid_when(*valid_natures: ContextRoot) -> reformer_of[method_of["_LambdaGenerator"]]:
+    return _as_generator_validating(
+        lambda generator: generator._last_action_nature.value in valid_natures
+    )
