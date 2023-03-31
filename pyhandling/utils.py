@@ -406,3 +406,13 @@ def considering_context(
             return ContextRoot(node.value(root.value)(root.context), root.context)
 
     return saving_context(node)(root)
+
+
+_attribute_getting = Flag("attribute getting")
+_item_getting = Flag("item getting")
+_method_calling_preparation = Flag("method calling preparation")
+_method_calling = Flag("method calling")
+_forced_call = Flag("forced call")
+
+
+def _as_generator_validating(
