@@ -444,3 +444,119 @@ def _valid_when(*valid_natures: ContextRoot) -> reformer_of[method_of["_LambdaGe
     return _as_generator_validating(
         lambda generator: generator._last_action_nature.value in valid_natures
     )
+
+
+class _LambdaGenerator(Generic[ResultT]):
+    def __init__(
+        self,
+        name: str,
+        actions: ActionChain = ActionChain(),
+        *,
+        last_action_nature: ContextRoot = contextual(nothing),
+    ):
+        self._name = name
+        self._actions = actions
+        self._last_action_nature = last_action_nature
+
+    def __repr__(self) -> str:
+        return str(self._actions.__dict__)
+
+    @property
+    def to(self) -> Self:
+        return self._of(last_action_nature=contextual(_forced_call))
+
+    @_valid_when(_attribute_getting, _item_getting)
+    def set(self, value: Any) -> Self:
+        if self._last_action_nature.value is _attribute_getting:
+            return self.__with_setting(setattr, value)
+
+        elif self._last_action_nature.value is _item_getting:
+            return self.__with_setting(setitem, value)
+
+        raise LambdaSettingError("Setting without place")
+
+    def is_(self, value: Any) -> Self:
+        return self._like_operation(operation_of('is'), value)
+
+    def is_not(self, value: Any) -> Self:
+        return self._like_operation(operation_of("is not"), value)
+
+    def or_(self, value: Any) -> Self:
+        return self._like_operation(operation_of('or'), value)
+
+    def and_(self, value: Any) -> Self:
+        return self._like_operation(operation_of('and'), value)
+
+    def _not(self) -> Self:
+        return self._with(transform |by| 'not')
+
+    def _of(self, *args, **kwargs) -> Self:
+        return type(self)(self._name, *args, **kwargs)
+
+    def _with(self, action: Callable[[ResultT], ValueT], *args, **kwargs) -> Self:
+        return self._of(self._actions |then>> action, *args, **kwargs)
+
+    @_invalid_when(_method_calling_preparation)
+    def _like_operation(
+        self,
+        operation: merger_of[Any],
+        value: Special[Self | Ellipsis],
+        *,
+        is_inverted: bool = False
+    ) -> Self:
+        second_branch_of_operation = (
+            value._callable()
+            if isinstance(value, _LambdaGenerator)
+            else taken(value)
+        )
+
+        if isinstance(value, _LambdaGenerator):
+            second_branch_of_operation = value._callable()
+        if value is Ellipsis:
+            second_branch_of_operation = 
+
+        first, second = (
+            (self._callable(), second_branch_of_operation)
+            if not is_inverted
+            else (second_branch_of_operation, self._callable())
+        )
+
+        return self._of(ActionChain([mergely(taken(operation), first, second)]))
+
+    def _callable(self) -> Self:
+        return self._of(ActionChain([returned])) if len(self._actions) == 0 else self
+
+    @_invalid_when(_method_calling_preparation)
+    def __call__(self, *args, **kwargs) -> Self | ResultT:
+        return (
+            (
+                self._with(post_partial(call, *args, **kwargs))
+                if (
+                    len(self._actions) == 0
+                    or self._last_action_nature.value is _forced_call
+                )
+                else (self._actions)(*args, **kwargs)
+            )
+            if Ellipsis not in (*args, *kwargs.values())
+            else self._with(post_partial(templately, *args, **kwargs))
+        )
+
+    def __getattr__(self, attribute_name: str) -> Self:
+        return self._with(
+            getattr |by| attribute_name,
+            last_action_nature=contextual(attribute_name, when=_attribute_getting),
+        )
+
+    @_invalid_when(_method_calling_preparation)
+    def __getitem__(self, key: Any) -> Self:
+        return self._with(
+            getitem |by| key,
+            last_action_nature=contextual(key, when=_item_getting),
+        )
+
+    def __with_setting(self, setting: Callable[[Any, Any, Any], Any], value: Any) -> Self:
+        return self._of(
+            self._actions[:-1]
+            |then>> post_partial(setting, self.last_action_nature.context, value)
+        )
+
