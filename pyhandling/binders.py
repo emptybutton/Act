@@ -70,9 +70,9 @@ def post_partial(action: action_for[ResultT], *post_args, **post_kwargs) -> acti
     call, but after.
     """
 
-    return wraps(action)(lambda *args, **kwargs: action(
-        *args, *post_args, **kwargs, **post_kwargs
-    ))
+    return wraps(action)(
+        lambda *args, **kwargs: action(*args, *post_args, **post_kwargs, **kwargs)
+    )
 
 
 def mirror_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
