@@ -207,6 +207,13 @@ filter_ = documenting_by("""`filter` function returning `tuple`""")(
 )
 
 
+def value_map(
+    mapped: Callable[[ValueT], MappedT],
+    table: Mapping[KeyT, ValueT],
+) -> OrderedDict[KeyT, MappedT]:
+    return OrderedDict((_, mapped(value)) for _, value in table.items())
+
+
 times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     """
     Function to create a function that will return `True` the input value (for
