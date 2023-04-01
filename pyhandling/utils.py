@@ -11,7 +11,7 @@ from pyhandling.branchers import ActionChain, on, rollbackable, mergely, mapping
 from pyhandling.language import then, by, to
 from pyhandling.errors import LambdaGeneratingError
 from pyhandling.synonyms import execute_operation, returned, transform, raise_, call, getitem
-from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, nothing, Flag, ContextRoot, contextual
+from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, nothing, Flag, contextual
 
 
 __all__ = (
@@ -264,18 +264,18 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
 
 with_error: Callable[
     [Callable[[*ArgumentsT], ResultT]],
-    Callable[[*ArgumentsT], ContextRoot[Optional[ResultT], Optional[Exception]]]
+    Callable[[*ArgumentsT], contextual[Optional[ResultT], Optional[Exception]]]
 ]
 with_error = documenting_by(
     """
     Decorator that causes the decorated function to return the error that
     occurred.
 
-    Returns in `ContextRoot` format (result, error).
+    Returns in `contextual` format (result, error).
     """
 )(
     binding_by(... |then>> contextual)
-    |then>> post_partial(rollbackable, ContextRoot |to| nothing)
+    |then>> post_partial(rollbackable, contextual |to| nothing)
 )
 
 
@@ -310,8 +310,8 @@ execution_context_when = AnnotationTemplate(mapping_to_chain_among, [
 saving_context: execution_context_when[ContextT] = documenting_by(
     """Execution context without effect."""
 )(
-    monadically(lambda node: lambda root: ContextRoot(
-        node(root.value), root.context
+    monadically(lambda node: lambda root: contextual(
+        node(root.value), when=root.context
     ))
 )
 
@@ -332,8 +332,8 @@ maybe = documenting_by(
     monadically(lambda node: lambda root: (
         root.value >= node |then>> on(
             operation_by('is', bad),
-            taken(ContextRoot(root.value, bad)),
-            else_=ContextRoot |by| root.context,
+            taken(contextual(root.value, bad)),
+            else_=contextual |by| root.context,
         )
         if root.context is not bad
         else root
@@ -352,8 +352,8 @@ until_error = documenting_by(
 )(
     monadically(lambda node: lambda root: (
         rollbackable(
-            node |then>> (ContextRoot |by| root.context),
-            lambda error: ContextRoot(root.value, error),
+            node |then>> (contextual |by| root.context),
+            lambda error: contextual(root.value, error),
         )(root.value)
         if not isinstance(root.context, Exception)
         else root
@@ -400,18 +400,18 @@ _ReadingResultT = TypeVar("_ReadingResultT")
 @monadically
 @closed
 def considering_context(
-    node: Callable[[ValueT], ResultT] | ContextRoot[
+    node: Callable[[ValueT], ResultT] | contextual[
         Callable[[ValueT], reformer_of[ContextT]] | Callable[[ValueT], Callable[[ContextT], _ReadingResultT]],
         Special[writing | reading]
     ],
-    root: ContextRoot[ValueT, ContextT]
-) -> ContextRoot[ResultT | ValueT |  _ReadingResultT, ContextT]:
-    if isinstance(node, ContextRoot):
+    root: contextual[ValueT, ContextT]
+) -> contextual[ResultT | ValueT |  _ReadingResultT, ContextT]:
+    if isinstance(node, contextual):
         if node.context is writing:
-            return ContextRoot(root.value, node.value(root.value)(root.context))
+            return contextual(root.value, node.value(root.value)(root.context))
 
         if node.context is reading:
-            return ContextRoot(node.value(root.value)(root.context), root.context)
+            return contextual(node.value(root.value)(root.context), root.context)
 
     return saving_context(node)(root)
 
@@ -442,13 +442,13 @@ def _as_generator_validating(
     return wrapper
 
 
-def _invalid_when(*invalid_natures: ContextRoot) -> reformer_of[method_of["_LambdaGenerator"]]:
+def _invalid_when(*invalid_natures: contextual) -> reformer_of[method_of["_LambdaGenerator"]]:
     return _as_generator_validating(
         lambda generator: generator._last_action_nature.value not in invalid_natures
     )
 
 
-def _valid_when(*valid_natures: ContextRoot) -> reformer_of[method_of["_LambdaGenerator"]]:
+def _valid_when(*valid_natures: contextual) -> reformer_of[method_of["_LambdaGenerator"]]:
     return _as_generator_validating(
         lambda generator: generator._last_action_nature.value in valid_natures
     )

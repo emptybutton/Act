@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
 from math import inf
 from types import MappingProxyType
-from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Generic, Final, Iterable, Optional, Tuple, _UnionGenericAlias, Union, NamedTuple
+from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Generic, Final, Iterable, Optional, Tuple, _UnionGenericAlias, Union, NamedTuple, Iterator
 
 from pyannotating import method_of, Special
 
@@ -16,12 +16,11 @@ __all__ = (
     "publicly_immutable",
     "Flag",
     "nothing",
-    "ContextRoot",
-    "contextual",
-    "context_oriented",
     "ArgumentKey",
     "ArgumentPack",
     "DelegatingProperty",
+    "contextual",
+    "context_oriented",
     "Clock",
     "Logger",
     "with_attributes",
@@ -113,41 +112,6 @@ class Flag:
 
 nothing = Flag("nothing", sign=False)
 nothing.__doc__ = """Flag to indicate the absence of anything, including `None`."""
-
-
-class ContextRoot(NamedTuple, Generic[ValueT, ContextT]):
-    """Class for annotating a value with some context."""
-
-    value: ValueT
-    context: ContextT
-
-    def __repr__(self) -> str:
-        return f"{self.value} when {self.context}"
-
-    @classmethod
-    def like(cls, value_and_context: tuple[ValueT, ContextT]) -> Self:
-        """Class method to create from an unstructured collection."""
-
-        value, context = value_and_context
-
-        return cls(value, context)
-
-
-def contextual(value: ValueT, *, when: ContextT = nothing) -> ContextRoot[ValueT, ContextT]:
-    """
-    Function that represents the input value as a value with a context that
-    defaults to `nothing`.
-    """
-
-    return ContextRoot(value, when)
-
-
-def context_oriented(root_values: tuple[ValueT, ContextT]) -> ContextRoot[ContextT, ValueT]:
-    """Function to swap `ContextRoot`'s context and value."""
-
-    context, value = root_values
-
-    return ContextRoot(value, context)
 
 
 @dataclass(frozen=True)
@@ -295,6 +259,40 @@ class DelegatingProperty:
             )
 
         setattr(instance, self.delegated_attribute_name, self.setting_converter(value))
+
+
+class contextual(Generic[ValueT, ContextT]):
+    """Representer of an input value as a value with a context."""
+
+    value = DelegatingProperty("value")
+    context = DelegatingProperty("context")
+
+    def __init__(self, value: ValueT, when: ContextT = nothing):
+        self._value = value
+        self._context = when
+
+    def __repr__(self) -> str:
+        return f"{self.value} when {self.context}"
+
+    def __iter__(self) -> Iterator:
+        return iter((self._value, self._context))
+
+    @classmethod
+    def like(cls, value_and_context: tuple[ValueT, ContextT]) -> Self:
+        """Class method to create from an unstructured collection."""
+
+        value, context = value_and_context
+
+        return cls(value, context)
+
+
+def context_oriented(root_values: tuple[ValueT, ContextT]) -> contextual[ContextT, ValueT]:
+    """Function to swap a context and value."""
+
+    context, value = root_values
+
+    return contextual(value, when=context)
+
 
 
 class Clock:

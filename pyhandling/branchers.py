@@ -7,7 +7,7 @@ from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotat
 from pyhandling.annotations import ActionT, ResultT, one_value_action, ArgumentsT, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, checker_of
 from pyhandling.binders import post_partial
 from pyhandling.errors import TemplatedActionChainError, NeutralActionChainError
-from pyhandling.tools import ContextRoot, DelegatingProperty, with_opened_items, ArgumentKey, ArgumentPack
+from pyhandling.tools import contextual, DelegatingProperty, with_opened_items, ArgumentKey, ArgumentPack
 from pyhandling.synonyms import returned, getitem
 
 
@@ -23,7 +23,7 @@ __all__ = (
 )
 
 
-_NodeT: TypeAlias = TypeVar("_NodeT", bound=Callable | Ellipsis | ContextRoot[Callable, Any])
+_NodeT: TypeAlias = TypeVar("_NodeT", bound=Callable | Ellipsis | contextual[Callable, Any])
 
 
 class ActionChain(Generic[_NodeT]):
@@ -58,7 +58,7 @@ class ActionChain(Generic[_NodeT]):
             if node is Ellipsis:
                 self._is_template = True
 
-            if isinstance(node, Iterable) and not isinstance(node, ContextRoot):
+            if isinstance(node, Iterable) and not isinstance(node, contextual):
                 self._nodes.extend(node)
             else:
                 self._nodes.append(node)
@@ -80,7 +80,7 @@ class ActionChain(Generic[_NodeT]):
             return args[0]
 
         return reduce(
-            lambda value, node: (node.value if isinstance(node, ContextRoot) else node)(value),
+            lambda value, node: (node.value if isinstance(node, contextual) else node)(value),
             (self._nodes[0](*args, **kwargs), *self._nodes[1:])
         )
 
