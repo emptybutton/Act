@@ -10,6 +10,7 @@ from pyhandling.tools import ArgumentKey, ArgumentPack
 
 
 __all__ = (
+    "flipped",
     "fragmentarily",
     "post_partial",
     "mirror_partial",
@@ -40,6 +41,34 @@ class _FunctionWrapper(ABC, Generic[ActionT]):
 
         if hasattr(self._action, "__name__"):
             self.__name__ = f"{type(self).__name__}({self._action.__name__})"
+
+
+class flipped(_FunctionWrapper):
+    def __call__(self, *args, **kwargs) -> ResultT:
+        return self._action(*args[::-1], **kwargs)
+
+    @cached_property
+    def _native_signature(self) -> Signature:
+        return signature(self._action).replace(parameters=self.__flip_parameters(
+            signature(self._action).parameters.values()
+        ))
+
+    @staticmethod
+    def __flip_parameters(parameters: Iterable[Parameter]) -> Tuple[Parameter]:
+        parameters = tuple(parameters)
+        index_border_to_invert = 0
+
+        for parameter_index, parameter in enumerate(parameters):
+            if parameter.default is not _empty:
+                break
+
+            index_border_to_invert = parameter_index
+
+
+        return (
+            *parameters[index_border_to_invert::-1],
+            *parameters[index_border_to_invert + 1:],
+        )
 
 
     """
