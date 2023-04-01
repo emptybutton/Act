@@ -1,7 +1,8 @@
+from abc import ABC, abstractmethod
 from collections import OrderedDict
-from functools import partial, wraps
-from inspect import signature, _ParameterKind, _empty, Signature
-from typing import Callable, Self, TypeVar, Any, Iterable, NamedTuple
+from functools import partial, wraps, update_wrapper, cached_property
+from inspect import signature, _empty, Signature, Parameter
+from typing import Callable, Self, TypeVar, Any, Iterable, NamedTuple, Tuple, Generic, Optional
 
 from pyhandling.annotations import ArgumentsT, ResultT, action_for, ActionT, handler_of
 from pyhandling.synonyms import with_keyword
@@ -20,6 +21,27 @@ __all__ = (
 
 
 def fragmentarily(action: Callable[[*ArgumentsT], ResultT]) -> action_for[ResultT | Self]:
+class _FunctionWrapper(ABC, Generic[ActionT]):
+    def __init__(self, action: ActionT):
+        self._action = action
+        self._become_native()
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({self._action})"
+
+    @property
+    @abstractmethod
+    def _native_signature(self) -> Signature:
+        ...
+
+    def _become_native(self) -> None:
+        update_wrapper(self, self._action)
+        self.__signature__ = self._native_signature
+
+        if hasattr(self._action, "__name__"):
+            self.__name__ = f"{type(self).__name__}({self._action.__name__})"
+
+
     """
     Function decorator for splitting a decorated function call into
     non-structured sub-calls.
