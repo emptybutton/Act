@@ -229,7 +229,7 @@ def on(
     With default `else_` takes one value actions.
     """
 
-    def branch(*args, **kwargs) -> Any:
+    def branch(*args, **kwargs) -> PositiveConditionResultT | NegativeConditionResultT:
         """
         Result function from `on` function.
         See `on` for more info.
