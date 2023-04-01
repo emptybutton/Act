@@ -586,24 +586,6 @@ class _LambdaGenerator(Generic[ResultT]):
             |then>> post_partial(setting, self.last_action_nature.context, value)
         )
 
-    def __gt__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('>'), value)
-
-    def __ge__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('>='), value)
-
-    def __lt__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('<'), value)
-
-    def __le__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('<='), value)
-
-    def __eq__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('=='), value)
-
-    def __ne__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('!='), value)
-
     def __bool__(self) -> Self:
         return self._with(transform |by| 'not')
 
@@ -616,7 +598,25 @@ class _LambdaGenerator(Generic[ResultT]):
     def __invert__(self) -> Self:
         return self._with(transform |by| '~')
 
-    def __add__(self, value: Special[Self]) -> Self:
+    def __gt__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(operation_of('>'), value)
+
+    def __ge__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(operation_of('>='), value)
+
+    def __lt__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(operation_of('<'), value)
+
+    def __le__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(operation_of('<='), value)
+
+    def __eq__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(operation_of('=='), value)
+
+    def __ne__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(operation_of('!='), value)
+
+    def __add__(self, value: Special[Self | Ellipsis]) -> Self:
         return self._like_operation(operation_of('+'), value)
 
     def __sub__(self, value: Any) -> Self:
