@@ -115,16 +115,14 @@ class flipped(_FunctionWrapper):
     return fragmentarily_action
 
 
-def post_partial(action: action_for[ResultT], *post_args, **post_kwargs) -> action_for[ResultT]:
+def post_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
     """
     Function equivalent to functools.partial but with the difference that
     additional arguments are added not before the incoming ones from the final
     call, but after.
     """
 
-    return wraps(action)(
-        lambda *args, **kwargs: action(*args, *post_args, **post_kwargs, **kwargs)
-    )
+    return flipped(partial(flipped(action), *args[::-1], **kwargs))
 
 
 def mirror_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
