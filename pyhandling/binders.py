@@ -123,6 +123,21 @@ class eventually(_FunctionWrapper):
         return signature(self._action).replace(parameters=tuple())
 
 
+class unpackly(_FunctionWrapper):
+    """
+    Decorator function to unpack the input `ArgumentPack` into the input function.
+    """
+
+    def __call__(self, pack: ArgumentPack) -> Any:
+        return pack.call(self._action)
+
+    @cached_property
+    def _native_signature(self) -> Signature:
+        return signature(self).replace(
+            return_annotation=signature(self._action).return_annotation
+        )
+
+
 class fragmentarily(_FunctionWrapper):
     """
     Decorator for splitting a decorated function call into non-structured
@@ -229,11 +244,3 @@ def closed(
     """
 
     return partial(close, action)
-
-
-def unpackly(action: action_for[ResultT]) -> Callable[[ArgumentPack], ResultT]:
-    """
-    Decorator function to unpack the input `ArgumentPack` into the input function.
-    """
-
-    return wraps(action)(lambda pack: pack.call(action))
