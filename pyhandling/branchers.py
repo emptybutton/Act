@@ -115,10 +115,7 @@ class ActionChain(Generic[_NodeT]):
         )
 
     def _fromat_node(self, node: Special[Ellipsis, _NodeT]) -> str:
-        if node is Ellipsis:
-            return '...'
-
-        return node.__name__ if hasattr(node, "__name__") else str(node)
+        return '...' if node is Ellipsis else str(node)
 
 
 def merged(
