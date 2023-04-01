@@ -21,7 +21,6 @@ __all__ = (
 )
 
 
-def fragmentarily(action: Callable[[*ArgumentsT], ResultT]) -> action_for[ResultT | Self]:
 class _FunctionWrapper(ABC, Generic[ActionT]):
     def __init__(self, action: ActionT):
         self._action = action
@@ -72,33 +71,27 @@ class flipped(_FunctionWrapper):
 
 
     """
-    Function decorator for splitting a decorated function call into
-    non-structured sub-calls.
+
+    """
+
+        )
+
+class fragmentarily(_FunctionWrapper):
+    """
+    Decorator for splitting a decorated function call into non-structured
+    sub-calls.
 
     Partially binds subcall arguments to a decorated function using the `binder`
     parameter.
     """
 
-    parameters_to_call = OrderedDict(
-        (_, parameter)
-        for _, parameter in signature(action).parameters.items()
-        if (
-            parameter.kind in (
-                _ParameterKind.POSITIONAL_ONLY,
-                _ParameterKind.POSITIONAL_OR_KEYWORD
-            )
-            and parameter.default is _empty
-        )
-    )
-
-    @wraps(action)
-    def fragmentarily_action(*args, **kwargs) -> ResultT | Self:
-        augmented_action = partial(action, *args, **kwargs)
+    def __call__(self, *args, **kwargs) -> Any | Self:
+        augmented_action = partial(self._action, *args, **kwargs)
 
         actual_parameters_to_call = OrderedDict(
             tuple(
                 (parameter_name, parameter)
-                for parameter_name, parameter in parameters_to_call.items()
+                for parameter_name, parameter in self._parameters_to_call.items()
                 if (
                     parameter_name not in kwargs.keys()
                     and parameter.default is _empty
@@ -112,7 +105,37 @@ class flipped(_FunctionWrapper):
             else fragmentarily(augmented_action)
         )
 
-    return fragmentarily_action
+    @cached_property
+    def _parameters_to_call(self) -> OrderedDict[str, Parameter]:
+        return OrderedDict(
+            (_, parameter)
+            for _, parameter in signature(self._action).parameters.items()
+            if self.__is_parameter_settable(parameter)
+        )
+
+    @cached_property
+    def _native_signature(self) -> Signature:
+        return signature(self).replace(
+            return_annotation=signature(self._action).return_annotation | Self,
+            parameters=tuple(
+                (
+                    parameter.replace(
+                        default=None, annotation=Optional[parameter.annotation]
+                    )
+                    if self.__is_parameter_settable(parameter)
+                    else parameter
+                )
+                for parameter in signature(self._action).parameters.values()
+            )
+        )
+
+    def __is_parameter_settable(self, parameter: Parameter) -> bool:
+        return (
+            parameter.default is _empty
+            and parameter.kind in (
+                Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD
+            )
+        )
 
 
 def post_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
