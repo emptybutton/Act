@@ -49,6 +49,9 @@ __all__ = (
     "writing",
     "reading",
     "considering_context",
+    "right",
+    "left",
+    "either",
     "x",
     "not_",
 )
@@ -413,6 +416,22 @@ def considering_context(
             return contextual(node.value(root.value)(root.context), root.context)
 
     return saving_context(node)(root)
+
+
+right = Flag("right")
+left = Flag('left', sign=False)
+
+
+def either(
+    *context_and_action: tuple[ContextT, Callable[[contextual[ValueT, ContextT]], ResultT]],
+    else_: Callable[[contextual[ValueT, ContextT]], ResultT] = returned,
+) -> Callable[[contextual[ValueT, ContextT]], ResultT]:
+    """Shortcut for `branching` with context checks."""
+
+    return branching(*(
+        (lambda root: root.context is context, action)
+        for context, action in context_and_action
+    ))
 
 
 _attribute_getting = Flag("attribute getting")
