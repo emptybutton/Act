@@ -302,9 +302,8 @@ mapping_to_chain_among = AnnotationTemplate(mapping_to_chain_of, [
 
 
 execution_context_when = AnnotationTemplate(mapping_to_chain_among, [
-        AnnotationTemplate(ContextRoot, [Any, input_annotation])
-    ]
-)
+    AnnotationTemplate(contextual, [Any, input_annotation])
+])
 
 
 saving_context: execution_context_when[ContextT] = documenting_by(
