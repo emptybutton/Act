@@ -5,6 +5,7 @@ from inspect import signature, _empty, Signature, Parameter
 from typing import Callable, Self, TypeVar, Any, Iterable, NamedTuple, Tuple, Generic, Optional
 
 from pyhandling.annotations import ArgumentsT, ResultT, action_for, ActionT, handler_of
+from pyhandling.errors import ReturningError
 from pyhandling.synonyms import with_keyword
 from pyhandling.tools import ArgumentKey, ArgumentPack
 
@@ -70,7 +71,30 @@ class flipped(_FunctionWrapper):
         )
 
 
+class returnly(_FunctionWrapper):
     """
+    Decorator that causes the input function to return not the result of its
+    execution, but some argument that is incoming to it.
+
+    Returns the first argument by default.
+    """
+
+    def __call__(self, *args, **kwargs) -> ArgumentsT:
+        self._action(*args, **kwargs)
+
+        return args[0]
+
+    @cached_property
+    def _native_signature(self) -> Signature:
+        parameters = tuple(signature(self._action).parameters.values())
+
+        if len(parameters) == 0:
+            raise ReturningError("Function must contain at least one parameter")
+
+        return signature(self._action).replace(return_annotation=(
+            parameters[0].annotation
+        ))
+
 
     """
 
@@ -182,27 +206,6 @@ def closed(
     """
 
     return partial(close, action)
-
-
-def returnly(
-    action: handler_of[*ArgumentsT],
-    *,
-    argument_key_to_return: ArgumentKey = ArgumentKey(0)
-) -> Callable[[*ArgumentsT], ArgumentsT]:
-    """
-    Decorator function that causes the input function to return not the result
-    of its execution, but some argument that is incoming to it.
-
-    Returns the first argument by default.
-    """
-
-    @wraps(action)
-    def returnly_action(*args, **kwargs) -> Any:
-        action(*args, **kwargs)
-
-        return ArgumentPack(args, kwargs)[argument_key_to_return]
-
-    return returnly_action
 
 
 def eventually(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
