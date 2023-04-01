@@ -96,9 +96,32 @@ class returnly(_FunctionWrapper):
         ))
 
 
+class eventually(_FunctionWrapper):
+    """
+    Decorator function to call with predefined arguments instead of input ones.
     """
 
+    def __init__(self, action: Callable[[*ArgumentsT], ResultT], *args: ArgumentsT, **kwargs: ArgumentsT):
+        super().__init__(action)
+        self._args = args
+        self._kwargs = kwargs
+
+    def __call__(self, *_, **__) -> ResultT:
+        return self._action(*self._args, **self._kwargs)
+
+    def __repr__(self) -> str:
+        return (
+            f"{type(self).__name__}({self._action}"
+            f"{', ' if self._args or self._kwargs else str()}"
+            f"{', '.join(map(str, self._args))}"
+            f"{', ' if self._args and self._kwargs else str()}"
+            f"{', '.join(map(lambda item: str(item[0]) + '=' + str(item[1]), self._kwargs.items()))})"
         )
+
+    @cached_property
+    def _native_signature(self) -> Signature:
+        return signature(self._action).replace(parameters=tuple())
+
 
 class fragmentarily(_FunctionWrapper):
     """
@@ -206,14 +229,6 @@ def closed(
     """
 
     return partial(close, action)
-
-
-def eventually(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
-    """
-    Decorator function to call with predefined arguments instead of input ones.
-    """
-
-    return wraps(action)(lambda *_, **__: action(*args, **kwargs))
 
 
 def unpackly(action: action_for[ResultT]) -> Callable[[ArgumentPack], ResultT]:
