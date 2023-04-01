@@ -1,5 +1,6 @@
 __all__ = (
     "PyhandingError",
+    "ReturningError",
     "NeutralActionChainError",
     "TemplatedActionChainError",
     "LambdaGeneratorError",
@@ -9,6 +10,10 @@ __all__ = (
 
 
 class PyhandingError(Exception):
+    pass
+
+
+class ReturningError(PyhandingError):
     pass
 
 
