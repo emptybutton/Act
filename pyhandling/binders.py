@@ -12,10 +12,10 @@ from pyhandling.tools import ActionWrapper, ArgumentKey, ArgumentPack, calling_s
 __all__ = (
     "flipped",
     "fragmentarily",
-    "post_partial",
     "returnly",
     "eventually",
     "unpackly",
+    "right_partial",
     "mirrored_partial",
     "closed",
     "right_closed",
@@ -154,17 +154,10 @@ class fragmentarily(ActionWrapper):
         )
 
 
-def post_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
-    """
-    Function equivalent to functools.partial but with the difference that
-    additional arguments are added not before the incoming ones from the final
-    call, but after.
-    """
 class flipped(ActionWrapper):
     def __call__(self, *args, **kwargs) -> ResultT:
         return self._action(*args[::-1], **kwargs)
 
-    return flipped(partial(flipped(action), *args[::-1], **kwargs))
     @cached_property
     def _force_signature(self) -> Signature:
         return signature(self._action).replace(parameters=self.__flip_parameters(
@@ -198,9 +191,15 @@ def mirrored_partial(action: action_for[ResultT], *args, **kwargs) -> action_for
     return flipped(partial(flipped(action), *args, **kwargs))
 
 
+def right_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
+    """
+    Function equivalent to functools.partial but with the difference that
+    additional arguments are added not before the incoming ones from the final
+    call, but after.
     """
 
     return mirrored_partial(action, *args[::-1], **kwargs)
+
 
 def closed(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
     return partial(partial, action)
