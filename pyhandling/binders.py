@@ -13,10 +13,10 @@ __all__ = (
     "flipped",
     "fragmentarily",
     "post_partial",
-    "mirror_partial",
     "returnly",
     "eventually",
     "unpackly",
+    "mirrored_partial",
     "closed",
     "right_closed",
 )
@@ -176,28 +176,26 @@ class flipped(ActionWrapper):
         parameters = tuple(parameters)
         index_border_to_invert = 0
 
-def mirror_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
-    """
-    Function equivalent to pyhandling.handlers.post_partial but with the
-    difference that additional arguments from this function call are unfolded.
-    """
         for parameter_index, parameter in enumerate(parameters):
             if parameter.default is not _empty:
                 break
 
-    return post_partial(action, *args[::-1], **kwargs)
             index_border_to_invert = parameter_index
 
 
-_ClosedT = TypeVar("_ClosedT", bound=Callable)
         return (
             *parameters[index_border_to_invert::-1],
             *parameters[index_border_to_invert + 1:],
         )
 
 
+def mirrored_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
+    """
+    Function equivalent to pyhandling.handlers.right_partial but with the
+    difference that additional arguments from this function call are unfolded.
     """
 
+    return flipped(partial(flipped(action), *args, **kwargs))
 
 
     """
