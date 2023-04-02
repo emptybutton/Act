@@ -36,13 +36,13 @@ class returnly(ActionWrapper):
         return args[0]
 
     @cached_property
-        parameters = tuple(signature(self._action).parameters.values())
     def _force_signature(self) -> Signature:
+        parameters = tuple(calling_signature_of(self._action).parameters.values())
 
         if len(parameters) == 0:
             raise ReturningError("Function must contain at least one parameter")
 
-        return signature(self._action).replace(return_annotation=(
+        return calling_signature_of(self._action).replace(return_annotation=(
             parameters[0].annotation
         ))
 
@@ -70,8 +70,8 @@ class eventually(ActionWrapper):
         )
 
     @cached_property
-        return signature(self._action).replace(parameters=tuple())
     def _force_signature(self) -> Signature:
+        return calling_signature_of(self._action).replace(parameters=(
             Parameter('_', Parameter.VAR_POSITIONAL, annotation=Any),
             Parameter('__', Parameter.VAR_KEYWORD, annotation=Any),
         ))
@@ -86,8 +86,8 @@ class unpackly(ActionWrapper):
         return pack.call(self._action)
 
     @cached_property
-        return signature(self).replace(
     def _force_signature(self) -> Signature:
+        return calling_signature_of(self).replace(
             return_annotation=signature(self._action).return_annotation
         )
 
@@ -125,14 +125,14 @@ class fragmentarily(ActionWrapper):
     def _parameters_to_call(self) -> OrderedDict[str, Parameter]:
         return OrderedDict(
             (_, parameter)
-            for _, parameter in signature(self._action).parameters.items()
+            for _, parameter in calling_signature_of(self._action).parameters.items()
             if self.__is_parameter_settable(parameter)
         )
 
     @cached_property
-        return signature(self).replace(
-            return_annotation=signature(self._action).return_annotation | Self,
     def _force_signature(self) -> Signature:
+        return calling_signature_of(self).replace(
+            return_annotation=calling_signature_of(self._action).return_annotation | Self,
             parameters=tuple(
                 (
                     parameter.replace(
@@ -141,7 +141,7 @@ class fragmentarily(ActionWrapper):
                     if self.__is_parameter_settable(parameter)
                     else parameter
                 )
-                for parameter in signature(self._action).parameters.values()
+                for parameter in calling_signature_of(self._action).parameters.values()
             )
         )
 
