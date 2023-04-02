@@ -1,4 +1,4 @@
-from typing import Callable, Any, TypeAlias, TypeVar, TypeVarTuple
+from typing import Callable, Any, TypeAlias, TypeVar, ParamSpec
 
 from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 
@@ -19,7 +19,7 @@ __all__ = (
     "decorator",
     "event",
     "ActionT",
-    "ArgumentsT",
+    "P",
     "ValueT",
     "ObjectT",
     "ResultT",
@@ -75,7 +75,7 @@ event = event_for[Any]
 
 ActionT = TypeVar("ActionT", bound=Callable)
 
-ArgumentsT = TypeVarTuple("ArgumentsT")
+P = ParamSpec('P')
 
 ValueT = TypeVar("ValueT")
 
