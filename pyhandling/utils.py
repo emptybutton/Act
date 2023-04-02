@@ -1,11 +1,13 @@
 from collections import OrderedDict
 from datetime import datetime
 from functools import wraps, partial, cached_property
+from operator import itemgetter, call, not_, add, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift
 from typing import NamedTuple, Generic, Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn, Optional, Self, TypeVar
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special, method_of
 
 from pyhandling.annotations import one_value_action, dirty, handler_of, ValueT, ContextT, ResultT, checker_of, ErrorT, action_for, merger_of, P, reformer_of, KeyT, MappedT
+from pyhandling.binders import returnly, closed, right_closed, right_partial, eventually, unpackly
 from pyhandling.branchers import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain, repeating
 from pyhandling.language import then, by, to
 from pyhandling.errors import LambdaGeneratingError
@@ -70,11 +72,11 @@ class atomically:
         return self._action(*args, **kwargs)
 
 
-class _Fork(NamedTuple, Generic[ValueT, ResultT]):
+class _Fork(NamedTuple, Generic[P, ResultT]):
     """NamedTuple to store an action to execute on a condition."""
 
-    checker: Callable[[*ArgumentsT], bool]
-    action: Callable[[*ArgumentsT], ResultT]
+    checker: Callable[P, bool]
+    action: Callable[P, ResultT]
 
 
 def branching(
@@ -248,7 +250,7 @@ with_error = documenting_by(
     """
 )(
     binding_by(... |then>> contextual)
-    |then>> post_partial(rollbackable, contextual |to| nothing)
+    |then>> right_partial(rollbackable, contextual |to| nothing)
 )
 
 
@@ -526,7 +528,7 @@ class _LambdaGenerator(Generic[ResultT]):
     def __call__(self, *args, **kwargs) -> Self | ResultT:
         return (
             (
-                self._with(post_partial(call, *args, **kwargs))
+                self._with(right_partial(call, *args, **kwargs))
                 if (
                     len(self._actions) == 0
                     or self._last_action_nature.value is _forced_call
@@ -534,7 +536,7 @@ class _LambdaGenerator(Generic[ResultT]):
                 else (self._actions)(*args, **kwargs)
             )
             if Ellipsis not in (*args, *kwargs.values())
-            else self._with(post_partial(templately, *args, **kwargs))
+            else self._with(right_partial(templately, *args, **kwargs))
         )
 
     def __getattr__(self, attribute_name: str) -> Self:
@@ -546,14 +548,14 @@ class _LambdaGenerator(Generic[ResultT]):
     @_invalid_when(_method_calling_preparation)
     def __getitem__(self, key: Any) -> Self:
         return self._with(
-            getitem |by| key,
+            itemgetter(key),
             last_action_nature=contextual(key, when=_item_getting),
         )
 
     def __with_setting(self, setting: Callable[[Any, Any, Any], Any], value: Any) -> Self:
         return self._of(
             self._actions[:-1]
-            |then>> post_partial(setting, self.last_action_nature.context, value)
+            |then>> right_partial(setting, self.last_action_nature.context, value)
         )
 
     def __bool__(self) -> Self:
