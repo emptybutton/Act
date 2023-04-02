@@ -8,7 +8,7 @@ from pyhandling.annotations import ActionT, ResultT, one_value_action, Arguments
 from pyhandling.binders import post_partial
 from pyhandling.errors import TemplatedActionChainError, NeutralActionChainError
 from pyhandling.tools import contextual, DelegatingProperty, with_opened_items, ArgumentKey, ArgumentPack
-from pyhandling.synonyms import returned, getitem
+from pyhandling.synonyms import returned
 
 
 __all__ = (

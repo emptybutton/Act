@@ -10,8 +10,8 @@ from pyhandling.binders import returnly, closed, post_partial, eventually, unpac
 from pyhandling.branchers import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain, repeating
 from pyhandling.language import then, by, to
 from pyhandling.errors import LambdaGeneratingError
-from pyhandling.synonyms import execute_operation, returned, transform, raise_, call, getitem
 from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, nothing, Flag, contextual
+from pyhandling.synonyms import returned, raise_
 
 
 __all__ = (
@@ -20,8 +20,6 @@ __all__ = (
     "callmethod",
     "branching",
     "with_result",
-    "operation_by",
-    "operation_of",
     "shown",
     "binding_by",
     "bind",
@@ -117,27 +115,6 @@ def callmethod(object_: object, method_name: str, *args, **kwargs) -> Any:
     return getattr(object_, method_name)(*args, **kwargs)
 
 
-operation_by: action_for[action_for[Any]] = documenting_by(
-    """Shortcut for `post_partial(execute_operation, ...)`."""
-)(
-    closed(execute_operation, close=post_partial)
-)
-
-
-operation_of: Callable[[str], merger_of[Any]] = documenting_by(
-    """
-    Function to get the operation of the string representation of some syntax
-    operator between two elements.
-    """
-)(
-    lambda operator: lambda fitst_operand, second_operand: execute_operation(
-        fitst_operand,
-        operator,
-        second_operand
-    )
-)
-
-
 shown: dirty[reformer_of[ValueT]]
 shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
     returnly(print)
@@ -199,7 +176,7 @@ no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(
 
 inversion_of: Callable[[handler_of[ValueT]], checker_of[ValueT]]
 inversion_of = documenting_by("""Negation adding function.""")(
-    binding_by(... |then>> (transform |by| 'not'))
+    binding_by(... |then>> not_)
 )
 
 
@@ -245,11 +222,11 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     Resulting function is independent of its input arguments.
     """
 )(
-    operation_by('+', 1)
+    (add |by| 1)
     |then>> Clock
     |then>> closed(
         on(
-            transform |by| 'not',
+            not_,
             returnly(lambda clock: (setattr |to| clock)(
                 "ticks_to_disability",
                 clock.initial_ticks_to_disability
@@ -514,7 +491,7 @@ class _LambdaGenerator(Generic[ResultT]):
         return self._like_operation(operation_of('and'), value)
 
     def _not(self) -> Self:
-        return self._with(transform |by| 'not')
+        return self._with(not_)
 
     def _of(self, *args, **kwargs) -> Self:
         return type(self)(self._name, *args, **kwargs)
@@ -590,91 +567,91 @@ class _LambdaGenerator(Generic[ResultT]):
         return self._with(transform |by| 'not')
 
     def __pos__(self) -> Self:
-        return self._with(transform |by| '+')
+        return self._with(pos)
 
     def __neg__(self) -> Self:
-        return self._with(transform |by| '-')
+        return self._with(neg)
 
     def __invert__(self) -> Self:
-        return self._with(transform |by| '~')
+        return self._with(invert)
 
     def __gt__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(operation_of('>'), value)
+        return self._like_operation(gt, value)
 
     def __ge__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(operation_of('>='), value)
+        return self._like_operation(ge, value)
 
     def __lt__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(operation_of('<'), value)
+        return self._like_operation(lt, value)
 
     def __le__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(operation_of('<='), value)
+        return self._like_operation(le, value)
 
     def __eq__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(operation_of('=='), value)
+        return self._like_operation(eq, value)
 
     def __ne__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(operation_of('!='), value)
+        return self._like_operation(ne, value)
 
     def __add__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(operation_of('+'), value)
+        return self._like_operation(add, value)
 
-    def __sub__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('-'), value)
+    def __sub__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(sub, value)
 
-    def __mul__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('*'), value)
+    def __mul__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(mul, value)
 
-    def __floordiv__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('//'), value)
+    def __floordiv__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(floordiv, value)
 
-    def __truediv__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('/'), value)
+    def __truediv__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(truediv, value)
 
-    def __mod__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('%'), value)
+    def __mod__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(mod, value)
 
-    def __pow__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('**'), value)
+    def __pow__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(pow, value)
 
-    def __or__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('|'), value)
+    def __or__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(or_, value)
 
-    def __and__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('&'), value)
+    def __and__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(and_, value)
 
-    def __lshift__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('<<'), value)
+    def __lshift__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(lshift, value)
 
-    def __radd__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('+'), value, is_inverted=True)
+    def __radd__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(add, value, is_inverted=True)
 
-    def __rsub__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('-'), value, is_inverted=True)
+    def __rsub__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(sub, value, is_inverted=True)
 
-    def __rmul__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('*'), value, is_inverted=True)
+    def __rmul__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(mul, value, is_inverted=True)
 
-    def __rfloordiv__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('//'), value, is_inverted=True)
+    def __rfloordiv__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(floordiv, value, is_inverted=True)
 
-    def __rtruediv__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('/'), value, is_inverted=True)
+    def __rtruediv__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(truediv, value, is_inverted=True)
 
-    def __rmod__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('%'), value, is_inverted=True)
+    def __rmod__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(mod, value, is_inverted=True)
 
-    def __rpow__(self, value: Any) -> Self:
-        return self._like_operation(operation_of('**'), value, is_inverted=True)
+    def __rpow__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(pow, value, is_inverted=True)
 
-    def __ror__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('|'), value, is_inverted=True)
+    def __ror__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(or_, value, is_inverted=True)
 
-    def __rand__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('&'), value, is_inverted=True)
+    def __rand__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(and_, value, is_inverted=True)
 
-    def __rshift__(self, value: Special[Self]) -> Self:
-        return self._like_operation(operation_of('>>'), value, is_inverted=True)
+    def __rshift__(self, value: Special[Self | Ellipsis]) -> Self:
+        return self._like_operation(lshift, value, is_inverted=True)
 
 
 def not_(generator: _LambdaGenerator) -> LambdaGeneratingError:
