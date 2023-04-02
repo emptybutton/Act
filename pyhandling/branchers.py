@@ -25,7 +25,7 @@ __all__ = (
 )
 
 
-_NodeT: TypeAlias = TypeVar("_NodeT", bound=Callable | Ellipsis | contextual[Callable, Any])
+_NodeT = TypeVar("_NodeT", bound=Callable | Ellipsis)
 
 
 class bind:
@@ -71,39 +71,26 @@ class ActionChain(Generic[_NodeT]):
 
     is_template = DelegatingProperty("_is_template")
 
-    def __init__(self, nodes: Iterable[many_or_one[_NodeT]] = tuple()):
-        self._is_template = False
-        self._nodes = list()
+    def __init__(self, nodes: Iterable[_NodeT] = tuple()):
+        self._is_template = Ellipsis in nodes
+        self._nodes = tuple(nodes)
 
-        for node in nodes:
-            if node is Ellipsis:
-                self._is_template = True
+        if not self._is_template:
+            self._main_action = (
+                returned if len(self._nodes) == 0
+                else reduce(bind, self._nodes)
+            )
 
-            if isinstance(node, Iterable) and not isinstance(node, contextual):
-                self._nodes.extend(node)
-            else:
-                self._nodes.append(node)
+            update_wrapper(self, self._main_action)
+            self.__signature__ = calling_signature_of(self._main_action)
+        else:
+            self._main_action = None
 
-        self._nodes = tuple(self._nodes)
-
-    def __call__(self, *args, **kwargs) -> ResultT:
+    def __call__(self, *args, **kwargs) -> Any:
         if self._is_template:
             raise TemplatedActionChainError("Templated ActionChain is not callable")
 
-        if not self._nodes:
-            if len(args) != 1 or kwargs:
-                raise NeutralActionChainError(
-                    "ActionChain without nodes accepts only one argument, not{argumet_part}".format(
-                        argumet_part=f"{' ' + str(len(args)) if len(args) != 1 else str()}{' with keywords' if kwargs else str()}"
-                    )
-                )
-
-            return args[0]
-
-        return reduce(
-            lambda value, node: (node.value if isinstance(node, contextual) else node)(value),
-            (self._nodes[0](*args, **kwargs), *self._nodes[1:])
-        )
+        return self._main_action(*args, **kwargs)
 
     def __iter__(self) -> Iterator[_NodeT]:
         return iter(self._nodes)
@@ -113,18 +100,6 @@ class ActionChain(Generic[_NodeT]):
 
     def __getitem__(self, key: int | slice) -> Self:
         return type(self)(as_collection(self._nodes[key]))
-
-    def __rshift__(self, node: one_value_action) -> Self:
-        return self.__class__((*self._nodes, node))
-
-    def __or__(self, node: one_value_action) -> Self:
-        return self.__class__((*self._nodes, node))
-
-    def __ror__(self, node: one_value_action) -> Self:
-        return self.__class__((node, *self._nodes))
-
-    def __le__(self, value: Any) -> ResultT:
-        return self(value)
 
     def __repr__(self) -> str:
         return f"ActionChain({', '.join(map(str, self._nodes))})"
@@ -137,6 +112,19 @@ class ActionChain(Generic[_NodeT]):
 
     def _fromat_node(self, node: Special[Ellipsis, _NodeT]) -> str:
         return '...' if node is Ellipsis else str(node)
+    def __rshift__(self, node: Self | _NodeT) -> Self:
+        return self.__with(node)
+
+    def __or__(self, node: Self | _NodeT) -> Self:
+        return self.__with(node)
+
+    def __ror__(self, node: Self | _NodeT) -> Self:
+        return self.__with(node, is_right=True)
+
+    def __with(self, node: Self | _NodeT, *, is_right: bool = False) -> Self:
+        other = node if isinstance(node, ActionChain) else ActionChain([node])
+
+        return type(self)((*self, *other) if not is_right else (*other, *self))
 
 
 def merged(
