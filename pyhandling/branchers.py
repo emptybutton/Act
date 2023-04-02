@@ -98,6 +98,9 @@ class ActionChain(Generic[_NodeT]):
     def __len__(self) -> int:
         return len(self._nodes)
 
+    def __bool__(self) -> bool:
+        return len(self._nodes) != 0
+
     def __getitem__(self, key: int | slice) -> Self:
         return type(self)(as_collection(self._nodes[key]))
 
