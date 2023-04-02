@@ -28,6 +28,25 @@ __all__ = (
 _NodeT: TypeAlias = TypeVar("_NodeT", bound=Callable | Ellipsis | contextual[Callable, Any])
 
 
+class bind:
+    def __init__(
+        self,
+        first: Callable[P, ValueT],
+        second: Callable[[ValueT], ResultT]
+    ):
+        self._first = first
+        self._second = second
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
+        return self._second(self._first(*args, **kwargs))
+
+    @cached_property
+    def __signature__(self) -> Signature:
+        return calling_signature_of(self._first).replace(
+            return_annotation=calling_signature_of(self._second).return_annotation
+        )
+
+
 class ActionChain(Generic[_NodeT]):
     """
     Class combining calls of several functions together in sequential execution.
