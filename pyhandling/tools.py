@@ -160,8 +160,12 @@ class ArgumentPack:
             formatted_kwargs=', '.join(map(lambda item: f"{item[0]}={item[1]}", self.kwargs.items())),
         )
 
-    def __eq__(self, other: Self) -> bool:
-        return self.args == other.args and self.kwargs == other.kwargs
+    def __eq__(self, other: Special[Self]) -> bool:
+        return (
+            isinstance(other, ArgumentPack)
+            and self.args == other.args
+            and self.kwargs == other.kwargs
+        )
 
     def __getitem__(self, argument: ArgumentKey) -> Any:
         return (
