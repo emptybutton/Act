@@ -157,7 +157,7 @@ def merged(
         return (
             returned
             if return_from is None
-            else post_partial(getitem, return_from)
+            else itemgetter(return_from)
         )(
             tuple(action(*args, **kwargs) for action in actions)
         )

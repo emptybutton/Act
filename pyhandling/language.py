@@ -4,7 +4,7 @@ from typing import Generic, Callable, Optional, Iterable, Any, Self
 from pyannotating import Special
 
 from pyhandling.annotations import ResultT
-from pyhandling.binders import post_partial
+from pyhandling.binders import right_partial
 from pyhandling.branchers import ActionChain
 from pyhandling.tools import DelegatingProperty, documenting_by
 
@@ -84,10 +84,10 @@ to = documenting_by(
 
 by = documenting_by(
     """
-    `BindingInfix` instance that implements `post_partial` as a pseudo operator.
+    `BindingInfix` instance that implements `right_partial` as a pseudo operator.
 
     See `BindingInfix` for usage information.
     """
 )(
-    BindingInfix(post_partial)
+    BindingInfix(right_partial)
 )
