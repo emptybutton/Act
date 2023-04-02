@@ -6,8 +6,7 @@ from typing import Callable, Self, TypeVar, Any, Iterable, NamedTuple, Tuple, Ge
 
 from pyhandling.annotations import ArgumentsT, ResultT, action_for, ActionT, handler_of
 from pyhandling.errors import ReturningError
-from pyhandling.synonyms import with_keyword
-from pyhandling.tools import ArgumentKey, ArgumentPack
+from pyhandling.tools import ActionWrapper, ArgumentKey, ArgumentPack, calling_signature_of
 
 
 __all__ = (
@@ -15,10 +14,11 @@ __all__ = (
     "fragmentarily",
     "post_partial",
     "mirror_partial",
-    "closed",
     "returnly",
     "eventually",
     "unpackly",
+    "closed",
+    "right_closed",
 )
 
 
@@ -196,25 +196,17 @@ _ClosedT = TypeVar("_ClosedT", bound=Callable)
         )
 
 
-def closed(
-    action: ActionT,
-    *,
-    close: Callable[[ActionT, *ArgumentsT], _ClosedT] = partial
-) -> Callable[[*ArgumentsT], _ClosedT]:
-    """
-    Function to put an input function into the context of another decorator
-    function by partially applying the input function to that decorator
-    function.
-
-    The decorator function is defined by the `close` parameter.
-
-    On default `close` value wraps the input function in a function whose
-    result is the same input function, but partially applied with the arguments
-    with which the resulting function was called.
-
-    ```
-    closed(print)(1, 2)(3) # 1 2 3
-    ```
     """
 
-    return partial(close, action)
+
+
+    """
+
+    return mirrored_partial(action, *args[::-1], **kwargs)
+
+def closed(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
+    return partial(partial, action)
+
+
+def right_closed(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
+    return partial(right_partial, action)
