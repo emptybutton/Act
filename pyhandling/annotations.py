@@ -18,7 +18,6 @@ __all__ = (
     "checker",
     "decorator",
     "event",
-    "binder",
     "ActionT",
     "ArgumentsT",
     "ValueT",
@@ -72,8 +71,6 @@ checker: TypeAlias = checker_of[Any]
 decorator: TypeAlias = reformer_of[Callable]
 
 event: TypeAlias = event_for[Any]
-
-binder: TypeAlias = Callable[[Callable, ...], Callable]
 
 
 ActionT = TypeVar("ActionT", bound=Callable)
