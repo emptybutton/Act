@@ -285,6 +285,15 @@ class ActionWrapper(ABC, Generic[ActionT]):
         self.__signature__ = self._force_signature
 
 
+def calling_signature_of(action: Callable) -> Signature:
+    try:
+        return signature(action)
+    except ValueError:
+        return signature(action.__call__).replace(
+            parameters=tuple(signature(action.__call__).parameters.values())[1:]
+        )
+
+
 class contextual(Generic[ValueT, ContextT]):
     """Representer of an input value as a value with a context."""
 
