@@ -4,12 +4,12 @@ from dataclasses import dataclass, field
 from functools import wraps, cached_property, partial
 from math import inf
 from types import MappingProxyType
-from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Generic, Final, Iterable, Optional, Tuple, _UnionGenericAlias, Union, NamedTuple, Iterator
+from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Generic, Final, Iterable, Optional, Tuple, _UnionGenericAlias, Union, NamedTuple, Iterator, Concatenate
 
 from pyannotating import method_of, Special
 
-from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ContextT, one_value_action, dirty, reformer_of
-
+from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ActionT, ContextT, one_value_action, dirty, reformer_of, P
+from pyhandling.errors import FlagError
 
 __all__ = (
     "to_clone",
@@ -31,14 +31,14 @@ __all__ = (
 )
 
 
-def to_clone(method: method_of[ObjectT]) -> Callable[[ObjectT, ...], ObjectT]:
+def to_clone(method: Callable[Concatenate[ObjectT, P], Any]) -> Callable[Concatenate[ObjectT, P], ObjectT]:
     """
     Decorator function to spawn new objects by cloning and applying an input
     method to them.
     """
 
     @wraps(method)
-    def wrapper(instance: object, *args, **kwargs) -> object:
+    def wrapper(instance: ObjectT, *args: P.args, **kwargs: P.kwargs) -> ObjectT:
         clone = deepcopy(instance)
         method(clone, *args, **kwargs)
 
@@ -55,7 +55,7 @@ def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
     old_setattr = class_.__setattr__
 
     @wraps(old_setattr)
-    def new_setattr(instance: object, attribute_name: str, attribute_value: Any) -> Any:
+    def new_setattr(instance: object, attribute_name: str, attribute_value: Any) -> None:
         if attribute_name and attribute_name[0] != '_':
             raise AttributeError(
                 f"cannot set '{attribute_name}' attribute of publicly immutable type '{class_}'"
@@ -63,7 +63,7 @@ def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
 
         return old_setattr(instance, attribute_name, attribute_value)
 
-    class_.__setattr__ = new_setattr
+    class_.__setattr__ = new_setattr # type: ignore
 
     return class_
 
@@ -120,7 +120,7 @@ class ArgumentKey(Generic[KeyT, ValueT]):
 
     key: KeyT
     is_keyword: bool = field(default=False, kw_only=True)
-    default: ValueT = field(default_factory=lambda: nothing, compare=False, kw_only=True)
+    default: ValueT | Flag[nothing] = field(default_factory=lambda: nothing, compare=False, kw_only=True)
 
 
 class ArgumentPack:
@@ -314,7 +314,6 @@ def context_oriented(root_values: tuple[ValueT, ContextT]) -> contextual[Context
     context, value = root_values
 
     return contextual(value, when=context)
-
 
 
 class Clock:

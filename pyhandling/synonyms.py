@@ -1,8 +1,8 @@
+from contextlib import AbstractContextManager
 from functools import wraps, partial
-from typing import NoReturn, Any, Iterable, Callable, Mapping
+from typing import NoReturn, Any, Iterable, Callable, Mapping, Tuple
 
-from pyhandling.annotations import ValueT, action_for, ResultT, KeyT, event_for, ContextT, ArgumentsT
-from pyhandling.protocols import ItemGetter, ItemSetter, ContextManager
+from pyhandling.annotations import P, ValueT, action_for, ResultT, KeyT, event_for, ContextT
 
 
 __all__ = (
@@ -38,7 +38,7 @@ def assert_(value: Any) -> None:
     assert value
 
 
-def collection_of(*args) -> tuple:
+def collection_of(*args: ValueT) -> Tuple[ValueT, ...]:
     """Function to create a `tuple` from unlimited input arguments."""
 
     return args
@@ -58,11 +58,13 @@ def with_keyword_unpacking(func: action_for[ResultT]) -> Callable[[Mapping[str, 
     return wraps(func)(lambda arguments: func(**arguments))
 
 
-def to_context(action: Callable[[ContextT], ResultT]) -> Callable[[ContextManager[ContextT]], ResultT]:
+def to_context(
+    action: Callable[[ContextT], ResultT]
+) -> Callable[[AbstractContextManager[ContextT]], ResultT]:
     """Function emulating the `with as` context manager."""
 
     @wraps(action)
-    def contextual_action(context_manager: ContextManager[ContextT]) -> ResultT:
+    def contextual_action(context_manager: AbstractContextManager[ContextT]) -> ResultT:
         with context_manager as context:
             return action(context)
 
@@ -70,13 +72,13 @@ def to_context(action: Callable[[ContextT], ResultT]) -> Callable[[ContextManage
 
 
 def with_context_by(
-    get_context: Callable[[*ArgumentsT], ContextManager[ContextT]],
-    action: Callable[[*ArgumentsT], ResultT]
-) -> Callable[[*ArgumentsT], ResultT]:
+    get_context: Callable[P, AbstractContextManager[ContextT]],
+    action: Callable[P, ResultT]
+) -> Callable[P, ResultT]:
     """Function to perform an input action in a specific context."""
 
     @wraps(action)
-    def contextual_action(*args, **kwargs) -> Any:
+    def contextual_action(*args: P.args, **kwargs: P.kwargs) -> ResultT:
         with get_context(*args, **kwargs):
             return action(*args, **kwargs)
 

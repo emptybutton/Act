@@ -1,13 +1,15 @@
-from functools import partial, reduce, wraps
+from functools import partial, reduce, wraps, cached_property, update_wrapper
+from inspect import Signature, signature
 from math import inf
-from typing import TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional
+from operator import itemgetter
+from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional
 
 from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotation
 
-from pyhandling.annotations import ActionT, ResultT, one_value_action, ArgumentsT, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, checker_of
-from pyhandling.binders import post_partial
+from pyhandling.annotations import ActionT, ResultT, one_value_action, P, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, checker_of
+from pyhandling.binders import right_partial
 from pyhandling.errors import TemplatedActionChainError, NeutralActionChainError
-from pyhandling.tools import contextual, DelegatingProperty, with_opened_items, ArgumentKey, ArgumentPack
+from pyhandling.tools import calling_signature_of, contextual, DelegatingProperty, with_opened_items, ArgumentKey, ArgumentPack
 from pyhandling.synonyms import returned
 
 
@@ -119,7 +121,7 @@ class ActionChain(Generic[_NodeT]):
 
 
 def merged(
-    *actions: Callable[[*ArgumentsT], Any],
+    *actions: Callable[P, Any],
     return_from: Optional[int | slice] = None,
 ) -> Special[tuple]:
     """
@@ -153,10 +155,10 @@ def merged(
 
 
 def mergely(
-    merging_of: Callable[[*ArgumentsT], action_for[ResultT]],
-    *parallel_actions: Callable[[*ArgumentsT], Any],
-    **keyword_parallel_actions: Callable[[*ArgumentsT], Any]
-) -> Callable[[*ArgumentsT], ResultT]:
+    merging_of: Callable[P, Callable[..., ResultT]],
+    *parallel_actions: Callable[P, Any],
+    **keyword_parallel_actions: Callable[P, Any]
+) -> Callable[P, ResultT]:
     """
     Decorator that allows to initially separate several operations on
     input arguments and then combine these results in final operation.
@@ -175,7 +177,7 @@ def mergely(
     """
 
     @wraps(merging_of)
-    def merger(*args, **kwargs) -> ResultT:
+    def merger(*args: P.args, **kwargs: P.kwargs) -> ResultT:
         return merging_of(*args, **kwargs)(
             *(
                 parallel_action(*args, **kwargs)
@@ -212,11 +214,11 @@ def repeating(
 
 
 def on(
-    condition_checker: Callable[[*ArgumentsT], bool],
-    positive_condition_action: Callable[[*ArgumentsT], PositiveConditionResultT],
+    condition_checker: Callable[P, bool],
+    positive_condition_action: Callable[P, PositiveConditionResultT],
     *,
-    else_: Callable[[*ArgumentsT], NegativeConditionResultT] = returned
-) -> Callable[[*ArgumentsT], PositiveConditionResultT | NegativeConditionResultT]:
+    else_: Callable[P, NegativeConditionResultT] = returned
+) -> Callable[P, PositiveConditionResultT | NegativeConditionResultT]:
     """
     Function that implements action choosing by condition.
 
@@ -229,7 +231,7 @@ def on(
     With default `else_` takes one value actions.
     """
 
-    def branch(*args, **kwargs) -> PositiveConditionResultT | NegativeConditionResultT:
+    def branch(*args: P.args, **kwargs: P.args) -> PositiveConditionResultT | NegativeConditionResultT:
         """
         Result function from `on` function.
         See `on` for more info.
@@ -245,15 +247,15 @@ def on(
 
 
 def rollbackable(
-    action: Callable[[*ArgumentsT], ResultT],
+    action: Callable[P, ResultT],
     rollbacker: Callable[[Exception], ErrorHandlingResultT]
-) -> Callable[[*ArgumentsT], ResultT | ErrorHandlingResultT]:
+) -> Callable[P, ResultT | ErrorHandlingResultT]:
     """
     Decorator function providing handling of possible errors in an input action.
     """
 
     @wraps(action)
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: P.args, **kwargs: P.args) -> Any:
         try:
             return action(*args, **kwargs)
         except Exception as error:

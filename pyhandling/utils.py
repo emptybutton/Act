@@ -5,8 +5,7 @@ from typing import NamedTuple, Generic, Iterable, Tuple, Callable, Any, Mapping,
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special, method_of
 
-from pyhandling.annotations import one_value_action, dirty, handler_of, ValueT, ContextT, ResultT, checker_of, ErrorT, action_for, merger_of, ArgumentsT, reformer_of, KeyT, MappedT
-from pyhandling.binders import returnly, closed, post_partial, eventually, unpackly
+from pyhandling.annotations import one_value_action, dirty, handler_of, ValueT, ContextT, ResultT, checker_of, ErrorT, action_for, merger_of, P, reformer_of, KeyT, MappedT
 from pyhandling.branchers import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain, repeating
 from pyhandling.language import then, by, to
 from pyhandling.errors import LambdaGeneratingError
@@ -79,12 +78,9 @@ class _Fork(NamedTuple, Generic[ValueT, ResultT]):
 
 
 def branching(
-    *forks: tuple[
-        Callable[[*ArgumentsT], bool],
-        Callable[[*ArgumentsT], ResultT],
-    ],
-    else_: Callable[[*ArgumentsT], ResultT] = returned,
-) -> Callable[[*ArgumentsT], ResultT]:
+    *forks: tuple[Callable[P, bool], Callable[P, ResultT]],
+    else_: Callable[P, ResultT] = returned,
+) -> Callable[P, ResultT]:
     """
     Function for using action branching like `if`, `elif` and `else` statements.
 
@@ -100,10 +96,7 @@ def branching(
     )
 
 
-def with_result(
-    result: ResultT,
-    action: Callable[[*ArgumentsT], Any]
-) -> Callable[[*ArgumentsT], ResultT]:
+def with_result(result: ResultT, action: Callable[P, Any]) -> Callable[P, ResultT]:
     """Function to force an input result for an input action."""
 
     return action |then>> taken(result)
@@ -144,9 +137,9 @@ def binding_by(template: Iterable[Callable | Ellipsis]) -> Callable[[Callable], 
 
 
 def bind(
-    first_node: Callable[[*ArgumentsT], ValueT],
-    second_node: Callable[[ValueT], ResultT]
-) -> Callable[[*ArgumentsT], ResultT]:
+    first_node: Callable[P, ValueT],
+    second_node: Callable[[ValueT], ResultT],
+) -> Callable[P, ResultT]:
     """Function of binding two input functions into a sequential `ActionChain`."""
 
     return first_node |then>> second_node
@@ -243,8 +236,8 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
 
 
 with_error: Callable[
-    [Callable[[*ArgumentsT], ResultT]],
-    Callable[[*ArgumentsT], contextual[Optional[ResultT], Optional[Exception]]]
+    [Callable[P, ResultT]],
+    Callable[P, contextual[Optional[ResultT], Optional[Exception]]]
 ]
 with_error = documenting_by(
     """
@@ -298,7 +291,7 @@ saving_context: execution_context_when[ContextT] = documenting_by(
 bad = Flag('bad', sign=False)
 
 
-maybe: execution_context_when[Special[bad]]
+maybe: execution_context_when[Special[Flag[bad]]]
 maybe = documenting_by(
     """
     Execution context that stops the thread of execution When the `bad` flag
@@ -453,7 +446,7 @@ class _LambdaGenerator(Generic[ResultT]):
     def __init__(
         self,
         name: str,
-        actions: ActionChain = ActionChain(),
+        actions: Special[ActionChain, Callable] = ActionChain(),
         *,
         last_action_nature: ContextRoot = contextual(nothing),
     ):
