@@ -22,56 +22,7 @@ __all__ = (
 )
 
 
-class _FunctionWrapper(ABC, Generic[ActionT]):
-    def __init__(self, action: ActionT):
-        self._action = action
-        self._become_native()
-
-    def __repr__(self) -> str:
-        return f"{type(self).__name__}({self._action})"
-
-    @property
-    @abstractmethod
-    def _native_signature(self) -> Signature:
-        ...
-
-    def _become_native(self) -> None:
-        update_wrapper(self, self._action)
-        self.__signature__ = self._native_signature
-
-        if hasattr(self._action, "__name__"):
-            self.__name__ = f"{type(self).__name__}({self._action.__name__})"
-
-
-class flipped(_FunctionWrapper):
-    def __call__(self, *args, **kwargs) -> ResultT:
-        return self._action(*args[::-1], **kwargs)
-
-    @cached_property
-    def _native_signature(self) -> Signature:
-        return signature(self._action).replace(parameters=self.__flip_parameters(
-            signature(self._action).parameters.values()
-        ))
-
-    @staticmethod
-    def __flip_parameters(parameters: Iterable[Parameter]) -> Tuple[Parameter]:
-        parameters = tuple(parameters)
-        index_border_to_invert = 0
-
-        for parameter_index, parameter in enumerate(parameters):
-            if parameter.default is not _empty:
-                break
-
-            index_border_to_invert = parameter_index
-
-
-        return (
-            *parameters[index_border_to_invert::-1],
-            *parameters[index_border_to_invert + 1:],
-        )
-
-
-class returnly(_FunctionWrapper):
+class returnly(ActionWrapper):
     """
     Decorator that causes the input function to return not the result of its
     execution, but some argument that is incoming to it.
@@ -79,14 +30,14 @@ class returnly(_FunctionWrapper):
     Returns the first argument by default.
     """
 
-    def __call__(self, *args, **kwargs) -> ArgumentsT:
+    def __call__(self, value: ValueT, *args, **kwargs) -> ValueT:
         self._action(*args, **kwargs)
 
         return args[0]
 
     @cached_property
-    def _native_signature(self) -> Signature:
         parameters = tuple(signature(self._action).parameters.values())
+    def _force_signature(self) -> Signature:
 
         if len(parameters) == 0:
             raise ReturningError("Function must contain at least one parameter")
@@ -96,12 +47,12 @@ class returnly(_FunctionWrapper):
         ))
 
 
-class eventually(_FunctionWrapper):
+class eventually(ActionWrapper):
     """
     Decorator function to call with predefined arguments instead of input ones.
     """
 
-    def __init__(self, action: Callable[[*ArgumentsT], ResultT], *args: ArgumentsT, **kwargs: ArgumentsT):
+    def __init__(self, action: Callable[P, ResultT], *args: P.args, **kwargs: P.kwargs):
         super().__init__(action)
         self._args = args
         self._kwargs = kwargs
@@ -119,11 +70,14 @@ class eventually(_FunctionWrapper):
         )
 
     @cached_property
-    def _native_signature(self) -> Signature:
         return signature(self._action).replace(parameters=tuple())
+    def _force_signature(self) -> Signature:
+            Parameter('_', Parameter.VAR_POSITIONAL, annotation=Any),
+            Parameter('__', Parameter.VAR_KEYWORD, annotation=Any),
+        ))
 
 
-class unpackly(_FunctionWrapper):
+class unpackly(ActionWrapper):
     """
     Decorator function to unpack the input `ArgumentPack` into the input function.
     """
@@ -132,13 +86,13 @@ class unpackly(_FunctionWrapper):
         return pack.call(self._action)
 
     @cached_property
-    def _native_signature(self) -> Signature:
         return signature(self).replace(
+    def _force_signature(self) -> Signature:
             return_annotation=signature(self._action).return_annotation
         )
 
 
-class fragmentarily(_FunctionWrapper):
+class fragmentarily(ActionWrapper):
     """
     Decorator for splitting a decorated function call into non-structured
     sub-calls.
@@ -176,9 +130,9 @@ class fragmentarily(_FunctionWrapper):
         )
 
     @cached_property
-    def _native_signature(self) -> Signature:
         return signature(self).replace(
             return_annotation=signature(self._action).return_annotation | Self,
+    def _force_signature(self) -> Signature:
             parameters=tuple(
                 (
                     parameter.replace(
@@ -206,20 +160,40 @@ def post_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[Res
     additional arguments are added not before the incoming ones from the final
     call, but after.
     """
+class flipped(ActionWrapper):
+    def __call__(self, *args, **kwargs) -> ResultT:
+        return self._action(*args[::-1], **kwargs)
 
     return flipped(partial(flipped(action), *args[::-1], **kwargs))
+    @cached_property
+    def _force_signature(self) -> Signature:
+        return signature(self._action).replace(parameters=self.__flip_parameters(
+            signature(self._action).parameters.values()
+        ))
 
+    @staticmethod
+    def __flip_parameters(parameters: Iterable[Parameter]) -> Tuple[Parameter]:
+        parameters = tuple(parameters)
+        index_border_to_invert = 0
 
 def mirror_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
     """
     Function equivalent to pyhandling.handlers.post_partial but with the
     difference that additional arguments from this function call are unfolded.
     """
+        for parameter_index, parameter in enumerate(parameters):
+            if parameter.default is not _empty:
+                break
 
     return post_partial(action, *args[::-1], **kwargs)
+            index_border_to_invert = parameter_index
 
 
 _ClosedT = TypeVar("_ClosedT", bound=Callable)
+        return (
+            *parameters[index_border_to_invert::-1],
+            *parameters[index_border_to_invert + 1:],
+        )
 
 
 def closed(

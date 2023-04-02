@@ -265,6 +265,24 @@ class DelegatingProperty:
         setattr(instance, self.delegated_attribute_name, self.setting_converter(value))
 
 
+class ActionWrapper(ABC, Generic[ActionT]):
+    def __init__(self, action: ActionT):
+        self._action = action
+        self._become_native()
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({self._action})"
+
+    @property
+    @abstractmethod
+    def _force_signature(self) -> Signature:
+        ...
+
+    def _become_native(self) -> None:
+        update_wrapper(self, self._action)
+        self.__signature__ = self._force_signature
+
+
 class contextual(Generic[ValueT, ContextT]):
     """Representer of an input value as a value with a context."""
 
