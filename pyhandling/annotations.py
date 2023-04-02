@@ -29,7 +29,7 @@ __all__ = (
     "PositiveConditionResultT",
     "NegativeConditionResultT",
     "ErrorHandlingResultT",
-    "MappedT"
+    "MappedT",
 )
 
 
@@ -93,6 +93,6 @@ ErrorT = TypeVar("ErrorT", bound=Exception)
 
 ContextT = TypeVar("ContextT")
 
-KeyT = TypeVar("KeyT")
+KeyT = TypeVar('KeyT')
 
 MappedT = TypeVar("MappedT")
