@@ -457,7 +457,7 @@ class _LambdaGenerator(Generic[ResultT]):
         self._last_action_nature = last_action_nature
 
     def __repr__(self) -> str:
-        return str(self._actions.__dict__)
+        return str(self._actions)
 
     @property
     def to(self) -> Self:
