@@ -450,11 +450,13 @@ class _LambdaGenerator(Generic[ResultT]):
         name: str,
         actions: Special[ActionChain, Callable] = ActionChain(),
         *,
-        last_action_nature: ContextRoot = contextual(nothing),
+        last_action_nature: contextual = contextual(nothing),
+        is_template: bool = False
     ):
         self._name = name
-        self._actions = actions
+        self._actions = ActionChain(as_collection(actions))
         self._last_action_nature = last_action_nature
+        self._is_template = is_template
 
     def __repr__(self) -> str:
         return str(self._actions)
@@ -488,8 +490,11 @@ class _LambdaGenerator(Generic[ResultT]):
     def _not(self) -> Self:
         return self._with(not_)
 
-    def _of(self, *args, **kwargs) -> Self:
-        return type(self)(self._name, *args, **kwargs)
+    def _of(self, *args, is_template: Optional[bool] = None, **kwargs) -> Self:
+        if is_template is None:
+            is_template = self._is_template 
+
+        return type(self)(self._name, *args, is_template=is_template, **kwargs)
 
     def _with(self, action: Callable[[ResultT], ValueT], *args, **kwargs) -> Self:
         return self._of(self._actions |then>> action, *args, **kwargs)
@@ -505,13 +510,10 @@ class _LambdaGenerator(Generic[ResultT]):
         second_branch_of_operation = (
             value._callable()
             if isinstance(value, _LambdaGenerator)
-            else taken(value)
+            else (taken(value) if value is not Ellipsis else value)
         )
 
-        if isinstance(value, _LambdaGenerator):
-            second_branch_of_operation = value._callable()
-        if value is Ellipsis:
-            second_branch_of_operation = 
+        is_becoming_template = self._is_template or value._is_template
 
         first, second = (
             (self._callable(), second_branch_of_operation)
@@ -519,7 +521,11 @@ class _LambdaGenerator(Generic[ResultT]):
             else (second_branch_of_operation, self._callable())
         )
 
-        return self._of(ActionChain([mergely(taken(operation), first, second)]))
+        return self._of(
+            taken |then>> templately(mergely, taken(operation), first, second)
+            if value is Ellipsis
+            else mergely(taken(operation), first, second)
+        )
 
     def _callable(self) -> Self:
         return self._of(ActionChain([returned])) if len(self._actions) == 0 else self
