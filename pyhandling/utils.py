@@ -564,9 +564,6 @@ class _LambdaGenerator(Generic[ResultT]):
             |then>> right_partial(setting, self.last_action_nature.context, value)
         )
 
-    def __bool__(self) -> Self:
-        return self._with(transform |by| 'not')
-
     def __pos__(self) -> Self:
         return self._with(pos)
 
