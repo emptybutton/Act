@@ -21,6 +21,7 @@ __all__ = (
     "DelegatingProperty",
     "ActionWrapper",
     "contextual",
+    "contextually",
     "context_oriented",
     "Clock",
     "Logger",
@@ -307,6 +308,28 @@ class contextual(Generic[ValueT, ContextT]):
         value, context = value_and_context
 
         return cls(value, context)
+
+
+class contextually(ActionWrapper, Generic[ActionT, ContextT]):
+    action = DelegatingProperty("_action")
+    context = DelegatingProperty("_context")
+
+    def __init__(self, action: ActionT, when: ContextT = nothing):
+        self._context = when
+        super().__init__(action)
+
+    def __call__(self, *args, **kwargs) -> Any:
+        return self._action(*args, **kwargs)
+
+    def __repr__(self) -> str:
+        return f"{self.action} when {self.context}"
+
+    def __iter__(self) -> Iterator:
+        return iter((self._value, self._context))
+
+    @property
+    def _force_signature(self) -> Signature:
+        return signature(self._action)
 
 
 def context_oriented(root_values: tuple[ValueT, ContextT]) -> contextual[ContextT, ValueT]:
