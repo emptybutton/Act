@@ -64,13 +64,13 @@ event_for = AnnotationTemplate(Callable, [[], input_annotation])
 action_for = AnnotationTemplate(Callable, [[...], input_annotation])
 
 
-one_value_action: TypeAlias = reformer_of[Any]
+one_value_action = reformer_of[Any]
 
-checker: TypeAlias = checker_of[Any]
+checker = checker_of[Any]
 
-decorator: TypeAlias = reformer_of[Callable]
+decorator = reformer_of[Callable]
 
-event: TypeAlias = event_for[Any]
+event = event_for[Any]
 
 
 ActionT = TypeVar("ActionT", bound=Callable)
