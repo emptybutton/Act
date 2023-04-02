@@ -19,6 +19,7 @@ __all__ = (
     "ArgumentKey",
     "ArgumentPack",
     "DelegatingProperty",
+    "ActionWrapper",
     "contextual",
     "context_oriented",
     "Clock",
