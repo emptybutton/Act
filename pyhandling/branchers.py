@@ -106,12 +106,13 @@ class ActionChain(Generic[_NodeT]):
 
     def __str__(self) -> str:
         return (
-            " |then>> ".join(map(self._fromat_node, self._nodes))
-            if self._nodes else f"{self.__class__.__name__}()"
+            " |then>> ".join(
+                '...' if node is Ellipsis else str(node) for node in self._nodes
+            )
+            if self._nodes
+            else repr(self)
         )
 
-    def _fromat_node(self, node: Special[Ellipsis, _NodeT]) -> str:
-        return '...' if node is Ellipsis else str(node)
     def __rshift__(self, node: Self | _NodeT) -> Self:
         return self.__with(node)
 
