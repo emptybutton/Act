@@ -4,17 +4,17 @@ from functools import partial, wraps, update_wrapper, cached_property
 from inspect import signature, _empty, Signature, Parameter
 from typing import Callable, Self, TypeVar, Any, Iterable, NamedTuple, Tuple, Generic, Optional
 
-from pyhandling.annotations import ArgumentsT, ResultT, action_for, ActionT, handler_of
+from pyhandling.annotations import P, ValueT, ResultT, action_for, ActionT, handler_of
 from pyhandling.errors import ReturningError
 from pyhandling.tools import ActionWrapper, ArgumentKey, ArgumentPack, calling_signature_of
 
 
 __all__ = (
-    "flipped",
-    "fragmentarily",
     "returnly",
     "eventually",
     "unpackly",
+    "fragmentarily",
+    "flipped",
     "right_partial",
     "mirrored_partial",
     "closed",
