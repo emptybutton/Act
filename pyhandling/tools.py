@@ -171,7 +171,7 @@ class ArgumentPack:
         return self._kwargs
 
     @cached_property
-    def keys(self) -> Tuple[ArgumentKey]:
+    def keys(self) -> Tuple[ArgumentKey, ...]:
         return (
             *map(ArgumentKey, range(len(self.args))),
             *map(partial(ArgumentKey, is_keyword=True), self.kwargs.keys())
@@ -325,7 +325,7 @@ class contextual(Generic[ValueT, ContextT]):
     value = DelegatingProperty("value")
     context = DelegatingProperty("context")
 
-    def __init__(self, value: ValueT, when: ContextT = nothing):
+    def __init__(self, value: ValueT, when: ContextT = Type[nothing]):
         self._value = value
         self._context = when
 
@@ -424,7 +424,7 @@ class Logger:
             self(log)
 
     @property
-    def logs(self) -> Tuple[str]:
+    def logs(self) -> Tuple[str, ...]:
         return tuple(self._logs)
 
     def __call__(self, message: str) -> None:
