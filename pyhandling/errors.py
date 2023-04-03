@@ -13,6 +13,10 @@ class PyhandingError(Exception):
     pass
 
 
+class FlagError(PyhandingError):
+    pass
+
+
 class ReturningError(PyhandingError):
     pass
 
