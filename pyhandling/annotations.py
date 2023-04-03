@@ -5,7 +5,6 @@ from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
 
 __all__ = (
     "dirty",
-    "not_required",
     "handler_of",
     "checker_of",
     "formatter_of",
@@ -38,10 +37,6 @@ dirty = FormalAnnotation(
     Formal annotation to indicate the dirtyness of a function or any other
     callable object.
     """
-)
-
-not_required = FormalAnnotation(
-    """Formal annotation to indicate an optional parameter in a function."""
 )
 
 
