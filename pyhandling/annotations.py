@@ -86,6 +86,8 @@ ErrorHandlingResultT = TypeVar("ErrorHandlingResultT")
 
 ErrorT = TypeVar("ErrorT", bound=Exception)
 
+TypeT = TypeVar("TypeT", bound=type)
+
 ContextT = TypeVar("ContextT")
 
 KeyT = TypeVar('KeyT')
