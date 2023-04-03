@@ -24,6 +24,7 @@ __all__ = (
     "ResultT",
     "KeyT",
     "ErrorT",
+    "TypeT",
     "ContextT",
     "PositiveConditionResultT",
     "NegativeConditionResultT",
