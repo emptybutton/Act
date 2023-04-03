@@ -2,7 +2,7 @@ from functools import partial, reduce, wraps, cached_property, update_wrapper
 from inspect import Signature, signature
 from math import inf
 from operator import itemgetter
-from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional
+from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional, Type
 
 from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotation
 
@@ -25,7 +25,7 @@ __all__ = (
 )
 
 
-_NodeT = TypeVar("_NodeT", bound=Callable | Ellipsis)
+_NodeT = TypeVar("_NodeT", bound=Callable | Type[Ellipsis])
 
 
 class bind:
