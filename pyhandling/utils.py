@@ -11,8 +11,8 @@ from pyhandling.binders import returnly, closed, right_closed, right_partial, ev
 from pyhandling.branchers import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain, repeating
 from pyhandling.language import then, by, to
 from pyhandling.errors import LambdaGeneratingError
-from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, nothing, Flag, contextual
 from pyhandling.synonyms import returned, raise_
+from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, nothing, contextual, flag
 
 
 __all__ = (
@@ -290,10 +290,10 @@ saving_context: execution_context_when[ContextT] = documenting_by(
 )
 
 
-bad = Flag('bad', sign=False)
+bad = flag('bad', sign=False)
 
 
-maybe: execution_context_when[Special[Flag[bad]]]
+maybe: execution_context_when[Special[bad]]
 maybe = documenting_by(
     """
     Execution context that stops the thread of execution When the `bad` flag
@@ -350,8 +350,8 @@ def showly(
     )
 
 
-writing = Flag("writing")
-reading = Flag("writing")
+writing = flag("writing")
+reading = flag("reading")
 
 
 _ReadingResultT = TypeVar("_ReadingResultT")
@@ -390,8 +390,8 @@ def considering_context(
     return saving_context(node)(root)
 
 
-right = Flag("right")
-left = Flag('left', sign=False)
+right = flag("right")
+left = flag('left', sign=False)
 
 
 def either(
@@ -406,11 +406,11 @@ def either(
     ))
 
 
-_attribute_getting = Flag("attribute getting")
-_item_getting = Flag("item getting")
-_method_calling_preparation = Flag("method calling preparation")
-_method_calling = Flag("method calling")
-_forced_call = Flag("forced call")
+
+_attribute_getting = flag("_attribute_getting")
+_item_getting = flag("_item_getting")
+_method_calling_preparation = flag("_method_calling_preparation")
+_forced_call = flag("_forced_call")
 
 
 def _as_generator_validating(

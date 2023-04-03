@@ -1,20 +1,23 @@
-from abc import abstractmethod
-from copy import deepcopy
+from abc import ABC, abstractmethod
+from copy import deepcopy, copy
 from dataclasses import dataclass, field
-from functools import wraps, cached_property, partial
+from datetime import datetime
+from functools import wraps, cached_property, partial, update_wrapper
+from inspect import Signature, signature
 from math import inf
-from types import MappingProxyType
+from types import MappingProxyType, MethodType
 from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Generic, Final, Iterable, Optional, Tuple, _UnionGenericAlias, Union, NamedTuple, Iterator, Concatenate
 
 from pyannotating import method_of, Special
 
-from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ActionT, ContextT, one_value_action, dirty, reformer_of, P
+from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ActionT, ContextT, one_value_action, dirty, reformer_of, P, TypeT
 from pyhandling.errors import FlagError
+from pyhandling.synonyms import raise_
 
 __all__ = (
     "to_clone",
     "publicly_immutable",
-    "Flag",
+    "flag",
     "nothing",
     "ArgumentKey",
     "ArgumentPack",
@@ -70,49 +73,71 @@ def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
     return class_
 
 
-class Flag:
+class _FlagMeta(type):
     """
-    Class for creating generic flags without using enum.
+    Used inside the `flag` function, which is the public constructor of this
+    metaclass.
 
-    Identified by its name in `==`, `isinstance(..., flag_instance) and
-    `hash(flag_instance)` forms`.
+    Incomplete because there is no mechanism for preventing flags from
+    initializing their instances (that the `flag` function has).
 
-    Castable to `bool` by its sign which defaults to `True`.
-
-    Creates `Union` by `|` operator.
+    To check whether an object belongs to a flag without importing this
+    metaclass, use the `isflag` function.
     """
 
-    def __init__(self, name: str, *, sign: bool = True):
-        self._name = name
-        self._sign = sign
+    _name: str
+    _sign: bool
 
-    def __repr__(self) -> str:
+    def __new__(cls, type_name: str, bases: Iterable[type], attrs: dict):
+        instance = super().__new__(cls, type_name, tuple(bases), dict())
+
+        instance._name = attrs.get('name', type_name)
+        instance._sign = attrs.get('sign', True)
+
+        return instance
+
+    def __str__(self) -> str:
         return self._name
 
     def __hash__(self) -> int:
-        return hash(self._name)
+        return hash(self._name + str(int(self._sign)))
 
     def __bool__(self) -> bool:
         return self._sign
 
     def __eq__(self, other: Special[Self]) -> bool:
-        return isinstance(other, Flag) and self._name == other._name
+        return isflag(other) and hash(self) == hash(other)
 
-    def __instancecheck__(self, instance: Any) -> bool:
+    def __instancecheck__(self, instance: Special[Self]) -> bool:
         return self == instance
 
-    def __or__(self, other: ValueT) -> _UnionGenericAlias:
-        return Union[self, other]
 
-    def __ror__(self, other: ValueT) -> _UnionGenericAlias:
-        return Union[other, self]
+def flag(name: str, *, sign: bool = True) -> _FlagMeta:
+    """
+    Function to create flags like `None` or `bool` but unique.
 
-    @property
-    def name(self) -> str:
-        return self._name
+    Throws `FlagError` when trying to initialize an instance.
+    Cast to `str` by its name and to `bool` by its sign.
+    Hashed by its value and name.
+    Comparison of two flags is based on their hash.
+
+    The flag is determined by the `isflag` function.
+    """
+
+    instance = _FlagMeta(name, tuple(), dict(name=name, sign=sign))
+
+    instance.__init__ = lambda self: raise_( # type: ignore
+        FlagError(f"\"{name}\" flag cannot be initialized")
+    )
+
+    return instance
 
 
-nothing = Flag("nothing", sign=False)
+def isflag(flag: Any) -> bool:
+    return isinstance(flag, _FlagMeta)
+
+
+nothing = flag("nothing", sign=False)
 nothing.__doc__ = """Flag to indicate the absence of anything, including `None`."""
 
 
@@ -122,7 +147,7 @@ class ArgumentKey(Generic[KeyT, ValueT]):
 
     key: KeyT
     is_keyword: bool = field(default=False, kw_only=True)
-    default: ValueT | Flag[nothing] = field(default_factory=lambda: nothing, compare=False, kw_only=True)
+    default: ValueT | nothing = field(default_factory=lambda: nothing, compare=False, kw_only=True)
 
 
 class ArgumentPack:
