@@ -207,3 +207,7 @@ def flag_sum(first: Flag, second: Flag) -> Flag:
     else:
         return _UnionFlag(first, second)
 
+
+def as_flag(value: FlagT | ValueT) -> FlagT | ValueFlag[ValueT]:
+    return value if isinstance(value, Flag) else ValueFlag(value)
+
