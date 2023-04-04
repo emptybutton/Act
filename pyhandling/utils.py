@@ -356,6 +356,7 @@ reading = flag("reading")
 
 
 _ReadingResultT = TypeVar("_ReadingResultT")
+_NewContextT = TypeVar("_NewContextT")
 
 
 @documenting_by(
