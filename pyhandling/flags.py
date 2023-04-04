@@ -36,7 +36,7 @@ class Flag(ABC, Generic[ValueT]):
         ...
 
     @abstractmethod
-    def _atomically_multiplied_by(self, other: Self | int) -> Self:
+    def _atomically_multiplied_by(self, value: int) -> Self:
         ...
 
     def __contains__(self, which: Special[checker]) -> bool:
@@ -62,7 +62,7 @@ class Flag(ABC, Generic[ValueT]):
             else self._atomically_equal_to(other)
         )
 
-    def __mul__(self, other: Self | int) -> Self:
+    def __mul__(self, other: int) -> Self:
         return (
             other * self
             if isinstance(other, _UnionFlag) and not isinstance(self, _UnionFlag)
@@ -119,8 +119,8 @@ class _UnionFlag(Flag):
     def _atomically_equal_to(self, other: Any) -> bool:
         return self._first == other or self._second == other
 
-    def _atomically_multiplied_by(self, other: Flag | int) -> Self:
-        return self._first * other | self._second * other
+    def _atomically_multiplied_by(self, value: int) -> Self:
+        return (self._first * value) | (self._second * value)
 
     @staticmethod
     def __format_flag(flag: Flag) -> str:
@@ -140,16 +140,13 @@ class _AtomicFlag(Flag, ABC):
     def _atomically_equal_to(self, other: Any) -> bool:
         return type(self) is type(other) and hash(self) == hash(other)
 
-    def _atomically_multiplied_by(self, other: Self | int) -> Self:
-        if isinstance(other, int):
-            if other <= 0:
-                return nothing
-            elif other == 1:
-                return self
-            else:
-                return self | (self * (other - 1))
-
-        return self | other
+    def _atomically_multiplied_by(self, value: int) -> Self:
+        if value <= 0:
+            return nothing
+        elif value == 1:
+            return self
+        else:
+            return self | (self * (value - 1))
 
 
 class ValueFlag(_AtomicFlag, Generic[ValueT]):
