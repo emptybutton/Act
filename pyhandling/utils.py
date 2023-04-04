@@ -11,8 +11,9 @@ from pyhandling.binders import returnly, closed, right_closed, right_partial, ev
 from pyhandling.branchers import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain, repeating
 from pyhandling.language import then, by, to
 from pyhandling.errors import LambdaGeneratingError
+from pyhandling.flags import flag, nothing, ValueFlag
 from pyhandling.synonyms import returned, raise_
-from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, nothing, contextual, flag
+from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, contextual, contextually
 
 
 __all__ = (
@@ -306,16 +307,16 @@ maybe = documenting_by(
     monadically(lambda node: lambda root: (
         root.value >= node |then>> on(
             operation_by('is', bad),
-            taken(contextual(root.value, bad)),
+            taken(contextual(root.value, as_flag(root.context) | bad)),
             else_=contextual |by| root.context,
         )
-        if root.context is not bad
+        if root.context != bad
         else root
     ))
 )
 
 
-until_error: execution_context_when[Special[Exception]]
+until_error: execution_context_when[Special[Exception | ValueFlag[Exception]]]
 until_error = documenting_by(
     """
     Execution context that stops the thread of execution when an error occurs.
@@ -327,9 +328,9 @@ until_error = documenting_by(
     monadically(lambda node: lambda root: (
         rollbackable(
             node |then>> (contextual |by| root.context),
-            lambda error: contextual(root.value, error),
+            lambda error: contextual(root.value, when=root.context | as_flag(error)),
         )(root.value)
-        if not isinstance(root.context, Exception)
+        if (isinstance |by| Exception) in as_flag(root.context)
         else root
     ))
 )
@@ -379,13 +380,13 @@ def considering_context(
         Special[writing | reading]
     ],
     root: contextual[ValueT, ContextT]
-) -> contextual[ResultT | ValueT |  _ReadingResultT, ContextT]:
-    if isinstance(node, contextual):
-        if node.context is writing:
-            return contextual(root.value, node.value(root.value)(root.context))
+) -> contextual[ResultT | ValueT | _ReadingResultT, ContextT]:
+    if isinstance(node, contextually):
+        if node.context == writing:
+            return contextual(root.value, node(root.value)(root.context))
 
-        if node.context is reading:
-            return contextual(node.value(root.value)(root.context), root.context)
+        if node.context == reading:
+            return contextual(node(root.value)(root.context), root.context)
 
     return saving_context(node)(root)
 

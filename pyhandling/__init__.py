@@ -2,6 +2,7 @@ from pyhandling.annotations import *
 from pyhandling.binders import *
 from pyhandling.branchers import *
 from pyhandling.error_controllers import *
+from pyhandling.flags import *
 from pyhandling.language import *
 from pyhandling.protocols import *
 from pyhandling.synonyms import *
