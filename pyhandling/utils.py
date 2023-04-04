@@ -306,7 +306,7 @@ maybe = documenting_by(
 )(
     monadically(lambda node: lambda root: (
         root.value >= node |then>> on(
-            operation_by('is', bad),
+            eq |by| bad,
             taken(contextual(root.value, as_flag(root.context) | bad)),
             else_=contextual |by| root.context,
         )
