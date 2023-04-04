@@ -122,3 +122,7 @@ class _UnionFlag(Flag):
     def _atomically_multiplied_by(self, other: Flag | int) -> Self:
         return self._first * other | self._second * other
 
+    @staticmethod
+    def __format_flag(flag: Flag) -> str:
+        return str(flag.value if isinstance(flag, ValueFlag) else flag)
+
