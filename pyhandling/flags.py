@@ -68,3 +68,57 @@ class Flag(ABC, Generic[ValueT]):
             if isinstance(other, _UnionFlag) and not isinstance(self, _UnionFlag)
             else self._atomically_multiplied_by(other)
         )
+
+
+class _UnionFlag(Flag):
+    def __init__(self, first: Flag, second: Flag):
+        self._first = first
+        self._second = second
+
+        if self == nothing:
+            raise FlagError("Combining with \"nothing\"")
+
+    @property
+    def original(self) -> Self:
+        return self
+
+    def __str__(self) -> str:
+        return f"{self.__format_flag(self._first)} | {self.__format_flag(self._second)}"
+
+    def __hash__(self) -> int:
+        return hash(self._first) + hash(self._second)
+
+    def __bool__(self) -> bool:
+        return bool(self._first or self._second)
+
+    def __sub__(self, other: Flag) -> Flag:
+        if isinstance(other, _UnionFlag):
+            return self - other._second - other._first
+
+        reduced_second = self._second - other
+
+        if reduced_second != self._second:
+            return self._first | reduced_second
+
+        reduced_first = self._first - other
+
+        if reduced_first != self._first:
+            return reduced_first | self._second
+
+        return self
+
+    def __len__(self) -> int:
+        return len(self._first) + len(self._second)
+
+    def __iter__(self) -> Iterator[Flag]:
+        return chain(self._first, self._second)
+
+    def has_type(self, type_: type) -> bool:
+        return self
+
+    def _atomically_equal_to(self, other: Any) -> bool:
+        return self._first == other or self._second == other
+
+    def _atomically_multiplied_by(self, other: Flag | int) -> Self:
+        return self._first * other | self._second * other
+
