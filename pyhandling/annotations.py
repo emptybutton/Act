@@ -94,3 +94,5 @@ ContextT = TypeVar("ContextT")
 KeyT = TypeVar('KeyT')
 
 MappedT = TypeVar("MappedT")
+
+FlagT = TypeVar("FlagT", bound='Flag')
