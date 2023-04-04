@@ -69,6 +69,9 @@ class Flag(ABC, Generic[ValueT]):
             else self._atomically_multiplied_by(other)
         )
 
+    def __rmul__(self, other: int) -> Self:
+        return self * other
+
 
 class _UnionFlag(Flag):
     def __init__(self, first: Flag, second: Flag):
