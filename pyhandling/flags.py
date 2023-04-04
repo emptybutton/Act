@@ -174,6 +174,25 @@ class ValueFlag(_AtomicFlag, Generic[ValueT]):
         )
 
 
+class _NominalFlag(_AtomicFlag):
+    def __init__(self, name: str, sign: bool):
+        self._name = name
+        self._sign = sign
+
+    @property
+    def original(self) -> Self:
+        return self
+
+    def __str__(self) -> str:
+        return self._name
+
+    def __hash__(self) -> int:
+        return hash(self._name + str(int(self._sign)))
+
+    def __bool__(self) -> bool:
+        return self._sign
+
+
 
 
 def flag_sum(first: Flag, second: Flag) -> Flag:
