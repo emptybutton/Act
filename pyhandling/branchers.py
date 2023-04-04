@@ -2,14 +2,14 @@ from functools import partial, reduce, wraps, cached_property, update_wrapper
 from inspect import Signature, signature
 from math import inf
 from operator import itemgetter
-from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional, Type
+from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional, Type, Tuple
 
 from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotation
 
 from pyhandling.annotations import ActionT, ResultT, one_value_action, P, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, checker_of
 from pyhandling.binders import right_partial
 from pyhandling.errors import TemplatedActionChainError, NeutralActionChainError
-from pyhandling.tools import calling_signature_of, contextual, DelegatingProperty, with_opened_items, ArgumentKey, ArgumentPack
+from pyhandling.tools import calling_signature_of, contextual, DelegatingProperty, with_opened_items, ArgumentKey, ArgumentPack, annotation_sum
 from pyhandling.synonyms import returned
 
 
@@ -131,45 +131,39 @@ class ActionChain(Generic[_NodeT]):
         return type(self)((*self, *other) if not is_right else (*other, *self))
 
 
-def merged(
-    *actions: Callable[P, Any],
-    return_from: Optional[int | slice] = None,
-) -> Special[tuple]:
+class merged:
     """
     Function to merge multiple functions with the same input interface into one.
 
     Functions are called in parallel, after which a tuple of their results is
     returned, in the order in which the functions were passed.
-
-    It has an additional keyword only parameter `return_from`, which, if specified,
-    will determine the result of the output function by getting a value from the
-    resulting tuple by key.
     """
 
-    def merged_actions(*args, **kwargs) -> Special[tuple]:
-        """
-        Function that came out of the `merged` function is merged from other
-        functions passed to the merge function.
+    def __init__(self, *actions: Callable[P, Any]):
+        self._actions = actions
+        self.__signature__ = self.__get_signature()
 
-        See `merged` for more info.
-        """
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> Tuple:
+        return tuple(action(*args, **kwargs) for action in actions)
 
-        return (
-            returned
-            if return_from is None
-            else itemgetter(return_from)
-        )(
-            tuple(action(*args, **kwargs) for action in actions)
+    def __repr__(self) -> str:
+        return ' & '.join(map(str, self._actions)) # print & <>
+
+    def __get_signature(self) -> Signature:
+        argument_signature = calling_signature_of(
+            self._actions[0] if self._actions else lambda *_, **__: ...
         )
 
-    return merged_actions
+        return_annotation = partial(reduce, or_)(
+            partial(filter, post_partial(is_not, _empty))(
+                map(lambda act: calling_signature_of(act).return_annotation, self._actions)
+            )
+        )
+
+        return argument_signature.replace(return_annotation=return_annotation)
 
 
-def mergely(
-    merging_of: Callable[P, Callable[..., ResultT]],
-    *parallel_actions: Callable[P, Any],
-    **keyword_parallel_actions: Callable[P, Any]
-) -> Callable[P, ResultT]:
+class mergely:
     """
     Decorator that allows to initially separate several operations on
     input arguments and then combine these results in final operation.
@@ -187,26 +181,56 @@ def mergely(
     were specified.
     """
 
-    @wraps(merging_of)
-    def merger(*args: P.args, **kwargs: P.kwargs) -> ResultT:
-        return merging_of(*args, **kwargs)(
+    def __init__(
+        self,
+        merging_of: Callable[P, Callable[..., ResultT]],
+        *parallel_actions: Callable[P, Any],
+        **keyword_parallel_actions: Callable[P, Any],
+    ):
+        self._merging_of = merging_of
+        self._parallel_actions = parallel_actions
+        self._keyword_parallel_actions = keyword_parallel_actions
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
+        return self._merging_of(*args, **kwargs)(
             *(
                 parallel_action(*args, **kwargs)
-                for parallel_action in parallel_actions
+                for parallel_action in self._parallel_actions
             ),
             **{
                 _: keyword_parallel_action(*args, **kwargs)
-                for _, keyword_parallel_action in keyword_parallel_actions.items()
+                for _, keyword_parallel_action in self._keyword_parallel_actions.items()
             }
         )
 
-    return merger
+    def __repr__(self) -> str:
+        keyword_part = '='.join(
+            f"{keyword}={action}"
+            for keyword, action in self._keyword_parallel_actions.items()
+        )
+
+        return (
+            f"mergely("
+            f"{self._merging_of} -> ({', '.join(map(str, self._parallel_actions))}"
+            f"{', ' if self._parallel_actions and self._keyword_parallel_actions else str()}"
+            f"{keyword_part}"
+            f'))'
+        )
+
+    @property
+    def __signature__(self) -> Signature:
+        return_annotation = calling_signature_of(self._merging_of).return_annotation
+
+        return calling_signature_of(self._merging_of).replace(
+            return_annotation=(
+                return_annotation.__args__[-1]
+                if isinstance(return_annotation, _CallableGenericAlias)
+                else _empty
+            )
+        )
 
 
-def repeating(
-    action: reformer_of[ValueT],
-    is_valid_to_repeat: checker_of[ValueT],
-) -> reformer_of[ValueT]:
+class repeating:
     """
     Function to call an input action multiple times.
 
@@ -214,22 +238,25 @@ def repeating(
     result of an input action itself.
     """
 
-    @wraps(action)
-    def repetitive_action(value: ValueT) -> ValueT:
-        while is_valid_to_repeat(value):
-            value = action(value)
+    def __init__(self, action: reformer_of[ValueT], is_valid_to_repeat: checker_of[ValueT]):
+        self._action = action
+        self._is_valid_to_repeat = is_valid_to_repeat
+
+    def __call__(self, value: ValueT) -> ValueT:
+        while self._is_valid_to_repeat(value):
+            value = self._action(value)
         
         return value
 
-    return repetitive_action
+    def __repr__(self) -> str:
+        return f"{self._action} while {self._is_valid_to_repeat}"
+
+    @property
+    def __signature__(self) -> Signature:
+        return calling_signature_of(self._action)
 
 
-def on(
-    condition_checker: Callable[P, bool],
-    positive_condition_action: Callable[P, PositiveConditionResultT],
-    *,
-    else_: Callable[P, NegativeConditionResultT] = returned
-) -> Callable[P, PositiveConditionResultT | NegativeConditionResultT]:
+class on:
     """
     Function that implements action choosing by condition.
 
@@ -242,37 +269,70 @@ def on(
     With default `else_` takes one value actions.
     """
 
-    def branch(*args: P.args, **kwargs: P.args) -> PositiveConditionResultT | NegativeConditionResultT:
-        """
-        Result function from `on` function.
-        See `on` for more info.
-        """
+    def __init__(
+        self,
+        condition_checker: Callable[P, bool],
+        positive_condition_action: Callable[P, PositiveConditionResultT],
+        *,
+        else_: Callable[P, NegativeConditionResultT] = returned
+    ):
+        self._condition_checker = condition_checker
+        self._positive_condition_action = positive_condition_action
+        self._negative_condition_action = else_
 
+    def __call__(self, *args: P.args, **kwargs: P.args) -> PositiveConditionResultT | NegativeConditionResultT:
         return (
-            positive_condition_action
-            if condition_checker(*args, **kwargs)
-            else else_
+            self._positive_condition_action
+            if self._condition_checker(*args, **kwargs)
+            else self._negative_condition_action
         )(*args, **kwargs)
 
-    return branch
+    def __repr__(self) -> str:
+        return (
+            f"{self._positive_condition_action} on {self._condition_checker} "
+            f"else {self._negative_condition_action}"
+        )
+
+    @property
+    def __signature__(self) -> Signature:
+        return calling_signature_of(self._positive_condition_action).replace(
+            return_annotation=annotation_sum(
+                calling_signature_of(self._positive_condition_action).return_annotation,
+                calling_signature_of(self._negative_condition_action).return_annotation,
+            )
+        )
 
 
-def rollbackable(
-    action: Callable[P, ResultT],
-    rollbacker: Callable[[Exception], ErrorHandlingResultT]
-) -> Callable[P, ResultT | ErrorHandlingResultT]:
+class rollbackable:
     """
     Decorator function providing handling of possible errors in an input action.
     """
 
-    @wraps(action)
-    def wrapper(*args: P.args, **kwargs: P.args) -> Any:
-        try:
-            return action(*args, **kwargs)
-        except Exception as error:
-            return rollbacker(error)
+    def __init__(
+        self,
+        action: Callable[P, ResultT],
+        rollback: Callable[[Exception], ErrorHandlingResultT],
+    ):
+        self._action = action
+        self._rollback = rollback
+        self.__signature__ = self.__get_signature()
 
-    return wrapper
+    def __call__(*args: P.args, **kwargs: P.args) -> ResultT | ErrorHandlingResultT:
+        try:
+            return self._action(*args, **kwargs)
+        except Exception as error:
+            return self._rollback(error)
+
+    def __repr__(self) -> str:
+        return f"{self._action} ~> {self._rollback}"
+
+    def __get_signature(self) -> Signature:
+        return calling_signature_of(self._action).replace(
+            return_annotation=annotation_sum(
+                calling_signature_of(self._action).return_annotation,
+                calling_signature_of(self._rollback).return_annotation,
+            )
+        )
 
 
 mapping_to_chain_of = AnnotationTemplate(
