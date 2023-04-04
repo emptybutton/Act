@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from itertools import chain
 from typing import Self, Iterator, Any, Generic
 
 from pyannotating import Special
