@@ -7,6 +7,9 @@ from pyhandling.annotations import ValueT, FlagT, checker
 from pyhandling.errors import FlagError
 
 
+__all__ = ("Flag", "ValueFlag", "flag", "flag_sum", "as_flag", "nothing")
+
+
 class Flag(ABC, Generic[ValueT]):
     """Abstract class for atomic objects."""
 
