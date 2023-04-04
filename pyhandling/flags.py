@@ -64,7 +64,7 @@ class Flag(ABC, Generic[ValueT]):
 
     def __mul__(self, other: Self | int) -> Self:
         return (
-            other == self
+            other * self
             if isinstance(other, _UnionFlag) and not isinstance(self, _UnionFlag)
             else self._atomically_multiplied_by(other)
         )
