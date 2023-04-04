@@ -88,7 +88,7 @@ class unpackly(ActionWrapper):
     @cached_property
     def _force_signature(self) -> Signature:
         return calling_signature_of(self).replace(
-            return_annotation=signature(self._action).return_annotation
+            return_annotation=calling_signature_of(self._action).return_annotation
         )
 
 
@@ -160,9 +160,11 @@ class flipped(ActionWrapper):
 
     @cached_property
     def _force_signature(self) -> Signature:
-        return signature(self._action).replace(parameters=self.__flip_parameters(
-            signature(self._action).parameters.values()
-        ))
+        return calling_signature_of(self._action).replace(
+            parameters=self.__flip_parameters(
+                calling_signature_of(self._action).parameters.values()
+            )
+        )
 
     @staticmethod
     def __flip_parameters(parameters: Iterable[Parameter]) -> Tuple[Parameter]:
