@@ -3,7 +3,7 @@ from copy import deepcopy, copy
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import wraps, cached_property, partial, update_wrapper
-from inspect import Signature, signature
+from inspect import Signature, signature, _empty
 from math import inf
 from types import MappingProxyType, MethodType
 from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Generic, Final, Iterable, Optional, Tuple, _UnionGenericAlias, Union, NamedTuple, Iterator, Concatenate
@@ -249,6 +249,12 @@ def calling_signature_of(action: Callable) -> Signature:
         return signature(action.__call__).replace(
             parameters=tuple(signature(action.__call__).parameters.values())[1:]
         )
+
+
+def annotation_sum(*args: Special[_empty]) -> Any:
+    annotations = tuple(arg for arg in args if arg is not _empty)
+
+    return Union[*annotations] if annotations else _empty
 
 
 class contextual(Generic[ValueT, ContextT]):
