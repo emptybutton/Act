@@ -82,7 +82,7 @@ class _UnionFlag(Flag):
     def original(self) -> Self:
         return self
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"{self.__format_flag(self._first)} | {self.__format_flag(self._second)}"
 
     def __hash__(self) -> int:
@@ -165,7 +165,7 @@ class ValueFlag(_AtomicFlag, Generic[ValueT]):
     def is_identifiable_by_type(self) -> bool:
         return self._is_identifiable_by_type
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"flag({self._value})"
 
     def __hash__(self) -> int:
@@ -183,7 +183,7 @@ class _NominalFlag(_AtomicFlag):
     def original(self) -> Self:
         return self
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return self._name
 
     def __hash__(self) -> int:
