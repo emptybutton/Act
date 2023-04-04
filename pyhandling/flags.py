@@ -193,6 +193,8 @@ class _NominalFlag(_AtomicFlag):
         return self._sign
 
 
+def flag(name: str, *, sign: bool = True) -> Flag:
+    return _NominalFlag(name, sign)
 
 
 def flag_sum(first: Flag, second: Flag) -> Flag:
