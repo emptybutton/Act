@@ -126,3 +126,29 @@ class _UnionFlag(Flag):
     def __format_flag(flag: Flag) -> str:
         return str(flag.value if isinstance(flag, ValueFlag) else flag)
 
+
+class _AtomicFlag(Flag, ABC):
+    def __sub__(self, other: Any) -> Self: 
+        return nothing if self == other else self
+
+    def __len__(self) -> int:
+        return 1
+
+    def __iter__(self) -> Iterator[Self]:
+        return iter((self, ))
+
+    def _atomically_equal_to(self, other: Any) -> bool:
+        return type(self) is type(other) and hash(self) == hash(other)
+
+    def _atomically_multiplied_by(self, other: Self | int) -> Self:
+        if isinstance(other, int):
+            if other <= 0:
+                return nothing
+            elif other == 1:
+                return self
+            else:
+                return self | (self * (other - 1))
+
+        return self | other
+
+
