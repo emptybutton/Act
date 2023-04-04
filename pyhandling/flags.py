@@ -24,10 +24,6 @@ class Flag(ABC, Generic[ValueT]):
         ...
 
     @abstractmethod
-    def __mul__(self, other: Self | int) -> Self:
-        ...
-
-    @abstractmethod
     def __len__(self) -> int:
         ...
 
