@@ -211,3 +211,6 @@ def flag_sum(first: Flag, second: Flag) -> Flag:
 def as_flag(value: FlagT | ValueT) -> FlagT | ValueFlag[ValueT]:
     return value if isinstance(value, Flag) else ValueFlag(value)
 
+
+nothing = flag("nothing", sign=False)
+nothing.__doc__ = """Flag to indicate the absence of anything, including `None`."""
