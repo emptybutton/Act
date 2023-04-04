@@ -12,13 +12,13 @@ from pyannotating import method_of, Special
 
 from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ActionT, ContextT, one_value_action, dirty, reformer_of, P, TypeT
 from pyhandling.errors import FlagError
+from pyhandling.flags import nothing
 from pyhandling.synonyms import raise_
+
 
 __all__ = (
     "to_clone",
     "publicly_immutable",
-    "flag",
-    "nothing",
     "ArgumentKey",
     "ArgumentPack",
     "DelegatingProperty",
@@ -71,74 +71,6 @@ def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
     class_.__setattr__ = new_setattr # type: ignore
 
     return class_
-
-
-class _FlagMeta(type):
-    """
-    Used inside the `flag` function, which is the public constructor of this
-    metaclass.
-
-    Incomplete because there is no mechanism for preventing flags from
-    initializing their instances (that the `flag` function has).
-
-    To check whether an object belongs to a flag without importing this
-    metaclass, use the `isflag` function.
-    """
-
-    _name: str
-    _sign: bool
-
-    def __new__(cls, type_name: str, bases: Iterable[type], attrs: dict):
-        instance = super().__new__(cls, type_name, tuple(bases), dict())
-
-        instance._name = attrs.get('name', type_name)
-        instance._sign = attrs.get('sign', True)
-
-        return instance
-
-    def __str__(self) -> str:
-        return self._name
-
-    def __hash__(self) -> int:
-        return hash(self._name + str(int(self._sign)))
-
-    def __bool__(self) -> bool:
-        return self._sign
-
-    def __eq__(self, other: Special[Self]) -> bool:
-        return isflag(other) and hash(self) == hash(other)
-
-    def __instancecheck__(self, instance: Special[Self]) -> bool:
-        return self == instance
-
-
-def flag(name: str, *, sign: bool = True) -> _FlagMeta:
-    """
-    Function to create flags like `None` or `bool` but unique.
-
-    Throws `FlagError` when trying to initialize an instance.
-    Cast to `str` by its name and to `bool` by its sign.
-    Hashed by its value and name.
-    Comparison of two flags is based on their hash.
-
-    The flag is determined by the `isflag` function.
-    """
-
-    instance = _FlagMeta(name, tuple(), dict(name=name, sign=sign))
-
-    instance.__init__ = lambda self: raise_( # type: ignore
-        FlagError(f"\"{name}\" flag cannot be initialized")
-    )
-
-    return instance
-
-
-def isflag(flag: Any) -> bool:
-    return isinstance(flag, _FlagMeta)
-
-
-nothing = flag("nothing", sign=False)
-nothing.__doc__ = """Flag to indicate the absence of anything, including `None`."""
 
 
 @dataclass(frozen=True)
