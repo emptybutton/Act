@@ -152,3 +152,15 @@ class _AtomicFlag(Flag, ABC):
         return self | other
 
 
+
+
+def flag_sum(first: Flag, second: Flag) -> Flag:
+    if first == nothing:
+        return second
+
+    elif second == nothing:
+        return first
+
+    else:
+        return _UnionFlag(first, second)
+
