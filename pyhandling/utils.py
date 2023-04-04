@@ -376,9 +376,10 @@ _NewContextT = TypeVar("_NewContextT")
 @monadically
 @closed
 def considering_context(
-    node: Callable[[ValueT], ResultT] | contextual[
-        Callable[[ValueT], reformer_of[ContextT]] | Callable[[ValueT], Callable[[ContextT], _ReadingResultT]],
-        Special[writing | reading]
+    node: Callable[[ValueT], ResultT] | contextually[
+        Callable[[ValueT], Callable[[ContextT], _NewContextT]]
+        | Callable[[ValueT], Callable[[ContextT], _ReadingResultT]],
+        Special[writing | reading],
     ],
     root: contextual[ValueT, ContextT]
 ) -> contextual[ResultT | ValueT | _ReadingResultT, ContextT]:

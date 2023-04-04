@@ -68,7 +68,7 @@ def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
 
         return old_setattr(instance, attribute_name, attribute_value)
 
-    class_.__setattr__ = new_setattr # type: ignore
+    class_.__setattr__ = new_setattr
 
     return class_
 
@@ -286,11 +286,11 @@ class contextually(ActionWrapper, Generic[ActionT, ContextT]):
     action = DelegatingProperty("_action")
     context = DelegatingProperty("_context")
 
-    def __init__(self, action: ActionT, when: ContextT = nothing):
+    def __init__(self, action: Callable[P, ResultT], when: ContextT = Type[nothing]):
         self._context = when
         super().__init__(action)
 
-    def __call__(self, *args, **kwargs) -> Any:
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
         return self._action(*args, **kwargs)
 
     def __repr__(self) -> str:
