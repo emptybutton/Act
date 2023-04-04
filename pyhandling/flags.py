@@ -12,7 +12,46 @@ __all__ = ("Flag", "ValueFlag", "flag", "flag_sum", "as_flag", "nothing")
 
 
 class Flag(ABC, Generic[ValueT]):
-    """Abstract class for atomic objects."""
+    """
+    Base class of atomic unique values and their algebraic operations.
+    
+    Add instances with `|` operator and subtract with `-`.
+    Checks for the presence of an instance using the `==` operator.
+
+    Adds by `or` nature so
+    ```
+    first | second == first
+    first | second == second
+    first | second == first | second
+    first | second == first | third
+    ```
+
+    Subtracts optional so
+    ```
+    first - second == first
+    (first | second) - second == first
+    ```
+
+    Has a specific `nothing` instance that is a unit so
+    ```
+    instance | nothing == instance
+    instance | nothing != nothing
+
+    instance - instance == nothing
+
+    nothing == nothing
+    nothing | nothing == nothing
+    ```
+
+    According to this addition logic, there is a multiplication
+    ```
+    instance * 2 == instance | instance
+    instance * 1 == instance
+    instance * 0 == nothing
+    instance * -1 == nothing
+    (first | second) * 2 == first | first | second | second
+    ```
+    """
 
     @property
     @abstractmethod
