@@ -31,9 +31,9 @@ class returnly(ActionWrapper):
     """
 
     def __call__(self, value: ValueT, *args, **kwargs) -> ValueT:
-        self._action(*args, **kwargs)
+        self._action(value, *args, **kwargs)
 
-        return args[0]
+        return value
 
     @cached_property
     def _force_signature(self) -> Signature:
