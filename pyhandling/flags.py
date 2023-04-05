@@ -174,7 +174,7 @@ class _AtomicFlag(Flag, ABC):
         return nothing if self == other else self
 
     def __len__(self) -> int:
-        return 1
+        return 1 if self != nothing else 0
 
     def __iter__(self) -> Iterator[Self]:
         return iter((self, ))
