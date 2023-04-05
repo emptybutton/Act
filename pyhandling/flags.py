@@ -216,6 +216,22 @@ class Flag(ABC, Generic[ValueT]):
 
 
 class _UnionFlag(Flag):
+    """
+    Flag sum class.
+
+    Created via the `|` operator between flags or by using the `flag_sum`
+    function, which is a safe flag sum constructor.
+
+    Not safe for self-initialization because it has no mechanisms to prevent
+    summation with `nothing`.
+
+    Throws `FlagError` when created with `nothing`.
+
+    Recursively delegates calls to its two stored flags.
+    Indicates the sum of its flags (self).
+    Binary between its flags in `or` form.
+    """
+
     def __init__(self, first: Flag, second: Flag):
         self._first = first
         self._second = second
