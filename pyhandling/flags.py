@@ -106,6 +106,17 @@ class Flag(ABC, Generic[ValueT]):
     def __rmul__(self, other: int) -> Self:
         return self * other
 
+    @staticmethod
+    def _combine_flags(first: Self, second: Self) -> Self:
+        if first == nothing:
+            return second
+
+        elif second == nothing:
+            return first
+
+        else:
+            return _UnionFlag(first, second)
+
 
 class _UnionFlag(Flag):
     def __init__(self, first: Flag, second: Flag):
