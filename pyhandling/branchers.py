@@ -72,8 +72,8 @@ class ActionChain(Generic[_NodeT]):
     is_template = DelegatingProperty("_is_template")
 
     def __init__(self, nodes: Iterable[_NodeT] = tuple()):
-        self._is_template = Ellipsis in nodes
         self._nodes = tuple(nodes)
+        self._is_template = Ellipsis in self._nodes
 
         if not self._is_template:
             self._main_action = (
