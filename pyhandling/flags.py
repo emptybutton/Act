@@ -34,7 +34,7 @@ class Flag(ABC, Generic[ValueT]):
     (first | second) - second == first
     ```
 
-    Has a specific `nothing` instance that is a unit so
+    Has a specific `nothing` instance that is a neutral element so
     ```
     instance | nothing == instance
     instance | nothing != nothing
