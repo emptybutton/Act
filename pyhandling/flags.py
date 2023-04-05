@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from functools import reduce
 from itertools import chain
 from typing import Self, Iterator, Any, Generic
+from operator import or_
 
 from pyannotating import Special
 
