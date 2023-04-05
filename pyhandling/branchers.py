@@ -92,6 +92,9 @@ class ActionChain(Generic[_NodeT]):
 
         return self._main_action(*args, **kwargs)
 
+    def __le__(self, value: Any) -> Any:
+        return self(value)
+
     def __iter__(self) -> Iterator[_NodeT]:
         return iter(self._nodes)
 
