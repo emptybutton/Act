@@ -19,7 +19,6 @@ from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock,
 __all__ = (
     "atomically",
     "showly",
-    "callmethod",
     "branching",
     "with_result",
     "shown",
@@ -105,10 +104,6 @@ def with_result(result: ResultT, action: Callable[P, Any]) -> Callable[P, Result
     return action |then>> taken(result)
 
 
-def callmethod(object_: object, method_name: str, *args, **kwargs) -> Any:
-    """Shortcut function to call a method on an input object."""
-
-    return getattr(object_, method_name)(*args, **kwargs)
 
 
 shown: dirty[reformer_of[ValueT]]
