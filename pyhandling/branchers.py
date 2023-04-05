@@ -191,6 +191,8 @@ class mergely:
         self._parallel_actions = parallel_actions
         self._keyword_parallel_actions = keyword_parallel_actions
 
+        self.__signature__ = self.__get_signature()
+
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
         return self._merging_of(*args, **kwargs)(
             *(
@@ -217,8 +219,7 @@ class mergely:
             f'))'
         )
 
-    @property
-    def __signature__(self) -> Signature:
+    def __get_signature(self) -> Signature:
         return_annotation = calling_signature_of(self._merging_of).return_annotation
 
         return calling_signature_of(self._merging_of).replace(
@@ -242,6 +243,8 @@ class repeating:
         self._action = action
         self._is_valid_to_repeat = is_valid_to_repeat
 
+        self.__signature__ = self.__get_signature()
+
     def __call__(self, value: ValueT) -> ValueT:
         while self._is_valid_to_repeat(value):
             value = self._action(value)
@@ -251,8 +254,7 @@ class repeating:
     def __repr__(self) -> str:
         return f"{self._action} while {self._is_valid_to_repeat}"
 
-    @property
-    def __signature__(self) -> Signature:
+    def __get_signature(self) -> Signature:
         return calling_signature_of(self._action)
 
 
@@ -280,6 +282,8 @@ class on:
         self._positive_condition_action = positive_condition_action
         self._negative_condition_action = else_
 
+        self.__signature__ = self.__get_signature()
+
     def __call__(self, *args: P.args, **kwargs: P.args) -> PositiveConditionResultT | NegativeConditionResultT:
         return (
             self._positive_condition_action
@@ -293,8 +297,7 @@ class on:
             f"else {self._negative_condition_action}"
         )
 
-    @property
-    def __signature__(self) -> Signature:
+    def __get_signature(self) -> Signature:
         return calling_signature_of(self._positive_condition_action).replace(
             return_annotation=annotation_sum(
                 calling_signature_of(self._positive_condition_action).return_annotation,
