@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from datetime import datetime
-from functools import wraps, partial, cached_property
 from operator import itemgetter, call, not_, add, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift
+from functools import wraps, partial, cached_property, update_wrapper
 from typing import NamedTuple, Generic, Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn, Optional, Self, TypeVar
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special, method_of
@@ -64,6 +64,7 @@ class atomically:
 
     def __init__(self, action: action_for[ResultT]):
         self._action = action
+        update_wrapper(self, self._action)
 
     def __repr__(self) -> str:
         return f"atomically({self._action})"
