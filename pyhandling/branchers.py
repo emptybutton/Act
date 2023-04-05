@@ -320,7 +320,7 @@ class rollbackable:
         self._rollback = rollback
         self.__signature__ = self.__get_signature()
 
-    def __call__(*args: P.args, **kwargs: P.args) -> ResultT | ErrorHandlingResultT:
+    def __call__(self, *args: P.args, **kwargs: P.args) -> ResultT | ErrorHandlingResultT:
         try:
             return self._action(*args, **kwargs)
         except Exception as error:
