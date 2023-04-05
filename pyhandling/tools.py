@@ -13,7 +13,6 @@ from pyannotating import method_of, Special
 from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ActionT, ContextT, one_value_action, dirty, reformer_of, P, TypeT
 from pyhandling.errors import FlagError
 from pyhandling.flags import nothing
-from pyhandling.synonyms import raise_
 
 
 __all__ = (
