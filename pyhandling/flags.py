@@ -45,6 +45,15 @@ class Flag(ABC, Generic[ValueT]):
     nothing | nothing == nothing
     ```
 
+    To create a sum of flags without the `|` operator, there is the `flag_sum`
+    function.
+    ```
+    flag_sum(first, second, third) == first | second | third
+    flag_sum(instance, nothing) == instance
+    flag_sum(instance) == instance
+    flag_sum() == nothing
+    ```
+
     According to this addition logic, there is a multiplication
     ```
     instance * 2 == instance | instance
