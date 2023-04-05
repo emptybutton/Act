@@ -62,6 +62,18 @@ class Flag(ABC, Generic[ValueT]):
     instance * -1 == nothing
     (first | second) * 2 == first | first | second | second
     ```
+
+    Iterable by its sum so
+    ```
+    tuple(first | second | third) == (first, second, third)
+    len(first | second | third) == 3
+
+    tuple(instance) == (instance, )
+    len(instance) == 1
+
+    tuple(nothing) == tuple()
+    len(nothing) = 0
+    ```
     """
 
     @property
