@@ -157,8 +157,6 @@ class _UnionFlag(Flag):
     def __iter__(self) -> Iterator[Flag]:
         return chain(self._first, self._second)
 
-    def has_type(self, type_: type) -> bool:
-        return self
 
     def _atomically_equal_to(self, other: Any) -> bool:
         return self._first == other or self._second == other
