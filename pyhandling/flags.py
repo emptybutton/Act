@@ -73,19 +73,12 @@ class Flag(ABC, Generic[ValueT]):
         ...
 
     @abstractmethod
-    def _atomically_equal_to(self, other: Any) -> bool:
         ...
 
     @abstractmethod
     def _atomically_multiplied_by(self, value: int) -> Self:
         ...
 
-    def __contains__(self, which: Special[checker]) -> bool:
-        return (
-            any(which(flag.original) for flag in self)
-            if callable(which)
-            else which in tuple(self)
-        )
 
     def __instancecheck__(self,  instance: Special[Self]) -> bool:
         return self == instance
