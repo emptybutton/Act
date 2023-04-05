@@ -260,7 +260,7 @@ class contextual(Generic[ValueT, ContextT]):
     value = DelegatingProperty("_value")
     context = DelegatingProperty("_context")
 
-    def __init__(self, value: ValueT, when: ContextT = Type[nothing]):
+    def __init__(self, value: ValueT, when: ContextT = nothing):
         self._value = value
         self._context = when
 
@@ -283,7 +283,7 @@ class contextually(ActionWrapper, Generic[ActionT, ContextT]):
     action = DelegatingProperty("_action")
     context = DelegatingProperty("_context")
 
-    def __init__(self, action: Callable[P, ResultT], when: ContextT = Type[nothing]):
+    def __init__(self, action: Callable[P, ResultT], when: ContextT = nothing):
         self._context = when
         super().__init__(action)
 
