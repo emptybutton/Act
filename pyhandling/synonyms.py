@@ -58,16 +58,26 @@ class with_unpacking(ActionWrapper):
             "arguments", Parameter.POSITIONAL_OR_KEYWORD, annotation=Iterable
         ))
 
-def with_keyword_unpacking(func: action_for[ResultT]) -> Callable[[Mapping[str, Any]], ResultT]:
     def __repr__(self) -> str:
         return _unpacking_repr(self._action)
 
 
+class with_keyword_unpacking(ActionWrapper):
     """
     Decorator function to unpack the passed mapping object into the input action.
     """
 
-    return wraps(func)(lambda arguments: func(**arguments))
+    def __call__(self, arguments: Mapping[str, Any]) -> Any:
+        return self._action(**arguments)
+
+    @property
+    def _force_signature(self) -> Signature:
+        return calling_signature_of(self._action).replace(parameters=Parameter(
+            "arguments", Parameter.POSITIONAL_OR_KEYWORD, annotation=Mapping[str, Any]
+        ))
+
+    def __repr__(self) -> str:
+        return f"*{_unpacking_repr(self._action)}"
 
 
 class to_context_manager(ActionWrapper):
@@ -90,16 +100,33 @@ class to_context_manager(ActionWrapper):
         ))
 
 
-def with_context_by(
-    get_context: Callable[P, AbstractContextManager[ContextT]],
-    action: Callable[P, ResultT]
-) -> Callable[P, ResultT]:
+class with_context_by:
     """Function to perform an input action in a specific context."""
 
-    @wraps(action)
-    def contextual_action(*args: P.args, **kwargs: P.kwargs) -> ResultT:
+    def __init__(
+        self,
+        get_context: Callable[P, AbstractContextManager[ContextT]],
+        action: Callable[P, ResultT],
+    ):
+        self._get_context = get_context
+        self._action = action
+
+        update_wrapper(self, self._action)
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
         with get_context(*args, **kwargs):
             return action(*args, **kwargs)
 
+    def __repr__(self) -> str:
+        return f"with_context_by({self.get_context}, {self._action})"
 
-    return contextual_action
+
+def _unpacking_repr(action: Callable) -> str:
+    return "*{sep}{action}".format(
+        sep=(
+            '\''
+            if isinstance(self._action, with_unpacking | with_keyword_unpacking) 
+            else str()
+        ),
+        action=action,
+    )
