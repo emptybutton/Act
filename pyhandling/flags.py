@@ -195,6 +195,8 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
     def __init__(self, value: ValueT):
         self._value = value
 
+        if isinstance(self._value, Flag):
+            raise FlagError("Flag pointing to another flag")
 
     @property
     def point(self) -> ValueT:
