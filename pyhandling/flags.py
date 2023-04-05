@@ -177,7 +177,7 @@ class _AtomicFlag(Flag, ABC):
         return 1 if self != nothing else 0
 
     def __iter__(self) -> Iterator[Self]:
-        return iter((self, ))
+        return iter((self, ) if self != nothing else tuple())
 
     def _atomically_equal_to(self, other: Any) -> bool:
         return type(self) is type(other) and hash(self) == hash(other)
