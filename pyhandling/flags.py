@@ -230,6 +230,10 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
     def __bool__(self) -> bool:
         return bool(self._value)
 
+    @classmethod
+    def as_flag(cls, value: FlagT | ValueT) -> FlagT | Flag[ValueT]:
+        return value if isinstance(value, Flag) else cls(value)
+
 
 class _NominalFlag(_AtomicFlag):
     def __init__(self, name: str, sign: bool):
