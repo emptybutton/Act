@@ -57,7 +57,7 @@ class Flag(ABC, Generic[ValueT]):
 
     @property
     @abstractmethod
-    def original(self) -> ValueT:
+    def point(self) -> ValueT:
         ...
 
     @abstractmethod
@@ -123,7 +123,7 @@ class _UnionFlag(Flag):
             raise FlagError("Combining with \"nothing\"")
 
     @property
-    def original(self) -> Self:
+    def point(self) -> Self:
         return self
 
     def __repr__(self) -> str:
@@ -199,12 +199,12 @@ class ValueFlag(_AtomicFlag, Generic[ValueT]):
         self._is_identifiable_by_type = identifiable_by_type
 
     @property
-    def original(self) -> ValueT:
-        return self._value
 
     @property
     def is_identifiable_by_type(self) -> bool:
         return self._is_identifiable_by_type
+    def point(self) -> ValueT:
+        return self._value
 
     def __repr__(self) -> str:
         return f"flag({self._value})"
@@ -221,7 +221,7 @@ class _NominalFlag(_AtomicFlag):
         self._sign = sign
 
     @property
-    def original(self) -> Self:
+    def point(self) -> Self:
         return self
 
     def __repr__(self) -> str:
