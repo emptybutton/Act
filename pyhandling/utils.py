@@ -11,7 +11,7 @@ from pyhandling.binders import returnly, closed, right_closed, right_partial, ev
 from pyhandling.branchers import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain, repeating
 from pyhandling.language import then, by, to
 from pyhandling.errors import LambdaGeneratingError
-from pyhandling.flags import flag, nothing, ValueFlag
+from pyhandling.flags import flag, nothing, Flag, flag_to
 from pyhandling.synonyms import returned, raise_
 from pyhandling.tools import documenting_by, in_collection, ArgumentPack, Clock, contextual, contextually
 
@@ -294,7 +294,7 @@ maybe = documenting_by(
     monadically(lambda node: lambda root: (
         root.value >= node |then>> on(
             eq |by| bad,
-            taken(contextual(root.value, as_flag(root.context) | bad)),
+            taken(contextual(root.value, flag_to(root.context) | bad)),
             else_=contextual |by| root.context,
         )
         if root.context != bad
@@ -303,7 +303,7 @@ maybe = documenting_by(
 )
 
 
-until_error: execution_context_when[Special[Exception | ValueFlag[Exception]]]
+until_error: execution_context_when[Special[Exception | Flag[Exception]]]
 until_error = documenting_by(
     """
     Execution context that stops the thread of execution when an error occurs.
@@ -315,9 +315,9 @@ until_error = documenting_by(
     monadically(lambda node: lambda root: (
         rollbackable(
             node |then>> (contextual |by| root.context),
-            lambda error: contextual(root.value, when=root.context | as_flag(error)),
+            lambda error: contextual(root.value, when=flag_to(root.context, error)),
         )(root.value)
-        if (isinstance |by| Exception) in as_flag(root.context)
+        if flag_to(root.context)[isinstance |by| Exception] == nothing
         else root
     ))
 )
