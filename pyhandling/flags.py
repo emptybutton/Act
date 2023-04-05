@@ -191,8 +191,8 @@ class _AtomicFlag(Flag, ABC):
             return self | (self * (times - 1))
 
 
-class ValueFlag(_AtomicFlag, Generic[ValueT]):
     def __init__(self, value: ValueT, *, identifiable_by_type: bool = False):
+class _ValueFlag(_AtomicFlag, Generic[ValueT]):
         self._value = value
         self._is_identifiable_by_type = identifiable_by_type
 
