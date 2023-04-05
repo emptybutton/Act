@@ -358,6 +358,15 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
 
 
 class _NominalFlag(_AtomicFlag):
+    """
+    Atomic named flag class.
+
+    Indicates an abstract phenomenon expressed by this flag itself.
+    Binary in its sign.
+
+    The public constructor of this class is the `flag` function.
+    """
+
     def __init__(self, name: str, sign: bool):
         self._name = name
         self._sign = sign
