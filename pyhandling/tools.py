@@ -245,9 +245,7 @@ def calling_signature_of(action: Callable) -> Signature:
     try:
         return signature(action)
     except ValueError:
-        return signature(action.__call__).replace(
-            parameters=tuple(signature(action.__call__).parameters.values())[1:]
-        )
+        return signature(lambda *args, **kwargs: ...)
 
 
 def annotation_sum(*args: Special[_empty]) -> Any:
