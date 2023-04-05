@@ -101,9 +101,7 @@ def branching(
 def with_result(result: ResultT, action: Callable[P, Any]) -> Callable[P, ResultT]:
     """Function to force an input result for an input action."""
 
-    return action |then>> taken(result)
-
-
+    return atomically(action |then>> taken(result))
 
 
 shown: dirty[reformer_of[ValueT]]
@@ -137,7 +135,7 @@ def binding_by(template: Iterable[Callable | Ellipsis]) -> Callable[[Callable], 
 taken: Callable[[ValueT], action_for[ValueT]] = documenting_by(
     """Shortcut function for `eventually(returned, ...)`."""
 )(
-    closed(returned) |then>> eventually
+    atomically(closed(returned) |then>> eventually)
 )
 
 
@@ -204,23 +202,25 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     Resulting function is independent of its input arguments.
     """
 )(
-    (add |by| 1)
-    |then>> Clock
-    |then>> closed(
-        on(
-            not_,
-            returnly(lambda clock: (setattr |to| clock)(
+    atomically(
+        (add |by| 1)
+        |then>> Clock
+        |then>> closed(
+            on(
+                not_,
+                returnly(lambda clock: (setattr |to| clock)(
+                    "ticks_to_disability",
+                    clock.initial_ticks_to_disability
+                ))
+            )
+            |then>> returnly(lambda clock: (setattr |to| clock)(
                 "ticks_to_disability",
-                clock.initial_ticks_to_disability
+                clock.ticks_to_disability - 1
             ))
+            |then>> bool
         )
-        |then>> returnly(lambda clock: (setattr |to| clock)(
-            "ticks_to_disability",
-            clock.ticks_to_disability - 1
-        ))
-        |then>> bool
+        |then>> eventually
     )
-    |then>> eventually
 )
 
 
@@ -236,8 +236,10 @@ with_error = documenting_by(
     Returns in `contextual` format (result, error).
     """
 )(
-    binding_by(... |then>> contextual)
-    |then>> right_partial(rollbackable, contextual |to| nothing)
+    atomically(
+        binding_by(... |then>> contextual)
+        |then>> right_partial(rollbackable, contextual |to| nothing)
+    )
 )
 
 
@@ -253,8 +255,11 @@ monadically = documenting_by(
     Maps actions by an input decorator one at a time.
     """
 )(
-    closed(map)
-    |then>> binding_by(as_collection |then>> ... |then>> ActionChain)
+    atomically(
+        closed(map)
+        |then>> binding_by(as_collection |then>> ... |then>> ActionChain)
+        |then>> atomically
+    )
 )
 
 
