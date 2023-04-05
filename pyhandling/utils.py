@@ -135,15 +135,6 @@ def binding_by(template: Iterable[Callable | Ellipsis]) -> Callable[[Callable], 
     return insert_to_template
 
 
-def bind(
-    first_node: Callable[P, ValueT],
-    second_node: Callable[[ValueT], ResultT],
-) -> Callable[P, ResultT]:
-    """Function of binding two input functions into a sequential `ActionChain`."""
-
-    return first_node |then>> second_node
-
-
 taken: Callable[[ValueT], action_for[ValueT]] = documenting_by(
     """Shortcut function for `eventually(returned, ...)`."""
 )(
