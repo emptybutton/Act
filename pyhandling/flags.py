@@ -109,6 +109,15 @@ class Flag(ABC, Generic[ValueT]):
     bool(flag_to[0] | super_) is True
     bool(flag_to[0] | not_super) is False
     ```
+
+    To select flags by their `point` use the `[]` call
+    ```
+    flag_to(*range(11))[lambda n: n >= 7] == flag_to(7, 8, 9, 10)
+    flag_to(*range(11))[lambda n: n >= 20] == nothing
+
+    super_[lambda f: f == super_] == super_
+    super_[lambda n: n > 0] == nothing
+    ```
     """
 
     @property
