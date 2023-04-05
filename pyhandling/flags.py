@@ -90,6 +90,25 @@ class Flag(ABC, Generic[ValueT]):
 
     (first | second).point == first | second
     ```
+
+    The `flag_to` function is also a sum function.
+    ```
+    flag_to(1, 2, 3) == flag_to(1) | flag_to(2) | flag_to(3)
+    ```
+
+    Flags indicating a value are binary by value. Nominal by their signs.
+    ```
+    not_super = flag("not_super", sign=False)
+
+    bool(super_) is True
+    bool(not_super) is False
+
+    bool(flag_to(1)) is True
+    bool(flag_to(0)) is False
+
+    bool(flag_to[0] | super_) is True
+    bool(flag_to[0] | not_super) is False
+    ```
     """
 
     @property
