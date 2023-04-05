@@ -10,7 +10,7 @@ from pyhandling.annotations import ValueT, FlagT, checker
 from pyhandling.errors import FlagError
 
 
-__all__ = ("Flag", "ValueFlag", "flag", "flag_sum", "as_flag", "nothing")
+__all__ = ("Flag", "flag", "flag_to", "flag_sum", "nothing")
 
 
 class Flag(ABC, Generic[ValueT]):
