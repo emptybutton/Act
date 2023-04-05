@@ -147,7 +147,7 @@ class merged:
         return tuple(action(*args, **kwargs) for action in actions)
 
     def __repr__(self) -> str:
-        return ' & '.join(map(str, self._actions)) # print & <>
+        return ' & '.join(map(str, self._actions))
 
     def __get_signature(self) -> Signature:
         argument_signature = calling_signature_of(
