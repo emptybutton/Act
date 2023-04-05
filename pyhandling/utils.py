@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from datetime import datetime
-from operator import itemgetter, call, not_, add, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift
 from functools import wraps, partial, cached_property, update_wrapper
+from operator import itemgetter, call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift
 from typing import NamedTuple, Generic, Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn, Optional, Self, TypeVar
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special, method_of
@@ -50,6 +50,7 @@ __all__ = (
     "right",
     "left",
     "either",
+    "to_points",
     "x",
     "not_",
 )
@@ -399,6 +400,16 @@ def either(
         for context, action in context_and_action
     ))
 
+
+
+to_points: mapping_to_chain_among[Flag] = documenting_by(
+    """Execution context of flag `points`."""
+)(
+    monadically(lambda action: lambda flags: flag_to(*map(
+        attrgetter("point") |then>> action,
+        flags,
+    )))
+)
 
 
 _attribute_getting = flag("_attribute_getting")
