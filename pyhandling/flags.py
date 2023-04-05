@@ -258,6 +258,8 @@ def flag(name: str, *, sign: bool = True) -> Flag:
     return _NominalFlag(name, sign)
 
 
+def flag_to(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:
+    return flag_sum(*map(_ValueFlag.as_flag, values))
 
 
 def flag_sum(*flags: Flag) -> Flag:
