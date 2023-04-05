@@ -157,8 +157,8 @@ yes: action_for[bool] = documenting_by("""Shortcut for `taken(True)`.""")(taken(
 no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(False))
 
 
-inversion_of: Callable[[handler_of[ValueT]], checker_of[ValueT]]
-inversion_of = documenting_by("""Negation adding function.""")(
+is_not: Callable[[handler_of[ValueT]], checker_of[ValueT]]
+is_not = documenting_by("""Negation adding function.""")(
     binding_by(... |then>> not_)
 )
 
