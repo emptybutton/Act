@@ -320,6 +320,19 @@ class _AtomicFlag(Flag, ABC):
 
 
 class _ValueFlag(_AtomicFlag, Generic[ValueT]):
+    """
+    Atomic flag class pointing to some value.
+
+    Not safe for initialization as there is no mechanism to prevent pointing to
+    another flag.
+
+    To create, use the `as_flag` method or the `flag_to` function preferably.
+
+    Throws a `FlagError` when created with a flag.
+
+    Delegates `__hash__` and `__bool__` to the pointing value.
+    """
+
     def __init__(self, value: ValueT):
         self._value = value
 
