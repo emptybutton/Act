@@ -10,7 +10,7 @@ __all__ = (
     "raise_",
     "assert_",
     "collection_of",
-    "with_positional_unpacking",
+    "with_unpacking",
     "with_keyword_unpacking",
     "to_context",
     "with_context_by",
@@ -44,13 +44,23 @@ def collection_of(*args: ValueT) -> Tuple[ValueT, ...]:
     return args
 
 
-def with_positional_unpacking(func: action_for[ResultT]) -> Callable[[Iterable], ResultT]:
+class with_unpacking(ActionWrapper):
     """Decorator function to unpack the passed collection into the input action."""
 
-    return wraps(func)(lambda arguments: func(*arguments))
+    def __call__(self, arguments: Iterable) -> Any:
+        return self._action(*arguments)
 
+    @property
+    def _force_signature(self) -> Signature:
+        return calling_signature_of(self._action).replace(parameters=Parameter(
+            "arguments", Parameter.POSITIONAL_OR_KEYWORD, annotation=Iterable
+        ))
 
 def with_keyword_unpacking(func: action_for[ResultT]) -> Callable[[Mapping[str, Any]], ResultT]:
+    def __repr__(self) -> str:
+        return _unpacking_repr(self._action)
+
+
     """
     Decorator function to unpack the passed mapping object into the input action.
     """
