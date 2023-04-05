@@ -206,6 +206,9 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
     def __hash__(self) -> int:
         return hash(self._value)
 
+    def __bool__(self) -> bool:
+        return bool(self._value)
+
 
 class _NominalFlag(_AtomicFlag):
     def __init__(self, name: str, sign: bool):
