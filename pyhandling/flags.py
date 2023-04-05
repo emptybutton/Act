@@ -191,16 +191,12 @@ class _AtomicFlag(Flag, ABC):
             return self | (self * (times - 1))
 
 
-    def __init__(self, value: ValueT, *, identifiable_by_type: bool = False):
 class _ValueFlag(_AtomicFlag, Generic[ValueT]):
+    def __init__(self, value: ValueT):
         self._value = value
-        self._is_identifiable_by_type = identifiable_by_type
+
 
     @property
-
-    @property
-    def is_identifiable_by_type(self) -> bool:
-        return self._is_identifiable_by_type
     def point(self) -> ValueT:
         return self._value
 
@@ -208,9 +204,7 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
         return f"flag({self._value})"
 
     def __hash__(self) -> int:
-        return hash(
-            type(self._value) if self._is_identifiable_by_type else self._value
-        )
+        return hash(self._value)
 
 
 class _NominalFlag(_AtomicFlag):
