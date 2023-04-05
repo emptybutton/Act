@@ -84,10 +84,10 @@ class Flag(ABC, Generic[ValueT]):
         return self == instance
 
     def __or__(self, other: Self) -> Self:
-        return flag_sum(self, other)
+        return self._combine_flags(self, other)
 
     def __ror__(self, other: Self) -> Self:
-        return flag_sum(other, self)
+        return self._combine_flags(other, self)
 
     def __eq__(self, other: Special[Self]) -> bool:
         return (
