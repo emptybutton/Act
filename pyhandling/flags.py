@@ -78,6 +78,7 @@ class Flag(ABC, Generic[ValueT]):
         ...
 
     @abstractmethod
+    def __getitem__(self, which: checker) -> Self:
         ...
 
     @abstractmethod
@@ -170,6 +171,8 @@ class _UnionFlag(Flag):
     def __iter__(self) -> Iterator[Flag]:
         return chain(self._first, self._second)
 
+    def __getitem__(self, which: checker) -> Flag:
+        return self._combine_flags(self._first[which], self._second[which])
 
     def _atomically_equal_to(self, other: Any) -> bool:
         return self._first == other or self._second == other
@@ -191,6 +194,9 @@ class _AtomicFlag(Flag, ABC):
 
     def __iter__(self) -> Iterator[Self]:
         return iter((self, ) if self != nothing else tuple())
+ 
+    def __getitem__(self, which: checker) -> Self:
+        return self if self != nothing and which(self.point) else nothing
 
     def _atomically_equal_to(self, other: Any) -> bool:
         return type(self) is type(other) and hash(self) == hash(other)
