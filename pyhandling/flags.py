@@ -118,6 +118,22 @@ class Flag(ABC, Generic[ValueT]):
     super_[lambda f: f == super_] == super_
     super_[lambda n: n > 0] == nothing
     ```
+
+    Flag sums can be represented in atomic form. In this case, the atomic
+    version is technically a representation of all the summed flags in one flag,
+    but in fact, it is just a first selected flag.
+
+    Don't use the atomic form to get exactly a first flag. The flag sum does not
+    guarantee the preservation of the sequence (although it still implements it).
+    ```
+    atom = flag_to(1, 2, 3).atomic
+
+    atom == flag_to(1)
+    atom != flag_to(2)
+    atom != flag_to(3)
+
+    flag_to(1).atomic == flag_to(1)
+    ```
     """
 
     @property
