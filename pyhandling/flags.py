@@ -403,4 +403,9 @@ def flag_sum(*flags: Flag) -> Flag:
 
 
 nothing = flag("nothing", sign=False)
-nothing.__doc__ = """Flag to indicate the absence of anything, including `None`."""
+nothing.__doc__ = (
+    """
+    Special flag identifying the absence of a flag.
+    Is a neutral element in flag sum operations.
+    """
+)
