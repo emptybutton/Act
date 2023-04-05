@@ -105,15 +105,12 @@ class ActionChain(Generic[_NodeT]):
         return type(self)(as_collection(self._nodes[key]))
 
     def __repr__(self) -> str:
-        return f"ActionChain({', '.join(map(str, self._nodes))})"
-
-    def __str__(self) -> str:
         return (
             " |then>> ".join(
                 '...' if node is Ellipsis else str(node) for node in self._nodes
             )
             if self._nodes
-            else repr(self)
+            else "ActionChain()"
         )
 
     def __rshift__(self, node: Self | _NodeT) -> Self:
