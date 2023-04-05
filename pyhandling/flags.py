@@ -240,19 +240,15 @@ def flag(name: str, *, sign: bool = True) -> Flag:
     return _NominalFlag(name, sign)
 
 
-def flag_sum(first: Flag, second: Flag) -> Flag:
-    if first == nothing:
-        return second
 
-    elif second == nothing:
-        return first
 
+def flag_sum(*flags: Flag) -> Flag:
+    if len(flags) == 0:
+        return nothing
+    elif len(flags) == 1:
+        return flags[0]
     else:
-        return _UnionFlag(first, second)
-
-
-def as_flag(value: FlagT | ValueT) -> FlagT | ValueFlag[ValueT]:
-    return value if isinstance(value, Flag) else ValueFlag(value)
+        return reduce(or_, flags)
 
 
 nothing = flag("nothing", sign=False)
