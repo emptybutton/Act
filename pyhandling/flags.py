@@ -131,7 +131,7 @@ class _UnionFlag(Flag):
         return self
 
     def __repr__(self) -> str:
-        return f"{self.__format_flag(self._first)} | {self.__format_flag(self._second)}"
+        return f"{self._first} | {self._second}"
 
     def __hash__(self) -> int:
         return hash(self._first) + hash(self._second)
@@ -165,9 +165,6 @@ class _UnionFlag(Flag):
     def _atomically_equal_to(self, other: Any) -> bool:
         return self._first == other or self._second == other
 
-    @staticmethod
-    def __format_flag(flag: Flag) -> str:
-        return str(flag.value if isinstance(flag, ValueFlag) else flag)
     def _atomically_multiplied_by(self, times: int) -> Self:
         return (self._first * times) | (self._second * times)
 
