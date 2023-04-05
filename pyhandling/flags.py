@@ -134,6 +134,13 @@ class Flag(ABC, Generic[ValueT]):
 
     flag_to(1).atomic == flag_to(1)
     ```
+
+    Flags available for instance checking as a synonym for equality.
+    ```
+    isinstance(instance, instance) is True
+    isinstance(first, first | second) is True
+    isinstance(first, second) is False
+    ```
     """
 
     @property
