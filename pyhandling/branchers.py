@@ -253,7 +253,7 @@ class repeating:
         return value
 
     def __repr__(self) -> str:
-        return f"{self._action} while {self._is_valid_to_repeat}"
+        return f"({self._action} while {self._is_valid_to_repeat})"
 
     def __get_signature(self) -> Signature:
         return calling_signature_of(self._action)
@@ -294,8 +294,8 @@ class on:
 
     def __repr__(self) -> str:
         return (
-            f"{self._positive_condition_action} on {self._condition_checker} "
-            f"else {self._negative_condition_action}"
+            f"({self._positive_condition_action} on {self._condition_checker} "
+            f"else {self._negative_condition_action})"
         )
 
     def __get_signature(self) -> Signature:
@@ -328,7 +328,7 @@ class rollbackable:
             return self._rollback(error)
 
     def __repr__(self) -> str:
-        return f"{self._action} ~> {self._rollback}"
+        return f"({self._action} ~> {self._rollback})"
 
     def __get_signature(self) -> Signature:
         return calling_signature_of(self._action).replace(
