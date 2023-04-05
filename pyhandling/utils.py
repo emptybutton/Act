@@ -51,6 +51,7 @@ __all__ = (
     "left",
     "either",
     "to_points",
+    "to_acyclic_points",
     "x",
     "not_",
 )
@@ -409,6 +410,16 @@ to_points: mapping_to_chain_among[Flag] = documenting_by(
         attrgetter("point") |then>> action,
         flags,
     )))
+)
+
+
+to_acyclic_points: mapping_to_chain_among[Flag] = documenting_by(
+    """
+    Flag `point` execution context of flags whose `points` do not point to
+    themselves.
+    """
+)(
+    monadically(on |to| is_not(isinstance |by| Flag)) |then>> to_points
 )
 
 
