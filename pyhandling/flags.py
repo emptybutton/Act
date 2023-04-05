@@ -82,11 +82,14 @@ class Flag(ABC, Generic[ValueT]):
         ...
 
     @abstractmethod
-    def _atomically_multiplied_by(self, value: int) -> Self:
+    def _atomically_equal_to(self, other: Any) -> bool:
         ...
 
+    @abstractmethod
+    def _atomically_multiplied_by(self, times: int) -> Self:
+        ...
 
-    def __instancecheck__(self,  instance: Special[Self]) -> bool:
+    def __instancecheck__(self,  instance: Any) -> bool:
         return self == instance
 
     def __or__(self, other: Self) -> Self:
@@ -95,7 +98,7 @@ class Flag(ABC, Generic[ValueT]):
     def __ror__(self, other: Self) -> Self:
         return self._combine_flags(other, self)
 
-    def __eq__(self, other: Special[Self]) -> bool:
+    def __eq__(self, other: Special["_UnionFlag"]) -> bool:
         return (
             other == self
             if isinstance(other, _UnionFlag) and not isinstance(self, _UnionFlag)
@@ -149,7 +152,7 @@ class _UnionFlag(Flag):
     def __bool__(self) -> bool:
         return bool(self._first or self._second)
 
-    def __sub__(self, other: Flag) -> Flag:
+    def __sub__(self, other: Any) -> Flag:
         if isinstance(other, _UnionFlag):
             return self - other._second - other._first
 
