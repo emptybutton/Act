@@ -257,8 +257,8 @@ def annotation_sum(*args: Special[_empty]) -> Any:
 class contextual(Generic[ValueT, ContextT]):
     """Representer of an input value as a value with a context."""
 
-    value = DelegatingProperty("value")
-    context = DelegatingProperty("context")
+    value = DelegatingProperty("_value")
+    context = DelegatingProperty("_context")
 
     def __init__(self, value: ValueT, when: ContextT = Type[nothing]):
         self._value = value
