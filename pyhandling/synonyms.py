@@ -1,8 +1,10 @@
 from contextlib import AbstractContextManager
 from functools import wraps, partial
 from typing import NoReturn, Any, Iterable, Callable, Mapping, Tuple
+from inspect import Signature, Parameter
 
 from pyhandling.annotations import P, ValueT, action_for, ResultT, KeyT, event_for, ContextT
+from pyhandling.tools import ActionWrapper, calling_signature_of
 
 
 __all__ = (
@@ -12,7 +14,7 @@ __all__ = (
     "collection_of",
     "with_unpacking",
     "with_keyword_unpacking",
-    "to_context",
+    "to_context_manager",
     "with_context_by",
 )
 
@@ -68,17 +70,24 @@ def with_keyword_unpacking(func: action_for[ResultT]) -> Callable[[Mapping[str, 
     return wraps(func)(lambda arguments: func(**arguments))
 
 
-def to_context(
-    action: Callable[[ContextT], ResultT]
-) -> Callable[[AbstractContextManager[ContextT]], ResultT]:
+class to_context_manager(ActionWrapper):
     """Function emulating the `with as` context manager."""
 
-    @wraps(action)
-    def contextual_action(context_manager: AbstractContextManager[ContextT]) -> ResultT:
+    def __call__(self, context_manager: AbstractContextManager) -> Any:
         with context_manager as context:
-            return action(context)
+            return self._action(context)
 
-    return contextual_action
+    @property
+    def _force_signature(self) -> Signature:
+        input_annotation_of_action = tuple(
+            calling_signature_of(self._action).parameters.values()
+        )[0].annotation
+
+        return calling_signature_of(self._action).replace(parameters=Parameter(
+            "context_manager",
+            Parameter.POSITIONAL_OR_KEYWORD,
+            annotation=AbstractContextManager[input_annotation_of_action]
+        ))
 
 
 def with_context_by(
