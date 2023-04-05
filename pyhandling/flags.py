@@ -96,11 +96,11 @@ class Flag(ABC, Generic[ValueT]):
             else self._atomically_equal_to(other)
         )
 
-    def __mul__(self, other: int) -> Self:
+    def __mul__(self, times: int) -> Self:
         return (
-            other * self
-            if isinstance(other, _UnionFlag) and not isinstance(self, _UnionFlag)
-            else self._atomically_multiplied_by(other)
+            times * self
+            if isinstance(times, _UnionFlag) and not isinstance(self, _UnionFlag)
+            else self._atomically_multiplied_by(times)
         )
 
     def __rmul__(self, other: int) -> Self:
@@ -165,12 +165,11 @@ class _UnionFlag(Flag):
     def _atomically_equal_to(self, other: Any) -> bool:
         return self._first == other or self._second == other
 
-    def _atomically_multiplied_by(self, value: int) -> Self:
-        return (self._first * value) | (self._second * value)
-
     @staticmethod
     def __format_flag(flag: Flag) -> str:
         return str(flag.value if isinstance(flag, ValueFlag) else flag)
+    def _atomically_multiplied_by(self, times: int) -> Self:
+        return (self._first * times) | (self._second * times)
 
 
 class _AtomicFlag(Flag, ABC):
@@ -186,13 +185,13 @@ class _AtomicFlag(Flag, ABC):
     def _atomically_equal_to(self, other: Any) -> bool:
         return type(self) is type(other) and hash(self) == hash(other)
 
-    def _atomically_multiplied_by(self, value: int) -> Self:
-        if value <= 0:
+    def _atomically_multiplied_by(self, times: int) -> Self:
+        if times <= 0:
             return nothing
-        elif value == 1:
+        elif times == 1:
             return self
         else:
-            return self | (self * (value - 1))
+            return self | (self * (times - 1))
 
 
 class ValueFlag(_AtomicFlag, Generic[ValueT]):
