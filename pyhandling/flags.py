@@ -289,6 +289,8 @@ class _UnionFlag(Flag):
 
 
 class _AtomicFlag(Flag, ABC):
+    """Class representing flag sum atomic unit."""
+
     @property
     def atomic(self) -> Self:
         return self
