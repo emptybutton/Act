@@ -60,8 +60,13 @@ class Flag(ABC, Generic[ValueT]):
     def point(self) -> ValueT:
         ...
 
+    @property
     @abstractmethod
-    def __sub__(self, other: Self) -> Self:
+    def atomic(self) -> Self:
+        ...
+
+    @abstractmethod
+    def __sub__(self, other: Any) -> Self:
         ...
 
     @abstractmethod
@@ -130,6 +135,10 @@ class _UnionFlag(Flag):
     def point(self) -> Self:
         return self
 
+    @property
+    def atomic(self) -> Flag:
+        return self._first.atomic
+
     def __repr__(self) -> str:
         return f"{self._first} | {self._second}"
 
@@ -170,6 +179,10 @@ class _UnionFlag(Flag):
 
 
 class _AtomicFlag(Flag, ABC):
+    @property
+    def atomic(self) -> Self:
+        return self
+
     def __sub__(self, other: Any) -> Self: 
         return nothing if self == other else self
 
