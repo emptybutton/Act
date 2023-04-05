@@ -74,6 +74,22 @@ class Flag(ABC, Generic[ValueT]):
     tuple(nothing) == tuple()
     len(nothing) = 0
     ```
+
+    Flags indicate something. It can be any value or abstract phenomenon
+    expressed only by this flag.
+
+    Flags indicating a value can be obtained via the `flag_to` function. Flags
+    for abstract phenomena (or named flags) via the `flag` function.
+    ```
+    super_ = flag("super")
+
+    super_.point == super_
+    flag_to(1).point == 1
+
+    nothing.point == nothing
+
+    (first | second).point == first | second
+    ```
     """
 
     @property
