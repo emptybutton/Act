@@ -14,6 +14,7 @@ from pyhandling.synonyms import returned
 
 
 __all__ = (
+    "bind",
     "ActionChain",
     "merged",
     "mergely",
