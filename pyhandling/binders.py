@@ -5,8 +5,9 @@ from inspect import signature, _empty, Signature, Parameter
 from typing import Callable, Self, TypeVar, Any, Iterable, NamedTuple, Tuple, Generic, Optional
 
 from pyhandling.annotations import P, ValueT, ResultT, action_for, ActionT, handler_of
+from pyhandling.arguments import ArgumentKey, ArgumentPack
 from pyhandling.errors import ReturningError
-from pyhandling.tools import ActionWrapper, ArgumentKey, ArgumentPack, calling_signature_of
+from pyhandling.tools import ActionWrapper, calling_signature_of
 
 
 __all__ = (
