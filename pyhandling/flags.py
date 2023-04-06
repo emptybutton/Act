@@ -6,7 +6,8 @@ from operator import or_
 
 from pyannotating import Special
 
-from pyhandling.annotations import ValueT, FlagT, checker
+from pyhandling.atoming import atomic
+from pyhandling.annotations import ValueT, FlagT, checker_of
 from pyhandling.errors import FlagError
 
 
@@ -126,13 +127,13 @@ class Flag(ABC, Generic[ValueT]):
     Don't use the atomic form to get exactly a first flag. The flag sum does not
     guarantee the preservation of the sequence (although it still implements it).
     ```
-    atom = flag_to(1, 2, 3).atomic
+    atom = atomic(flag_to(1, 2, 3))
 
     atom == flag_to(1)
     atom != flag_to(2)
     atom != flag_to(3)
 
-    flag_to(1).atomic == flag_to(1)
+    atomic(flag_to(1)) == flag_to(1)
     ```
 
     Flags available for instance checking as a synonym for equality.
@@ -148,9 +149,8 @@ class Flag(ABC, Generic[ValueT]):
     def point(self) -> ValueT:
         ...
 
-    @property
     @abstractmethod
-    def atomic(self) -> Self:
+    def __getatom__(self) -> "_AtomicFlag":
         ...
 
     @abstractmethod
@@ -243,9 +243,8 @@ class _UnionFlag(Flag):
     def point(self) -> Self:
         return self
 
-    @property
-    def atomic(self) -> Flag:
-        return self._first.atomic
+    def __getatom__(self) -> "_AtomicFlag":
+        return atomic(self._first)
 
     def __repr__(self) -> str:
         return f"{self._first} | {self._second}"
@@ -291,8 +290,7 @@ class _UnionFlag(Flag):
 class _AtomicFlag(Flag, ABC):
     """Class representing flag sum atomic unit."""
 
-    @property
-    def atomic(self) -> Self:
+    def __getatom__(self) -> Self:
         return self
 
     def __sub__(self, other: Any) -> Self: 
