@@ -37,6 +37,7 @@ __all__ = (
     "templately",
     "value_map",
     "times",
+    "as_contextual",
     "with_error",
     "monadically",
     "mapping_to_chain_among",
