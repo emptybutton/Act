@@ -1,4 +1,6 @@
 from pyhandling.annotations import *
+from pyhandling.arguments import *
+from pyhandling.atoming import *
 from pyhandling.binders import *
 from pyhandling.branchers import *
 from pyhandling.error_controllers import *
