@@ -349,7 +349,7 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
         return self._value
 
     def __repr__(self) -> str:
-        return f"flag[{self._value}]"
+        return f"flag({self._value})"
 
     def __hash__(self) -> int:
         return hash(self._value)
