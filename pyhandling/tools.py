@@ -18,9 +18,7 @@ from pyhandling.flags import nothing
 __all__ = (
     "to_clone",
     "publicly_immutable",
-    "ArgumentKey",
-    "ArgumentPack",
-    "DelegatingProperty",
+    "property_of",
     "ActionWrapper",
     "contextual",
     "contextually",
@@ -187,9 +185,9 @@ class ArgumentPack:
         return cls(args, kwargs)
 
 
-class DelegatingProperty:
+class property_of:
     """
-    Descriptor class that takes data from an attribute that already exists in an
+    Descriptor that takes data from an attribute that already exists in an
     object.
 
     Has the ability to set a delegating attribute (Does not set by default).

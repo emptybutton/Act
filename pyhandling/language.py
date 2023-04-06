@@ -6,7 +6,7 @@ from pyannotating import Special
 from pyhandling.annotations import ResultT
 from pyhandling.binders import right_partial
 from pyhandling.branchers import ActionChain
-from pyhandling.tools import DelegatingProperty, documenting_by
+from pyhandling.tools import property_of, documenting_by
 
 
 __all__ = ("then", "to", "by")
@@ -20,9 +20,9 @@ class BindingInfix(Generic[ResultT]):
     if you want to unpack the arguments.
     """
 
-    binder = DelegatingProperty("_binder")
-    func = DelegatingProperty("_func")
-    arguments = DelegatingProperty("_arguments")
+    binder = property_of("_binder")
+    func = property_of("_func")
+    arguments = property_of("_arguments")
 
     def __init__(
         self,

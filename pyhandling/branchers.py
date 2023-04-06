@@ -10,7 +10,7 @@ from pyhandling.annotations import ActionT, ResultT, one_value_action, P, action
 from pyhandling.arguments import ArgumentKey, ArgumentPack
 from pyhandling.binders import right_partial
 from pyhandling.errors import TemplatedActionChainError, NeutralActionChainError
-from pyhandling.tools import calling_signature_of, contextual, DelegatingProperty, with_opened_items, ArgumentKey, ArgumentPack, annotation_sum
+from pyhandling.tools import calling_signature_of, contextual, property_of, with_opened_items, annotation_sum
 from pyhandling.synonyms import returned
 
 
@@ -71,7 +71,7 @@ class ActionChain(Generic[_NodeT]):
     `chain_instance <= input_value`. 
     """
 
-    is_template = DelegatingProperty("_is_template")
+    is_template = property_of("_is_template")
 
     def __init__(self, nodes: Iterable[_NodeT] = tuple()):
         self._nodes = tuple(nodes)
