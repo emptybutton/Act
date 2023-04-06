@@ -391,14 +391,29 @@ class _NominalFlag(_AtomicFlag):
 
 
 def flag(name: str, *, sign: bool = True) -> Flag:
+    """
+    Function constructor of an atomic named flag pointing to itself.
+    See `Flag` for behavior info.
+    """
+
     return _NominalFlag(name, sign)
 
 
 def flag_to(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:
+    """
+    Function to create a flag sum pointing to input values.
+    See `Flag` for behavior info.
+    """
+
     return flag_sum(*map(_ValueFlag.as_flag, values))
 
 
 def flag_sum(*flags: Flag) -> Flag:
+    """
+    Function to create a sum of flags from flags or other sums.
+    See `Flag` for behavior info.
+    """
+
     if len(flags) == 0:
         return nothing
     elif len(flags) == 1:
