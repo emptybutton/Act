@@ -38,6 +38,8 @@ __all__ = (
     "value_map",
     "times",
     "as_contextual",
+    "merged_contextual_floor",
+    "merged_contextual_floors",
     "with_error",
     "monadically",
     "mapping_to_chain_among",
@@ -236,6 +238,21 @@ as_contextual = documenting_by(
     """
 )(
     on(is_not(isinstance |by| contextual), contextual)
+)
+
+
+def merged_contextual_floor(
+    contextual_floor: contextual[contextual[ValueT, Any], Any]
+) -> contextual[ValueT, Flag]:
+    return contextual(
+        contextual_floor.value.value,
+        when=flag_to(contextual_floor.context, contextual_floor.value.context),
+    )
+
+
+merged_contextual_floors: reformer_of[contextual] = repeating(
+    merged_contextual_floor,
+    attrgetter("value") |then>> (isinstance |by| contextual),
 )
 
 
