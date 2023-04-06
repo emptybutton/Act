@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
-from typing import Self, Iterator, Any, Generic
+from typing import Self, Iterator, Any, Generic, TypeVar
 from operator import or_
 
 from pyannotating import Special
@@ -215,7 +215,11 @@ class Flag(ABC, Generic[ValueT]):
             return _UnionFlag(first, second)
 
 
-class _UnionFlag(Flag):
+_FirstPointT = TypeVar("_FirstPointT")
+_SecondPointT = TypeVar("_SecondPointT")
+
+
+class _UnionFlag(Flag, Generic[_FirstPointT, _SecondPointT]):
     """
     Flag sum class.
 
@@ -232,7 +236,7 @@ class _UnionFlag(Flag):
     Binary between its flags in `or` form.
     """
 
-    def __init__(self, first: Flag, second: Flag):
+    def __init__(self, first: Flag[_FirstPointT], second: Flag[_SecondPointT]):
         self._first = first
         self._second = second
 
