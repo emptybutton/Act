@@ -31,6 +31,7 @@ __all__ = (
     "ErrorHandlingResultT",
     "MappedT",
     "FlagT",
+    "AtomT",
 )
 
 
@@ -96,4 +97,4 @@ KeyT = TypeVar('KeyT')
 
 MappedT = TypeVar("MappedT")
 
-FlagT = TypeVar("FlagT", bound='Flag')
+FlagT = TypeVar("FlagT", bound='Flag')FlagT = TypeVar("FlagT", bound='Flag')
