@@ -111,13 +111,13 @@ class Flag(ABC, Generic[ValueT]):
     bool(flag_to(0) | not_super) is False
     ```
 
-    To select flags by their `point` use the `[]` call
+    To select flags by their `point` use the `of` method
     ```
-    flag_to(*range(11))[lambda n: n >= 7] == flag_to(7, 8, 9, 10)
-    flag_to(*range(11))[lambda n: n >= 20] == nothing
+    flag_to(*range(11)).of(lambda n: n >= 7) == flag_to(7, 8, 9, 10)
+    flag_to(*range(11)).of(lambda n: n >= 20) == nothing
 
-    super_[lambda f: f == super_] == super_
-    super_[lambda n: n > 0] == nothing
+    super_.of(lambda f: f == super_) == super_
+    super_.of(lambda n: n > 0) == nothing
     ```
 
     Flag sums can be represented in atomic form. In this case, the atomic
@@ -166,7 +166,7 @@ class Flag(ABC, Generic[ValueT]):
         ...
 
     @abstractmethod
-    def __getitem__(self, which: checker) -> Self:
+    def of(self, is_for_selection: checker_of[ValueT]) -> Self:
         ...
 
     @abstractmethod
@@ -281,8 +281,11 @@ class _UnionFlag(Flag, Generic[_FirstPointT, _SecondPointT]):
     def __iter__(self) -> Iterator[Flag]:
         return chain(self._first, self._second)
 
-    def __getitem__(self, which: checker) -> Flag:
-        return self._combine_flags(self._first[which], self._second[which])
+    def of(self, is_for_selection: checker_of[_FirstPointT | _SecondPointT]) -> Flag:
+        return self._combine_flags(
+            self._first.of(is_for_selection),
+            self._second.of(is_for_selection),
+        )
 
     def _atomically_equal_to(self, other: Any) -> bool:
         return self._first == other or self._second == other
@@ -306,8 +309,8 @@ class _AtomicFlag(Flag, ABC):
     def __iter__(self) -> Iterator[Self]:
         return iter((self, ) if self != nothing else tuple())
  
-    def __getitem__(self, which: checker) -> Self:
-        return self if self != nothing and which(self.point) else nothing
+    def of(self, is_for_selection: checker_of[ValueT]) -> Self:
+        return self if self != nothing and is_for_selection(self.point) else nothing
 
     def _atomically_equal_to(self, other: Any) -> bool:
         return type(self) is type(other) and hash(self) == hash(other)
