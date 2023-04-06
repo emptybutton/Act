@@ -330,25 +330,24 @@ saving_context: execution_context_when[ContextT] = documenting_by(
 bad = flag('bad', sign=False)
 
 
-maybe: execution_context_when[Special[bad]]
+maybe: native_execution_context_when[Special[bad]]
 maybe = documenting_by(
     """
-    Execution context that stops the thread of execution When the `bad` flag
-    returns.
+    The execution context that stops a thread of execution when a value is
+    returned in the `bad` context.
 
-    When stopped, returns the previous value calculated before the `bad` flag in
-    context with `bad` flag.
+    Skips execution if the input value is in a `bad` context.
     """
 )(
-    monadically(lambda node: lambda root: (
+    monadically(lambda node: to_contextual_form(lambda root: (
         root.value >= node |then>> on(
-            eq |by| bad,
-            taken(contextual(root.value, flag_to(root.context) | bad)),
+            lambda result: context_pointed(as_contextual(result)).flag == bad,
+            attrgetter("value") |then>> (contextual |by| (flag_to(root.context) | bad)),
             else_=contextual |by| root.context,
         )
         if root.context != bad
         else root
-    ))
+    )))
 )
 
 
