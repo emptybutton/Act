@@ -30,6 +30,7 @@ __all__ = (
     "NegativeConditionResultT",
     "ErrorHandlingResultT",
     "MappedT",
+    "FlagT",
 )
 
 
