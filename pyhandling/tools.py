@@ -145,7 +145,7 @@ def _contextual_repr_of(value_and_context: tuple[Any, Special[Flag]]) -> str:
 
     return f"{value} when {{}}".format(
         ' and '.join(map(lambda flag: str(flag.point), context))
-        if isinstance(context, Flag)
+        if isinstance(context, Flag) and context != nothing
         else context
     )
 
