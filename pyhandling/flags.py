@@ -42,7 +42,7 @@ class Flag(ABC, Generic[ValueT]):
     instance - instance == nothing
 
     nothing == nothing
-    nothing | nothing == nothing
+    nothing | nothing is nothing
     ```
 
     To create a sum of flags without the `|` operator, there is the `flag_sum`
@@ -106,8 +106,8 @@ class Flag(ABC, Generic[ValueT]):
     bool(flag_to(1)) is True
     bool(flag_to(0)) is False
 
-    bool(flag_to[0] | super_) is True
-    bool(flag_to[0] | not_super) is False
+    bool(flag_to(0) | super_) is True
+    bool(flag_to(0) | not_super) is False
     ```
 
     To select flags by their `point` use the `[]` call
