@@ -351,7 +351,7 @@ maybe = documenting_by(
 )
 
 
-until_error: execution_context_when[Special[Exception | Flag[Exception]]]
+until_error: native_execution_context_when[Special[Exception | Flag[Exception]]]
 until_error = documenting_by(
     """
     Execution context that stops the thread of execution when an error occurs.
@@ -360,14 +360,14 @@ until_error = documenting_by(
     error as context.
     """
 )(
-    monadically(lambda node: lambda root: (
+    monadically(lambda node: to_contextual_form(lambda root: (
         rollbackable(
             node |then>> (contextual |by| root.context),
             lambda error: contextual(root.value, when=flag_to(root.context, error)),
         )(root.value)
         if flag_to(root.context).of(isinstance |by| Exception) == nothing
         else root
-    ))
+    )))
 )
 
 
