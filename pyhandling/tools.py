@@ -140,8 +140,8 @@ def annotation_sum(*args: Special[_empty]) -> Any:
 class contextual(Generic[ValueT, ContextT]):
     """Representer of an input value as a value with a context."""
 
-    value = DelegatingProperty("_value")
-    context = DelegatingProperty("_context")
+    value = property_of("_value")
+    context = property_of("_context")
 
     def __init__(self, value: ValueT, when: ContextT = nothing):
         self._value = value
@@ -155,8 +155,8 @@ class contextual(Generic[ValueT, ContextT]):
 
 
 class contextually(ActionWrapper, Generic[ActionT, ContextT]):
-    action = DelegatingProperty("_action")
-    context = DelegatingProperty("_context")
+    action = property_of("_action")
+    context = property_of("_context")
 
     def __init__(self, action: Callable[P, ResultT], when: ContextT = nothing):
         self._context = when
@@ -211,7 +211,7 @@ class Clock:
     Keeps the original input ticks.
     """
 
-    initial_ticks_to_disability = DelegatingProperty("_initial_ticks_to_disability")
+    initial_ticks_to_disability = property_of("_initial_ticks_to_disability")
 
     def __init__(self, ticks_to_disability: int):
         self.ticks_to_disability = self._initial_ticks_to_disability = ticks_to_disability
