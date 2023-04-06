@@ -12,7 +12,7 @@ from pyannotating import method_of, Special
 
 from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ActionT, ContextT, one_value_action, dirty, reformer_of, P, TypeT, PointT, checker_of, ErrorT
 from pyhandling.errors import FlagError
-from pyhandling.flags import nothing
+from pyhandling.flags import nothing, Flag, flag_to
 
 
 __all__ = (
@@ -24,6 +24,7 @@ __all__ = (
     "contextually",
     "ContextualError",
     "context_oriented",
+    "context_pointed",
     "Clock",
     "Logger",
     "with_attributes",
@@ -209,6 +210,45 @@ class ContextualError(Exception, Generic[ErrorT, ContextT]):
     @cached_property
     def _error_message(self) -> str:
         return _contextual_repr_of(self)
+
+
+class context_pointed(Generic[ValueT, PointT]):
+    """
+    Class to replace a context of a `contextual-like` object with a flag
+    pointing to the original context.
+
+    Optionally selects flags.
+
+    Getting a value and the newly created context is only available through
+    unpacking.
+
+    Has an atomic form, specified as the same value in context of point of the
+    newly converted context (flag) atomic version.
+    """
+
+    value = property_of("_value")
+    flag = property_of("_flag")
+
+    def __init__(
+        self,
+        value_and_context: tuple[ValueT, PointT | Flag[PointT]],
+        is_for_selection: checker_of[PointT] = lambda _: True,
+    ):
+        value, context = value_and_context
+
+        self._value = value
+        self._flag = flag_to(context).of(is_for_selection)
+
+    def __repr__(self) -> str:
+        return f"context_pointed({_contextual_repr_of((self._value, self._flag))})"
+
+    def __iter__(self) -> Iterator:
+        return iter((self._value, self._flag))
+
+    def __getatom__(self) -> contextual[ValueT, PointT]:
+        return contextual(self._value, when=atomic(self._flag).point)
+
+
 def context_oriented(root_values: tuple[ValueT, ContextT]) -> contextual[ContextT, ValueT]:
     """Function to swap a context and value."""
 
