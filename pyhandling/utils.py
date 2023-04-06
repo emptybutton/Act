@@ -40,6 +40,7 @@ __all__ = (
     "as_contextual",
     "merged_contextual_floor",
     "merged_contextual_floors",
+    "to_contextual_form",
     "with_error",
     "monadically",
     "mapping_to_chain_among",
@@ -254,6 +255,9 @@ merged_contextual_floors: reformer_of[contextual] = repeating(
     merged_contextual_floor,
     attrgetter("value") |then>> (isinstance |by| contextual),
 )
+
+
+to_contextual_form = binding_by(as_contextual |then>> ...)
 
 
 with_error: Callable[
