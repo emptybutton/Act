@@ -45,6 +45,7 @@ __all__ = (
     "monadically",
     "mapping_to_chain_among",
     "execution_context_when",
+    "native_execution_context_when",
     "saving_context",
     "bad",
     "maybe",
@@ -306,6 +307,14 @@ mapping_to_chain_among = AnnotationTemplate(mapping_to_chain_of, [
 
 execution_context_when = AnnotationTemplate(mapping_to_chain_among, [
     AnnotationTemplate(contextual, [Any, input_annotation])
+])
+
+
+native_execution_context_when = AnnotationTemplate(mapping_to_chain_of, [
+    AnnotationTemplate(Callable, [
+        [Any],
+        AnnotationTemplate(contextual, [Any, input_annotation])
+    ])
 ])
 
 
