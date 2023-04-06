@@ -10,7 +10,7 @@ from typing import Callable, Self, Type, Any, runtime_checkable, Protocol, Gener
 
 from pyannotating import method_of, Special
 
-from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ActionT, ContextT, one_value_action, dirty, reformer_of, P, TypeT
+from pyhandling.annotations import event_for, ObjectT, ValueT, KeyT, ResultT, ActionT, ContextT, one_value_action, dirty, reformer_of, P, TypeT, PointT, checker_of, ErrorT
 from pyhandling.errors import FlagError
 from pyhandling.flags import nothing
 
@@ -137,6 +137,18 @@ def annotation_sum(*args: Special[_empty]) -> Any:
     return Union[*annotations] if annotations else _empty
 
 
+def _contextual_repr_of(value_and_context: tuple[Any, Special[Flag]]) -> str:
+    """Function to render any `contextual-like` object."""
+
+    value, context = value_and_context
+
+    return f"{value} when {{}}".format(
+        ' and '.join(map(lambda flag: str(flag.point), context))
+        if isinstance(context, Flag)
+        else context
+    )
+
+
 class contextual(Generic[ValueT, ContextT]):
     """Representer of an input value as a value with a context."""
 
@@ -148,7 +160,7 @@ class contextual(Generic[ValueT, ContextT]):
         self._context = when
 
     def __repr__(self) -> str:
-        return f"{self.value} when {self.context}"
+        return _contextual_repr_of(self)
 
     def __iter__(self) -> Iterator:
         return iter((self._value, self._context))
@@ -166,7 +178,7 @@ class contextually(ActionWrapper, Generic[ActionT, ContextT]):
         return self._action(*args, **kwargs)
 
     def __repr__(self) -> str:
-        return f"{self.action} when {self.context}"
+        return _contextual_repr_of(self)
 
     def __iter__(self) -> Iterator:
         return iter((self._value, self._context))
@@ -193,6 +205,10 @@ class ContextualError(Exception, Generic[ErrorT, ContextT]):
 
     def __iter__(self) -> Iterator:
         return iter((self.__error, self.__context))
+
+    @cached_property
+    def _error_message(self) -> str:
+        return _contextual_repr_of(self)
 def context_oriented(root_values: tuple[ValueT, ContextT]) -> contextual[ContextT, ValueT]:
     """Function to swap a context and value."""
 
