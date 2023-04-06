@@ -365,7 +365,7 @@ until_error = documenting_by(
             node |then>> (contextual |by| root.context),
             lambda error: contextual(root.value, when=flag_to(root.context, error)),
         )(root.value)
-        if flag_to(root.context)[isinstance |by| Exception] == nothing
+        if flag_to(root.context).of(isinstance |by| Exception) == nothing
         else root
     ))
 )
