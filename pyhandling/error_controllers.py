@@ -17,7 +17,6 @@ __all__ = (
     "ErrorKepper",
     "error_storage_of",
     "errors_from",
-    "ContextualError",
 )
 
 
@@ -55,27 +54,3 @@ def errors_from(error_storage: error_storage_of[ErrorT] | ErrorT) -> Tuple[Error
         errors += with_opened_items(map(errors_from, error_storage.errors))
 
     return errors
-
-
-class ContextualError(MechanicalError, Generic[ErrorT, ContextT]):
-    """
-    Error class to store the context of another error and itself.
-    Iterates to unpack.
-    """
-   
-    error = DelegatingProperty("_ContextualError__error")
-    context = DelegatingProperty("_ContextualError__context")
-
-    def __init__(self, error: ErrorT, context: ContextT):
-        self.__error = error
-        self.__context = context
-
-        super().__init__(self._error_message)
-
-    def __iter__(self) -> Iterator:
-        return iter((self.__error, self.__context))
-
-    @cached_property
-    def _error_message(self) -> str:
-        return f"{str(self.__error)} when {self.__context}"
-

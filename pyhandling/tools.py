@@ -22,6 +22,7 @@ __all__ = (
     "ActionWrapper",
     "contextual",
     "contextually",
+    "ContextualError",
     "context_oriented",
     "Clock",
     "Logger",
@@ -175,6 +176,23 @@ class contextually(ActionWrapper, Generic[ActionT, ContextT]):
         return signature(self._action)
 
 
+class ContextualError(Exception, Generic[ErrorT, ContextT]):
+    """
+    Error class to store the context of another error and itself.
+    Iterates to unpack.
+    """
+   
+    error = property_of("_ContextualError__error")
+    context = property_of("_ContextualError__context")
+
+    def __init__(self, error: ErrorT, context: ContextT):
+        self.__error = error
+        self.__context = context
+
+        super().__init__(self._error_message)
+
+    def __iter__(self) -> Iterator:
+        return iter((self.__error, self.__context))
 def context_oriented(root_values: tuple[ValueT, ContextT]) -> contextual[ContextT, ValueT]:
     """Function to swap a context and value."""
 
