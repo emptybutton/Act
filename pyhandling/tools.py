@@ -152,14 +152,6 @@ class contextual(Generic[ValueT, ContextT]):
     def __iter__(self) -> Iterator:
         return iter((self._value, self._context))
 
-    @classmethod
-    def like(cls, value_and_context: tuple[ValueT, ContextT]) -> Self:
-        """Class method to create from an unstructured collection."""
-
-        value, context = value_and_context
-
-        return cls(value, context)
-
 
 class contextually(ActionWrapper, Generic[ActionT, ContextT]):
     action = DelegatingProperty("_action")
