@@ -227,6 +227,17 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
 )
 
 
+as_contextual: Callable[[ValueT | contextual[ValueT, Any]], contextual[ValueT, Any]]
+as_contextual = documenting_by(
+    """
+    Function to represent an input value in `contextual` form if it is not
+    already present.
+    """
+)(
+    on(is_not(isinstance |by| contextual), contextual)
+)
+
+
 with_error: Callable[
     [Callable[P, ResultT]],
     Callable[P, contextual[Optional[ResultT], Optional[Exception]]]
