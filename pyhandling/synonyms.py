@@ -4,7 +4,7 @@ from typing import NoReturn, Any, Iterable, Callable, Mapping, Tuple
 from inspect import Signature, Parameter
 
 from pyhandling.annotations import P, ValueT, action_for, ResultT, KeyT, event_for, ContextT
-from pyhandling.tools import ActionWrapper, calling_signature_of
+from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 
 
 __all__ = (
@@ -54,9 +54,9 @@ class with_unpacking(ActionWrapper):
 
     @property
     def _force_signature(self) -> Signature:
-        return calling_signature_of(self._action).replace(parameters=Parameter(
+        return calling_signature_of(self._action).replace(parameters=[Parameter(
             "arguments", Parameter.POSITIONAL_OR_KEYWORD, annotation=Iterable
-        ))
+        )])
 
     def __repr__(self) -> str:
         return _unpacking_repr(self._action)
@@ -72,9 +72,9 @@ class with_keyword_unpacking(ActionWrapper):
 
     @property
     def _force_signature(self) -> Signature:
-        return calling_signature_of(self._action).replace(parameters=Parameter(
+        return calling_signature_of(self._action).replace(parameters=[Parameter(
             "arguments", Parameter.POSITIONAL_OR_KEYWORD, annotation=Mapping[str, Any]
-        ))
+        )])
 
     def __repr__(self) -> str:
         return f"*{_unpacking_repr(self._action)}"
@@ -93,11 +93,11 @@ class to_context_manager(ActionWrapper):
             calling_signature_of(self._action).parameters.values()
         )[0].annotation
 
-        return calling_signature_of(self._action).replace(parameters=Parameter(
+        return calling_signature_of(self._action).replace(parameters=[Parameter(
             "context_manager",
             Parameter.POSITIONAL_OR_KEYWORD,
             annotation=AbstractContextManager[input_annotation_of_action]
-        ))
+        )])
 
 
 class with_context_by:

@@ -2,25 +2,27 @@ from functools import partial, reduce, wraps, cached_property, update_wrapper
 from inspect import Signature, signature
 from math import inf
 from operator import itemgetter
-from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional, Type, Tuple
+from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional, Type, Tuple, NamedTuple
 
 from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotation
 
-from pyhandling.annotations import ActionT, ResultT, one_value_action, P, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, checker_of
-from pyhandling.arguments import ArgumentKey, ArgumentPack
-from pyhandling.binders import right_partial
-from pyhandling.errors import TemplatedActionChainError, NeutralActionChainError
-from pyhandling.tools import calling_signature_of, contextual, property_of, with_opened_items, annotation_sum
-from pyhandling.synonyms import returned
+from pyhandling.annotations import ResultT, one_value_action, P, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, checker_of
+from pyhandling.errors import TemplatedActionChainError
+from pyhandling.immutability import property_of
+from pyhandling.signature_assignmenting import calling_signature_of, annotation_sum
+from pyhandling.synonyms import returned, with_unpacking
 
 
 __all__ = (
     "bind",
     "ActionChain",
+    "binding_by",
+    "templately",
     "merged",
     "mergely",
     "repeating",
     "on",
+    "branching",
     "rollbackable",
     "mapping_to_chain_of",
     "mapping_to_chain",
@@ -58,8 +60,7 @@ class ActionChain(Generic[_NodeT]):
     Each next node gets the output of the previous one.
     Value returned when called is value exited from the last node.
 
-    If there are no nodes, returns the input value back. If the arguments were
-    not transmitted or there were too many, it throws `NeutralActionChainError`.
+    If there are no nodes, returns the input value back.
 
     Can be connected to another chain or action using `|` between them with
     maintaining the position of the call.
@@ -131,6 +132,35 @@ class ActionChain(Generic[_NodeT]):
         other = node if isinstance(node, ActionChain) else ActionChain([node])
 
         return type(self)((*self, *other) if not is_right else (*other, *self))
+
+
+def binding_by(template: Iterable[Callable | Ellipsis]) -> Callable[[Callable], ActionChain]:
+    """
+    Function to create a function by insertion its input function in the input
+    template.
+
+    The created function replaces `...` with an input action.
+    """
+
+    def insert_to_template(intercalary_action: Callable) -> ActionChain:
+        """
+        Function given as a result of calling `binding_by`. See `binding_by` for
+        more info.
+        """
+
+        return ActionChain(
+            intercalary_action if action is Ellipsis else action
+            for action in template
+        )
+
+    return insert_to_template
+
+
+def templately(action: action_for[ResultT], *args, **kwargs) -> Callable[[Any], ResultT]:
+    return wraps(action)(lambda argument: action(
+        *map(on(lambda arg: arg is Ellipsis, taken(argument)), args),
+        **value_map(on(lambda kwarg: kwarg is Ellipsis, taken(argument)), kwargs),
+    ))
 
 
 class merged:
@@ -305,6 +335,37 @@ class on:
                 calling_signature_of(self._positive_condition_action).return_annotation,
                 calling_signature_of(self._negative_condition_action).return_annotation,
             )
+        )
+
+
+class _Fork(NamedTuple, Generic[P, ResultT]):
+    """NamedTuple to store an action to execute on a condition."""
+
+    checker: Callable[P, bool]
+    action: Callable[P, ResultT]
+
+
+def branching(
+    *forks: tuple[Callable[P, bool], Callable[P, ResultT]],
+    else_: Callable[P, ResultT] = returned,
+) -> Callable[P, ResultT]:
+    """
+    Function for using action branching like `if`, `elif` and `else` statements.
+
+    With default `else_` takes actions of one value.
+    """
+
+    forks = tuple(map(with_unpacking(_Fork), forks))
+
+    if len(forks) == 0:
+        return else_
+    elif len(forks) == 1:
+        return on(*forks[0], else_=else_)
+    else:
+        return on(
+            forks[0].checker,
+            forks[0].action,
+            else_=branching(*forks[1:], else_=else_),
         )
 
 

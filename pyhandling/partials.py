@@ -1,96 +1,20 @@
-from abc import ABC, abstractmethod
 from collections import OrderedDict
-from functools import partial, wraps, update_wrapper, cached_property
-from inspect import signature, _empty, Signature, Parameter
-from typing import Callable, Self, TypeVar, Any, Iterable, NamedTuple, Tuple, Generic, Optional
+from functools import cached_property, partial
+from inspect import Parameter, Signature, _empty
+from typing import Any, Self, Iterable, Tuple
 
-from pyhandling.annotations import P, ValueT, ResultT, action_for, ActionT, handler_of
-from pyhandling.arguments import ArgumentKey, ArgumentPack
-from pyhandling.errors import ReturningError
-from pyhandling.tools import ActionWrapper, calling_signature_of
+from pyhandling.annotations import action_for, ResultT
+from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 
 
 __all__ = (
-    "returnly",
-    "eventually",
-    "unpackly",
     "fragmentarily",
     "flipped",
-    "right_partial",
     "mirrored_partial",
+    "right_partial",
     "closed",
     "right_closed",
 )
-
-
-class returnly(ActionWrapper):
-    """
-    Decorator that causes the input function to return not the result of its
-    execution, but some argument that is incoming to it.
-
-    Returns the first argument by default.
-    """
-
-    def __call__(self, value: ValueT, *args, **kwargs) -> ValueT:
-        self._action(value, *args, **kwargs)
-
-        return value
-
-    @cached_property
-    def _force_signature(self) -> Signature:
-        parameters = tuple(calling_signature_of(self._action).parameters.values())
-
-        if len(parameters) == 0:
-            raise ReturningError("Function must contain at least one parameter")
-
-        return calling_signature_of(self._action).replace(return_annotation=(
-            parameters[0].annotation
-        ))
-
-
-class eventually(ActionWrapper):
-    """
-    Decorator function to call with predefined arguments instead of input ones.
-    """
-
-    def __init__(self, action: Callable[P, ResultT], *args: P.args, **kwargs: P.kwargs):
-        super().__init__(action)
-        self._args = args
-        self._kwargs = kwargs
-
-    def __call__(self, *_, **__) -> ResultT:
-        return self._action(*self._args, **self._kwargs)
-
-    def __repr__(self) -> str:
-        return (
-            f"{type(self).__name__}({self._action}"
-            f"{', ' if self._args or self._kwargs else str()}"
-            f"{', '.join(map(str, self._args))}"
-            f"{', ' if self._args and self._kwargs else str()}"
-            f"{', '.join(map(lambda item: str(item[0]) + '=' + str(item[1]), self._kwargs.items()))})"
-        )
-
-    @cached_property
-    def _force_signature(self) -> Signature:
-        return calling_signature_of(self._action).replace(parameters=(
-            Parameter('_', Parameter.VAR_POSITIONAL, annotation=Any),
-            Parameter('__', Parameter.VAR_KEYWORD, annotation=Any),
-        ))
-
-
-class unpackly(ActionWrapper):
-    """
-    Decorator function to unpack the input `ArgumentPack` into the input function.
-    """
-
-    def __call__(self, pack: ArgumentPack) -> Any:
-        return pack.call(self._action)
-
-    @cached_property
-    def _force_signature(self) -> Signature:
-        return calling_signature_of(self).replace(
-            return_annotation=calling_signature_of(self._action).return_annotation
-        )
 
 
 class fragmentarily(ActionWrapper):

@@ -8,7 +8,8 @@ from pyannotating import Special, AnnotationTemplate, input_annotation
 from pyhandling.annotations import ErrorT, ContextT
 from pyhandling.errors import PyhandingError
 from pyhandling.language import to
-from pyhandling.tools import property_of, with_opened_items
+from pyhandling.immutability import property_of
+from pyhandling.structure_management import with_opened_items
 
 
 __all__ = (
