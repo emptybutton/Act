@@ -6,7 +6,7 @@ from pyhandling.annotations import ObjectT, P, ValueT, one_value_action
 from pyhandling.signature_assignmenting import calling_signature_of
 
 
-__all__ = ("to_clone", "publicly_immutable", "property_of")
+__all__ = ("to_clone", "publicly_immutable", "property_to")
 
 
 def to_clone(method: Callable[Concatenate[ObjectT, P], Any]) -> Callable[Concatenate[ObjectT, P], ObjectT]:
@@ -48,7 +48,7 @@ def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
     return class_
 
 
-class property_of:
+class property_to:
     """
     Descriptor that takes data from an attribute that already exists in an
     object.

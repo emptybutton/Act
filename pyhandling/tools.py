@@ -3,8 +3,8 @@ from math import inf
 from typing import Iterable, Tuple, NoReturn
 
 from pyhandling.annotations import event_for, ObjectT, dirty, reformer_of
-from pyhandling.immutability import property_of
 from pyhandling.errors import InvalidInitializationError
+from pyhandling.immutability import property_to
 
 
 __all__ = (
@@ -26,7 +26,7 @@ class Clock:
     Keeps the original input ticks.
     """
 
-    initial_ticks_to_disability = property_of("_initial_ticks_to_disability")
+    initial_ticks_to_disability = property_to("_initial_ticks_to_disability")
 
     def __init__(self, ticks_to_disability: int):
         self.ticks_to_disability = self._initial_ticks_to_disability = ticks_to_disability
