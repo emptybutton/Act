@@ -1,14 +1,16 @@
 from datetime import datetime
 from math import inf
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, NoReturn
 
 from pyhandling.annotations import event_for, ObjectT, dirty, reformer_of
 from pyhandling.immutability import property_of
+from pyhandling.errors import InvalidInitializationError
 
 
 __all__ = (
     "Clock",
     "Logger",
+    "NotInitializable",
     "with_attributes",
     "documenting_by",
 )
@@ -76,6 +78,13 @@ class Logger:
 
         if len(self._logs) > self.maximum_log_count:
             self._logs = self._logs[self.maximum_log_count:]
+
+
+class NotInitializable:
+    def __init__(self, *args, **kwargs) -> NoReturn:
+        raise InvalidInitializationError(
+            f"\"{type(self).__name__}\" type object cannot be initialized"
+        )
 
 
 def with_attributes(
