@@ -1,7 +1,7 @@
 from functools import cached_property
 from inspect import Signature
 from operator import attrgetter, not_
-from typing import Generic, Any, Iterator, Callable
+from typing import Generic, Any, Iterator, Callable, Iterable, GenericAlias
 
 from pyannotating import Special
 
@@ -12,10 +12,11 @@ from pyhandling.immutability import property_of
 from pyhandling.branching import binding_by, repeating, on
 from pyhandling.language import then, by
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
-from pyhandling.tools import documenting_by
+from pyhandling.tools import documenting_by, NotInitializable
 
 
 __all__ = (
+    "contextual_like",
     "ContextRoot",
     "contextual",
     "contextually",
@@ -29,9 +30,21 @@ __all__ = (
 )
 
 
+class contextual_like(NotInitializable):
+    def __class_getitem__(self, value_or_value_and_context: Any | tuple[Any, Any]) -> GenericAlias:
+        value_and_contextcontextual_like = (
+            value_or_value_and_context
+            if isinstance(value_or_value_and_context, Iterable)
+            else (value_or_value_and_context, Any)
+        )
 
+        value, context = value_and_context
 
+        return tuple[value, context]
 
+    @classmethod
+    def __instancecheck__(self, instance: Any) -> bool:
+        return isinstance(instance, Iterable) and len(tuple(instance)) == 2
 
 
 class ContextRoot(ABC, Generic[ValueT, ContextT]):
