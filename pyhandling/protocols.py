@@ -1,6 +1,4 @@
-from typing import runtime_checkable, Protocol, Generic, Any, Optional, Type
-
-from pyhandling.annotations import KeyT, ResultT, ValueT, ContextT
+from typing import runtime_checkable, Protocol
 
 
 __all__ = (

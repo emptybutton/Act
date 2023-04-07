@@ -1,9 +1,8 @@
 from contextlib import AbstractContextManager
-from functools import wraps, partial
 from typing import NoReturn, Any, Iterable, Callable, Mapping, Tuple
 from inspect import Signature, Parameter
 
-from pyhandling.annotations import P, ValueT, action_for, ResultT, KeyT, event_for, ContextT
+from pyhandling.annotations import P, ValueT, ResultT, ContextT
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 
 

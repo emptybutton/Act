@@ -1,14 +1,9 @@
-from abc import ABC, abstractmethod
-from functools import cached_property
-from types import MappingProxyType
-from typing import Generic, Union, runtime_checkable, Protocol, Iterable, Self, Tuple, NamedTuple, Optional, ClassVar, Iterator
+from typing import Union, runtime_checkable, Protocol, Self, Tuple, Iterable
 
-from pyannotating import Special, AnnotationTemplate, input_annotation
+from pyannotating import AnnotationTemplate, input_annotation
 
-from pyhandling.annotations import ErrorT, ContextT
+from pyhandling.annotations import ErrorT
 from pyhandling.errors import PyhandingError
-from pyhandling.language import to
-from pyhandling.immutability import property_of
 from pyhandling.structure_management import with_opened_items
 
 
@@ -26,12 +21,12 @@ class MechanicalError(PyhandingError):
 
 
 @runtime_checkable
-class SingleErrorKepper(Protocol, Generic[ErrorT]):
+class SingleErrorKepper(Protocol[ErrorT]):
     error: ErrorT | Self | "ErrorKepper"
 
 
 @runtime_checkable
-class ErrorKepper(Protocol, Generic[ErrorT]):
+class ErrorKepper(Protocol[ErrorT]):
     errors: Iterable[Self | SingleErrorKepper[ErrorT] | ErrorT]
 
 

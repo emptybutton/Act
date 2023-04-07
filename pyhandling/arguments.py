@@ -1,4 +1,4 @@
-from functools import cached_property
+from functools import cached_property, partial
 from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Final, Generic, Iterable, Optional, Tuple, Self, Any, Callable
