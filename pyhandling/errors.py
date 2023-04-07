@@ -25,8 +25,6 @@ class ActionChainError(PyhandingError):
     pass
 
 
-class NeutralActionChainError(ActionChainError):
-    pass
 
 
 class TemplatedActionChainError(ActionChainError):
