@@ -2,7 +2,7 @@ from typing import Callable, Iterable, Any
 
 from pytest import mark
 
-from pyhandling.branchers import ActionChain
+from pyhandling.branching import ActionChain
 from pyhandling.language import then, BindingInfix, to, by
 
 

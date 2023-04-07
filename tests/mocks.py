@@ -3,7 +3,7 @@ from typing import Any, Optional, Type, Callable, NoReturn
 from pyannotating import many_or_one
 
 from pyhandling.annotations import event_for, ObjectT
-from pyhandling.tools import ArgumentPack
+from pyhandling.arguments import ArgumentPack
 
 
 class CustomContext:

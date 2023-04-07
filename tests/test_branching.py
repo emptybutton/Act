@@ -1,28 +1,13 @@
 from functools import partial
 from typing import Any, Iterable, Mapping, Callable, Type, Optional
 
+from pyhandling.arguments import ArgumentPack, ArgumentKey
 from pyhandling.annotations import one_value_action
-from pyhandling.branchers import *
-from pyhandling.errors import NeutralActionChainError
+from pyhandling.branching import *
 from pyhandling.testing import calling_test_case_of
-from pyhandling.tools import ArgumentPack, ArgumentKey
 from tests.mocks import MockAction, Counter, fail_by_error
 
 from pytest import mark, fail, raises
-
-
-@mark.parametrize(
-    "args, kwargs",
-    [
-        ((1, 2, 3), dict()),
-        (tuple(), dict(first=1, second=2)),
-        ((1, 2, 3), dict(first=1, second=2)),
-        (tuple(), dict()),
-    ]
-)
-def test_neutral_action_chain_error_raising(args: Iterable, kwargs: Mapping):
-    with raises(NeutralActionChainError):
-        ActionChain()(*args, **kwargs)
 
 
 test_action_chain_calling = calling_test_case_of(
@@ -57,13 +42,6 @@ test_merged = calling_test_case_of(
         lambda: merged(lambda a: a - 1, lambda _: _, lambda a: a + 1)(2),
         (1, 2, 3),
     ),
-    (
-        lambda: merged(
-            lambda a: a - 1, lambda _: _, lambda c: c + 1,
-            return_from=slice(0, 3, 2),
-        )(2),
-        (1, 3),
-    )
 )
 
 
@@ -159,3 +137,15 @@ def test_action_chain_one_resource_call_operator(input_resource: int | float = 3
 
     assert (input_resource >= chain) == result_of_chain_normal_call
     assert (chain <= input_resource) == result_of_chain_normal_call
+
+
+test_action_inserting_in = calling_test_case_of(
+    (lambda: binding_by([..., (lambda b: b / 2)])(lambda a: a + 3)(13), 8),
+    (lambda: binding_by([(lambda a: a + 3), ...])(lambda b: b / 2)(13), 8),
+    (lambda: binding_by([..., ...])(lambda a: a + 2)(12), 16)
+)
+
+
+test_test_bind = calling_test_case_of(
+    (lambda: bind(lambda a: a / 2, lambda a: a + 6)(4), 8),
+)

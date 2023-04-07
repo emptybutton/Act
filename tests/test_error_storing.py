@@ -1,4 +1,4 @@
-from pyhandling.error_controllers import *
+from pyhandling.error_storing import *
 from pyhandling.testing import calling_test_case_of
 from pyhandling.tools import with_attributes
 

@@ -1,9 +1,9 @@
 from functools import partial
 from typing import Callable, Any
 
+from pyhandling.arguments import ArgumentPack
 from pyhandling.synonyms import *
 from pyhandling.testing import calling_test_case_of
-from pyhandling.tools import ArgumentPack
 from tests.mocks import CustomContext
 
 from pytest import mark, raises
