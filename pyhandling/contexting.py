@@ -107,8 +107,6 @@ class context_pointed(Generic[ValueT, PointT]):
         return contextual(self._value, when=atomic(self._flag).point)
 
 
-def context_oriented(root_values: tuple[ValueT, ContextT]) -> contextual[ContextT, ValueT]:
-    """Function to swap a context and value."""
 class contextual(_ContextRoot, Generic[ValueT, ContextT]):
     """Representer of an input value as a value with a context."""
 
@@ -119,7 +117,6 @@ class contextual(_ContextRoot, Generic[ValueT, ContextT]):
         self._value = value
         self._context = when
 
-    return contextual(value, when=context)
 
 class contextually(_ContextRoot, Generic[ActionT, ContextT]):
     action = property_to("_value")
@@ -162,6 +159,11 @@ class ContextualError(Exception, _ContextRoot, Generic[ErrorT, ContextT]):
     def __repr__(self) -> str:
         return f"\"{self._value}\" error when {self._context}"
 
+
+def context_oriented(root_values: contextual_like[ValueT, ContextT]) -> contextual[ContextT, ValueT]:
+    """Function to swap a context and value."""
+
+    return contextual(*reversed(root_values))
 ) -> contextual[ValueT, Flag]:
     return contextual(
         contextual_floor.value.value,
