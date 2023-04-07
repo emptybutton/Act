@@ -1,7 +1,6 @@
 __all__ = (
     "PyhandingError",
     "ReturningError",
-    "NeutralActionChainError",
     "TemplatedActionChainError",
     "LambdaGeneratorError",
     "LambdaGeneratingError",
@@ -9,34 +8,28 @@ __all__ = (
 )
 
 
-class PyhandingError(Exception):
-    pass
+class PyhandingError(Exception): ...
 
 
-class FlagError(PyhandingError):
-    pass
+class FlagError(PyhandingError): ...
 
 
-class ReturningError(PyhandingError):
-    pass
+class ReturningError(PyhandingError): ...
 
 
-class ActionChainError(PyhandingError):
-    pass
 
 
+class ActionChainError(PyhandingError): ...
 
 
 class TemplatedActionChainError(ActionChainError):
     __notes__ = ["Regular chain should not contain Ellipsis"]
 
 
-class LambdaGeneratorError(PyhandingError):
-    pass
+class LambdaGeneratorError(PyhandingError): ...
 
 
-class LambdaGeneratingError(LambdaGeneratorError):
-    pass
+class LambdaGeneratingError(LambdaGeneratorError): ...
 
 
 class LambdaSettingError(LambdaGeneratorError):
