@@ -1,6 +1,7 @@
 __all__ = (
     "PyhandingError",
     "ReturningError",
+    "InvalidInitializationError",
     "TemplatedActionChainError",
     "LambdaGeneratorError",
     "LambdaGeneratingError",
@@ -17,6 +18,7 @@ class FlagError(PyhandingError): ...
 class ReturningError(PyhandingError): ...
 
 
+class InvalidInitializationError(PyhandingError): ...
 
 
 class ActionChainError(PyhandingError): ...
