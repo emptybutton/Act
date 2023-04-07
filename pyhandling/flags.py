@@ -7,14 +7,14 @@ from operator import or_
 from pyannotating import Special
 
 from pyhandling.atoming import atomic
-from pyhandling.annotations import ValueT, FlagT, checker_of
+from pyhandling.annotations import ValueT, FlagT, checker_of, PointT
 from pyhandling.errors import FlagError
 
 
 __all__ = ("Flag", "flag", "flag_to", "flag_sum", "nothing")
 
 
-class Flag(ABC, Generic[ValueT]):
+class Flag(ABC, Generic[PointT]):
     """
     Base class of atomic unique values and their algebraic operations.
     
@@ -146,7 +146,7 @@ class Flag(ABC, Generic[ValueT]):
 
     @property
     @abstractmethod
-    def point(self) -> ValueT:
+    def point(self) -> PointT:
         ...
 
     @abstractmethod
@@ -166,7 +166,7 @@ class Flag(ABC, Generic[ValueT]):
         ...
 
     @abstractmethod
-    def of(self, is_for_selection: checker_of[ValueT]) -> Self:
+    def of(self, is_for_selection: checker_of[PointT]) -> Self:
         ...
 
     @abstractmethod
@@ -309,7 +309,7 @@ class _AtomicFlag(Flag, ABC):
     def __iter__(self) -> Iterator[Self]:
         return iter((self, ) if self != nothing else tuple())
  
-    def of(self, is_for_selection: checker_of[ValueT]) -> Self:
+    def of(self, is_for_selection: checker_of[PointT]) -> Self:
         return self if self != nothing and is_for_selection(self.point) else nothing
 
     def _atomically_equal_to(self, other: Any) -> bool:
