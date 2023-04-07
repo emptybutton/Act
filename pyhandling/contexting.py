@@ -16,6 +16,7 @@ from pyhandling.tools import documenting_by
 
 
 __all__ = (
+    "ContextRoot",
     "contextual",
     "contextually",
     "ContextualError",
@@ -28,66 +29,32 @@ __all__ = (
 )
 
 
-class contextual(Generic[ValueT, ContextT]):
-    """Representer of an input value as a value with a context."""
 
-    value = property_of("_value")
-    context = property_of("_context")
 
-    def __init__(self, value: ValueT, when: ContextT = nothing):
-        self._value = value
-        self._context = when
+
+
+
+class ContextRoot(ABC, Generic[ValueT, ContextT]):
+    _value: ValueT
+    _context: ContextT
 
     def __repr__(self) -> str:
-        return _contextual_repr_of(self)
+        return f"{self._value} when {{}}".format(
+            ' and '.join(map(lambda flag: str(flag.point), self._context))
+            if isinstance(self._context, Flag) and self._context != nothing
+            else self._context
+        )
 
     def __iter__(self) -> Iterator:
         return iter((self._value, self._context))
 
+    def __eq__(self, other: contextual_like) -> bool:
+        value, context = other
 
-class contextually(ActionWrapper, Generic[ActionT, ContextT]):
-    action = property_of("_action")
-    context = property_of("_context")
-
-    def __init__(self, action: Callable[P, ResultT], when: ContextT = nothing):
-        self._context = when
-        super().__init__(action)
-
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
-        return self._action(*args, **kwargs)
-
-    def __repr__(self) -> str:
-        return _contextual_repr_of(self)
+        return self._value == value and self._context == context
 
     def __iter__(self) -> Iterator:
         return iter((self._value, self._context))
-
-    @property
-    def _force_signature(self) -> Signature:
-        return calling_signature_of(self._action)
-
-
-class ContextualError(Exception, Generic[ErrorT, ContextT]):
-    """
-    Error class to store the context of another error and itself.
-    Iterates to unpack.
-    """
-   
-    error = property_of("_ContextualError__error")
-    context = property_of("_ContextualError__context")
-
-    def __init__(self, error: ErrorT, context: ContextT):
-        self.__error = error
-        self.__context = context
-
-        super().__init__(self._error_message)
-
-    def __iter__(self) -> Iterator:
-        return iter((self.__error, self.__context))
-
-    @cached_property
-    def _error_message(self) -> str:
-        return _contextual_repr_of(self)
 
 
 class context_pointed(Generic[ValueT, PointT]):
@@ -129,14 +96,59 @@ class context_pointed(Generic[ValueT, PointT]):
 
 def context_oriented(root_values: tuple[ValueT, ContextT]) -> contextual[ContextT, ValueT]:
     """Function to swap a context and value."""
+class contextual(_ContextRoot, Generic[ValueT, ContextT]):
+    """Representer of an input value as a value with a context."""
 
-    context, value = root_values
+    value = property_to("_value")
+    context = property_to("_context")
+
+    def __init__(self, value: ValueT, when: ContextT = nothing):
+        self._value = value
+        self._context = when
 
     return contextual(value, when=context)
 
+class contextually(_ContextRoot, Generic[ActionT, ContextT]):
+    action = property_to("_value")
+    context = property_to("_context")
 
 def merged_contextual_floor(
     contextual_floor: contextual[contextual[ValueT, Any], Any]
+    def __init__(self, action: Callable[P, ResultT], when: ContextT = nothing):
+        self._value = action
+        self._context = when
+
+        update_wrapper(self, self._value)
+        self.__signature__ = self._get_signature()
+
+    def __repr__(self) -> str:
+        return f"contextually({super().__repr__()})"
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
+        return self._value(*args, **kwargs)
+
+    def _get_signature(self) -> Signature:
+        return calling_signature_of(self._value)
+
+
+class ContextualError(Exception, _ContextRoot, Generic[ErrorT, ContextT]):
+    """
+    Error class to store the context of another error and itself.
+    Iterates to unpack.
+    """
+   
+    error = property_to("_value")
+    context = property_to("_context")
+
+    def __init__(self, error: ErrorT, context: ContextT):
+        self._value = error
+        self._context = context
+
+        super().__init__(repr(self))
+
+    def __repr__(self) -> str:
+        return f"\"{self._value}\" error when {self._context}"
+
 ) -> contextual[ValueT, Flag]:
     return contextual(
         contextual_floor.value.value,
@@ -164,13 +176,4 @@ as_contextual = documenting_by(
 to_contextual_form = binding_by(as_contextual |then>> ...)
 
 
-def _contextual_repr_of(value_and_context: tuple[Any, Special[Flag]]) -> str:
-    """Function to render any `contextual-like` object."""
-
-    value, context = value_and_context
-
-    return f"{value} when {{}}".format(
-        ' and '.join(map(lambda flag: str(flag.point), context))
-        if isinstance(context, Flag) and context != nothing
-        else context
     )
