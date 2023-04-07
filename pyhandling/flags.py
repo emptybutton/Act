@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
-from typing import Self, Iterator, Any, Generic, TypeVar
+from typing import Self, Iterator, Any, Generic, TypeVar, Protocol
 from operator import or_
 
 from pyannotating import Special
@@ -11,7 +11,7 @@ from pyhandling.annotations import ValueT, FlagT, checker_of, PointT
 from pyhandling.errors import FlagError
 
 
-__all__ = ("Flag", "flag", "flag_to", "flag_sum", "nothing")
+__all__ = ("Flag", "flag", "flag_to", "flag_sum", "nothing", "Pointable", "pointed")
 
 
 class Flag(ABC, Generic[PointT]):
@@ -429,3 +429,13 @@ nothing.__doc__ = (
     Is a neutral element in flag sum operations.
     """
 )
+
+
+class Pointable(Protocol[PointT]):
+    @abstractmethod
+    def __pointed__(self) -> PointT:
+        ...
+
+
+def pointed(value: Pointable[PointT], *args, **kwargs) -> PointT:
+    return value.__pointed__(*args, **kwargs)
