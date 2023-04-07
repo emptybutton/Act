@@ -1,7 +1,9 @@
+from copy import deepcopy
 from functools import wraps
-from typing import Callable, Type, Any, Concatenate
+from typing import Callable, Type, Any, Concatenate, Self
 
 from pyhandling.annotations import ObjectT, P, ValueT, one_value_action
+from pyhandling.signature_assignmenting import calling_signature_of
 
 
 __all__ = ("to_clone", "publicly_immutable", "property_of")
@@ -20,7 +22,9 @@ def to_clone(method: Callable[Concatenate[ObjectT, P], Any]) -> Callable[Concate
 
         return clone
 
-    wrapper.__annotations__["return"] = Self
+    wrapper.__signature__ = calling_signature_of(wrapper).replace(
+        return_annotation=Self
+    )
 
     return wrapper
 
