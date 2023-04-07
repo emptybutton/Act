@@ -5,7 +5,7 @@ from pyannotating import many_or_one
 
 from pyhandling.annotations import ValueT, MappedT, KeyT, ValueT
 from pyhandling.atoming import atomically
-from pyhandling.branchers import on
+from pyhandling.branching import on
 from pyhandling.language import by, then
 from pyhandling.tools import documenting_by
 

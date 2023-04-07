@@ -10,7 +10,7 @@ from pyhandling.annotations import one_value_action, dirty, handler_of, ValueT, 
 from pyhandling.arguments import ArgumentPack
 from pyhandling.atoming import atomically
 from pyhandling.binders import returnly, closed, right_closed, right_partial, eventually, unpackly
-from pyhandling.branchers import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain, repeating, binding_by
+from pyhandling.branching import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain, repeating, binding_by
 from pyhandling.contexting import contextual, contextually, context_pointed
 from pyhandling.data_flow import returnly
 from pyhandling.errors import LambdaGeneratingError

@@ -1,14 +1,15 @@
 from functools import partial, reduce, wraps, cached_property, update_wrapper
-from inspect import Signature, signature
+from inspect import Signature, signature, _empty
 from math import inf
-from operator import itemgetter
-from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional, Type, Tuple, NamedTuple
+from operator import itemgetter, or_, is_not
+from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional, Type, Tuple, NamedTuple, _CallableGenericAlias
 
 from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotation
 
 from pyhandling.annotations import ResultT, one_value_action, P, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, checker_of
 from pyhandling.errors import TemplatedActionChainError
-from pyhandling.immutability import property_of
+from pyhandling.immutability import property_to
+from pyhandling.partials import right_partial
 from pyhandling.signature_assignmenting import calling_signature_of, annotation_sum
 from pyhandling.synonyms import returned, with_unpacking
 
@@ -72,7 +73,7 @@ class ActionChain(Generic[_NodeT]):
     `chain_instance <= input_value`. 
     """
 
-    is_template = property_of("_is_template")
+    is_template = property_to("_is_template")
 
     def __init__(self, nodes: Iterable[_NodeT] = tuple()):
         self._nodes = tuple(nodes)
@@ -176,20 +177,29 @@ class merged:
         self.__signature__ = self.__get_signature()
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> Tuple:
-        return tuple(action(*args, **kwargs) for action in actions)
+        return tuple(action(*args, **kwargs) for action in self._actions)
 
     def __repr__(self) -> str:
         return ' & '.join(map(str, self._actions))
 
     def __get_signature(self) -> Signature:
+        if not self._actions:
+            return calling_signature_of(lambda *args, **kwargs: ...).replace(
+                input_annotation=Tuple
+            )
+
         argument_signature = calling_signature_of(
             self._actions[0] if self._actions else lambda *_, **__: ...
         )
 
-        return_annotation = partial(reduce, or_)(
-            partial(filter, post_partial(is_not, _empty))(
+        return_annotations = tuple(
+            partial(filter, right_partial(is_not, _empty))(
                 map(lambda act: calling_signature_of(act).return_annotation, self._actions)
             )
+        )
+
+        return_annotation = (
+            reduce(or_, return_annotations) if return_annotations else _empty
         )
 
         return argument_signature.replace(return_annotation=return_annotation)

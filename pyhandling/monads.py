@@ -5,8 +5,8 @@ from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Spec
 
 from pyhandling.annotations import one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of
 from pyhandling.atoming import atomically
-from pyhandling.branchers import ActionChain, on, rollbackable, mapping_to_chain_of, mapping_to_chain, binding_by
 from pyhandling.contexting import contextual, contextually, context_pointed
+from pyhandling.branching import ActionChain, on, rollbackable, mapping_to_chain_of, mapping_to_chain, binding_by
 from pyhandling.data_flow import returnly
 from pyhandling.flags import flag, nothing, Flag, flag_to
 from pyhandling.language import then, by, to

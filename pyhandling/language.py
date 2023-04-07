@@ -4,8 +4,8 @@ from typing import Generic, Callable, Optional, Iterable, Any, Self
 from pyannotating import Special
 
 from pyhandling.annotations import ResultT
-from pyhandling.branchers import ActionChain
 from pyhandling.immutability import property_of
+from pyhandling.branching import ActionChain
 from pyhandling.partials import right_partial
 from pyhandling.tools import documenting_by
 

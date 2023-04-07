@@ -4,7 +4,7 @@ from typing import Callable, Optional
 
 from pyhandling.annotations import dirty, handler_of, ValueT, ResultT, checker_of, action_for, P, reformer_of
 from pyhandling.atoming import atomically
-from pyhandling.branchers import on, rollbackable, binding_by
+from pyhandling.branching import on, rollbackable, binding_by
 from pyhandling.contexting import contextual
 from pyhandling.data_flow import returnly, eventually
 from pyhandling.flags import nothing
