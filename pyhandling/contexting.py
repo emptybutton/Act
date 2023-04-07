@@ -24,10 +24,10 @@ __all__ = (
     "contextually",
     "ContextualError",
     "context_oriented",
-    "merged_contextual_floor",
-    "merged_contextual_floors",
     "as_contextual",
     "to_contextual_form",
+    "merged_contexted_floor",
+    "merged_contexted_deep_floor",
 )
 
 
@@ -120,8 +120,6 @@ class contextually(_ContextRoot, Generic[ActionT, ContextT]):
     action = property_to("_value")
     context = property_to("_context")
 
-def merged_contextual_floor(
-    contextual_floor: contextual[contextual[ValueT, Any], Any]
     def __init__(self, action: Callable[P, ResultT], when: ContextT = nothing):
         self._value = action
         self._context = when
@@ -162,16 +160,23 @@ def context_oriented(root_values: contextual_like[ValueT, ContextT]) -> contextu
     """Function to swap a context and value."""
 
     return contextual(*reversed(root_values))
+
+
+def merged_contexted_floor(
+    contexted_floor: contextual_like[contextual_like[ValueT, Any], Any]
 ) -> contextual[ValueT, Flag]:
+    top_floor = contextual(*contexted_floor)
+    bottom_floor = contextual(*top_floor.value)
+
     return contextual(
-        contextual_floor.value.value,
-        when=flag_to(contextual_floor.context, contextual_floor.value.context),
+        bottom_floor.value,
+        when=flag_to(top_floor.context, bottom_floor.context),
     )
 
 
-merged_contextual_floors: reformer_of[contextual] = repeating(
+merged_contexted_deep_floor: reformer_of[contextual] = repeating(
     merged_contextual_floor,
-    attrgetter("value") |then>> (isinstance |by| contextual),
+    attrgetter("value") |then>> (isinstance |by| ContextRoot),
 )
 
 
