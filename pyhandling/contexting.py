@@ -24,10 +24,9 @@ __all__ = (
     "contextually",
     "ContextualError",
     "context_oriented",
-    "as_contextual",
-    "to_contextual_form",
     "merged_contexted_floor",
     "merged_contexted_deep_floor",
+    "contexted",
 )
 
 
@@ -180,18 +179,16 @@ merged_contexted_deep_floor: reformer_of[contextual] = repeating(
 )
 
 
-as_contextual: Callable[[ValueT | contextual[ValueT, Any]], contextual[ValueT, Any]]
-as_contextual = documenting_by(
+contexted: Callable[[ValueT | contextual_like[ValueT, Any]], contextual[ValueT, Any]]
+contexted = documenting_by(
     """
     Function to represent an input value in `contextual` form if it is not
     already present.
     """
 )(
-    on((isinstance |by| contextual) |then>> not_, contextual)
-)
-
-
-to_contextual_form = binding_by(as_contextual |then>> ...)
-
-
+    on(
+        isinstance |by| contextual_like,
+        with_unpacking(contextual),
+        else_=contextual,
     )
+)
