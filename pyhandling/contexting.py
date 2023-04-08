@@ -25,9 +25,9 @@ __all__ = (
     "ContextualError",
     "context_pointed",
     "context_oriented",
+    "contexted",
     "merged_contexted_floor",
     "merged_contexted_deep_floor",
-    "contexted",
 )
 
 
@@ -155,6 +155,30 @@ def context_oriented(root_values: contextual_like[ValueT, ContextT]) -> contextu
     return contextual(*reversed(root_values))
 
 
+_ExistingContextT = TypeVar("_ExistingContextT")
+
+
+def contexted(
+    value: ValueT | ContextRoot[ValueT, _ExistingContextT],
+    when: Optional[Special[_FlagCalculation, ContextT]] = None,
+    *,
+    form: Callable[[ValueT, _ExistingContextT | ContextT], ContextRoot] = contextual
+) -> ContextRoot[ValueT, _ExistingContextT | ContextT]:
+    """
+    Function to represent an input value in `contextual` form if it is not
+    already present.
+    """
+
+    value, context = value if isinstance(value, ContextRoot) else contextual(value)
+
+    if isinstance(when, _FlagCalculation):
+        context = when(context)
+    elif when is not None:
+        context = when
+
+    return form(value, context)
+
+
 def merged_contexted_floor(
     contexted_floor: contextual_like[contextual_like[ValueT, Any], Any]
 ) -> contextual[ValueT, Flag]:
@@ -170,19 +194,4 @@ def merged_contexted_floor(
 merged_contexted_deep_floor: reformer_of[contextual] = repeating(
     merged_contextual_floor,
     attrgetter("value") |then>> (isinstance |by| ContextRoot),
-)
-
-
-contexted: Callable[[ValueT | contextual_like[ValueT, Any]], contextual[ValueT, Any]]
-contexted = documenting_by(
-    """
-    Function to represent an input value in `contextual` form if it is not
-    already present.
-    """
-)(
-    on(
-        isinstance |by| contextual_like,
-        with_unpacking(contextual),
-        else_=contextual,
-    )
 )
