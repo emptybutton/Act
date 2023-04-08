@@ -53,11 +53,7 @@ class ContextRoot(ABC, Generic[ValueT, ContextT]):
     _context: ContextT
 
     def __repr__(self) -> str:
-        return f"{self._value} when {{}}".format(
-            ' and '.join(map(lambda flag: str(flag.point), self._context))
-            if isinstance(self._context, Flag) and self._context != nothing
-            else self._context
-        )
+        return f"{self._value} when {self._context}"
 
     def __eq__(self, other: contextual_like) -> bool:
         value, context = other
