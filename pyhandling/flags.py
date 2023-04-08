@@ -176,6 +176,11 @@ class Flag(ABC, Generic[PointT]):
         ...
 
     @abstractmethod
+    def __pos__(self) -> "_FlagCalculation":
+        ...
+
+    @abstractmethod
+    def __neg__(self) -> "_FlagCalculation":
         ...
 
     @abstractmethod
@@ -291,6 +296,16 @@ class _DoubleFlag(Flag, ABC):
     def __mul__(self, times: int) -> Flag:
         return self._combined(self._first * times, self._second * times)
 
+    def __pos__(self) -> _FlagCalculation:
+        return _FlagCalculation(self._first, next_=_FlagCalculation(self._second))
+
+    def __neg__(self) -> _FlagCalculation:
+        return _FlagCalculation(
+            self._first,
+            is_positive=False,
+            next_=_FlagCalculation(self._second, is_positive=False)
+        )
+
     def __hash__(self) -> int:
         return hash(self._first) + hash(self._second)
 
@@ -369,6 +384,12 @@ class _AtomicFlag(Flag, ABC):
             return self
         else:
             return self | (self * (times - 1))
+
+    def __pos__(self) -> _FlagCalculation:
+        return _FlagCalculation(self)
+
+    def __neg__(self) -> _FlagCalculation:
+        return _FlagCalculation(self, is_positive=False)
 
     def __sub__(self, other: Any) -> Self: 
         return nothing if self == other else self
