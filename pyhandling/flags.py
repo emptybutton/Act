@@ -256,13 +256,13 @@ class _DoubleFlag(Flag, ABC):
 
         reduced_second = self._second - other
 
-        if reduced_second != self._second:
-            return self._first | reduced_second
+        if tuple(reduced_second) != tuple(self._second):
+            return self._combined(self._first, reduced_second)
 
         reduced_first = self._first - other
 
-        if reduced_first != self._first:
-            return reduced_first | self._second
+        if tuple(reduced_first) != tuple(self._first):
+            return self._combined(reduced_first, self._second)
 
         return self
 
