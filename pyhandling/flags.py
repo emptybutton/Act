@@ -429,13 +429,3 @@ nothing.__doc__ = (
     Is a neutral element in flag sum operations.
     """
 )
-
-
-class Pointable(Protocol[PointT]):
-    @abstractmethod
-    def __pointed__(self) -> PointT:
-        ...
-
-
-def pointed(value: Pointable[PointT], *args, **kwargs) -> PointT:
-    return value.__pointed__(*args, **kwargs)
