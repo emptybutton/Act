@@ -5,10 +5,10 @@ from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Spec
 
 from pyhandling.annotations import one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of
 from pyhandling.atoming import atomically
-from pyhandling.contexting import contextual, contextually, context_pointed
 from pyhandling.branching import ActionChain, on, rollbackable, mapping_to_chain_of, mapping_to_chain, binding_by
+from pyhandling.contexting import contextual, contextually, contexted
 from pyhandling.data_flow import returnly
-from pyhandling.flags import flag, nothing, Flag, flag_to
+from pyhandling.flags import flag, nothing, Flag, pointed
 from pyhandling.language import then, by, to
 from pyhandling.partials import closed
 from pyhandling.structure_management import as_collection
@@ -97,10 +97,10 @@ maybe = documenting_by(
     Skips execution if the input value is in a `bad` context.
     """
 )(
-    monadically(lambda node: to_contextual_form(lambda root: (
+    monadically(lambda node: contexted |then>> (lambda root: (
         root.value >= node |then>> on(
-            lambda result: context_pointed(as_contextual(result)).flag == bad,
-            attrgetter("value") |then>> (contextual |by| (flag_to(root.context) | bad)),
+            lambda result: context_pointed(contexted(result)).flag == bad,
+            attrgetter("value") |then>> (contexted |by| +bad),
             else_=contextual |by| root.context,
         )
         if root.context != bad
@@ -118,12 +118,15 @@ until_error = documenting_by(
     error as context.
     """
 )(
-    monadically(lambda node: to_contextual_form(lambda root: (
+    monadically(lambda node: contexted |then>> (lambda root: (
         rollbackable(
-            node |then>> (contextual |by| root.context),
-            lambda error: contextual(root.value, when=flag_to(root.context, error)),
-        )(root.value)
-        if flag_to(root.context).of(isinstance |by| Exception) == nothing
+            saving_context(node),
+            lambda error: contextual(
+                root.value,
+                pointed(root.context, error)
+            ),
+        )(root)
+        if pointed(root.context).of(isinstance |by| Exception) == nothing
         else root
     )))
 )
@@ -206,7 +209,7 @@ def either(
 to_points: mapping_to_chain_among[Flag] = documenting_by(
     """Execution context of flag `points`."""
 )(
-    monadically(lambda action: lambda flags: flag_to(*map(
+    monadically(lambda action: lambda flags: pointed(*map(
         attrgetter("point") |then>> action,
         flags,
     )))
