@@ -11,7 +11,7 @@ from pyhandling.annotations import ValueT, FlagT, checker_of, PointT
 from pyhandling.errors import FlagError
 
 
-__all__ = ("Flag", "flag", "flag_to", "flag_sum", "nothing", "Pointable", "pointed")
+__all__ = ("Flag", "flag", "pointed", "nothing")
 
 
 class Flag(ABC, Generic[PointT]):
@@ -349,7 +349,7 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
         return self._value
 
     def __repr__(self) -> str:
-        return f"flag({self._value})"
+        return f"pointed({self._value})"
 
     def __hash__(self) -> int:
         return hash(self._value)
@@ -399,27 +399,26 @@ def flag(name: str, *, sign: bool = True) -> Flag:
     return _NominalFlag(name, sign)
 
 
-def flag_to(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:
+    """
+    See `Flag` for behavior info.
+    """
+
+
+
+def pointed(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:
     """
     Function to create a flag sum pointing to input values.
     See `Flag` for behavior info.
     """
 
-    return flag_sum(*map(_ValueFlag.as_flag, values))
-
-
-def flag_sum(*flags: Flag) -> Flag:
-    """
-    Function to create a sum of flags from flags or other sums.
-    See `Flag` for behavior info.
-    """
+    flags = tuple(map(_ValueFlag.as_flag, values))
 
     if len(flags) == 0:
         return nothing
     elif len(flags) == 1:
         return flags[0]
-    else:
-        return reduce(or_, flags)
+
+    return reduce(or_, flags)
 
 
 nothing = flag("nothing", sign=False)
