@@ -212,7 +212,7 @@ class Flag(ABC, Generic[PointT]):
             return first
 
         else:
-            return _UnionFlag(first, second)
+            return merge(first, second)
 
 
 _FirstPointT = TypeVar("_FirstPointT")
