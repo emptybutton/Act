@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
-from typing import Self, Iterator, Any, Generic, TypeVar, Protocol
 from operator import or_
+from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional
 
 from pyannotating import Special
 
 from pyhandling.atoming import atomic
-from pyhandling.annotations import ValueT, FlagT, checker_of, PointT
+from pyhandling.annotations import ValueT, FlagT, checker_of, PointT, P, ResultT, merger_of, reformer_of
 from pyhandling.errors import FlagError
 
 
@@ -219,22 +219,13 @@ _FirstPointT = TypeVar("_FirstPointT")
 _SecondPointT = TypeVar("_SecondPointT")
 
 
-class _UnionFlag(Flag, Generic[_FirstPointT, _SecondPointT]):
-    """
-    Flag sum class.
 
-    Created via the `|` operator between flags or by using the `flag_sum`
-    function, which is a safe flag sum constructor.
 
-    Not safe for self-initialization because it has no mechanisms to prevent
-    summation with `nothing`.
 
-    Throws `FlagError` when created with `nothing`.
 
-    Recursively delegates calls to its two stored flags.
-    Indicates the sum of its flags (self).
-    Binary between its flags in `or` form.
-    """
+class _DoubleFlag(Flag, ABC):
+    _separation_sign: str = ', '
+    _comparison_priority = 1
 
     def __init__(self, first: Flag[_FirstPointT], second: Flag[_SecondPointT]):
         self._first = first
@@ -247,20 +238,20 @@ class _UnionFlag(Flag, Generic[_FirstPointT, _SecondPointT]):
     def point(self) -> Self:
         return self
 
+    def __repr__(self) -> str:
+        return f"{self._first} {self._separation_sign} {self._second}"
+
     def __getatom__(self) -> Flag:
         return atomic(self._first)
 
-    def __repr__(self) -> str:
-        return f"{self._first} | {self._second}"
+    def __mul__(self, times: int) -> Flag:
+        return self._combined(self._first * times, self._second * times)
 
     def __hash__(self) -> int:
         return hash(self._first) + hash(self._second)
 
-    def __bool__(self) -> bool:
-        return bool(self._first or self._second)
-
     def __sub__(self, other: Any) -> Flag:
-        if isinstance(other, _UnionFlag):
+        if isinstance(other, _DoubleFlag):
             return self - other._second - other._first
 
         reduced_second = self._second - other
@@ -282,16 +273,43 @@ class _UnionFlag(Flag, Generic[_FirstPointT, _SecondPointT]):
         return chain(self._first, self._second)
 
     def of(self, is_for_selection: checker_of[_FirstPointT | _SecondPointT]) -> Flag:
-        return self._combine_flags(
+        return self._combined(
             self._first.of(is_for_selection),
             self._second.of(is_for_selection),
         )
 
+    @abstractmethod
+    def _combined(self, first: Flag, second: Flag) -> Flag:
+        ...
+
+
+class _FlagSum(_DoubleFlag):
+    """
+    Flag sum class.
+
+    Created via the `|` operator between flags or by using tshe `pointed`
+    function, which is a safe flag sum constructor.
+
+    Not safe for self-initialization because it has no mechanisms to prevent
+    summation with `nothing`.
+
+    Throws `FlagError` when created with `nothing`.
+
+    Recursively delegates calls to its two stored flags.
+    Indicates the sum of its flags (self).
+    Binary between its flags in `or` form.
+    """
+
+    _separation_sign = '|'
+
+    def __bool__(self) -> bool:
+        return bool(self._first or self._second)
+
     def _atomically_equal_to(self, other: Any) -> bool:
         return self._first == other or self._second == other
 
-    def _atomically_multiplied_by(self, times: int) -> Self:
-        return (self._first * times) | (self._second * times)
+    def _combined(self, first: Flag, second: Flag) -> Flag:
+        return first | second
 
 
 class _AtomicFlag(Flag, ABC):
