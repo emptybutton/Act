@@ -180,11 +180,9 @@ class Flag(ABC, Generic[PointT]):
     def __instancecheck__(self,  instance: Any) -> bool:
         return self == instance
 
-    def __or__(self, other: Self) -> Self:
-        return self._combine_flags(self, other)
 
-    def __ror__(self, other: Self) -> Self:
-        return self._combine_flags(other, self)
+    def __or__(self, other: Special[Self]) -> Self:
+        return self.__sum(self, pointed(other), merge=_FlagSum)
 
     def __eq__(self, other: Special["_UnionFlag"]) -> bool:
         return (
@@ -192,6 +190,8 @@ class Flag(ABC, Generic[PointT]):
             if isinstance(other, _UnionFlag) and not isinstance(self, _UnionFlag)
             else self._atomically_equal_to(other)
         )
+    def __ror__(self, other: Special[Self]) -> Self:
+        return self.__sum(pointed(other), self, merge=_FlagSum)
 
     def __mul__(self, times: int) -> Self:
         return (
@@ -204,7 +204,7 @@ class Flag(ABC, Generic[PointT]):
         return self * other
 
     @staticmethod
-    def _combine_flags(first: Self, second: Self) -> Self:
+    def __sum(first: Self, second: Self, *, merge: merger_of[Self]) -> Self:
         if first == nothing:
             return second
 
