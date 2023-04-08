@@ -1,14 +1,18 @@
 from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
-from operator import or_
 from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional
+from operator import or_, sub
 
 from pyannotating import Special
 
 from pyhandling.atoming import atomic
 from pyhandling.annotations import ValueT, FlagT, checker_of, PointT, P, ResultT, merger_of, reformer_of
 from pyhandling.errors import FlagError
+from pyhandling.immutability import to_clone
+from pyhandling.language import then, by
+from pyhandling.signature_assignmenting import calling_signature_of
+from pyhandling.synonyms import returned
 
 
 __all__ = ("Flag", "flag", "pointed", "nothing")
@@ -215,12 +219,52 @@ class Flag(ABC, Generic[PointT]):
             return merge(first, second)
 
 
+class _FlagCalculation:
+    def __init__(
+        self,
+        flag: Flag,
+        *,
+        is_positive: bool = True,
+        next_: Optional[reformer_of[Flag]] = None
+    ):
+        self._flag = flag
+        self._is_positive = is_positive
+        self._next = next_
+
+    def __repr__(self) -> str:
+        return f"{'+' if self._is_positive else '-'}{self._flag}{{}}".format(
+            f" ^ {self._next}" if self._next is not None else str()
+        )
+
+    @to_clone
+    def __xor__(self, other: Self) -> None:
+        self._next = other
+
+    @to_clone
+    def __neg__(self) -> None:
+        self._is_positive = not self._is_positive
+
+    def __pos__(self) -> Self:
+        return self
+
+    def __invert__(self) -> Flag:
+        return self(nothing)
+
+    def __rshift__(self, flag: Flag) -> Flag:
+        return self(flag)
+
+    def __lshift__(self, flag: Flag) -> Flag:
+        return self(flag)
+
+    def __call__(self, flag: Flag) -> Flag:
+        action = (or_ if self._is_positive else sub)
+        next_ = self._next if self._next is not None else returned
+
+        return flag >= (action |by| self._flag) |then>> next_
+
+
 _FirstPointT = TypeVar("_FirstPointT")
 _SecondPointT = TypeVar("_SecondPointT")
-
-
-
-
 
 
 class _DoubleFlag(Flag, ABC):
