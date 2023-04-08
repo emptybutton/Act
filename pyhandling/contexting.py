@@ -189,6 +189,6 @@ def merged_contexted_floor(
 
 
 merged_contexted_deep_floor: reformer_of[contextual] = repeating(
-    merged_contextual_floor,
+    merged_contexted_floor,
     attrgetter("value") |then>> (isinstance |by| ContextRoot),
 )
