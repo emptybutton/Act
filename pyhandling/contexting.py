@@ -185,10 +185,7 @@ def merged_contexted_floor(
     top_floor = contextual(*contexted_floor)
     bottom_floor = contextual(*top_floor.value)
 
-    return contextual(
-        bottom_floor.value,
-        when=flag_to(top_floor.context, bottom_floor.context),
-    )
+    return contexted(bottom_floor, +top_floor.context)
 
 
 merged_contexted_deep_floor: reformer_of[contextual] = repeating(
