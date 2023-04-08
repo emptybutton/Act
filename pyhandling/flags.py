@@ -369,6 +369,9 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
     def __repr__(self) -> str:
         return f"pointed({self._value})"
 
+    def __str__(self) -> str:
+        return str(self._value)
+
     def __hash__(self) -> int:
         return hash(self._value)
 
