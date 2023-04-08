@@ -144,6 +144,8 @@ class Flag(ABC, Generic[PointT]):
     ```
     """
 
+    _comparison_priority: int | float = 0
+
     @property
     @abstractmethod
     def point(self) -> PointT:
@@ -166,42 +168,40 @@ class Flag(ABC, Generic[PointT]):
         ...
 
     @abstractmethod
+    def __mul__(self, times: int) -> Self:
+        ...
+
+    @abstractmethod
+        ...
+
+    @abstractmethod
     def of(self, is_for_selection: checker_of[PointT]) -> Self:
-        ...
-
-    @abstractmethod
-    def _atomically_equal_to(self, other: Any) -> bool:
-        ...
-
-    @abstractmethod
-    def _atomically_multiplied_by(self, times: int) -> Self:
         ...
 
     def __instancecheck__(self,  instance: Any) -> bool:
         return self == instance
 
+    def __rmul__(self, times: int) -> Self:
+        return self * times
 
     def __or__(self, other: Special[Self]) -> Self:
         return self.__sum(self, pointed(other), merge=_FlagSum)
 
-    def __eq__(self, other: Special["_UnionFlag"]) -> bool:
-        return (
-            other == self
-            if isinstance(other, _UnionFlag) and not isinstance(self, _UnionFlag)
-            else self._atomically_equal_to(other)
-        )
     def __ror__(self, other: Special[Self]) -> Self:
         return self.__sum(pointed(other), self, merge=_FlagSum)
 
-    def __mul__(self, times: int) -> Self:
+    def __eq__(self, other: Special[Self]) -> bool:
         return (
-            times * self
-            if isinstance(times, _UnionFlag) and not isinstance(self, _UnionFlag)
-            else self._atomically_multiplied_by(times)
+            other == self if (
+                isinstance(other, Flag)
+                and self._comparison_priority < other._comparison_priority
+            )
+            else self._atomically_equal_to(other)  
         )
 
-    def __rmul__(self, other: int) -> Self:
-        return self * other
+    @abstractmethod
+    def _atomically_equal_to(self, other: Any) -> bool:
+        ...
 
     @staticmethod
     def __sum(first: Self, second: Self, *, merge: merger_of[Self]) -> Self:
@@ -318,6 +318,14 @@ class _AtomicFlag(Flag, ABC):
     def __getatom__(self) -> Self:
         return self
 
+    def __mul__(self, times: int) -> Flag:
+        if times <= 0:
+            return nothing
+        elif times == 1:
+            return self
+        else:
+            return self | (self * (times - 1))
+
     def __sub__(self, other: Any) -> Self: 
         return nothing if self == other else self
 
@@ -332,14 +340,6 @@ class _AtomicFlag(Flag, ABC):
 
     def _atomically_equal_to(self, other: Any) -> bool:
         return type(self) is type(other) and hash(self) == hash(other)
-
-    def _atomically_multiplied_by(self, times: int) -> Self:
-        if times <= 0:
-            return nothing
-        elif times == 1:
-            return self
-        else:
-            return self | (self * (times - 1))
 
 
 class _ValueFlag(_AtomicFlag, Generic[ValueT]):
