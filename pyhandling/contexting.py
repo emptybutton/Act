@@ -33,7 +33,7 @@ __all__ = (
 
 class contextual_like(NotInitializable):
     def __class_getitem__(self, value_or_value_and_context: Any | tuple[Any, Any]) -> GenericAlias:
-        value_and_contextcontextual_like = (
+        value_and_context = (
             value_or_value_and_context
             if isinstance(value_or_value_and_context, Iterable)
             else (value_or_value_and_context, Any)
