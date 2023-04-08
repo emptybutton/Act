@@ -150,7 +150,7 @@ class Flag(ABC, Generic[PointT]):
         ...
 
     @abstractmethod
-    def __getatom__(self) -> "_AtomicFlag":
+    def __getatom__(self) -> Self:
         ...
 
     @abstractmethod
@@ -247,7 +247,7 @@ class _UnionFlag(Flag, Generic[_FirstPointT, _SecondPointT]):
     def point(self) -> Self:
         return self
 
-    def __getatom__(self) -> "_AtomicFlag":
+    def __getatom__(self) -> Flag:
         return atomic(self._first)
 
     def __repr__(self) -> str:
