@@ -411,11 +411,6 @@ class _NominalFlag(_AtomicFlag):
         return self._sign
 
 
-def flag(name: str, *, sign: bool = True) -> Flag:
-    """
-    Function constructor of an atomic named flag pointing to itself.
-    See `Flag` for behavior info.
-    """
 class _ActionFlag(_NominalFlag):
     def __init__(self, name: str, sign: bool, action: Callable[P, ResultT]):
         super().__init__(name, sign)
@@ -423,15 +418,22 @@ class _ActionFlag(_NominalFlag):
         self._action = action
         self.__signature__ = calling_signature_of(action)
 
-    return _NominalFlag(name, sign)
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
         return self._action(*args, **kwargs)
 
 
+def flag(
+    name: str,
+    *,
+    sign: bool = True,
+    action: Optional[Callable] = None
+) -> _NominalFlag | _ActionFlag:
     """
+    Function constructor of an atomic named flag pointing to itself.
     See `Flag` for behavior info.
     """
 
+    return _NominalFlag(name, sign) if action is None else _ActionFlag(name, sign, action)
 
 
 def pointed(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:
