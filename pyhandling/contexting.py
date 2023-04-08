@@ -64,7 +64,7 @@ class ContextRoot(ABC, Generic[ValueT, ContextT]):
         return iter((self._value, self._context))
 
 
-class contextual(_ContextRoot, Generic[ValueT, ContextT]):
+class contextual(ContextRoot, Generic[ValueT, ContextT]):
     """Representer of an input value as a value with a context."""
 
     value = property_to("_value")
@@ -75,7 +75,7 @@ class contextual(_ContextRoot, Generic[ValueT, ContextT]):
         self._context = when
 
 
-class contextually(_ContextRoot, Generic[ActionT, ContextT]):
+class contextually(ContextRoot, Generic[ActionT, ContextT]):
     action = property_to("_value")
     context = property_to("_context")
 
@@ -96,7 +96,7 @@ class contextually(_ContextRoot, Generic[ActionT, ContextT]):
         return calling_signature_of(self._value)
 
 
-class ContextualError(Exception, _ContextRoot, Generic[ErrorT, ContextT]):
+class ContextualError(Exception, ContextRoot, Generic[ErrorT, ContextT]):
     """
     Error class to store the context of another error and itself.
     Iterates to unpack.
