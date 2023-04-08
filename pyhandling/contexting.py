@@ -2,14 +2,14 @@ from abc import ABC, abstractmethod
 from functools import cached_property
 from inspect import Signature
 from operator import attrgetter, not_
-from typing import Generic, Any, Iterator, Callable, Iterable, GenericAlias
+from typing import Generic, Any, Iterator, Callable, Iterable, GenericAlias, TypeVar, Optional
 
 from pyannotating import Special
 
 from pyhandling.annotations import ValueT, ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, reformer_of
 from pyhandling.atoming import atomic
 from pyhandling.branching import binding_by, repeating, on
-from pyhandling.flags import flag, nothing, Flag, flag_to
+from pyhandling.flags import flag, nothing, Flag, pointed, _FlagCalculation
 from pyhandling.immutability import property_to
 from pyhandling.language import then, by
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
@@ -23,6 +23,7 @@ __all__ = (
     "contextual",
     "contextually",
     "ContextualError",
+    "context_pointed",
     "context_oriented",
     "merged_contexted_floor",
     "merged_contexted_deep_floor",
@@ -58,9 +59,6 @@ class ContextRoot(ABC, Generic[ValueT, ContextT]):
             else self._context
         )
 
-    def __pointed__(self, *args, **kwargs) -> "_PointedContextRoot":
-        return _PointedContextRoot(self, *args, **kwargs)
-
     def __eq__(self, other: contextual_like) -> bool:
         value, context = other
 
@@ -68,40 +66,6 @@ class ContextRoot(ABC, Generic[ValueT, ContextT]):
 
     def __iter__(self) -> Iterator:
         return iter((self._value, self._context))
-
-
-class _PointedContextRoot(_ContextRoot):
-    """
-    Class to replace a context of a `contextual-like` object with a flag
-    pointing to the original context.
-
-    Optionally selects flags.
-
-    Getting a value and the newly created context is only available through
-    unpacking.
-
-    Has an atomic form, specified as the same value in context of point of the
-    newly converted context (flag) atomic version.
-    """
-
-    value = property_to("_value")
-    flag = property_to("_context")
-
-    def __init__(
-        self,
-        value_and_context: contextual_like[ValueT, PointT | Flag[PointT]],
-        is_for_selection: checker_of[PointT] = lambda _: True,
-    ):
-        value, context = value_and_context
-
-        self._value = value
-        self._context = flag_to(context).of(is_for_selection)
-
-    def __repr__(self) -> str:
-        return f"pointed({super().__repr__()})"
-
-    def __getatom__(self) -> contextual[ValueT, PointT]:
-        return contextual(self._value, when=atomic(self._context).point)
 
 
 class contextual(_ContextRoot, Generic[ValueT, ContextT]):
@@ -153,6 +117,40 @@ class ContextualError(Exception, _ContextRoot, Generic[ErrorT, ContextT]):
 
     def __repr__(self) -> str:
         return f"\"{self._value}\" error when {self._context}"
+
+
+class context_pointed(ContextRoot):
+    """
+    Class to replace a context of a `contextual-like` object with a flag
+    pointing to the original context.
+
+    Optionally selects flags.
+
+    Getting a value and the newly created context is only available through
+    unpacking.
+
+    Has an atomic form, specified as the same value in context of point of the
+    newly converted context (flag) atomic version.
+    """
+
+    value = property_to("_value")
+    flag = property_to("_context")
+
+    def __init__(
+        self,
+        value_and_context: contextual_like[ValueT, PointT | Flag[PointT]],
+        is_for_selection: checker_of[PointT] = lambda _: True,
+    ):
+        value, context = value_and_context
+
+        self._value = value
+        self._context = pointed(context).of(is_for_selection)
+
+    def __repr__(self) -> str:
+        return f"context_pointed({super().__repr__()})"
+
+    def __getatom__(self) -> "contextual[ValueT, PointT]":
+        return contextual(self._value, when=atomic(self._context).point)
 
 
 def context_oriented(root_values: contextual_like[ValueT, ContextT]) -> contextual[ContextT, ValueT]:
