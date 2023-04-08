@@ -416,8 +416,16 @@ def flag(name: str, *, sign: bool = True) -> Flag:
     Function constructor of an atomic named flag pointing to itself.
     See `Flag` for behavior info.
     """
+class _ActionFlag(_NominalFlag):
+    def __init__(self, name: str, sign: bool, action: Callable[P, ResultT]):
+        super().__init__(name, sign)
+
+        self._action = action
+        self.__signature__ = calling_signature_of(action)
 
     return _NominalFlag(name, sign)
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
+        return self._action(*args, **kwargs)
 
 
     """
