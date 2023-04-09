@@ -2,6 +2,7 @@ from functools import update_wrapper
 from typing import runtime_checkable, Protocol
 
 from pyhandling.annotations import AtomT, ValueT, action_for, ResultT
+from pyhandling.errors import AtomizationError
 
 
 __all__ = ("Atomizable", "atomic", "atomically")
@@ -19,14 +20,17 @@ class Atomizable(Protocol[AtomT]):
         ...
 
 
-def atomic(value: Atomizable[AtomT] | ValueT) -> AtomT | ValueT:
+def atomic(value: Atomizable[AtomT]) -> AtomT:
     """
     Function representing an input object in its atomic form.
 
     Is a public synonym for calling the `__getatom__` method.
     """
 
-    return value.__getatom__() if isinstance(value, Atomizable) else value
+    if not isinstance(value, Atomizable):
+        raise AtomizationError(f"{type(value).__name__} object is not atomizable'")
+
+    return value.__getatom__()
 
 
 class atomically:

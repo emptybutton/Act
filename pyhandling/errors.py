@@ -2,6 +2,7 @@ __all__ = (
     "PyhandingError",
     "ReturningError",
     "InvalidInitializationError",
+    "AtomizationError",
     "TemplatedActionChainError",
     "LambdaGeneratorError",
     "LambdaGeneratingError",
@@ -19,6 +20,9 @@ class ReturningError(PyhandingError): ...
 
 
 class InvalidInitializationError(PyhandingError): ...
+
+
+class AtomizationError(PyhandingError): ...
 
 
 class ActionChainError(PyhandingError): ...
