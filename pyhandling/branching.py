@@ -281,9 +281,9 @@ class repeating:
     result of an input action itself.
     """
 
-    def __init__(self, action: reformer_of[ValueT], is_valid_to_repeat: checker_of[ValueT]):
+    def __init__(self, action: reformer_of[ValueT], while_: checker_of[ValueT]):
         self._action = action
-        self._is_valid_to_repeat = is_valid_to_repeat
+        self._is_valid_to_repeat = while_
 
         self.__signature__ = self.__get_signature()
 
