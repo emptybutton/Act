@@ -1,6 +1,9 @@
-from typing import Callable, Any, TypeAlias, TypeVar, ParamSpec
+from types import UnionType
+from typing import Callable, Any, TypeAlias, TypeVar, ParamSpec, Iterable, Self, Iterator, Tuple, _CallableGenericAlias, _CallableType, _UnionGenericAlias
 
-from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation
+from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation, Special
+
+from pyhandling.scoping import value_of
 
 
 __all__ = (
@@ -100,3 +103,47 @@ FlagT = TypeVar("FlagT", bound='Flag')
 PointT = TypeVar("PointT")
 
 AtomT = TypeVar("AtomT")
+
+
+class _AnnotationSequence:
+    def __init__(self, annotations: Iterable = tuple()):
+        self._annotations = tuple(annotations)
+
+    def __repr__(self) -> str:
+        return f"Callable{self._internal_repr()}"
+
+    def __iter__(self) -> Iterator:
+        return iter(self._annotations)
+
+    def __getattr__(self, variable_name: str) -> Self:
+        return type(self)([value_of(variable_name)])
+
+    def __getitem__(self, input_item: Any) -> Self:
+        items = (input_item, ) if type(input_item) is not tuple else input_item
+
+        return type(self)(
+            (*self._annotations[:-1], self._annotations[-1][*input_item])
+            if len(self._annotations) != 0
+            else items
+        )
+
+    def __rshift__(self, other: Self) -> Self:
+        return type(self)((*self._annotations, *other._annotations))
+
+    def _internal_repr(self) -> str:
+        return f"[{' -> '.join(map(self.__fromatted, self._annotations))}]"
+
+    @staticmethod
+    def __fromatted(annotation: Any) -> str:
+        if isinstance(annotation, UnionType | _UnionGenericAlias):
+            return ' | '.join(map(str, annotation.__args__))
+
+        elif isinstance(annotation, type):
+            return annotation.__name__
+
+        elif isinstance(annotation, _AnnotationSequence):
+            return annotation._internal_repr()
+
+        else:
+            return str(annotation)
+
