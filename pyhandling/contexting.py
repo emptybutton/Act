@@ -10,7 +10,7 @@ from pyhandling.annotations import ValueT, ContextT, ActionT, ErrorT, ValueT, Po
 from pyhandling.atoming import atomic
 from pyhandling.branching import binding_by, repeating, on
 from pyhandling.data_flow import dynamically
-from pyhandling.flags import flag, nothing, Flag, pointed, _FlagCalculation
+from pyhandling.flags import flag, nothing, Flag, pointed, _FlagVector
 from pyhandling.immutability import property_to
 from pyhandling.language import then, by
 from pyhandling.partials import closed
@@ -164,7 +164,7 @@ _ExistingContextT = TypeVar("_ExistingContextT")
 
 def contexted(
     value: ValueT | ContextRoot[ValueT, _ExistingContextT],
-    when: Optional[Special[_FlagCalculation, ContextT]] = None,
+    when: Optional[Special[_FlagVector, ContextT]] = None,
 ) -> ContextRoot[ValueT, _ExistingContextT | Flag | ContextT]:
     """
     Function to represent an input value in `contextual` form if it is not
@@ -173,7 +173,7 @@ def contexted(
 
     value, context = value if isinstance(value, ContextRoot) else contextual(value)
 
-    if isinstance(when, _FlagCalculation):
+    if isinstance(when, _FlagVector):
         context = when(context)
     elif when is not None:
         context = when

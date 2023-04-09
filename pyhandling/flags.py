@@ -177,11 +177,11 @@ class Flag(ABC, Generic[PointT]):
         ...
 
     @abstractmethod
-    def __pos__(self) -> "_FlagCalculation":
+    def __pos__(self) -> "_FlagVector":
         ...
 
     @abstractmethod
-    def __neg__(self) -> "_FlagCalculation":
+    def __neg__(self) -> "_FlagVector":
         ...
 
     @abstractmethod
@@ -225,7 +225,7 @@ class Flag(ABC, Generic[PointT]):
             return merge(first, second)
 
 
-class _FlagCalculation:
+class _FlagVector:
     def __init__(
         self,
         flag: Flag,
@@ -299,14 +299,14 @@ class _DoubleFlag(Flag, ABC):
     def __mul__(self, times: int) -> Flag:
         return self._combined(self._first * times, self._second * times)
 
-    def __pos__(self) -> _FlagCalculation:
-        return _FlagCalculation(self._first, next_=_FlagCalculation(self._second))
+    def __pos__(self) -> _FlagVector:
+        return _FlagVector(self._first, next_=_FlagVector(self._second))
 
-    def __neg__(self) -> _FlagCalculation:
-        return _FlagCalculation(
+    def __neg__(self) -> _FlagVector:
+        return _FlagVector(
             self._first,
             is_positive=False,
-            next_=_FlagCalculation(self._second, is_positive=False)
+            next_=_FlagVector(self._second, is_positive=False)
         )
 
     def __hash__(self) -> int:
@@ -388,11 +388,11 @@ class _AtomicFlag(Flag, ABC):
         else:
             return self | (self * (times - 1))
 
-    def __pos__(self) -> _FlagCalculation:
-        return _FlagCalculation(self)
+    def __pos__(self) -> _FlagVector:
+        return _FlagVector(self)
 
-    def __neg__(self) -> _FlagCalculation:
-        return _FlagCalculation(self, is_positive=False)
+    def __neg__(self) -> _FlagVector:
+        return _FlagVector(self, is_positive=False)
 
     def __sub__(self, other: Any) -> Self: 
         return nothing if self == other else self
