@@ -9,31 +9,31 @@ from pyhandling.testing import calling_test_case_of
 from tests.mocks import Counter
 
 
-test_post_partial = calling_test_case_of(
-    (lambda: post_partial(lambda r: r, 0)(), 0),
-    (lambda: post_partial(lambda a, b: a / b, 10)(1), 0.1),
-    (lambda: post_partial(lambda a, b, *, c: a / b + c, 10, c=1)(1), 1.1),
-    (lambda: post_partial(lambda a, b, *, c: a / b + c, 10)(1, c=1), 1.1),
-    (lambda: post_partial(lambda a, b, *, c=10: a / b + c, 2)(4), 12),
+test_right_partial = calling_test_case_of(
+    (lambda: right_partial(lambda r: r, 0)(), 0),
+    (lambda: right_partial(lambda a, b: a / b, 10)(1), 0.1),
+    (lambda: right_partial(lambda a, b, *, c: a / b + c, 10, c=1)(1), 1.1),
+    (lambda: right_partial(lambda a, b, *, c: a / b + c, 10)(1, c=1), 1.1),
+    (lambda: right_partial(lambda a, b, *, c=10: a / b + c, 2)(4), 12),
     (
-        lambda: post_partial(lambda a, *args, **kwargs: (a, *args, kwargs), 2, c=3)(1),
+        lambda: right_partial(lambda a, *args, **kwargs: (a, *args, kwargs), 2, c=3)(1),
         (1, 2, dict(c=3))
     ),
 )
 
 
-test_mirror_partial = calling_test_case_of(
-    (lambda: mirror_partial(lambda a, b, c: a / b + c, 2, 3, 6)(), 4),
-    (lambda: mirror_partial(lambda a, b, c: a / b + c, 2, 3)(6), 4),
-    (lambda: mirror_partial(lambda a, b, *, c=0: a / b + c, 3, 6, c=2)(), 4),
-    (lambda: mirror_partial(lambda a, b, *, c=0: a / b + c, 3, 6)(c=2), 4),
-    (lambda: mirror_partial(lambda a, b, c, *, f=10: a/b + c/f, 20)(8, 4), 4),
+test_mirrored_partial = calling_test_case_of(
+    (lambda: mirrored_partial(lambda a, b, c: a / b + c, 2, 3, 6)(), 4),
+    (lambda: mirrored_partial(lambda a, b, c: a / b + c, 2, 3)(6), 4),
+    (lambda: mirrored_partial(lambda a, b, *, c=0: a / b + c, 3, 6, c=2)(), 4),
+    (lambda: mirrored_partial(lambda a, b, *, c=0: a / b + c, 3, 6)(c=2), 4),
+    (lambda: mirrored_partial(lambda a, b, c, *, f=10: a/b + c/f, 20)(8, 4), 4),
 )
 
 
 test_closed = calling_test_case_of(
     (lambda: closed(lambda a, b: a + b)(250)(6), 256),
-    (lambda: closed(lambda a, b: a / b, close=post_partial)(2)(128), 64),
+    (lambda: closed(lambda a, b: a / b, close=right_partial)(2)(128), 64),
 )
 
 
