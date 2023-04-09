@@ -96,10 +96,10 @@ test_until_error = calling_test_case_of(
         contextual(4, "input context"),
     ),
     (
-        lambda: (lambda root: (root.value, type(root.context)))(
+        lambda: (lambda root: (root.value, type(tuple(root.context)[0].point)))(
             until_error([
                 lambda a: a + 2, lambda b: b / 0, lambda _: "last node result"
-            ])(pointed(contextual(4, when="input context")))
+            ])(contextual(4, when="input context"))
         ),
         (6, ZeroDivisionError),
     ),
