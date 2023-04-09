@@ -28,6 +28,7 @@ __all__ = (
     "context_pointed",
     "context_oriented",
     "contexted",
+    "with_context_that",
     "is_metacontextual",
     "with_reduced_metacontext",
     "without_metacontext",
@@ -178,6 +179,26 @@ def contexted(
         context = when
 
     return contextual(value, context)
+
+
+with_context_that: action_of[
+    t[t.PointT >> t.bool]
+    >> t.ContextRoot[ValueT, PointT | Flag[PointT]]
+    >> t.contextual[ValueT, PointT]
+]
+with_context_that = documenting_by(
+    """
+    Function for transform function `ContextRoot` with context filtered by input
+    checker.
+
+    When a context is `Flag`, the resulting context will be filtered by any of
+    its values.
+
+    Returns `nothing` if a context is invalid for an input checker.
+    """
+)(
+    dynamically(closed(context_pointed |then>> atomic), of=...)
+)
 
 
 def is_metacontextual(value: Special[ContextRoot[ContextRoot]]) -> bool:
