@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
 from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional
-from operator import or_, sub
+from operator import or_, sub, attrgetter
 
 from pyannotating import Special
 
 from pyhandling.atoming import atomic
 from pyhandling.annotations import ValueT, FlagT, checker_of, PointT, P, ResultT, merger_of, reformer_of
+from pyhandling.branching import on
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
 from pyhandling.language import then, by
@@ -288,7 +289,9 @@ class _DoubleFlag(Flag, ABC):
         return self
 
     def __repr__(self) -> str:
-        return f"{self._first} {self._separation_sign} {self._second}"
+        to_repr_of = on(isinstance |by| _ValueFlag, attrgetter("_value"))
+
+        return f"{to_repr_of(self._first)} {self._separation_sign} {to_repr_of(self._second)}"
 
     def __getatom__(self) -> Flag:
         return atomic(self._first)
@@ -433,9 +436,6 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
 
     def __repr__(self) -> str:
         return f"pointed({self._value})"
-
-    def __str__(self) -> str:
-        return str(self._value)
 
     def __hash__(self) -> int:
         return hash(self._value)
