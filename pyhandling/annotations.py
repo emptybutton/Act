@@ -36,6 +36,8 @@ __all__ = (
     "FlagT",
     "PointT",
     "AtomT",
+    "t",
+    "action_of",
 )
 
 
@@ -147,6 +149,10 @@ class _AnnotationSequence:
         else:
             return str(annotation)
 
+
+t = _AnnotationSequence()
+
+
 class _CallableConstructor:
     def __getitem__(self, annotations: Special[Iterable]) -> _CallableGenericAlias | _CallableType:
         if not isinstance(annotations, Iterable) and not isinstance(annotations, str):
@@ -166,3 +172,5 @@ class _CallableConstructor:
                 [annotations[0]],
                 self._annotation_from(annotations[1:]),
             ]
+
+action_of = _CallableConstructor()
