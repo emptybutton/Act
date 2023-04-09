@@ -147,3 +147,22 @@ class _AnnotationSequence:
         else:
             return str(annotation)
 
+class _CallableConstructor:
+    def __getitem__(self, annotations: Special[Iterable]) -> _CallableGenericAlias | _CallableType:
+        if not isinstance(annotations, Iterable) and not isinstance(annotations, str):
+            annotations = (annotations, )
+
+        return self._annotation_from(tuple(annotations))
+
+    def _annotation_from(self, annotations: Tuple) -> _CallableGenericAlias | _CallableType:
+        if len(annotations) == 0:
+            return Callable
+        elif len(annotations) == 1:
+            return Callable[[annotations[0]], Any]
+        elif len(annotations) == 2:
+            return Callable[[annotations[0]], annotations[1]]
+        else:
+            return Callable[
+                [annotations[0]],
+                self._annotation_from(annotations[1:]),
+            ]
