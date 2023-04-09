@@ -161,9 +161,7 @@ _ExistingContextT = TypeVar("_ExistingContextT")
 def contexted(
     value: ValueT | ContextRoot[ValueT, _ExistingContextT],
     when: Optional[Special[_FlagCalculation, ContextT]] = None,
-    *,
-    form: Callable[[ValueT, _ExistingContextT | ContextT], ContextRoot] = contextual
-) -> ContextRoot[ValueT, _ExistingContextT | ContextT]:
+) -> ContextRoot[ValueT, _ExistingContextT | Flag | ContextT]:
     """
     Function to represent an input value in `contextual` form if it is not
     already present.
@@ -176,7 +174,7 @@ def contexted(
     elif when is not None:
         context = when
 
-    return form(value, context)
+    return contextual(value, context)
 
 
 def merged_contexted_floor(
