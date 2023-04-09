@@ -104,8 +104,3 @@ test_until_error = calling_test_case_of(
         (6, ZeroDivisionError),
     ),
 )
-
-
-atomic(pointed(contextual(4, when=bad)))
-
-__getpointed__
