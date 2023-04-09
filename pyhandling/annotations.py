@@ -37,10 +37,7 @@ __all__ = (
 
 
 dirty = FormalAnnotation(
-    """
-    Formal annotation to indicate the dirtyness of a function or any other
-    callable object.
-    """
+    """Formal annotation to indicate the dirtyness of an action."""
 )
 
 
