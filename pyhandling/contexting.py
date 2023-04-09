@@ -6,7 +6,7 @@ from typing import Generic, Any, Iterator, Callable, Iterable, GenericAlias, Typ
 
 from pyannotating import Special
 
-from pyhandling.annotations import ValueT, ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, reformer_of
+from pyhandling.annotations import ValueT, ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, reformer_of, FlagT, action_of, t
 from pyhandling.atoming import atomic
 from pyhandling.branching import binding_by, repeating, on
 from pyhandling.flags import flag, nothing, Flag, pointed, _FlagCalculation
@@ -28,6 +28,7 @@ __all__ = (
     "contexted",
     "merged_contexted_floor",
     "merged_contexted_deep_floor",
+    "is_metacontextual",
 )
 
 
@@ -179,6 +180,15 @@ def contexted(
 
 def merged_contexted_floor(
     contexted_floor: contextual_like[contextual_like[ValueT, Any], Any]
+def is_metacontextual(value: Special[ContextRoot[ContextRoot]]) -> bool:
+    """
+    Function to check `ContextRoot`'s' describing another `ContextRoot` if it is
+    at all `ContextRoot`.
+    """
+
+    return isinstance(value, ContextRoot) and isinstance(value.value, ContextRoot)
+
+
 ) -> contextual[ValueT, Flag]:
     top_floor = contextual(*contexted_floor)
     bottom_floor = contextual(*top_floor.value)
