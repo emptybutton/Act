@@ -115,7 +115,7 @@ class ContextualError(Exception, ContextRoot, Generic[ErrorT, ContextT]):
         return f"\"{self._value}\" error when {self._context}"
 
 
-class context_pointed(ContextRoot):
+class context_pointed(ContextRoot, Generic[ActionT, FlagT]):
     """
     Class to replace a context of a `contextual-like` object with a flag
     pointing to the original context.
