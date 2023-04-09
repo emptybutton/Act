@@ -1,14 +1,17 @@
 from functools import cached_property
 from inspect import Signature, Parameter
 from typing import Callable, Any
+from operator import is_
 
-from pyhandling.annotations import P, ValueT, ResultT, action_for, ActionT, handler_of
+from pyhandling.annotations import P, ValueT, ResultT, action_for, one_value_action
 from pyhandling.arguments import ArgumentPack
 from pyhandling.atoming import atomically
+from pyhandling.branching import mergely, on
 from pyhandling.errors import ReturningError
-from pyhandling.language import then
+from pyhandling.language import then, by
 from pyhandling.partials import closed
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
+from pyhandling.structure_management import table_value_map
 from pyhandling.synonyms import returned
 from pyhandling.tools import documenting_by
 
@@ -18,6 +21,7 @@ __all__ = (
     "eventually",
     "unpackly",
     "with_result",
+    "dynamically",
     "taken",
     "yes",
     "no",
@@ -98,6 +102,22 @@ def with_result(result: ResultT, action: Callable[P, Any]) -> Callable[P, Result
     """Function to force an input result for an input action."""
 
     return atomically(action |then>> taken(result))
+
+
+def dynamically(
+    action: action_for[ResultT],
+    *argument_placeholders: one_value_action | Ellipsis,
+    **keyword_argument_placeholders: one_value_action  | Ellipsis,
+) -> action_for[ResultT]:
+    """Function to dynamically determine arguments for an input action."""
+
+    maybe_replaced = on(is_ |by| Ellipsis, taken(taken))
+
+    return mergely(
+        taken(action),
+        *map(maybe_replaced, argument_placeholders),
+        **table_value_map(maybe_replaced, keyword_argument_placeholders),
+    )
 
 
 taken: Callable[[ValueT], action_for[ValueT]] = documenting_by(
