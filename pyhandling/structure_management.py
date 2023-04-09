@@ -17,7 +17,7 @@ __all__ = (
     "map_",
     "zip_",
     "filter_",
-    "value_map",
+    "table_value_map",
     "reversed_table",
 )
 
@@ -69,7 +69,7 @@ filter_ = documenting_by("""`filter` function returning `tuple`""")(
 )
 
 
-def value_map(
+def table_value_map(
     mapped: Callable[[ValueT], MappedT],
     table: Mapping[KeyT, ValueT],
 ) -> OrderedDict[KeyT, MappedT]:
