@@ -9,9 +9,11 @@ from pyannotating import Special
 from pyhandling.annotations import ValueT, ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, reformer_of, FlagT, action_of, t
 from pyhandling.atoming import atomic
 from pyhandling.branching import binding_by, repeating, on
+from pyhandling.data_flow import dynamically
 from pyhandling.flags import flag, nothing, Flag, pointed, _FlagCalculation
 from pyhandling.immutability import property_to
 from pyhandling.language import then, by
+from pyhandling.partials import closed
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 from pyhandling.synonyms import with_unpacking
 from pyhandling.tools import documenting_by, NotInitializable
@@ -26,9 +28,9 @@ __all__ = (
     "context_pointed",
     "context_oriented",
     "contexted",
-    "merged_contexted_floor",
-    "merged_contexted_deep_floor",
     "is_metacontextual",
+    "with_reduced_metacontext",
+    "without_metacontext",
 )
 
 
@@ -178,8 +180,6 @@ def contexted(
     return contextual(value, context)
 
 
-def merged_contexted_floor(
-    contexted_floor: contextual_like[contextual_like[ValueT, Any], Any]
 def is_metacontextual(value: Special[ContextRoot[ContextRoot]]) -> bool:
     """
     Function to check `ContextRoot`'s' describing another `ContextRoot` if it is
@@ -189,14 +189,26 @@ def is_metacontextual(value: Special[ContextRoot[ContextRoot]]) -> bool:
     return isinstance(value, ContextRoot) and isinstance(value.value, ContextRoot)
 
 
+def with_reduced_metacontext(
+    value: ContextRoot[ContextRoot[ValueT, Any], Any]
 ) -> contextual[ValueT, Flag]:
-    top_floor = contextual(*contexted_floor)
-    bottom_floor = contextual(*top_floor.value)
+    """
+    Function to remove nesting of two `ContextRoot`s.
+    The resulting context is a flag sum from the top and bottom `ContextRoot`.
+    """
 
-    return contexted(bottom_floor, +top_floor.context)
+    meta_root = contextual(*value)
+    root = meta_root.value
+
+    return contexted(root, +pointed(meta_root.context))
 
 
-merged_contexted_deep_floor: reformer_of[contextual] = repeating(
-    merged_contexted_floor,
-    attrgetter("value") |then>> (isinstance |by| ContextRoot),
+without_metacontext: t.ContextRoot >> t.contextual
+without_metacontext = documenting_by(
+    """
+    Function to fully glue nested `ContextRoot`s.
+    The resulting context is a flag sum from all nested `ContextRoot`s.
+    """
+)(
+    repeating(with_reduced_metacontext, while_=is_metacontextual)
 )
