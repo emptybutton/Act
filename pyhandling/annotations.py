@@ -8,7 +8,6 @@ from pyhandling.scoping import value_of
 
 __all__ = (
     "dirty",
-    "handler_of",
     "checker_of",
     "formatter_of",
     "transformer_to",
@@ -45,8 +44,6 @@ dirty = FormalAnnotation(
     """Formal annotation to indicate the dirtyness of an action."""
 )
 
-
-handler_of = AnnotationTemplate(Callable, [[input_annotation], Any])
 
 checker_of = AnnotationTemplate(Callable, [[input_annotation], bool])
 
