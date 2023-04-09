@@ -1,5 +1,5 @@
 from functools import partial
-from operator import not_, add
+from operator import not_, add, truediv
 from typing import Callable, Optional
 
 from pyhandling.annotations import dirty, handler_of, ValueT, ResultT, checker_of, action_for, P, reformer_of
@@ -16,6 +16,7 @@ from pyhandling.tools import documenting_by, Clock
 __all__ = (
     "shown",
     "isnt",
+    "div",
     "times",
     "with_error",
 )
@@ -30,6 +31,13 @@ shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
 isnt: Callable[[handler_of[ValueT]], checker_of[ValueT]]
 isnt = documenting_by("""Negation adding function.""")(
     binding_by(... |then>> not_)
+)
+
+
+div: Callable[[int | float, int | float], float] = documenting_by(
+    """Synonym function for `operator.truediv`."""
+)(
+        atomically(truediv)
 )
 
 
