@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from functools import cached_property
+from functools import cached_property, update_wrapper
 from inspect import Signature
 from operator import attrgetter, not_
 from typing import Generic, Any, Iterator, Callable, Iterable, GenericAlias, TypeVar, Optional
@@ -7,7 +7,7 @@ from typing import Generic, Any, Iterator, Callable, Iterable, GenericAlias, Typ
 from pyannotating import Special
 
 from pyhandling.annotations import ValueT, ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, reformer_of, FlagT, action_of, t
-from pyhandling.atoming import atomic
+from pyhandling.atoming import atomic, atomically
 from pyhandling.branching import binding_by, repeating, on
 from pyhandling.data_flow import dynamically
 from pyhandling.flags import flag, nothing, Flag, pointed, _FlagVector

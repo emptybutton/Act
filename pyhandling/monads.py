@@ -1,4 +1,4 @@
-from operator import attrgetter
+from operator import attrgetter, eq
 from typing import Callable, Any, TypeVar
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
@@ -6,7 +6,7 @@ from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Spec
 from pyhandling.annotations import one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of
 from pyhandling.atoming import atomically
 from pyhandling.branching import ActionChain, on, rollbackable, mapping_to_chain_of, mapping_to_chain, binding_by
-from pyhandling.contexting import contextual, contextually, contexted
+from pyhandling.contexting import contextual, contextually, contexted, context_pointed
 from pyhandling.data_flow import returnly
 from pyhandling.flags import flag, nothing, Flag, pointed
 from pyhandling.language import then, by, to

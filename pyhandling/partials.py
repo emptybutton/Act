@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from functools import cached_property, partial
 from inspect import Parameter, Signature, _empty
-from typing import Any, Self, Iterable, Tuple
+from typing import Any, Self, Iterable, Tuple, Optional
 
 from pyhandling.annotations import action_for, ResultT
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
