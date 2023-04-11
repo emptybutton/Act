@@ -259,9 +259,6 @@ class _FlagVector:
     def __invert__(self) -> Flag:
         return self(nothing)
 
-    def __rshift__(self, flag: Flag) -> Flag:
-        return self(flag)
-
     def __lshift__(self, flag: Flag) -> Flag:
         return self(flag)
 
