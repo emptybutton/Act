@@ -224,6 +224,9 @@ class Flag(ABC, Generic[PointT]):
         elif second == nothing:
             return first
 
+        elif first == second:
+            return first
+
         else:
             return merge(first, second)
 
