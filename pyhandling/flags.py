@@ -109,20 +109,20 @@ class Flag(ABC, Generic[PointT]):
     bool(super_) is True
     bool(not_super) is False
 
-    bool(flag_to(1)) is True
-    bool(flag_to(0)) is False
+    bool(pointed(1)) is True
+    bool(pointed(0)) is False
 
-    bool(flag_to(0) | super_) is True
-    bool(flag_to(0) | not_super) is False
+    bool(pointed(0) | super_) is True
+    bool(pointed(0) | not_super) is False
     ```
 
     To select flags by their `point` use the `of` method
     ```
-    flag_to(*range(11)).of(lambda n: n >= 7) == flag_to(7, 8, 9, 10)
-    flag_to(*range(11)).of(lambda n: n >= 20) == nothing
+    pointed(*range(11)).that(lambda n: n >= 7) == pointed(7, 8, 9, 10)
+    pointed(*range(11)).that(lambda n: n >= 20) == nothing
 
-    super_.of(lambda f: f == super_) == super_
-    super_.of(lambda n: n > 0) == nothing
+    super_.that(lambda f: f == super_) == super_
+    super_.that(lambda n: n > 0) == nothing
     ```
 
     Flag sums can be represented in atomic form. In this case, the atomic
@@ -132,13 +132,13 @@ class Flag(ABC, Generic[PointT]):
     Don't use the atomic form to get exactly a first flag. The flag sum does not
     guarantee the preservation of the sequence (although it still implements it).
     ```
-    atom = atomic(flag_to(1, 2, 3))
+    atom = atomic(pointed(1, 2, 3))
 
-    atom == flag_to(1)
-    atom != flag_to(2)
-    atom != flag_to(3)
+    atom == pointed(1)
+    atom != pointed(2)
+    atom != pointed(3)
 
-    atomic(flag_to(1)) == flag_to(1)
+    atomic(pointed(1)) == pointed(1)
     ```
 
     Flags available for instance checking as a synonym for equality.
