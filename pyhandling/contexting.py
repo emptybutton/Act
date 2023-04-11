@@ -139,12 +139,12 @@ class context_pointed(ContextRoot, Generic[ActionT, FlagT]):
     def __init__(
         self,
         value_and_context: contextual_like[ValueT, PointT | Flag[PointT]],
-        is_for_selection: checker_of[PointT] = lambda _: True,
+        that: checker_of[PointT] = lambda _: True,
     ):
         value, context = value_and_context
 
         self._value = value
-        self._context = pointed(context).of(is_for_selection)
+        self._context = pointed(context).that(that)
 
     def __repr__(self) -> str:
         return f"context_pointed({super().__repr__()})"

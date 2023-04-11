@@ -181,7 +181,7 @@ class Flag(ABC, Generic[PointT]):
         ...
 
     @abstractmethod
-    def of(self, is_for_selection: checker_of[PointT]) -> Self:
+    def that(self, is_for_selection: checker_of[PointT]) -> Self:
         ...
 
     def __invert__(self) -> Self:
@@ -290,7 +290,7 @@ class _DoubleFlag(Flag, ABC):
         return f"{to_repr_of(self._first)} {self._separation_sign} {to_repr_of(self._second)}"
 
     def __getatom__(self) -> Flag:
-        return atomic(self._first)
+        return atomic(self._second)
 
     def __pos__(self) -> _FlagVector:
         return _FlagVector(self._first, next_=_FlagVector(self._second))
@@ -327,10 +327,10 @@ class _DoubleFlag(Flag, ABC):
     def __iter__(self) -> Iterator[Flag]:
         return chain(self._first, self._second)
 
-    def of(self, is_for_selection: checker_of[_FirstPointT | _SecondPointT]) -> Flag:
+    def that(self, is_for_selection: checker_of[_FirstPointT | _SecondPointT]) -> Flag:
         return self._combined(
-            self._first.of(is_for_selection),
-            self._second.of(is_for_selection),
+            self._first.that(is_for_selection),
+            self._second.that(is_for_selection),
         )
 
     @abstractmethod
@@ -388,7 +388,7 @@ class _AtomicFlag(Flag, ABC):
     def __iter__(self) -> Iterator[Self]:
         return iter((self, ) if self != nothing else tuple())
  
-    def of(self, is_for_selection: checker_of[PointT]) -> Self:
+    def that(self, is_for_selection: checker_of[PointT]) -> Self:
         return self if self != nothing and is_for_selection(self.point) else nothing
 
     def _atomically_equal_to(self, other: Any) -> bool:
