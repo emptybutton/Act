@@ -164,10 +164,15 @@ t = _AnnotationSequence()
 
 class _CallableConstructor:
     def __getitem__(self, annotations: Special[Iterable]) -> _CallableGenericAlias | _CallableType:
-        if not isinstance(annotations, Iterable) and not isinstance(annotations, str):
+        if not isinstance(annotations, _AnnotationsT):
             annotations = (annotations, )
 
-        return self._annotation_from(tuple(annotations))
+        annotations = tuple(
+            self[annotation] if isinstance(annotation, _AnnotationsT) else annotation
+            for annotation in annotations
+        )
+
+        return self._annotation_from(annotations)
 
     def _annotation_from(self, annotations: Tuple) -> _CallableGenericAlias | _CallableType:
         if len(annotations) == 0:
@@ -182,4 +187,8 @@ class _CallableConstructor:
                 self._annotation_from(annotations[1:]),
             ]
 
+
 action_of = _CallableConstructor()
+
+
+_AnnotationsT: TypeAlias = list | tuple | _AnnotationSequence
