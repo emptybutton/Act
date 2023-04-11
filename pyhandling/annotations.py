@@ -23,6 +23,10 @@ __all__ = (
     "P",
     "ValueT",
     "ObjectT",
+    "FirstT",
+    "SecondT",
+    "ThirdT",
+    "FourthT",
     "ResultT",
     "KeyT",
     "ErrorT",
@@ -78,6 +82,14 @@ P = ParamSpec('P')
 ValueT = TypeVar("ValueT")
 
 ObjectT = TypeVar("ObjectT")
+
+FirstT = TypeVar("FirstT")
+
+SecondT = TypeVar("SecondT")
+
+ThirdT = TypeVar("ThirdT")
+
+FourthT = TypeVar("FourthT")
 
 ResultT = TypeVar("ResultT")
 
