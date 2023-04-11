@@ -111,7 +111,7 @@ def dynamically(
 ) -> action_for[ResultT]:
     """Function to dynamically determine arguments for an input action."""
 
-    maybe_replaced = on(is_ |by| Ellipsis, taken(taken))
+    maybe_replaced = on(is_ |by| Ellipsis, taken(returned))
 
     return mergely(
         taken(action),
