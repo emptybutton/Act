@@ -86,6 +86,6 @@ with_error = documenting_by(
 )(
     atomically(
         binding_by(... |then>> contextual)
-        |then>> right_partial(rollbackable, contextual |to| nothing)
+        |then>> (rollbackable |by| (contextual |to| nothing))
     )
 )
