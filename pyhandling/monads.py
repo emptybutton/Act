@@ -97,11 +97,11 @@ maybe = documenting_by(
     Skips execution if the input value is in a `bad` context.
     """
 )(
-    monadically(lambda node: contexted |then>> (lambda root: (
-        root.value >= node |then>> on(
-            lambda result: context_pointed(contexted(result)).flag == bad,
-            attrgetter("value") |then>> (contexted |by| +bad),
-            else_=contextual |by| root.context,
+    monadically(lambda action: contexted |then>> (lambda root: (
+        root.value >= action |then>> contexted |then>> on(
+            attrgetter("context") |then>> (eq |to| bad),
+            contexted |by| +root.context,
+            else_=attrgetter("value") |then>> (contextual |by| root.context),
         )
         if root.context != bad
         else root
@@ -118,15 +118,12 @@ until_error = documenting_by(
     error as context.
     """
 )(
-    monadically(lambda node: contexted |then>> (lambda root: (
+    monadically(lambda action: contexted |then>> (lambda root: (
         rollbackable(
-            saving_context(node),
-            lambda error: contextual(
-                root.value,
-                pointed(root.context, error)
-            ),
+            saving_context(action),
+            pointed |then>> pos |then>> (contexted |to| root),
         )(root)
-        if pointed(root.context).of(isinstance |by| Exception) == nothing
+        if pointed(root.context).that(isinstance |by| Exception) == nothing
         else root
     )))
 )
