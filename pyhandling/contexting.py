@@ -205,7 +205,7 @@ with_context_that = documenting_by(
 )
 
 
-def is_metacontextual(value: Special[ContextRoot[ContextRoot]]) -> bool:
+def is_metacontextual(value: Special[ContextRoot[ContextRoot, Any], Any]) -> bool:
     """
     Function to check `ContextRoot`'s' describing another `ContextRoot` if it is
     at all `ContextRoot`.
