@@ -173,10 +173,6 @@ class Flag(ABC, Generic[PointT]):
         ...
 
     @abstractmethod
-    def __mul__(self, times: int) -> Self:
-        ...
-
-    @abstractmethod
     def __pos__(self) -> "_FlagVector":
         ...
 
@@ -193,9 +189,6 @@ class Flag(ABC, Generic[PointT]):
 
     def __instancecheck__(self,  instance: Any) -> bool:
         return self == instance
-
-    def __rmul__(self, times: int) -> Self:
-        return self * times
 
     def __or__(self, other: Special[Self]) -> Self:
         return self.__sum(self, pointed(other), merge=_FlagSum)
@@ -299,9 +292,6 @@ class _DoubleFlag(Flag, ABC):
     def __getatom__(self) -> Flag:
         return atomic(self._first)
 
-    def __mul__(self, times: int) -> Flag:
-        return self._combined(self._first * times, self._second * times)
-
     def __pos__(self) -> _FlagVector:
         return _FlagVector(self._first, next_=_FlagVector(self._second))
 
@@ -382,14 +372,6 @@ class _AtomicFlag(Flag, ABC):
 
     def __getatom__(self) -> Self:
         return self
-
-    def __mul__(self, times: int) -> Flag:
-        if times <= 0:
-            return nothing
-        elif times == 1:
-            return self
-        else:
-            return self | (self * (times - 1))
 
     def __pos__(self) -> _FlagVector:
         return _FlagVector(self)
