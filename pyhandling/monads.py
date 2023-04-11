@@ -178,7 +178,7 @@ def considering_context(
         Special[writing | reading],
     ],
     root: contextual[ValueT, ContextT]
-) -> contextual[ResultT | ValueT | _ReadingResultT, ContextT]:
+) -> contextual[ResultT | ValueT | _ReadingResultT, ContextT | _NewContextT]:
     if isinstance(node, contextually):
         if node.context == writing:
             return contextual(root.value, node(root.value)(root.context))
