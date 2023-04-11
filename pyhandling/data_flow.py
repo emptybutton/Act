@@ -1,6 +1,6 @@
 from functools import cached_property
-from inspect import Signature, Parameter
-from typing import Callable, Any
+from inspect import Signature, Parameter, _empty
+from typing import Callable, Any, _CallableGenericAlias
 from operator import is_
 
 from pyhandling.annotations import P, ValueT, ResultT, action_for, one_value_action
@@ -22,6 +22,7 @@ __all__ = (
     "unpackly",
     "with_result",
     "dynamically",
+    "combinatly",
     "taken",
     "yes",
     "no",
@@ -118,6 +119,21 @@ def dynamically(
         *map(maybe_replaced, argument_placeholders),
         **table_value_map(maybe_replaced, keyword_argument_placeholders),
     )
+
+
+class combinatly(ActionWrapper):
+    def __call__(self, value: Any, *result_action_args, **result_action_kwargs) -> Any:
+        return self._action(value)(*result_action_args, **result_action_kwargs)
+
+    @property
+    def _force_signature(self) -> Signature:
+        signature_ = calling_signature_of(self._action)
+
+        return signature_.replace(return_annotation=(
+            signature_.return_annotation.__args__[-1]
+            if isinstance(signature_, _CallableGenericAlias)
+            else _empty
+        ))
 
 
 taken: Callable[[ValueT], action_for[ValueT]] = documenting_by(
