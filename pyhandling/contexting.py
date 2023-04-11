@@ -149,7 +149,7 @@ class context_pointed(ContextRoot, Generic[ActionT, FlagT]):
     def __repr__(self) -> str:
         return f"context_pointed({super().__repr__()})"
 
-    def __getatom__(self) -> "contextual[ValueT, PointT]":
+    def __getatom__(self) -> contextual[ValueT, PointT]:
         return contextual(self._value, when=atomic(self._context).point)
 
 
