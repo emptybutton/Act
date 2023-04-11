@@ -188,6 +188,9 @@ class Flag(ABC, Generic[PointT]):
     def of(self, is_for_selection: checker_of[PointT]) -> Self:
         ...
 
+    def __invert__(self) -> Self:
+        return self
+
     def __instancecheck__(self,  instance: Any) -> bool:
         return self == instance
 
