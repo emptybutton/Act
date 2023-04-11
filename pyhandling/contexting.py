@@ -197,7 +197,11 @@ with_context_that = documenting_by(
     Returns `nothing` if a context is invalid for an input checker.
     """
 )(
-    dynamically(closed(context_pointed |then>> atomic), of=...)
+    atomically(
+        dynamically(closed(context_pointed), that=...)
+        |then>> binding_by(contexted |then>> ... |then>> atomic)
+        |then>> atomically
+    )
 )
 
 
