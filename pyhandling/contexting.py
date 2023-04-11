@@ -182,9 +182,9 @@ def contexted(
 
 
 with_context_that: action_of[
-    t[t.PointT >> t.bool]
-    >> t.ContextRoot[ValueT, PointT | Flag[PointT]]
-    >> t.contextual[ValueT, PointT]
+    t[t[PointT] >> t[bool]]
+    >> t[ValueT | ContextRoot[ValueT, PointT | Flag[PointT]]]
+    >> t[contextual[ValueT, nothing | PointT]]
 ]
 with_context_that = documenting_by(
     """
@@ -224,7 +224,7 @@ def with_reduced_metacontext(
     return contexted(root, +pointed(meta_root.context))
 
 
-without_metacontext: t.ContextRoot >> t.contextual
+without_metacontext: t[ContextRoot] >> t[contextual]
 without_metacontext = documenting_by(
     """
     Function to fully glue nested `ContextRoot`s.

@@ -126,17 +126,8 @@ class _AnnotationSequence:
     def __iter__(self) -> Iterator:
         return iter(self._annotations)
 
-    def __getattr__(self, variable_name: str) -> Self:
-        return type(self)([value_of(variable_name)])
-
-    def __getitem__(self, input_item: Any) -> Self:
-        items = (input_item, ) if type(input_item) is not tuple else input_item
-
-        return type(self)(
-            (*self._annotations[:-1], self._annotations[-1][*input_item])
-            if len(self._annotations) != 0
-            else items
-        )
+    def __getitem__(self, annotation: Any) -> Self:
+        return type(self)([*self._annotations, annotation])
 
     def __rshift__(self, other: Self) -> Self:
         return type(self)((*self._annotations, *other._annotations))
