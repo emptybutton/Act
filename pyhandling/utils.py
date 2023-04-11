@@ -2,7 +2,7 @@ from functools import partial
 from operator import not_, add, truediv
 from typing import Callable, Optional
 
-from pyhandling.annotations import dirty, handler_of, ValueT, ResultT, checker_of, action_for, P, reformer_of
+from pyhandling.annotations import dirty, action_of, ValueT, ResultT, checker_of, action_for, P, reformer_of
 from pyhandling.atoming import atomically
 from pyhandling.branching import on, rollbackable, binding_by
 from pyhandling.contexting import contextual
@@ -28,7 +28,7 @@ shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
 )
 
 
-isnt: Callable[[handler_of[ValueT]], checker_of[ValueT]]
+isnt: Callable[[action_of[ValueT]], checker_of[ValueT]]
 isnt = documenting_by("""Negation adding function.""")(
     binding_by(... |then>> not_)
 )
