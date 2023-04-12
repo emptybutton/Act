@@ -79,7 +79,7 @@ test_transform = calling_test_case_of(
 )
 
 
-test_to_context = calling_test_case_of(
-    (lambda: to_context(lambda _: _)(CustomContext(None)), None),
-    (lambda: to_context(lambda n: n + 6)(CustomContext(10)), 16),
+test_to_context_manager = calling_test_case_of(
+    (lambda: to_context_manager(lambda _: _)(CustomContext(None)), None),
+    (lambda: to_context_manager(lambda n: n + 6)(CustomContext(10)), 16),
 )
