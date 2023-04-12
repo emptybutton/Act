@@ -142,5 +142,6 @@ taken: Callable[[ValueT], action_for[ValueT]] = documenting_by(
     atomically(closed(returned) |then>> eventually)
 )
 
+
 yes: action_for[bool] = documenting_by("""Shortcut for `taken(True)`.""")(taken(True))
 no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(False))
