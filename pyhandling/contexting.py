@@ -13,7 +13,7 @@ from pyhandling.data_flow import dynamically
 from pyhandling.flags import flag, nothing, Flag, pointed, FlagVector
 from pyhandling.immutability import property_to
 from pyhandling.language import then, by
-from pyhandling.partials import closed
+from pyhandling.partials import fragmentarily
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 from pyhandling.synonyms import with_unpacking
 from pyhandling.tools import documenting_by, NotInitializable
@@ -184,12 +184,13 @@ def contexted(
     return contextual(value, context)
 
 
-with_context_that: action_of[
-    t[t[PointT] >> t[bool]]
-    >> t[ValueT | ContextRoot[ValueT, PointT | Flag[PointT]]]
-    >> t[contextual[ValueT, nothing | PointT]]
-]
-with_context_that = documenting_by(
+@fragmentarily
+def with_context_that(
+    that: checker_of[PointT],
+    value: ValueT | ContextRoot[ValueT, PointT | Flag[PointT]],
+    *,
+    not_empty: bool = False,
+) -> contextual[ValueT, nothing | PointT]:
     """
     Function for transform function `ContextRoot` with context filtered by input
     checker.
@@ -199,13 +200,13 @@ with_context_that = documenting_by(
 
     Returns `nothing` if a context is invalid for an input checker.
     """
-)(
-    atomically(
-        dynamically(closed(context_pointed), that=...)
-        |then>> binding_by(contexted |then>> ... |then>> atomic)
-        |then>> atomically
-    )
-)
+
+    root = atomic(context_pointed(contexted(value), that=that))
+
+    if root.context == nothing and not_empty:
+        raise ValueError(f"Missing context with condition of \"{that}\"")
+
+    return root
 
 
 def is_metacontextual(value: Special[ContextRoot[ContextRoot, Any], Any]) -> bool:
