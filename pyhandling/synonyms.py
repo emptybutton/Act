@@ -15,7 +15,7 @@ __all__ = (
     "with_unpacking",
     "with_keyword_unpacking",
     "to_context_manager",
-    "with_context_by",
+    "with_context_manager_by",
 )
 
 
@@ -100,7 +100,7 @@ class to_context_manager(ActionWrapper):
         )])
 
 
-class with_context_by:
+class with_context_manager_by:
     """Function to perform an input action in a specific context."""
 
     def __init__(
@@ -118,7 +118,7 @@ class with_context_by:
             return action(*args, **kwargs)
 
     def __repr__(self) -> str:
-        return f"with_context_by({self.get_context}, {self._action})"
+        return f"with_context_manager_by({self._get_context}, {self._action})"
 
 
 def _unpacking_repr(action: Callable) -> str:
