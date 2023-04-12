@@ -16,7 +16,7 @@ from pyhandling.signature_assignmenting import calling_signature_of
 from pyhandling.synonyms import returned
 
 
-__all__ = ("Flag", "flag", "pointed", "nothing")
+__all__ = ("Flag", "FlagVector", "flag", "pointed", "nothing")
 
 
 class Flag(ABC, Generic[PointT]):
@@ -173,11 +173,11 @@ class Flag(ABC, Generic[PointT]):
         ...
 
     @abstractmethod
-    def __pos__(self) -> "_FlagVector":
+    def __pos__(self) -> "FlagVector":
         ...
 
     @abstractmethod
-    def __neg__(self) -> "_FlagVector":
+    def __neg__(self) -> "FlagVector":
         ...
 
     @abstractmethod
@@ -224,7 +224,30 @@ class Flag(ABC, Generic[PointT]):
             return merge(first, second)
 
 
-class _FlagVector:
+class FlagVector(ABC):
+    @abstractmethod
+    def __xor__(self, other: Self) -> Self:
+        ...
+
+    @abstractmethod
+    def __neg__(self) -> Self:
+        ...
+
+    @abstractmethod
+    def __call__(self, flag: Flag) -> Flag:
+        ...
+
+    def __pos__(self) -> Self:
+        return self
+
+    def __invert__(self) -> Flag:
+        return self(nothing)
+
+    def __lshift__(self, flag: Flag) -> Flag:
+        return self(flag)
+
+
+class _BinaryFlagVector(FlagVector):
     def __init__(
         self,
         flag: Flag,
@@ -248,15 +271,6 @@ class _FlagVector:
     @to_clone
     def __neg__(self) -> None:
         self._is_positive = not self._is_positive
-
-    def __pos__(self) -> Self:
-        return self
-
-    def __invert__(self) -> Flag:
-        return self(nothing)
-
-    def __lshift__(self, flag: Flag) -> Flag:
-        return self(flag)
 
     def __call__(self, flag: Flag) -> Flag:
         action = (or_ if self._is_positive else sub)
@@ -292,14 +306,14 @@ class _DoubleFlag(Flag, ABC):
     def __getatom__(self) -> Flag:
         return atomic(self._second)
 
-    def __pos__(self) -> _FlagVector:
-        return _FlagVector(self._first, next_=_FlagVector(self._second))
+    def __pos__(self) -> FlagVector:
+        return _BinaryFlagVector(self._first, next_=_BinaryFlagVector(self._second))
 
-    def __neg__(self) -> _FlagVector:
-        return _FlagVector(
+    def __neg__(self) -> FlagVector:
+        return _BinaryFlagVector(
             self._first,
             is_positive=False,
-            next_=_FlagVector(self._second, is_positive=False)
+            next_=_BinaryFlagVector(self._second, is_positive=False)
         )
 
     def __hash__(self) -> int:
@@ -373,11 +387,11 @@ class _AtomicFlag(Flag, ABC):
     def __getatom__(self) -> Self:
         return self
 
-    def __pos__(self) -> _FlagVector:
-        return _FlagVector(self)
+    def __pos__(self) -> FlagVector:
+        return _BinaryFlagVector(self)
 
-    def __neg__(self) -> _FlagVector:
-        return _FlagVector(self, is_positive=False)
+    def __neg__(self) -> FlagVector:
+        return _BinaryFlagVector(self, is_positive=False)
 
     def __sub__(self, other: Any) -> Self: 
         return nothing if self == other else self
