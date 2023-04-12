@@ -10,7 +10,7 @@ from pyhandling.contexting import contextual, contextually, contexted, context_p
 from pyhandling.data_flow import returnly, dynamically
 from pyhandling.flags import flag, nothing, Flag, pointed
 from pyhandling.language import then, by, to
-from pyhandling.partials import closed
+from pyhandling.partials import will
 from pyhandling.structure_management import as_collection
 from pyhandling.synonyms import returned, raise_
 from pyhandling.tools import documenting_by
@@ -51,7 +51,7 @@ monadically = documenting_by(
     """
 )(
     atomically(
-        closed(map)
+        will(map)
         |then>> binding_by(as_collection |then>> ... |then>> ActionChain)
         |then>> atomically
     )
@@ -167,7 +167,7 @@ _NewContextT = TypeVar("_NewContextT")
     """
 )
 @monadically
-@closed
+@will
 def considering_context(
     node: Callable[[ValueT], ResultT] | contextually[
         Callable[[ValueT], Callable[[ContextT], _NewContextT]]

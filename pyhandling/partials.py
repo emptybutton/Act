@@ -12,8 +12,8 @@ __all__ = (
     "flipped",
     "mirrored_partial",
     "right_partial",
-    "closed",
-    "right_closed",
+    "will",
+    "rwill",
 )
 
 
@@ -128,9 +128,9 @@ def right_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[Re
     return mirrored_partial(action, *args[::-1], **kwargs)
 
 
-def closed(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
+def will(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
     return partial(partial, action)
 
 
-def right_closed(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
+def rwill(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
     return partial(right_partial, action)

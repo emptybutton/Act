@@ -9,7 +9,7 @@ from pyhandling.contexting import contextual
 from pyhandling.data_flow import returnly, eventually
 from pyhandling.flags import nothing
 from pyhandling.language import then, by, to
-from pyhandling.partials import closed, right_partial
+from pyhandling.partials import will, right_partial
 from pyhandling.tools import documenting_by, Clock
 
 
@@ -53,7 +53,7 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
     atomically(
         (add |by| 1)
         |then>> Clock
-        |then>> closed(
+        |then>> will(
             on(
                 not_,
                 returnly(lambda clock: (setattr |to| clock)(

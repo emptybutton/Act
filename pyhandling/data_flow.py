@@ -9,7 +9,7 @@ from pyhandling.atoming import atomically
 from pyhandling.branching import mergely, on
 from pyhandling.errors import ReturningError
 from pyhandling.language import then, by
-from pyhandling.partials import closed
+from pyhandling.partials import will
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 from pyhandling.structure_management import table_value_map
 from pyhandling.synonyms import returned
@@ -139,7 +139,7 @@ class combinatly(ActionWrapper):
 taken: Callable[ValueT, action_for[ValueT]] = documenting_by(
     """Shortcut function for `eventually(returned, ...)`."""
 )(
-    atomically(closed(returned) |then>> eventually)
+    atomically(will(returned) |then>> eventually)
 )
 
 
