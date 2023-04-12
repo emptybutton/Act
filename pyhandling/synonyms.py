@@ -124,7 +124,7 @@ def _unpacking_repr(action: Callable) -> str:
     return "*{sep}{action}".format(
         sep=(
             '\''
-            if isinstance(self._action, with_unpacking | with_keyword_unpacking) 
+            if isinstance(self._action, with_unpacking | with_keyword_unpacking)
             else str()
         ),
         action=action,
