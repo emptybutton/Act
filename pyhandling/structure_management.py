@@ -14,9 +14,9 @@ __all__ = (
     "in_collection",
     "with_opened_items",
     "as_collection",
-    "map_",
-    "zip_",
-    "filter_",
+    "tmap",
+    "tzip",
+    "tfilter",
     "table_value_map",
     "reversed_table",
 )
@@ -54,17 +54,17 @@ as_collection = documenting_by(
 )
 
 
-map_ = documenting_by("""`map` function returning `tuple`""")(
+tmap = documenting_by("""`map` function returning `tuple`""")(
     atomically(map |then>> tuple)
 )
 
 
-zip_ = documenting_by("""`zip` function returning `tuple`""")(
+tzip = documenting_by("""`zip` function returning `tuple`""")(
     atomically(zip |then>> tuple)
 )
 
 
-filter_ = documenting_by("""`filter` function returning `tuple`""")(
+tfilter = documenting_by("""`filter` function returning `tuple`""")(
     atomically(filter |then>> tuple)
 )
 
