@@ -1,4 +1,5 @@
 from contextlib import AbstractContextManager
+from functools import update_wrapper
 from typing import NoReturn, Any, Iterable, Callable, Mapping, Tuple
 from inspect import Signature, Parameter
 
