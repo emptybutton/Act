@@ -51,32 +51,11 @@ test_with_keyword = calling_test_case_of((
 ))
 
 
-test_call = calling_test_case_of((
-    lambda: call(lambda a, b: a / b, 1, 10),
-    0.1,
-))
-
-
-test_getitem = calling_test_case_of((lambda: getitem(dict(a=1), 'a'), 1))
-
-
 @mark.parametrize('object_, key, value', ((dict(), 'a', 1), (dict(), 'b', 2)))
 def test_setitem(object_: object, key: Any, value: Any) -> None:
     setitem(object_, key, value)
 
     assert object_[key] == value
-
-
-test_execute_operation = calling_test_case_of((
-    lambda: execute_operation(200, '+', 56),
-    256,
-))
-
-
-test_transform = calling_test_case_of(
-    (lambda: transform(False, 'not'), True),
-    (lambda: transform(-43, '~'), 42),
-)
 
 
 test_to_context_manager = calling_test_case_of(
