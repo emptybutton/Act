@@ -59,7 +59,10 @@ class ContextRoot(ABC, Generic[ValueT, ContextT]):
     def __repr__(self) -> str:
         return f"{self._value} when {self._context}"
 
-    def __eq__(self, other: contextual_like) -> bool:
+    def __eq__(self, other: Any) -> bool:
+        if type(self) != type(other):
+            return False
+
         value, context = other
 
         return self._value == value and self._context == context
