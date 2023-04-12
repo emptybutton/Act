@@ -5,13 +5,13 @@ from typing import Any
 __all__ = ("value_of", )
 
 
-def value_of(variable_name: str) -> Any:
-    frame = stack()[1][0]
+def value_of(__variable_name: str) -> Any:
+    __frame = stack()[1][0]
 
-    while variable_name not in frame.f_locals:
-        frame = frame.f_back
+    while __variable_name not in __frame.f_locals:
+        __frame = __frame.f_back
 
-        if frame is None:
-            return eval(variable_name)
+        if __frame is None:
+            return eval(__variable_name)
 
-    return frame.f_locals[variable_name]
+    return __frame.f_locals[__variable_name]
