@@ -176,12 +176,20 @@ def considering_context(
     ],
     root: contextual[ValueT, ContextT]
 ) -> contextual[ResultT | ValueT | _ReadingResultT, ContextT | _NewContextT]:
-    if isinstance(node, contextually):
+    root = contexted(root)
+
+    if isinstance(node, contextually) and root.context == writing | reading:
+        value, context = root
+
+        transformed_context = node(value)(context)
+
         if node.context == writing:
-            return contextual(root.value, node(root.value)(root.context))
+            context = transformed_context
 
         if node.context == reading:
-            return contextual(node(root.value)(root.context), root.context)
+            value = transformed_context
+
+        return contextual(value, when=context)
 
     return saving_context(node)(root)
 
