@@ -197,7 +197,7 @@ def either(
     """Shortcut for `branching` with context checks."""
 
     return branching(*(
-        (lambda root: root.context is context, action)
+        (lambda root: root.context == context, action)
         for context_and_action in context_and_actions
         for context, action in context_and_action
     ))
