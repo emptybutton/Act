@@ -136,7 +136,7 @@ class combinatly(ActionWrapper):
         ))
 
 
-taken: Callable[[ValueT], action_for[ValueT]] = documenting_by(
+taken: Callable[ValueT, action_for[ValueT]] = documenting_by(
     """Shortcut function for `eventually(returned, ...)`."""
 )(
     atomically(closed(returned) |then>> eventually)
