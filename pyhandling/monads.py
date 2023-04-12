@@ -7,7 +7,7 @@ from pyhandling.annotations import one_value_action, dirty, ValueT, ContextT, Re
 from pyhandling.atoming import atomically
 from pyhandling.branching import ActionChain, on, rollbackable, mapping_to_chain_of, mapping_to_chain, binding_by
 from pyhandling.contexting import contextual, contextually, contexted, context_pointed
-from pyhandling.data_flow import returnly
+from pyhandling.data_flow import returnly, dynamically
 from pyhandling.flags import flag, nothing, Flag, pointed
 from pyhandling.language import then, by, to
 from pyhandling.partials import closed
@@ -144,8 +144,8 @@ def showly(
     )
 
 
-writing = flag("writing")
-reading = flag("reading")
+writing = flag("writing", action=lambda action: contextually(action, when=writing))
+reading = flag("reading", action=lambda action: contextually(action, when=reading))
 
 
 _ReadingResultT = TypeVar("_ReadingResultT")
