@@ -33,8 +33,8 @@ test_collection_of = calling_test_case_of(
 )
 
 
-test_with_positional_unpacking = calling_test_case_of((
-    lambda: with_positional_unpacking(lambda a, b, c: (c, b, a))([1, 2, 3]),
+test_with_unpacking = calling_test_case_of((
+    lambda: with_unpacking(lambda a, b, c: (c, b, a))([1, 2, 3]),
     (3, 2, 1),
 ))
 

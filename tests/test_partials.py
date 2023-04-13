@@ -31,10 +31,14 @@ test_mirrored_partial = calling_test_case_of(
 )
 
 
-test_closed = calling_test_case_of(
-    (lambda: closed(lambda a, b: a + b)(250)(6), 256),
-    (lambda: closed(lambda a, b: a / b, close=right_partial)(2)(128), 64),
-)
+test_will = calling_test_case_of((
+    lambda: will(lambda a, b: a / b)(1)(10), 0.1
+))
+
+
+test_rwill = calling_test_case_of((
+    lambda: rwill(lambda a, b: a / b)(10)(1), 0.1
+))
 
 
 test_fragmentarily = calling_test_case_of(

@@ -50,15 +50,15 @@ def test_as_collection(input_value: Any, result: tuple):
     assert as_collection(input_value) == result
 
 
-test_map_ = calling_test_case_of((
-    lambda: map_(lambda i: i + 1, range(9)), tuple(range(1, 10))
+test_tmap = calling_test_case_of((
+    lambda: tmap(lambda i: i + 1, range(9)), tuple(range(1, 10))
 ))
 
 
-test_filter_ = calling_test_case_of((
-    lambda: filter_(lambda i: i % 2 == 0, range(11)), tuple(range(0, 11, 2))
+test_tfilter = calling_test_case_of((
+    lambda: tfilter(lambda i: i % 2 == 0, range(11)), tuple(range(0, 11, 2))
 ))
 
-test_zip_ = calling_test_case_of((
-    lambda: zip_(['a', 'b'], range(10)), (('a', 0), ('b', 1))
+test_tzip = calling_test_case_of((
+    lambda: tzip(['a', 'b'], range(10)), (('a', 0), ('b', 1))
 ))

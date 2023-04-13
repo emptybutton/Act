@@ -10,7 +10,6 @@ from pyhandling.branching import ActionChain
 from pyhandling.contexting import contextual
 from pyhandling.flags import nothing
 from pyhandling.monads import *
-from pyhandling.synonyms import with_context_by
 from pyhandling.testing import calling_test_case_of
 from pyhandling.tools import with_attributes, Logger
 from tests.mocks import CustomContext, Counter, MockAction
@@ -96,11 +95,14 @@ test_until_error = calling_test_case_of(
         contextual(4, "input context"),
     ),
     (
-        lambda: (lambda root: (root.value, type(tuple(root.context)[0].point)))(
-            until_error([
+        lambda: (lambda root: (
+            root.value,
+            tuple(map(lambda context: type(context.point), root.context))
+        ))(
+            contextual(4, when="input context") >= until_error([
                 lambda a: a + 2, lambda b: b / 0, lambda _: "last node result"
-            ])(contextual(4, when="input context"))
+            ])
         ),
-        (6, ZeroDivisionError),
+        (6, (str, ZeroDivisionError)),
     ),
 )
