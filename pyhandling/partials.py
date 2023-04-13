@@ -51,7 +51,7 @@ class fragmentarily(ActionWrapper):
         return OrderedDict(
             (_, parameter)
             for _, parameter in calling_signature_of(self._action).parameters.items()
-            if self.__is_parameter_settable(parameter)
+            if _is_parameter_settable(parameter)
         )
 
     @cached_property
@@ -63,18 +63,10 @@ class fragmentarily(ActionWrapper):
                     parameter.replace(
                         default=None, annotation=Optional[parameter.annotation]
                     )
-                    if self.__is_parameter_settable(parameter)
+                    if _is_parameter_settable(parameter)
                     else parameter
                 )
                 for parameter in calling_signature_of(self._action).parameters.values()
-            )
-        )
-
-    def __is_parameter_settable(self, parameter: Parameter) -> bool:
-        return (
-            parameter.default is _empty
-            and parameter.kind in (
-                Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD
             )
         )
 
@@ -134,3 +126,12 @@ def will(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
 
 def rwill(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
     return partial(right_partial, action)
+
+
+def _is_parameter_settable(parameter: Parameter) -> bool:
+    return (
+        parameter.default is _empty
+        and parameter.kind in (
+            Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD
+        )
+    )
