@@ -89,7 +89,7 @@ class flipped(ActionWrapper):
         index_border_to_invert = 0
 
         for parameter_index, parameter in enumerate(parameters):
-            if parameter.default is not _empty:
+            if not _is_parameter_settable(parameter):
                 break
 
             index_border_to_invert = parameter_index
