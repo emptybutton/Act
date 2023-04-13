@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
-from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional
+from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional, Tuple
 from operator import or_, sub, attrgetter
 
 from pyannotating import Special
@@ -13,6 +13,7 @@ from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
 from pyhandling.language import then, by
 from pyhandling.signature_assignmenting import calling_signature_of
+from pyhandling.structure_management import with_opened_items, in_collection
 from pyhandling.synonyms import returned
 
 
@@ -295,8 +296,15 @@ class _DoubleFlag(Flag, ABC):
             raise FlagError("Combining with \"nothing\"")
 
     @property
-    def point(self) -> Self:
-        return self
+    def point(self) -> Tuple:
+        return with_opened_items(
+            (
+                flag.point
+                if isinstance(flag.point, _DoubleFlag)
+                else in_collection(flag.point)
+            )
+            for flag in self
+        )
 
     def __repr__(self) -> str:
         to_repr_of = on(isinstance |by| _ValueFlag, attrgetter("_value"))
