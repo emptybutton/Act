@@ -100,7 +100,7 @@ maybe = documenting_by(
     monadically(lambda action: contexted |then>> (lambda root: (
         root.value >= action |then>> contexted |then>> on(
             attrgetter("context") |then>> (eq |to| bad),
-            contexted |by| +root.context,
+            contexted |by| +pointed(root.context),
             else_=attrgetter("value") |then>> (contextual |by| root.context),
         )
         if root.context != bad
