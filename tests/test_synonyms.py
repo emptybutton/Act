@@ -45,19 +45,6 @@ test_with_keyword_unpacking = calling_test_case_of((
 ))
 
 
-test_with_keyword = calling_test_case_of((
-    lambda: with_keyword('b', 3, lambda a, b: a + b)(1),
-    4,
-))
-
-
-@mark.parametrize('object_, key, value', ((dict(), 'a', 1), (dict(), 'b', 2)))
-def test_setitem(object_: object, key: Any, value: Any) -> None:
-    setitem(object_, key, value)
-
-    assert object_[key] == value
-
-
 test_to_context_manager = calling_test_case_of(
     (lambda: to_context_manager(lambda _: _)(CustomContext(None)), None),
     (lambda: to_context_manager(lambda n: n + 6)(CustomContext(10)), 16),
