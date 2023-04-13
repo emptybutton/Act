@@ -6,7 +6,7 @@ from pyannotating import Special
 from pyhandling.annotations import ResultT
 from pyhandling.branching import ActionChain
 from pyhandling.immutability import property_to
-from pyhandling.partials import right_partial
+from pyhandling.partials import rpartial
 from pyhandling.tools import documenting_by
 
 
@@ -85,10 +85,10 @@ to = documenting_by(
 
 by = documenting_by(
     """
-    `BindingInfix` instance that implements `right_partial` as a pseudo operator.
+    `BindingInfix` instance that implements `rpartial` as a pseudo operator.
 
     See `BindingInfix` for usage information.
     """
 )(
-    BindingInfix(right_partial)
+    BindingInfix(rpartial)
 )

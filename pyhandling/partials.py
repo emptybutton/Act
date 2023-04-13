@@ -11,7 +11,7 @@ __all__ = (
     "fragmentarily",
     "flipped",
     "mirrored_partial",
-    "right_partial",
+    "rpartial",
     "will",
     "rwill",
 )
@@ -103,14 +103,14 @@ class flipped(ActionWrapper):
 
 def mirrored_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
     """
-    Function equivalent to pyhandling.handlers.right_partial but with the
+    Function equivalent to pyhandling.handlers.rpartial but with the
     difference that additional arguments from this function call are unfolded.
     """
 
     return flipped(partial(flipped(action), *args, **kwargs))
 
 
-def right_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
+def rpartial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
     """
     Function equivalent to functools.partial but with the difference that
     additional arguments are added not before the incoming ones from the final
@@ -125,7 +125,7 @@ def will(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
 
 
 def rwill(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
-    return partial(right_partial, action)
+    return partial(rpartial, action)
 
 
 def _is_parameter_settable(parameter: Parameter) -> bool:

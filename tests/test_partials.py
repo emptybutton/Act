@@ -9,14 +9,14 @@ from pyhandling.testing import calling_test_case_of
 from tests.mocks import Counter
 
 
-test_right_partial = calling_test_case_of(
-    (lambda: right_partial(lambda r: r, 0)(), 0),
-    (lambda: right_partial(lambda a, b: a / b, 10)(1), 0.1),
-    (lambda: right_partial(lambda a, b, *, c: a / b + c, 10, c=1)(1), 1.1),
-    (lambda: right_partial(lambda a, b, *, c: a / b + c, 10)(1, c=1), 1.1),
-    (lambda: right_partial(lambda a, b, *, c=10: a / b + c, 2)(4), 12),
+test_rpartial = calling_test_case_of(
+    (lambda: rpartial(lambda r: r, 0)(), 0),
+    (lambda: rpartial(lambda a, b: a / b, 10)(1), 0.1),
+    (lambda: rpartial(lambda a, b, *, c: a / b + c, 10, c=1)(1), 1.1),
+    (lambda: rpartial(lambda a, b, *, c: a / b + c, 10)(1, c=1), 1.1),
+    (lambda: rpartial(lambda a, b, *, c=10: a / b + c, 2)(4), 12),
     (
-        lambda: right_partial(lambda a, *args, **kwargs: (a, *args, kwargs), 2, c=3)(1),
+        lambda: rpartial(lambda a, *args, **kwargs: (a, *args, kwargs), 2, c=3)(1),
         (1, 2, dict(c=3))
     ),
 )

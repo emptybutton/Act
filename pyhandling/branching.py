@@ -9,7 +9,7 @@ from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotat
 from pyhandling.annotations import ResultT, one_value_action, P, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, checker_of
 from pyhandling.errors import TemplatedActionChainError
 from pyhandling.immutability import property_to
-from pyhandling.partials import right_partial
+from pyhandling.partials import rpartial
 from pyhandling.signature_assignmenting import calling_signature_of, annotation_sum
 from pyhandling.synonyms import returned, with_unpacking
 
@@ -193,7 +193,7 @@ class merged:
         )
 
         return_annotations = tuple(
-            partial(filter, right_partial(is_not, _empty))(
+            partial(filter, rpartial(is_not, _empty))(
                 map(lambda act: calling_signature_of(act).return_annotation, self._actions)
             )
         )
