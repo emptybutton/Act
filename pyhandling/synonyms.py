@@ -114,8 +114,8 @@ class with_context_manager_by:
         update_wrapper(self, self._action)
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
-        with get_context(*args, **kwargs):
-            return action(*args, **kwargs)
+        with self._get_context(*args, **kwargs):
+            return self._action(*args, **kwargs)
 
     def __repr__(self) -> str:
         return f"with_context_manager_by({self._get_context}, {self._action})"
