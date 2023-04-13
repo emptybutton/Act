@@ -9,7 +9,7 @@ from pyhandling.contexting import contextual
 from pyhandling.data_flow import returnly, eventually
 from pyhandling.flags import nothing
 from pyhandling.language import then, by, to
-from pyhandling.partials import will, right_partial
+from pyhandling.partials import will
 from pyhandling.tools import documenting_by, Clock
 
 
