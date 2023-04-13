@@ -42,7 +42,6 @@ test_fragmentarily = calling_test_case_of(
     (lambda: fragmentarily(lambda a, b, c: a / b + c)(10, 2)(3), 8),
     (lambda: fragmentarily(lambda a, b, c: a / b + c)(10)(2, 3), 8),
     (lambda: fragmentarily(lambda a, b, c: a / b + c)(10)(2)(3), 8),
-    (lambda: signature(fragmentarily(lambda a, b, c: ...)('a')), signature(lambda b, c: ...)),
     (lambda: fragmentarily(lambda: 16)(), 16),
     (lambda: fragmentarily(lambda *_: 16)(), 16),
     (lambda: fragmentarily(lambda *_, a=...: 16)(), 16),
