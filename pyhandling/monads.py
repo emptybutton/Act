@@ -1,4 +1,4 @@
-from operator import attrgetter, eq
+from operator import attrgetter, eq, pos
 from typing import Callable, Any, TypeVar
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
