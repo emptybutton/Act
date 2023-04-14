@@ -1,273 +1,174 @@
-from collections import OrderedDict
-from datetime import datetime
-from functools import wraps, partial, cached_property, update_wrapper
-from operator import itemgetter, call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift
-from typing import NamedTuple, Generic, Iterable, Tuple, Callable, Any, Mapping, Type, NoReturn, Optional, Self, TypeVar
+from functools import partial
+from itertools import count
+from operator import call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift
+from typing import Iterable, Callable, Any, Mapping, Self
 
-from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special, method_of
+from pyannotating import Special
 
-from pyhandling.annotations import one_value_action, dirty, handler_of, ValueT, ContextT, ResultT, checker_of, ErrorT, action_for, merger_of, P, reformer_of, KeyT, MappedT
-from pyhandling.arguments import ArgumentPack
+from pyhandling.annotations import one_value_action, merger_of
 from pyhandling.atoming import atomically
-from pyhandling.binders import returnly, closed, right_closed, right_partial, eventually, unpackly
-from pyhandling.branching import ActionChain, on, rollbackable, mergely, mapping_to_chain_of, mapping_to_chain, repeating, binding_by
-from pyhandling.contexting import contextual, contextually, context_pointed
-from pyhandling.data_flow import returnly
-from pyhandling.errors import LambdaGeneratingError
-from pyhandling.flags import flag, nothing, Flag, flag_to
-from pyhandling.language import then, by, to
-from pyhandling.partials import closed
-from pyhandling.synonyms import returned
-from pyhandling.tools import documenting_by, Clock
+from pyhandling.branching import ActionChain
 
 
-_attribute_getting = flag("_attribute_getting")
-_item_getting = flag("_item_getting")
-_method_calling_preparation = flag("_method_calling_preparation")
-_forced_call = flag("_forced_call")
+@dataclass(frozen=True)
+class _ActionCursorParameter:
+    name: str
+    priority: int | float
 
 
-def _as_generator_validating(
-    is_valid: checker_of["_LambdaGenerator"]
-) -> reformer_of[method_of["_LambdaGenerator"]]:
-    def wrapper(method: method_of["_LambdaGenerator"]) -> method_of["_LambdaGenerator"]:
-        @wraps(method)
-        def method_wrapper(generator: "_LambdaGenerator", *args, **kwargs) -> Any:
-            if not is_valid(generator):
-                raise LambdaGeneratingError(
-                    "Non-correct generation action when "
-                    f"{generator._last_action_nature.value}"
-                )
+def action_cursor_by(
+    name: str,
+    *,
+    priority: int | float | event_for[int | float] = next |by| count()
+) -> _LambdaCursor:
+    if callable(priority):
+        priority = priority()
 
-            return method(generator, *args, **kwargs)
-
-        return method_wrapper
-
-    return wrapper
+    return _ActionCursor([_ActionCursorParameter(name, priority)])
 
 
-def _invalid_when(*invalid_natures: contextual) -> reformer_of[method_of["_LambdaGenerator"]]:
-    return _as_generator_validating(
-        lambda generator: generator._last_action_nature.value not in invalid_natures
-    )
+def priority_of(cursor: "_ActionCursor") -> int | float:
+    if cursor:
+        raise ActionCursorError("Getting a priority of an active cursor")
+
+    return cursor._parameters[0].priority
 
 
-def _valid_when(*valid_natures: contextual) -> reformer_of[method_of["_LambdaGenerator"]]:
-    return _as_generator_validating(
-        lambda generator: generator._last_action_nature.value in valid_natures
-    )
+class _ActionCursorBinaryOperation:
+    def __init__(self, operation: merger_of[Any]):
+        self._operation = operation
+
+    def __call__(self, first: Special["_ActionCursor"], second: Special["_ActionCursor"]) -> "_ActionCursor":
+        if not isinstance(first, _ActionCursor) and isinstance(second, _ActionCursor):
+            first, second = second, first
+        elif not isinstance(first, _ActionCursor) and not isinstance(second, _ActionCursor):
+            raise ActionCursorError("Absence of any \"_ActionCursor\"")
+
+        cursor = first
+        other = second
+
+        if not cursor:
+            cursor = cursor._of(reading(taken(
+                getitem |by| cursor._parameters[0].name
+            )))
+
+        return (
+            cursor._of(dynamically(self._operation, cursor._run, other._run))
+            if isinstance(other, _ActionCursor)
+            else cursor._with(saving_context(operation |by| other))
+        )
 
 
-class _LambdaGenerator(Generic[ResultT]):
+class _ActionCursorTransformationOperation:
+    def __init__(self, operation: one_value_action):
+        self._operation = operation
+
+    def __call__(self, cursor: "_ActionCursor") -> "_ActionCursor":
+        return cursor._with(self._operation)
+
+
+class _ActionCursor:
     def __init__(
         self,
-        name: str,
-        actions: Special[ActionChain, Callable] = ActionChain(),
-        *,
-        last_action_nature: contextual = contextual(nothing),
-        is_template: bool = False
+        parameters: Iterable[_ActionCursorParameter],
+        actions: ActionChain = ActionChain(),
     ):
-        self._name = name
-        self._actions = ActionChain(as_collection(actions))
-        self._last_action_nature = last_action_nature
-        self._is_template = is_template
+        self._parameters = tuple(sorted(set(parameters), key=attrgetter("priority")))
+        self._actions = actions
 
-    def __repr__(self) -> str:
-        return str(self._actions)
+        if len(self._parameters) == 0:
+            raise ActionCursorError("Creating a cursor without parameters")
 
-    @property
-    def to(self) -> Self:
-        return self._of(last_action_nature=contextual(_forced_call))
-
-    @_valid_when(_attribute_getting, _item_getting)
-    def set(self, value: Any) -> Self:
-        if self._last_action_nature.value is _attribute_getting:
-            return self.__with_setting(setattr, value)
-
-        elif self._last_action_nature.value is _item_getting:
-            return self.__with_setting(setitem, value)
-
-        raise LambdaSettingError("Setting without place")
-
-    def is_(self, value: Any) -> Self:
-        return self._like_operation(operation_of('is'), value)
-
-    def isnt(self, value: Any) -> Self:
-        return self._like_operation(operation_of("is not"), value)
-
-    def or_(self, value: Any) -> Self:
-        return self._like_operation(operation_of('or'), value)
-
-    def and_(self, value: Any) -> Self:
-        return self._like_operation(operation_of('and'), value)
-
-    def _not(self) -> Self:
-        return self._with(not_)
-
-    def _of(self, *args, is_template: Optional[bool] = None, **kwargs) -> Self:
-        if is_template is None:
-            is_template = self._is_template 
-
-        return type(self)(self._name, *args, is_template=is_template, **kwargs)
-
-    def _with(self, action: Callable[[ResultT], ValueT], *args, **kwargs) -> Self:
-        return self._of(self._actions |then>> action, *args, **kwargs)
-
-    @_invalid_when(_method_calling_preparation)
-    def _like_operation(
-        self,
-        operation: merger_of[Any],
-        value: Special[Self | Ellipsis],
-        *,
-        is_inverted: bool = False
-    ) -> Self:
-        second_branch_of_operation = (
-            value._callable()
-            if isinstance(value, _LambdaGenerator)
-            else (taken(value) if value is not Ellipsis else value)
+        groups_with_same_priority = tfilter(
+            lambda group: len(group) > 1,
+            groupby(self._parameters, attrgetter("priority")),
         )
 
-        is_becoming_template = self._is_template or value._is_template
-
-        first, second = (
-            (self._callable(), second_branch_of_operation)
-            if not is_inverted
-            else (second_branch_of_operation, self._callable())
-        )
-
-        return self._of(
-            taken |then>> templately(mergely, taken(operation), first, second)
-            if value is Ellipsis
-            else mergely(taken(operation), first, second)
-        )
-
-    def _callable(self) -> Self:
-        return self._of(ActionChain([returned])) if len(self._actions) == 0 else self
-
-    @_invalid_when(_method_calling_preparation)
-    def __call__(self, *args, **kwargs) -> Self | ResultT:
-        return (
-            (
-                self._with(right_partial(call, *args, **kwargs))
-                if (
-                    len(self._actions) == 0
-                    or self._last_action_nature.value is _forced_call
+        if len(groups_with_same_priority) != 0:
+            raise ActionCursorError(
+                "parameters with the same priority: {}".format(
+                    ', '.join(map(str, groups_with_same_priority))
                 )
-                else (self._actions)(*args, **kwargs)
             )
-            if Ellipsis not in (*args, *kwargs.values())
-            else self._with(right_partial(templately, *args, **kwargs))
+
+        self._update_signature()
+
+    def __bool__(self) -> bool:
+        return len(self._actions) != 0
+
+    def __call__(self, *args) -> Any:
+        if len(args) < len(self._parameters):
+            raise ActionCursorError(
+                f"Extra arguments: {self._parameters[len(args) - 1:]}"
+            )
+        
+        elif len(args) == len(self._parameters):
+            return self._run(contextual(
+                nothing,
+                when=dict(zip(map(attrgetter('name'), self._parameters), args))
+            ))
+
+        elif len(args) > len(self._parameters):
+            return partial(self, *args)
+
+    def _run(root: contextual[Any, Mapping[str, Any]]):
+        return self._actions(root)
+
+    @to_clone
+    def _of(self, action: Callable) -> None:
+        self._actions = ActionChain([action])
+        self._update_signature()
+
+    def _with(self, action: Callable) -> Self:
+        return self._of(self._actions >> action)
+
+    def _update_signature(self) -> None:
+        self.__signature__ = Signature(
+            Parameter(cursor_parameter.name, Parameter.POSITIONAL_ONLY)
+            for cursor_parameter in self._parameters
         )
 
-    def __getattr__(self, attribute_name: str) -> Self:
-        return self._with(
-            getattr |by| attribute_name,
-            last_action_nature=contextual(attribute_name, when=_attribute_getting),
-        )
+    is_ = atomically(_ActionCursorOperation(is_))
+    is_not = atomically(_ActionCursorOperation(is_not))
+    or_ = atomically(_ActionCursorOperation(or_))
+    and_ = atomically(_ActionCursorOperation(and_))
 
-    @_invalid_when(_method_calling_preparation)
-    def __getitem__(self, key: Any) -> Self:
-        return self._with(
-            itemgetter(key),
-            last_action_nature=contextual(key, when=_item_getting),
-        )
+    __getitem__ = atomically(_ActionCursorOperation(getitem))
+    __contains__ = atomically(_ActionCursorOperation(contains))
 
-    def __with_setting(self, setting: Callable[[Any, Any, Any], Any], value: Any) -> Self:
-        return self._of(
-            self._actions[:-1]
-            |then>> right_partial(setting, self.last_action_nature.context, value)
-        )
+    __add__ = atomically(_ActionCursorOperation(add))
+    __sub__ = atomically(_ActionCursorOperation(sub))
+    __mul__ = atomically(_ActionCursorOperation(mul))
+    __floordiv__ = atomically(_ActionCursorOperation(floordiv))
+    __truediv__ = atomically(_ActionCursorOperation(truediv))
+    __mod__ = atomically(_ActionCursorOperation(mod))
+    __pow__ = atomically(_ActionCursorOperation(pow))
+    __or__ = atomically(_ActionCursorOperation(or_))
+    __xor__ = atomically(_ActionCursorOperation(xor))
+    __and__ = atomically(_ActionCursorOperation(and_))
+    __lshift__ = atomically(_ActionCursorOperation(lshift))
+    __rshift__ = atomically(_ActionCursorOperation(rshift))
 
-    def __pos__(self) -> Self:
-        return self._with(pos)
+    __radd__ = atomically(_ActionCursorOperation(flipped(add)))
+    __rsub__ = atomically(_ActionCursorOperation(flipped(sub)))
+    __rmul__ = atomically(_ActionCursorOperation(flipped(mul)))
+    __rfloordiv__ = atomically(_ActionCursorOperation(flipped(floordiv)))
+    __rtruediv__ = atomically(_ActionCursorOperation(flipped(truediv)))
+    __rmod__ = atomically(_ActionCursorOperation(flipped(mod)))
+    __rpow__ = atomically(_ActionCursorOperation(flipped(pow)))
+    __ror__ = atomically(_ActionCursorOperation(flipped(or_)))
+    __rxor__ = atomically(_ActionCursorOperation(xor))
+    __rand__ = atomically(_ActionCursorOperation(flipped(and_)))
 
-    def __neg__(self) -> Self:
-        return self._with(neg)
+    __gt__ = atomically(_ActionCursorOperation(gt))
+    __ge__ = atomically(_ActionCursorOperation(ge))
+    __lt__ = atomically(_ActionCursorOperation(lt))
+    __le__ = atomically(_ActionCursorOperation(le))
+    __eq__ = atomically(_ActionCursorOperation(eq))
+    __ne__ = atomically(_ActionCursorOperation(ne))
 
-    def __invert__(self) -> Self:
-        return self._with(invert)
-
-    def __gt__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(gt, value)
-
-    def __ge__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(ge, value)
-
-    def __lt__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(lt, value)
-
-    def __le__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(le, value)
-
-    def __eq__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(eq, value)
-
-    def __ne__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(ne, value)
-
-    def __add__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(add, value)
-
-    def __sub__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(sub, value)
-
-    def __mul__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(mul, value)
-
-    def __floordiv__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(floordiv, value)
-
-    def __truediv__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(truediv, value)
-
-    def __mod__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(mod, value)
-
-    def __pow__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(pow, value)
-
-    def __or__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(or_, value)
-
-    def __and__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(and_, value)
-
-    def __lshift__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(lshift, value)
-
-    def __radd__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(add, value, is_inverted=True)
-
-    def __rsub__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(sub, value, is_inverted=True)
-
-    def __rmul__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(mul, value, is_inverted=True)
-
-    def __rfloordiv__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(floordiv, value, is_inverted=True)
-
-    def __rtruediv__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(truediv, value, is_inverted=True)
-
-    def __rmod__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(mod, value, is_inverted=True)
-
-    def __rpow__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(pow, value, is_inverted=True)
-
-    def __ror__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(or_, value, is_inverted=True)
-
-    def __rand__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(and_, value, is_inverted=True)
-
-    def __rshift__(self, value: Special[Self | Ellipsis]) -> Self:
-        return self._like_operation(lshift, value, is_inverted=True)
+    __pos__ = atomically(_ActionCursorTransformationOperation(pos))
+    __neg__ = atomically(_ActionCursorTransformationOperation(neg))
+    __invert__ = atomically(_ActionCursorTransformationOperation(invert))
 
 
-def not_(generator: _LambdaGenerator) -> LambdaGeneratingError:
-    return generator._not()
-
-
-x = _LambdaGenerator('x')

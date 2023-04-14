@@ -4,9 +4,7 @@ __all__ = (
     "InvalidInitializationError",
     "AtomizationError",
     "TemplatedActionChainError",
-    "LambdaGeneratorError",
-    "LambdaGeneratingError",
-    "LambdaSettingError",   
+    "ActionCursorError",
 )
 
 
@@ -32,10 +30,7 @@ class TemplatedActionChainError(ActionChainError):
     __notes__ = ["Regular chain should not contain Ellipsis"]
 
 
-class LambdaGeneratorError(PyhandingError): ...
-
-
-class LambdaGeneratingError(LambdaGeneratorError): ...
+class ActionCursorError(PyhandingError): ...
 
 
 class LambdaSettingError(LambdaGeneratorError):
