@@ -5,9 +5,10 @@ from typing import Iterable, Callable, Any, Mapping, Self
 
 from pyannotating import Special
 
-from pyhandling.annotations import one_value_action, merger_of
+from pyhandling.annotations import one_value_action, merger_of, event_for
 from pyhandling.atoming import atomically
 from pyhandling.branching import ActionChain
+from pyhandling.errors import ActionCursorError
 from pyhandling.structure_management import tfilter, groups_in
 
 
@@ -61,16 +62,7 @@ class _ActionCursorBinaryOperation(_ActionCursorOperation):
         cursor = first
         other = second
 
-        if not cursor:
-            cursor = cursor._of(reading(taken(
-                getitem |by| cursor._parameters[0].name
-            )))
-
-        return (
-            cursor._of(dynamically(self._operation, cursor._run, other._run))
-            if isinstance(other, _ActionCursor)
-            else cursor._with(saving_context(operation |by| other))
-        )
+        return cursor._merged_with(other, by=self._operation)
 
 
 class _ActionCursorTransformationOperation(_ActionCursorOperation):
@@ -135,6 +127,21 @@ class _ActionCursor:
 
     def _with(self, action: Callable) -> Self:
         return self._of(self._actions >> action)
+
+    def _merged_with(self, other: Special[Self], *, by: merger_of[Any]) -> Self:
+        operation = by
+
+        return (
+            type(self)(
+                self._parameters + other._parameters,
+                ActionChain([lambda root: contextual(
+                    operation(self._run(root).value, other._run(root).value),
+                    when=root.context,
+                )]),
+            )
+            if isinstance(other, _ActionCursor)
+            else self._with(saving_context(operation |by| other))
+        )
 
     def _update_signature(self) -> None:
         self.__signature__ = Signature(
