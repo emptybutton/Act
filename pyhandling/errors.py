@@ -31,7 +31,3 @@ class TemplatedActionChainError(ActionChainError):
 
 
 class ActionCursorError(PyhandingError): ...
-
-
-class LambdaSettingError(LambdaGeneratorError):
-    __notes__ = ["It is possible to set only after getting an attribute or item"]
