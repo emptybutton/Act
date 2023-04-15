@@ -24,7 +24,6 @@ __all__ = (
     "repeating",
     "on",
     "branching",
-    "rollbackable",
     "mapping_to_chain_of",
     "mapping_to_chain",
 )
@@ -376,38 +375,6 @@ def branching(
             forks[0].checker,
             forks[0].action,
             else_=branching(*forks[1:], else_=else_),
-        )
-
-
-class rollbackable:
-    """
-    Decorator function providing handling of possible errors in an input action.
-    """
-
-    def __init__(
-        self,
-        action: Callable[P, ResultT],
-        rollback: Callable[[Exception], ErrorHandlingResultT],
-    ):
-        self._action = action
-        self._rollback = rollback
-        self.__signature__ = self.__get_signature()
-
-    def __call__(self, *args: P.args, **kwargs: P.args) -> ResultT | ErrorHandlingResultT:
-        try:
-            return self._action(*args, **kwargs)
-        except Exception as error:
-            return self._rollback(error)
-
-    def __repr__(self) -> str:
-        return f"({self._action} ~> {self._rollback})"
-
-    def __get_signature(self) -> Signature:
-        return calling_signature_of(self._action).replace(
-            return_annotation=annotation_sum(
-                calling_signature_of(self._action).return_annotation,
-                calling_signature_of(self._rollback).return_annotation,
-            )
         )
 
 

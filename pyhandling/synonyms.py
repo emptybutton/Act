@@ -13,6 +13,7 @@ __all__ = (
     "raise_",
     "assert_",
     "collection_of",
+    "trying_to",
     "with_",
     "with_unpacking",
     "with_keyword_unpacking",
@@ -44,6 +45,39 @@ def collection_of(*args: ValueT) -> Tuple[ValueT, ...]:
     """Function to create a `tuple` from unlimited input arguments."""
 
     return args
+
+
+@fragmentarily
+class trying_to:
+    """
+    Decorator function providing handling of possible errors in an input action.
+    """
+
+    def __init__(
+        self,
+        action: Callable[P, ResultT],
+        rollback: Callable[[Exception], ErrorHandlingResultT],
+    ):
+        self._action = action
+        self._rollback = rollback
+        self.__signature__ = self.__get_signature()
+
+    def __call__(self, *args: P.args, **kwargs: P.args) -> ResultT | ErrorHandlingResultT:
+        try:
+            return self._action(*args, **kwargs)
+        except Exception as error:
+            return self._rollback(error)
+
+    def __repr__(self) -> str:
+        return f"<try({self._action}) rollback({self._rollback})>"
+
+    def __get_signature(self) -> Signature:
+        return calling_signature_of(self._action).replace(
+            return_annotation=annotation_sum(
+                calling_signature_of(self._action).return_annotation,
+                calling_signature_of(self._rollback).return_annotation,
+            )
+        )
 
 
 @fragmentarily

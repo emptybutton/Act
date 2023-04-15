@@ -5,14 +5,14 @@ from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Spec
 
 from pyhandling.annotations import one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of
 from pyhandling.atoming import atomically
-from pyhandling.branching import ActionChain, on, rollbackable, mapping_to_chain_of, mapping_to_chain, binding_by
+from pyhandling.branching import ActionChain, on, mapping_to_chain_of, mapping_to_chain, binding_by
 from pyhandling.contexting import contextual, contextually, contexted, context_pointed
 from pyhandling.data_flow import returnly, dynamically
 from pyhandling.flags import flag, nothing, Flag, pointed
 from pyhandling.language import then, by, to
 from pyhandling.partials import will
-from pyhandling.synonyms import returned, raise_
 from pyhandling.structure_management import in_collection, as_collection
+from pyhandling.synonyms import returned, raise_, trying_to
 from pyhandling.tools import documenting_by
 from pyhandling.utils import isnt
 
@@ -123,7 +123,7 @@ until_error = documenting_by(
     """
 )(
     monadically(lambda action: contexted |then>> (lambda root: (
-        rollbackable(
+        trying_to(
             saving_context(action),
             pointed |then>> pos |then>> (contexted |to| root),
         )(root)
