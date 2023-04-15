@@ -110,7 +110,7 @@ class _ActionCursor:
         return len(self._actions) != 0
 
     def __call__(self, *args) -> Any:
-        if len(args) < len(self._parameters):
+        if len(args) > len(self._parameters):
             raise ActionCursorError(
                 f"Extra arguments: {self._parameters[len(args) - 1:]}"
             )
@@ -121,7 +121,7 @@ class _ActionCursor:
                 when=dict(zip(map(attrgetter('name'), self._parameters), args))
             ))
 
-        elif len(args) > len(self._parameters):
+        elif len(args) < len(self._parameters):
             return partial(self, *args)
 
     def _run(self, root: contextual[Any, Mapping[str, Any]]) -> contextual:
