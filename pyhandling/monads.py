@@ -11,8 +11,8 @@ from pyhandling.data_flow import returnly, dynamically
 from pyhandling.flags import flag, nothing, Flag, pointed
 from pyhandling.language import then, by, to
 from pyhandling.partials import will
-from pyhandling.structure_management import as_collection
 from pyhandling.synonyms import returned, raise_
+from pyhandling.structure_management import in_collection, as_collection
 from pyhandling.tools import documenting_by
 from pyhandling.utils import isnt
 
@@ -52,7 +52,11 @@ monadically = documenting_by(
 )(
     atomically(
         will(map)
-        |then>> binding_by(as_collection |then>> ... |then>> ActionChain)
+        |then>> binding_by(
+            on(isnt(isinstance |by| ActionChain), in_collection, else_=as_collection)
+            |then>> ...
+            |then>> ActionChain
+        )
         |then>> atomically
     )
 )
