@@ -8,6 +8,7 @@ from pyannotating import Special
 from pyhandling.annotations import one_value_action, merger_of
 from pyhandling.atoming import atomically
 from pyhandling.branching import ActionChain
+from pyhandling.structure_management import tfilter, groups_in
 
 
 __all__ = (
@@ -94,7 +95,7 @@ class _ActionCursor:
 
         groups_with_same_priority = tfilter(
             lambda group: len(group) > 1,
-            groupby(self._parameters, attrgetter("priority")),
+            groups_in(self._parameters, attrgetter("priority")),
         )
 
         if len(groups_with_same_priority) != 0:
