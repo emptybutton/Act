@@ -120,7 +120,7 @@ class _ActionCursor:
             return self._run(contextual(
                 nothing,
                 when=dict(zip(map(attrgetter('name'), self._parameters), args))
-            ))
+            )).value
 
         elif len(args) < len(self._parameters):
             return partial(self, *args)
