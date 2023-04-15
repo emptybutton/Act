@@ -124,7 +124,7 @@ class _ActionCursor:
         elif len(args) > len(self._parameters):
             return partial(self, *args)
 
-    def _run(root: contextual[Any, Mapping[str, Any]]):
+    def _run(self, root: contextual[Any, Mapping[str, Any]]) -> contextual:
         return self._actions(root)
 
     @to_clone
