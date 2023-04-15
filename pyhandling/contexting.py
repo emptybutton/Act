@@ -8,7 +8,7 @@ from pyannotating import Special
 
 from pyhandling.annotations import ValueT, ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, reformer_of, FlagT, action_of, t
 from pyhandling.atoming import atomic, atomically
-from pyhandling.branching import binding_by, repeating, on
+from pyhandling.branching import repeating
 from pyhandling.data_flow import dynamically
 from pyhandling.flags import flag, nothing, Flag, pointed, FlagVector
 from pyhandling.immutability import property_to
