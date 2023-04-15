@@ -3,7 +3,7 @@ from typing import Iterable, Tuple, Callable, Mapping
 
 from pyannotating import many_or_one
 
-from pyhandling.annotations import ValueT, MappedT, KeyT, ValueT
+from pyhandling.annotations import ValueT, MappedT, KeyT, ValueT, action_of
 from pyhandling.atoming import atomically
 from pyhandling.branching import on
 from pyhandling.language import by, then
@@ -17,6 +17,7 @@ __all__ = (
     "tmap",
     "tzip",
     "tfilter",
+    "groups_in",
     "table_value_map",
     "from_keys",
     "reversed_table",
@@ -68,6 +69,16 @@ tzip = documenting_by("""`zip` function returning `tuple`""")(
 tfilter = documenting_by("""`filter` function returning `tuple`""")(
     atomically(filter |then>> tuple)
 )
+
+
+def groups_in(items: Iterable[ValueT], id_of: action_of[ValueT]) -> Tuple[ValueT]:
+    id_by_item = from_keys(items, id_of)
+    group_by_id = dict.fromkeys(id_by_item.values(), tuple())
+
+    for item in items:
+        group_by_id[id_by_item[item]] = (*group_by_id[id_by_item[item]], item)
+
+    return tuple(group_by_id.values())
 
 
 def table_value_map(
