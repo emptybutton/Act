@@ -126,6 +126,27 @@ class _ActionCursor:
         elif len(args) < len(self._parameters):
             return partial(self, *args)
 
+    def to(self, *args, **kwargs) -> Self:
+        as_callable = on(
+            isinstance |by| _ActionCursor,
+            attrgetter('_run'),
+            else_=taken
+        )
+
+        args = tmap(as_callable, args)
+        kwargs = table_value_map(as_callable, kwargs)
+
+        other = self._with(will |then>> (call |by| args[0]))
+
+        is_argument_keyword = True
+
+        self._merged_with(will |then>> partial(call, **kwargs) if is_argument_keyword else rpartial |by| arg).to(
+            saving_context(will |then>> (call |by| args[0]))
+        )
+
+        return self._with(saving_context(rpartial(call, *args, **kwargs)))
+
+
     @classmethod
     def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
         return cls(
