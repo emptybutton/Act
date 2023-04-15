@@ -126,6 +126,15 @@ class _ActionCursor:
         elif len(args) < len(self._parameters):
             return partial(self, *args)
 
+    @classmethod
+    def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
+        return cls(
+            [parameter],
+            considering_context(
+                reading(taken(getitem |by| parameter.name))
+            )
+        )
+
     def _run(self, root: contextual[Any, Mapping[str, Any]]) -> contextual:
         return self._actions(root)
 
@@ -210,7 +219,7 @@ def action_cursor_by(
     if callable(priority):
         priority = priority()
 
-    return _ActionCursor([_ActionCursorParameter(name, priority)])
+    return _ActionCursor.operated_by(_ActionCursorParameter(name, priority))
 
 
 def priority_of(cursor: _ActionCursor) -> int | float:
