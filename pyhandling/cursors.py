@@ -78,7 +78,7 @@ class _ActionCursorTransformationOperation(_ActionCursorOperation):
         self._operation = operation
 
     def __call__(self, cursor: "_ActionCursor") -> "_ActionCursor":
-        return cursor._with(self._operation)
+        return cursor._with(saving_context(self._operation))
 
 
 class _ActionCursor:
