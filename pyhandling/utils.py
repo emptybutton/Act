@@ -1,15 +1,16 @@
 from functools import partial
 from operator import not_, add, truediv
-from typing import Callable, Optional
+from typing import Callable, Optional, Type
 
-from pyhandling.annotations import dirty, action_of, ValueT, ResultT, checker_of, action_for, P, reformer_of
+from pyhandling.annotations import dirty, action_of, ValueT, ResultT, checker_of, action_for, P, reformer_of, ErrorT
 from pyhandling.atoming import atomically
-from pyhandling.branching import on, rollbackable, binding_by
+from pyhandling.branching import on, binding_by
 from pyhandling.contexting import contextual
 from pyhandling.data_flow import returnly, eventually
 from pyhandling.flags import nothing
 from pyhandling.language import then, by, to
-from pyhandling.partials import will
+from pyhandling.partials import will, fragmentarily
+from pyhandling.synonyms import trying_to
 from pyhandling.tools import documenting_by, Clock
 
 
@@ -19,6 +20,7 @@ __all__ = (
     "div",
     "times",
     "with_error",
+    "catching",
 )
 
 
@@ -86,6 +88,18 @@ with_error = documenting_by(
 )(
     atomically(
         binding_by(... |then>> contextual)
-        |then>> (rollbackable |by| (contextual |to| nothing))
+        |then>> (trying_to |by| (contextual |to| nothing))
     )
 )
+
+
+@fragmentarily
+def catching(
+    error_type_to_catch: Type[ErrorT],
+    action: Callable[[ErrorT], ResultT],
+    error: ErrorT,
+) -> ResultT:
+    if not isinstance(error, error_type_to_catch):
+        raise error
+
+    return action(error)
