@@ -16,24 +16,6 @@ class _ActionCursorParameter:
     priority: int | float
 
 
-def action_cursor_by(
-    name: str,
-    *,
-    priority: int | float | event_for[int | float] = next |by| count()
-) -> _LambdaCursor:
-    if callable(priority):
-        priority = priority()
-
-    return _ActionCursor([_ActionCursorParameter(name, priority)])
-
-
-def priority_of(cursor: "_ActionCursor") -> int | float:
-    if cursor:
-        raise ActionCursorError("Getting a priority of an active cursor")
-
-    return cursor._parameters[0].priority
-
-
 class _ActionCursorBinaryOperation:
     def __init__(self, operation: merger_of[Any]):
         self._operation = operation
@@ -170,6 +152,24 @@ class _ActionCursor:
     __pos__ = atomically(_ActionCursorTransformationOperation(pos))
     __neg__ = atomically(_ActionCursorTransformationOperation(neg))
     __invert__ = atomically(_ActionCursorTransformationOperation(invert))
+
+
+def action_cursor_by(
+    name: str,
+    *,
+    priority: int | float | event_for[int | float] = next |by| count()
+) -> _ActionCursor:
+    if callable(priority):
+        priority = priority()
+
+    return _ActionCursor([_ActionCursorParameter(name, priority)])
+
+
+def priority_of(cursor: _ActionCursor) -> int | float:
+    if cursor:
+        raise ActionCursorError("Getting a priority of an active cursor")
+
+    return cursor._parameters[0].priority
 
 
 # Without `i`, `j`, `k` and `t`
