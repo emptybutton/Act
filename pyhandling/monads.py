@@ -79,8 +79,8 @@ native_execution_context_when = AnnotationTemplate(mapping_to_chain_of, [
 saving_context: execution_context_when[ContextT] = documenting_by(
     """Execution context without effect."""
 )(
-    monadically(lambda node: lambda root: contextual(
-        node(root.value), when=root.context
+    monadically(lambda action: lambda root: contextual(
+        action(root.value), when=root.context
     ))
 )
 
@@ -169,7 +169,7 @@ _NewContextT = TypeVar("_NewContextT")
 @monadically
 @will
 def considering_context(
-    node: Callable[[ValueT], ResultT] | contextually[
+    action: Callable[[ValueT], ResultT] | contextually[
         Callable[[ValueT], Callable[[ContextT], _NewContextT]]
         | Callable[[ValueT], Callable[[ContextT], _ReadingResultT]],
         Special[writing | reading],
@@ -178,20 +178,20 @@ def considering_context(
 ) -> contextual[ResultT | ValueT | _ReadingResultT, ContextT | _NewContextT]:
     root = contexted(root)
 
-    if isinstance(node, contextually) and node.context == writing | reading:
+    if isinstance(action, contextually) and action.context == writing | reading:
         value, context = root
 
-        transformed_context = node(value)(context)
+        transformed_context = action(value)(context)
 
-        if node.context == writing:
+        if action.context == writing:
             context = transformed_context
 
-        if node.context == reading:
+        if action.context == reading:
             value = transformed_context
 
         return contextual(value, when=context)
 
-    return saving_context(node)(root)
+    return saving_context(action)(root)
 
 
 right = flag("right")
