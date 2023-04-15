@@ -3,6 +3,7 @@ from pyhandling.arguments import *
 from pyhandling.atoming import *
 from pyhandling.branching import *
 from pyhandling.contexting import *
+from pyhandling.cursors import *
 from pyhandling.data_flow import *
 from pyhandling.error_storing import *
 from pyhandling.flags import *
