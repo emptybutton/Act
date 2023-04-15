@@ -116,8 +116,8 @@ class ActionChain(Generic[_NodeT]):
             " |then>> ".join(
                 '...' if node is Ellipsis else str(node) for node in self._nodes
             )
-            if self._nodes
-            else "ActionChain()"
+            if len(self._nodes) > 1
+            else f"ActionChain({', '.join(map(str, self._nodes))})"
         )
 
     def __rshift__(self, node: Self | _NodeT) -> Self:
