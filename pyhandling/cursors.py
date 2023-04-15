@@ -42,7 +42,12 @@ class _ActionCursorParameter:
     priority: int | float
 
 
-class _ActionCursorBinaryOperation:
+class _ActionCursorOperation:
+    def __get__(self, instance: "_ActionCursor", owner: "Type[_ActionCursor]") -> Self:
+        return partial(self, instance)
+
+
+class _ActionCursorBinaryOperation(_ActionCursorOperation):
     def __init__(self, operation: merger_of[Any]):
         self._operation = operation
 
@@ -67,7 +72,7 @@ class _ActionCursorBinaryOperation:
         )
 
 
-class _ActionCursorTransformationOperation:
+class _ActionCursorTransformationOperation(_ActionCursorOperation):
     def __init__(self, operation: one_value_action):
         self._operation = operation
 
@@ -136,48 +141,48 @@ class _ActionCursor:
             for cursor_parameter in self._parameters
         )
 
-    is_ = atomically(_ActionCursorOperation(is_))
-    is_not = atomically(_ActionCursorOperation(is_not))
-    or_ = atomically(_ActionCursorOperation(or_))
-    and_ = atomically(_ActionCursorOperation(and_))
+    is_ = _ActionCursorBinaryOperation(is_)
+    is_not = _ActionCursorBinaryOperation(is_not)
+    or_ = _ActionCursorBinaryOperation(lambda a, b: a or b)
+    and_ = _ActionCursorBinaryOperation(lambda a, b: a and b)
 
-    __getitem__ = atomically(_ActionCursorOperation(getitem))
-    __contains__ = atomically(_ActionCursorOperation(contains))
+    __getitem__ = _ActionCursorBinaryOperation(getitem)
+    __contains__ = _ActionCursorBinaryOperation(contains)
 
-    __add__ = atomically(_ActionCursorOperation(add))
-    __sub__ = atomically(_ActionCursorOperation(sub))
-    __mul__ = atomically(_ActionCursorOperation(mul))
-    __floordiv__ = atomically(_ActionCursorOperation(floordiv))
-    __truediv__ = atomically(_ActionCursorOperation(truediv))
-    __mod__ = atomically(_ActionCursorOperation(mod))
-    __pow__ = atomically(_ActionCursorOperation(pow))
-    __or__ = atomically(_ActionCursorOperation(or_))
-    __xor__ = atomically(_ActionCursorOperation(xor))
-    __and__ = atomically(_ActionCursorOperation(and_))
-    __lshift__ = atomically(_ActionCursorOperation(lshift))
-    __rshift__ = atomically(_ActionCursorOperation(rshift))
+    __add__ = _ActionCursorBinaryOperation(add)
+    __sub__ = _ActionCursorBinaryOperation(sub)
+    __mul__ = _ActionCursorBinaryOperation(mul)
+    __floordiv__ = _ActionCursorBinaryOperation(floordiv)
+    __truediv__ = _ActionCursorBinaryOperation(truediv)
+    __mod__ = _ActionCursorBinaryOperation(mod)
+    __pow__ = _ActionCursorBinaryOperation(pow)
+    __or__ = _ActionCursorBinaryOperation(or_)
+    __xor__ = _ActionCursorBinaryOperation(xor)
+    __and__ = _ActionCursorBinaryOperation(and_)
+    __lshift__ = _ActionCursorBinaryOperation(lshift)
+    __rshift__ = _ActionCursorBinaryOperation(rshift)
 
-    __radd__ = atomically(_ActionCursorOperation(flipped(add)))
-    __rsub__ = atomically(_ActionCursorOperation(flipped(sub)))
-    __rmul__ = atomically(_ActionCursorOperation(flipped(mul)))
-    __rfloordiv__ = atomically(_ActionCursorOperation(flipped(floordiv)))
-    __rtruediv__ = atomically(_ActionCursorOperation(flipped(truediv)))
-    __rmod__ = atomically(_ActionCursorOperation(flipped(mod)))
-    __rpow__ = atomically(_ActionCursorOperation(flipped(pow)))
-    __ror__ = atomically(_ActionCursorOperation(flipped(or_)))
-    __rxor__ = atomically(_ActionCursorOperation(xor))
-    __rand__ = atomically(_ActionCursorOperation(flipped(and_)))
+    __radd__ = _ActionCursorBinaryOperation(flipped(add))
+    __rsub__ = _ActionCursorBinaryOperation(flipped(sub))
+    __rmul__ = _ActionCursorBinaryOperation(flipped(mul))
+    __rfloordiv__ = _ActionCursorBinaryOperation(flipped(floordiv))
+    __rtruediv__ = _ActionCursorBinaryOperation(flipped(truediv))
+    __rmod__ = _ActionCursorBinaryOperation(flipped(mod))
+    __rpow__ = _ActionCursorBinaryOperation(flipped(pow))
+    __ror__ = _ActionCursorBinaryOperation(flipped(or_))
+    __rxor__ = _ActionCursorBinaryOperation(flipped(xor))
+    __rand__ = _ActionCursorBinaryOperation(flipped(and_))
 
-    __gt__ = atomically(_ActionCursorOperation(gt))
-    __ge__ = atomically(_ActionCursorOperation(ge))
-    __lt__ = atomically(_ActionCursorOperation(lt))
-    __le__ = atomically(_ActionCursorOperation(le))
-    __eq__ = atomically(_ActionCursorOperation(eq))
-    __ne__ = atomically(_ActionCursorOperation(ne))
+    __gt__ = _ActionCursorBinaryOperation(gt)
+    __ge__ = _ActionCursorBinaryOperation(ge)
+    __lt__ = _ActionCursorBinaryOperation(lt)
+    __le__ = _ActionCursorBinaryOperation(le)
+    __eq__ = _ActionCursorBinaryOperation(eq)
+    __ne__ = _ActionCursorBinaryOperation(ne)
 
-    __pos__ = atomically(_ActionCursorTransformationOperation(pos))
-    __neg__ = atomically(_ActionCursorTransformationOperation(neg))
-    __invert__ = atomically(_ActionCursorTransformationOperation(invert))
+    __pos__ = _ActionCursorTransformationOperation(pos)
+    __neg__ = _ActionCursorTransformationOperation(neg)
+    __invert__ = _ActionCursorTransformationOperation(invert)
 
 
 def action_cursor_by(
