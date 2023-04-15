@@ -18,6 +18,7 @@ __all__ = (
     "tzip",
     "tfilter",
     "table_value_map",
+    "from_keys",
     "reversed_table",
 )
 
@@ -74,6 +75,13 @@ def table_value_map(
     table: Mapping[KeyT, ValueT],
 ) -> OrderedDict[KeyT, MappedT]:
     return OrderedDict((_, mapped(value)) for _, value in table.items())
+
+
+def from_keys(
+    keys: Iterable[KeyT],
+    value_of: Callable[[KeyT], ValueT] = lambda _: None,
+) -> OrderedDict[KeyT, ValueT]:
+    return OrderedDict((key, value_of(key)) for key in keys)
 
 
 def reversed_table(table: Mapping[KeyT, ValueT]) -> OrderedDict[ValueT, KeyT]:
