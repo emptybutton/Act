@@ -112,7 +112,7 @@ class _ActionCursor:
     def __call__(self, *args) -> Any:
         if len(args) > len(self._parameters):
             raise ActionCursorError(
-                f"Extra arguments: {self._parameters[len(args) - 1:]}"
+                f"Extra arguments: {', '.join(map(str, args[len(self._parameters):]))}"
             )
         
         elif len(args) == len(self._parameters):
