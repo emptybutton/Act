@@ -312,7 +312,7 @@ class _DoubleFlag(Flag, ABC):
         return f"{to_repr_of(self._first)} {self._separation_sign} {to_repr_of(self._second)}"
 
     def __getatom__(self) -> Flag:
-        return atomic(self._second)
+        return atomic(self._first)
 
     def __pos__(self) -> FlagVector:
         return _BinaryFlagVector(self._first, next_=_BinaryFlagVector(self._second))
