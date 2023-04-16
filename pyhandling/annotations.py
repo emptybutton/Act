@@ -7,7 +7,6 @@ from pyhandling.scoping import value_of
 
 
 __all__ = (
-    "dirty",
     "checker_of",
     "formatter_of",
     "transformer_to",
@@ -41,12 +40,8 @@ __all__ = (
     "AtomT",
     "CallableFormalAnnotation",
     "notes_of",
+    "dirty",
     "action_of",
-)
-
-
-dirty = FormalAnnotation(
-    """Formal annotation to indicate the dirtyness of an action."""
 )
 
 
@@ -133,6 +128,12 @@ def notes_of(value: Any) -> Tuple:
     return tuple(value.__notes__) if hasattr(value, "__notes__") else tuple()
 
 
+dirty = CallableFormalAnnotation(
+    """
+    Formal annotation to indicate that an action interacts with any state or
+    indicate value output from such action.
+    """
+)
 
 
 
