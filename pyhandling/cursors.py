@@ -115,6 +115,9 @@ class _ActionCursor:
     def __bool__(self) -> bool:
         return len(self._actions) != 0
 
+    def __repr__(self) -> str:
+        return f"ActionCursor({self._actions})"
+
     def __call__(self, *args) -> Any:
         if len(args) > len(self._parameters):
             raise ActionCursorError(
