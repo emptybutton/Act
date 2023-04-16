@@ -16,7 +16,7 @@ from pyhandling.flags import nothing
 from pyhandling.immutability import to_clone
 from pyhandling.language import by, then, to
 from pyhandling.monads import reading, saving_context, considering_context
-from pyhandling.partials import flipped, rpartial
+from pyhandling.partials import flipped, rpartial, rwill
 from pyhandling.structure_management import tfilter, groups_in
 
 
@@ -87,6 +87,8 @@ class _ActionCursorTransformationOperation(_ActionCursorOperation):
 
 
 class _ActionCursor:
+    _overwritten_attribute_names = ('to', 'is_', "is_not", 'or_', 'and_')
+
     def __init__(
         self,
         parameters: Iterable[_ActionCursorParameter],
@@ -152,7 +154,18 @@ class _ActionCursor:
         )
 
         return self._with(saving_context(rpartial(call, *args, **kwargs)))
+    def __getattr__(self, attribute_name: str) -> Self:
+        if attribute_name.startswith('_'):
+            return super().__getattr__(attribute_name)
 
+        return self._with(saving_context(rwill(getattr)(
+            attribute_name[:-1]
+            if (
+                attribute_name[:-1] in self._overwritten_attribute_names
+                and attribute_name.endswith('_')
+            )
+            else attribute_name
+        )))
 
     @classmethod
     def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
