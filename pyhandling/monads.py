@@ -199,20 +199,20 @@ def considering_context(
 ) -> contextual[ResultT | ValueT | _ReadingResultT, ContextT | _NewContextT]:
     root = contexted(root)
 
-    if isinstance(action, contextually) and action.context == writing | reading:
-        value, context = root
+    if not isinstance(action, contextually) or action.context != writing | reading:
+        return saving_context(action)(root)
 
-        transformed_context = action(value)(context)
+    value, context = root
 
-        if action.context == writing:
-            context = transformed_context
+    transformed_context = action(value)(context)
 
-        if action.context == reading:
-            value = transformed_context
+    if action.context == writing:
+        context = transformed_context
 
-        return contextual(value, when=context)
+    if action.context == reading:
+        value = transformed_context
 
-    return saving_context(action)(root)
+    return contextual(value, when=context)
 
 
 right = flag("right")
