@@ -5,8 +5,8 @@ from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Spec
 
 from pyhandling.annotations import one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of, checker_of
 from pyhandling.atoming import atomically
-from pyhandling.contexting import contextual, contextually, contexted, context_pointed
 from pyhandling.branching import ActionChain, mapping_to_chain_of, mapping_to_chain, binding_by, branching
+from pyhandling.contexting import contextual, contextually, contexted, context_pointed, context_oriented, ContextRoot
 from pyhandling.data_flow import returnly, dynamically
 from pyhandling.flags import flag, nothing, Flag, pointed
 from pyhandling.language import then, by, to
@@ -220,17 +220,22 @@ left = flag('left', sign=False)
 
 
 def either(
-    *context_and_actions: tuple[ContextT, Callable[[contextual[ValueT, ContextT]], ResultT]],
+    *determinants_and_actions: tuple[
+        Special[checker_of[ContextT]],
+        Callable[[contextual[ValueT, ContextT]], ResultT],
+    ],
     else_: Callable[[contextual[ValueT, ContextT]], ResultT] = returned,
 ) -> Callable[[contextual[ValueT, ContextT]], ResultT]:
     """Shortcut for `branching` with context checks."""
 
-    return branching(*(
-        (lambda root: root.context == context, action)
-        for context_and_action in context_and_actions
-        for context, action in context_and_action
-    ))
-
+    return branching(
+        *(
+            (attrgetter("context") |then>> determinant, action)
+            for determinant_and_action in context_determinants_and_actions
+            for determinant, action in (determinant_and_action, )
+        ),
+        else_=else_
+    )
 
 
 to_points: mapping_to_chain_among[Flag] = documenting_by(
