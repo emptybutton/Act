@@ -1,14 +1,17 @@
 from functools import cached_property, partial
 from dataclasses import dataclass, field
+from inspect import Signature
 from types import MappingProxyType
 from typing import Final, Generic, Iterable, Optional, Tuple, Self, Any, Callable
 
 from pyannotating import Special
 
 from pyhandling.annotations import KeyT, ValueT
+from pyhandling.atoming import atomically
+from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 
 
-__all__ = ("ArgumentKey", "ArgumentPack", "as_argument_pack")
+__all__ = ("ArgumentKey", "ArgumentPack", "as_argument_pack", "unpackly")
 
 
 _EMPTY_DEFAULT: Final[object] = object()
@@ -142,3 +145,19 @@ def as_argument_pack(*args, **kwargs) -> ArgumentPack:
         return args[0]
 
     return ArgumentPack(args, kwargs)
+
+
+@atomically
+class unpackly(ActionWrapper):
+    """
+    Decorator function to unpack the input `ArgumentPack` into the input function.
+    """
+
+    def __call__(self, pack: ArgumentPack) -> Any:
+        return pack.call(self._action)
+
+    @cached_property
+    def _force_signature(self) -> Signature:
+        return calling_signature_of(self).replace(
+            return_annotation=calling_signature_of(self._action).return_annotation
+        )

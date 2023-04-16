@@ -19,7 +19,6 @@ from pyhandling.tools import documenting_by
 __all__ = (
     "returnly",
     "eventually",
-    "unpackly",
     "with_result",
     "dynamically",
     "combinatly",
@@ -82,21 +81,6 @@ class eventually(ActionWrapper):
             Parameter('_', Parameter.VAR_POSITIONAL, annotation=Any),
             Parameter('__', Parameter.VAR_KEYWORD, annotation=Any),
         ))
-
-
-class unpackly(ActionWrapper):
-    """
-    Decorator function to unpack the input `ArgumentPack` into the input function.
-    """
-
-    def __call__(self, pack: ArgumentPack) -> Any:
-        return pack.call(self._action)
-
-    @cached_property
-    def _force_signature(self) -> Signature:
-        return calling_signature_of(self).replace(
-            return_annotation=calling_signature_of(self._action).return_annotation
-        )
 
 
 def with_result(result: ResultT, action: Callable[P, Any]) -> Callable[P, ResultT]:
