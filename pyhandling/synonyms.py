@@ -47,6 +47,7 @@ def assert_(value: Any) -> None:
     assert value
 
 
+@atomically
 class on:
     """
     Function that implements action choosing by condition.
@@ -98,6 +99,7 @@ class on:
         )
 
 
+@atomically
 class repeating:
     """
     Function to call an input action multiple times.
@@ -166,6 +168,7 @@ def with_(context_manager: AbstractContextManager, action: action_for[ResultT]) 
         return action(context)
 
 
+@atomically
 class with_unpacking(ActionWrapper):
     """Decorator function to unpack the passed collection into the input action."""
 
@@ -182,6 +185,7 @@ class with_unpacking(ActionWrapper):
         return _unpacking_repr(self._action)
 
 
+@atomically
 class with_keyword_unpacking(ActionWrapper):
     """
     Decorator function to unpack the passed mapping object into the input action.

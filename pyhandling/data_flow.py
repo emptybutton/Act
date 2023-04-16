@@ -29,6 +29,7 @@ __all__ = (
 )
 
 
+@atomically
 class returnly(ActionWrapper):
     """
     Decorator that causes the input function to return not the result of its
@@ -54,6 +55,7 @@ class returnly(ActionWrapper):
         ))
 
 
+@atomically
 class eventually(ActionWrapper):
     """
     Decorator function to call with predefined arguments instead of input ones.
@@ -106,6 +108,7 @@ def dynamically(
     )
 
 
+@atomically
 class double(ActionWrapper):
     def __call__(self, value: Any, *result_action_args, **result_action_kwargs) -> Any:
         return self._action(value)(*result_action_args, **result_action_kwargs)
@@ -121,6 +124,7 @@ class double(ActionWrapper):
         ))
 
 
+@atomically
 class once:
     _result: Optional[ResultT] = None
     _was_called: bool = False

@@ -3,6 +3,7 @@ from functools import wraps
 from typing import Callable, Type, Any, Concatenate, Self
 
 from pyhandling.annotations import ObjectT, P, ValueT, one_value_action
+from pyhandling.atoming import atomically
 from pyhandling.signature_assignmenting import calling_signature_of
 
 
@@ -48,6 +49,7 @@ def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
     return class_
 
 
+@atomically
 class property_to:
     """
     Descriptor that takes data from an attribute that already exists in an

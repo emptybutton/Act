@@ -7,6 +7,7 @@ from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Itera
 from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotation
 
 from pyhandling.annotations import ResultT, one_value_action, P, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, checker_of
+from pyhandling.atoming import atomically
 from pyhandling.errors import TemplatedActionChainError
 from pyhandling.immutability import property_to
 from pyhandling.partials import rpartial
@@ -29,6 +30,7 @@ __all__ = (
 _NodeT = TypeVar("_NodeT", bound=Callable | Type[Ellipsis])
 
 
+@atomically
 class bind:
     def __init__(
         self,
@@ -153,6 +155,7 @@ def binding_by(template: Iterable[Callable | Ellipsis]) -> Callable[[Callable], 
     return insert_to_template
 
 
+@atomically
 class merged:
     """
     Function to merge multiple functions with the same input interface into one.
@@ -194,6 +197,7 @@ class merged:
         return argument_signature.replace(return_annotation=return_annotation)
 
 
+@atomically
 class mergely:
     """
     Decorator that allows to initially separate several operations on
