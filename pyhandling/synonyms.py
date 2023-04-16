@@ -66,7 +66,7 @@ class trying_to:
             return self._rollback(error)
 
     def __repr__(self) -> str:
-        return f"<try({self._action}) rollback({self._rollback})>"
+        return f"trying_to({self._action}, rollback={self._rollback})"
 
     def __get_signature(self) -> Signature:
         return calling_signature_of(self._action).replace(
