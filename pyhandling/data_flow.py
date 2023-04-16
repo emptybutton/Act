@@ -105,7 +105,7 @@ def dynamically(
     )
 
 
-class combinatly(ActionWrapper):
+class double(ActionWrapper):
     def __call__(self, value: Any, *result_action_args, **result_action_kwargs) -> Any:
         return self._action(value)(*result_action_args, **result_action_kwargs)
 
