@@ -17,6 +17,7 @@ __all__ = (
     "with_unpacking",
     "with_keyword_unpacking",
     "collection_of",
+    "with_keyword",
 )
 
 
