@@ -123,3 +123,5 @@ def collection_of(*args: ValueT) -> Tuple[ValueT, ...]:
     return args
 
 
+def with_keyword(keyword: str, value: Any, action: action_for[ResultT]) -> action_for[ResultT]:
+    return partial(action, **{keyword: value})
