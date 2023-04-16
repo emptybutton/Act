@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from functools import partial
+from functools import partial, reduce
 from itertools import count
 from inspect import Signature, Parameter
 from operator import call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift, is_, is_not, getitem, contains, xor, rshift, matmul
@@ -136,24 +136,25 @@ class _ActionCursor:
             return partial(self, *args)
 
     def to(self, *args, **kwargs) -> Self:
-        as_callable = on(
-            isinstance |by| _ActionCursor,
-            attrgetter('_run'),
-            else_=taken
-        )
+        cursor = self
 
-        args = tmap(as_callable, args)
-        kwargs = table_value_map(as_callable, kwargs)
+        if args:
+            cursor = reduce(
+                lambda cursor, argument: cursor._merged_with(argument, by=partial),
+                (self, *args),
+            )
 
-        other = self._with(will |then>> (call |by| args[0]))
+        if kwargs:
+            cursor = reduce(
+                lambda cursor, key_and_argument: (cursor._merged_with(
+                    key_and_argument[1],
+                    by=flipped(with_keyword |to| key_and_argument[0]),
+                )),
+                (self, *kwargs.items()),
+            )
 
-        is_argument_keyword = True
+        return cursor._with(saving_context(call))
 
-        self._merged_with(will |then>> partial(call, **kwargs) if is_argument_keyword else rpartial |by| arg).to(
-            saving_context(will |then>> (call |by| args[0]))
-        )
-
-        return self._with(saving_context(rpartial(call, *args, **kwargs)))
     def __getattr__(self, attribute_name: str) -> Self:
         if attribute_name.startswith('_'):
             return super().__getattr__(attribute_name)
