@@ -1,6 +1,6 @@
 from functools import cached_property
-from inspect import Signature, Parameter, _empty
 from typing import Callable, Any, _CallableGenericAlias
+from inspect import Signature, Parameter, signature
 from operator import is_
 
 from pyhandling.annotations import P, ValueT, ResultT, action_for, one_value_action
@@ -116,7 +116,7 @@ class double(ActionWrapper):
         return signature_.replace(return_annotation=(
             signature_.return_annotation.__args__[-1]
             if isinstance(signature_, _CallableGenericAlias)
-            else _empty
+            else Parameter.empty
         ))
 
 
