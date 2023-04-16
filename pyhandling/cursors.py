@@ -167,8 +167,11 @@ class _ActionCursor:
         return self._actions(root)
 
     @to_clone
-    def _of(self, action: Callable) -> None:
-        self._actions = ActionChain([action])
+    def _of(self, action: Special[ActionChain, Callable]) -> None:
+        self._actions = (
+            action if isinstance(action, ActionChain) else ActionChain([action])
+        )
+
         self._update_signature()
 
     def _with(self, action: Callable) -> Self:
