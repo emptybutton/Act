@@ -117,6 +117,8 @@ class with_keyword_unpacking(ActionWrapper):
 
     def __repr__(self) -> str:
         return f"*{_unpacking_repr(self._action)}"
+
+
 def collection_of(*args: ValueT) -> Tuple[ValueT, ...]:
     """Function to create a `tuple` from unlimited input arguments."""
 
