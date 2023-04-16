@@ -39,7 +39,6 @@ __all__ = (
     "FlagT",
     "PointT",
     "AtomT",
-    "t",
     "action_of",
 )
 
@@ -116,41 +115,13 @@ PointT = TypeVar("PointT")
 AtomT = TypeVar("AtomT")
 
 
-class _AnnotationSequence:
-    def __init__(self, annotations: Iterable = tuple()):
-        self._annotations = tuple(annotations)
-
-    def __repr__(self) -> str:
-        return f"Callable{self._internal_repr()}"
-
-    def __iter__(self) -> Iterator:
-        return iter(self._annotations)
-
-    def __getitem__(self, annotation: Any) -> Self:
-        return type(self)([*self._annotations, annotation])
-
-    def __rshift__(self, other: Self) -> Self:
-        return type(self)((*self._annotations, *other._annotations))
-
-    def _internal_repr(self) -> str:
-        return f"[{' -> '.join(map(self.__fromatted, self._annotations))}]"
-
-    @staticmethod
-    def __fromatted(annotation: Any) -> str:
-        if isinstance(annotation, UnionType | _UnionGenericAlias):
-            return ' | '.join(map(str, annotation.__args__))
-
-        elif isinstance(annotation, type):
-            return annotation.__name__
-
-        elif isinstance(annotation, _AnnotationSequence):
-            return annotation._internal_repr()
-
-        else:
-            return str(annotation)
 
 
-t = _AnnotationSequence()
+
+
+
+
+
 
 
 class _CallableConstructor:
@@ -182,4 +153,4 @@ class _CallableConstructor:
 action_of = _CallableConstructor()
 
 
-_AnnotationsT: TypeAlias = list | tuple | _AnnotationSequence
+_AnnotationsT: TypeAlias = list | tuple
