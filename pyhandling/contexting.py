@@ -6,15 +6,14 @@ from typing import Generic, Any, Iterator, Callable, Iterable, GenericAlias, Typ
 
 from pyannotating import Special
 
-from pyhandling.annotations import ValueT, ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, reformer_of, FlagT, action_of, t
+from pyhandling.annotations import ValueT, ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, reformer_of, FlagT, action_of
 from pyhandling.atoming import atomic, atomically
-from pyhandling.branching import repeating
 from pyhandling.data_flow import dynamically
 from pyhandling.flags import flag, nothing, Flag, pointed, FlagVector
 from pyhandling.immutability import property_to
 from pyhandling.language import then, by
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
-from pyhandling.synonyms import with_unpacking
+from pyhandling.synonyms import with_unpacking, repeating
 from pyhandling.tools import documenting_by, NotInitializable
 
 
@@ -230,7 +229,7 @@ def with_reduced_metacontext(
     return contexted(root, +pointed(meta_root.context))
 
 
-without_metacontext: t[ContextRoot] >> t[contextual]
+without_metacontext: Callable[[ContextRoot], contextual]
 without_metacontext = documenting_by(
     """
     Function to fully glue nested `ContextRoot`s.
