@@ -12,11 +12,11 @@ __all__ = (
     "returned",
     "raise_",
     "assert_",
-    "collection_of",
     "trying_to",
     "with_",
     "with_unpacking",
     "with_keyword_unpacking",
+    "collection_of",
 )
 
 
@@ -41,10 +41,7 @@ def assert_(value: Any) -> None:
     assert value
 
 
-def collection_of(*args: ValueT) -> Tuple[ValueT, ...]:
-    """Function to create a `tuple` from unlimited input arguments."""
 
-    return args
 
 
 @fragmentarily
@@ -120,3 +117,9 @@ class with_keyword_unpacking(ActionWrapper):
 
     def __repr__(self) -> str:
         return f"*{_unpacking_repr(self._action)}"
+def collection_of(*args: ValueT) -> Tuple[ValueT, ...]:
+    """Function to create a `tuple` from unlimited input arguments."""
+
+    return args
+
+
