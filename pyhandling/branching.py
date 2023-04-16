@@ -265,12 +265,12 @@ class mergely:
 class _Fork(NamedTuple, Generic[P, ResultT]):
     """NamedTuple to store an action to execute on a condition."""
 
-    checker: Callable[P, bool]
+    determinant: Special[Callable[P, bool]]
     action: Callable[P, ResultT]
 
 
 def branching(
-    *forks: tuple[Callable[P, bool], Callable[P, ResultT]],
+    *forks: tuple[Special[Callable[P, bool]], Callable[P, ResultT]],
     else_: Callable[P, ResultT] = returned,
 ) -> Callable[P, ResultT]:
     """
@@ -283,14 +283,12 @@ def branching(
 
     if len(forks) == 0:
         return else_
-    elif len(forks) == 1:
-        return on(*forks[0], else_=else_)
-    else:
-        return on(
-            forks[0].checker,
-            forks[0].action,
-            else_=branching(*forks[1:], else_=else_),
-        )
+
+    return on(
+        forks[0].determinant,
+        forks[0].action,
+        else_=else_ if len(forks) == 1 else branching(*forks[1:], else_=else_)
+    )
 
 
 mapping_to_chain_of = AnnotationTemplate(
