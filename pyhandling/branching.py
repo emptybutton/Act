@@ -18,7 +18,6 @@ __all__ = (
     "bind",
     "ActionChain",
     "binding_by",
-    "templately",
     "merged",
     "mergely",
     "repeating",
@@ -154,13 +153,6 @@ def binding_by(template: Iterable[Callable | Ellipsis]) -> Callable[[Callable], 
         )
 
     return insert_to_template
-
-
-def templately(action: action_for[ResultT], *args, **kwargs) -> Callable[[Any], ResultT]:
-    return wraps(action)(lambda argument: action(
-        *map(on(lambda arg: arg is Ellipsis, taken(argument)), args),
-        **value_map(on(lambda kwarg: kwarg is Ellipsis, taken(argument)), kwargs),
-    ))
 
 
 class merged:
