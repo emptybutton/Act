@@ -3,7 +3,7 @@ from inspect import Signature, Parameter, signature
 from typing import Callable, Any, _CallableGenericAlias, Optional
 from operator import is_
 
-from pyhandling.annotations import P, ValueT, ResultT, action_for, one_value_action
+from pyhandling.annotations import P, ValueT, ResultT, action_for, one_value_action, dirty
 from pyhandling.arguments import ArgumentPack
 from pyhandling.atoming import atomically
 from pyhandling.branching import mergely
@@ -124,6 +124,7 @@ class double(ActionWrapper):
         ))
 
 
+@dirty
 @atomically
 class once:
     _result: Optional[ResultT] = None
