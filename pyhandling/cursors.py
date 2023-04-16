@@ -2,13 +2,12 @@ from dataclasses import dataclass
 from functools import partial
 from itertools import count
 from inspect import Signature, Parameter
-from operator import call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift, is_, is_not, getitem, contains, xor, rshift
+from operator import call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift, is_, is_not, getitem, contains, xor, rshift, matmul
 from typing import Iterable, Callable, Any, Mapping, Self
 
 from pyannotating import Special
 
 from pyhandling.annotations import one_value_action, merger_of, event_for
-from pyhandling.atoming import atomically
 from pyhandling.branching import ActionChain
 from pyhandling.contexting import contextual
 from pyhandling.data_flow import taken, dynamically
@@ -211,6 +210,7 @@ class _ActionCursor:
     __or__ = _ActionCursorBinaryOperation(or_)
     __xor__ = _ActionCursorBinaryOperation(xor)
     __and__ = _ActionCursorBinaryOperation(and_)
+    __matmul__ = _ActionCursorBinaryOperation(matmul)
     __lshift__ = _ActionCursorBinaryOperation(lshift)
     __rshift__ = _ActionCursorBinaryOperation(rshift)
 
@@ -224,6 +224,7 @@ class _ActionCursor:
     __ror__ = _ActionCursorBinaryOperation(flipped(or_))
     __rxor__ = _ActionCursorBinaryOperation(flipped(xor))
     __rand__ = _ActionCursorBinaryOperation(flipped(and_))
+    __rmatmul__ = _ActionCursorBinaryOperation(flipped(matmul))
 
     __gt__ = _ActionCursorBinaryOperation(gt)
     __ge__ = _ActionCursorBinaryOperation(ge)
