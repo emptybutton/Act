@@ -189,7 +189,7 @@ class _ActionCursor:
                 )]),
             )
             if isinstance(other, _ActionCursor)
-            else self._with(saving_context(operation |by| other))
+            else self._with(saving_context(rpartial(operation, other)))
         )
 
     def _update_signature(self) -> None:
