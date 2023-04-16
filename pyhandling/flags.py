@@ -33,41 +33,24 @@ class Flag(ABC, Generic[PointT]):
     first | second == second
     first | second == first | second
     first | second == first | third
+    first | second is not first
     ```
 
     Subtracts optional so
     ```
-    first - second == first
-    (first | second) - second == first
+    first - second is first
+    (first | second) - second is first
     ```
 
     Has a specific `nothing` instance that is a neutral element so
     ```
-    instance | nothing == instance
+    instance | nothing is instance
     instance | nothing != nothing
 
-    instance - instance == nothing
+    instance - instance is nothing
 
     nothing == nothing
     nothing | nothing is nothing
-    ```
-
-    To create a sum of flags without the `|` operator, there is the `flag_sum`
-    function.
-    ```
-    flag_sum(first, second, third) == first | second | third
-    flag_sum(instance, nothing) == instance
-    flag_sum(instance) == instance
-    flag_sum() == nothing
-    ```
-
-    According to this addition logic, there is a multiplication
-    ```
-    instance * 2 == instance | instance
-    instance * 1 == instance
-    instance * 0 == nothing
-    instance * -1 == nothing
-    (first | second) * 2 == first | first | second | second
     ```
 
     Iterable by its sum so
@@ -85,22 +68,25 @@ class Flag(ABC, Generic[PointT]):
     Flags indicate something. It can be any value or abstract phenomenon
     expressed only by this flag.
 
-    Flags indicating a value can be obtained via the `flag_to` function. Flags
+    Flags indicating a value can be obtained via the `pointed` function. Flags
     for abstract phenomena (or named flags) via the `flag` function.
     ```
+    pointed(4) == 4
+    pointed(4) is not 4
+    pointed(4) | instance == pointed(4)
+
+    pointed(1, 2, 3) == pointed(1) | pointed(2) | pointed(3)
+    pointed(instance) is instance
+    pointed() is nothing
+
+    pointed(4).point == 4
+
     super_ = flag("super")
+    super_.point is super_
 
-    super_.point == super_
-    flag_to(1).point == 1
+    nothing.point is nothing
 
-    nothing.point == nothing
-
-    (first | second).point == first | second
-    ```
-
-    The `flag_to` function is also a sum function.
-    ```
-    flag_to(1, 2, 3) == flag_to(1) | flag_to(2) | flag_to(3)
+    (first | second).point == (first.point, second.point)
     ```
 
     Flags indicating a value are binary by value. Nominal by their signs.
@@ -117,7 +103,7 @@ class Flag(ABC, Generic[PointT]):
     bool(pointed(0) | not_super) is False
     ```
 
-    To select flags by their `point` use the `of` method
+    To select flags by their `point` use the `that` method
     ```
     pointed(*range(11)).that(lambda n: n >= 7) == pointed(7, 8, 9, 10)
     pointed(*range(11)).that(lambda n: n >= 20) == nothing
@@ -127,23 +113,55 @@ class Flag(ABC, Generic[PointT]):
     ```
 
     Flag sums can be represented in atomic form. In this case, the atomic
-    version is technically a representation of all the summed flags in one flag,
-    but in fact, it is just a first selected flag.
+    version is technically a representation of all flags of the sum, and at the
+    same time none, in one flag, but in fact, it is just a first selected flag.
 
     Don't use the atomic form to get exactly a first flag. The flag sum does not
     guarantee the preservation of the sequence (although it still implements it).
     ```
-    atom = atomic(pointed(1, 2, 3))
+    atomic(pointed(1, 2, 3)) # pointed(1)
+    ```
 
-    atom == pointed(1)
-    atom != pointed(2)
-    atom != pointed(3)
+    Flags can be represented in vector form via unary plus or minus and added
+    via `<<`.
+    ```
+    pointed(1) != +pointed(1)
+    pointed(1) != -pointed(1)
 
-    atomic(pointed(1)) == pointed(1)
+    pointed(1, 2) << +pointed(3) # pointed(1, 2, 3)
+    pointed(1, 2, 3) << -pointed(3) # pointed(1, 2)
+    ```
+
+    They also have unary plus and minus and a sum, which can be created with the
+    `^` operator and inverted back to flag by `~` operator.
+    ```
+    ++pointed(1) # +pointed(1)
+    --pointed(1) # +pointed(1)
+
+    ~+pointed(1) == pointed(1)
+    ~-pointed(1) is nothing
+
+    pointed(1) << +pointed(2) # pointed(1, 2)
+
+    pointed(1, 2) << (-pointed(2) ^ +pointed(3)) # pointed(1, 3)
+    ```
+
+    Flags also use `~` to come to themselves, which can be used with a `Union`
+    type with a vector to cast to Flag.
+    ```
+    from random import choice
+
+
+    ~pointed(1) == pointed(1)
+
+    flag_or_vector = choice([pointed(1), +pointed(1)])
+
+    isinstance(~flag_or_vector, Flag) is True # Always
     ```
 
     Flags available for instance checking as a synonym for equality.
     ```
+    isinstance(4, instance) is False
     isinstance(instance, instance) is True
     isinstance(first, first | second) is True
     isinstance(first, second) is False
