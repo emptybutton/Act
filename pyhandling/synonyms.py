@@ -15,6 +15,7 @@ __all__ = (
     "returned",
     "raise_",
     "assert_",
+    "on",
     "repeating",
     "trying_to",
     "with_",
@@ -44,6 +45,57 @@ def assert_(value: Any) -> None:
     """Function for functional use of `assert` statement."""
 
     assert value
+
+
+class on:
+    """
+    Function that implements action choosing by condition.
+
+    Creates a action that delegates the call to one other action selected by
+    the results of `condition_checker`.
+
+    If the condition is positive, selects `positive_condition_action`, if it is
+    negative, selects `else_`.
+
+    With default `else_` takes one value actions.
+    """
+
+    def __init__(
+        self,
+        determinant: Special[Callable[P, bool]],
+        positive_condition_action: Callable[P, PositiveConditionResultT],
+        *,
+        else_: Callable[P, NegativeConditionResultT] = returned
+    ):
+        self._condition_checker = (
+            determinant if callable(determinant) else lambda v: v == determinant
+        )
+
+        self._positive_condition_action = positive_condition_action
+        self._negative_condition_action = else_
+
+        self.__signature__ = self.__get_signature()
+
+    def __call__(self, *args: P.args, **kwargs: P.args) -> PositiveConditionResultT | NegativeConditionResultT:
+        return (
+            self._positive_condition_action
+            if self._condition_checker(*args, **kwargs)
+            else self._negative_condition_action
+        )(*args, **kwargs)
+
+    def __repr__(self) -> str:
+        return (
+            f"({self._positive_condition_action} on {self._condition_checker} "
+            f"else {self._negative_condition_action})"
+        )
+
+    def __get_signature(self) -> Signature:
+        return calling_signature_of(self._positive_condition_action).replace(
+            return_annotation=annotation_sum(
+                calling_signature_of(self._positive_condition_action).return_annotation,
+                calling_signature_of(self._negative_condition_action).return_annotation,
+            )
+        )
 
 
 class repeating:

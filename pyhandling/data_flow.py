@@ -6,13 +6,13 @@ from operator import is_
 from pyhandling.annotations import P, ValueT, ResultT, action_for, one_value_action
 from pyhandling.arguments import ArgumentPack
 from pyhandling.atoming import atomically
-from pyhandling.branching import mergely, on
+from pyhandling.branching import mergely
 from pyhandling.errors import ReturningError
 from pyhandling.language import then, by
 from pyhandling.partials import will
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 from pyhandling.structure_management import table_value_map
-from pyhandling.synonyms import returned
+from pyhandling.synonyms import returned, on
 from pyhandling.tools import documenting_by
 
 
