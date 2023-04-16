@@ -124,7 +124,7 @@ maybe = documenting_by(
             contexted |by| +pointed(root.context),
             else_=attrgetter("value") |then>> (contextual |by| root.context),
         )
-        if root.context != bad
+        if root.value is not None and root.context != bad
         else root
     )))
 )
