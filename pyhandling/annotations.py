@@ -41,6 +41,7 @@ __all__ = (
     "CallableFormalAnnotation",
     "notes_of",
     "dirty",
+    "pure",
     "action_of",
 )
 
@@ -135,6 +136,13 @@ dirty = CallableFormalAnnotation(
     """
 )
 
+pure = CallableFormalAnnotation(
+    """
+    Formal annotation to indicate that an action always returns the same
+    result with the same arguments and does not interact with any state or
+    indicate value output from such action.
+    """
+)
 
 
 class _CallableConstructor:
