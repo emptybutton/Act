@@ -25,7 +25,6 @@ class ActionWrapper(ABC, Generic[ActionT]):
         ...
 
     def _become_native(self) -> None:
-        update_wrapper(self, self._action)
         self.__signature__ = self._force_signature
 
 
