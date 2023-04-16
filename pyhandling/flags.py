@@ -1,14 +1,13 @@
 from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
-from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional, Tuple
+from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional, Tuple, Union
 from operator import or_, sub, attrgetter
 
-from pyannotating import Special
+from pyannotating import Special, AnnotationTemplate, input_annotation
 
 from pyhandling.atoming import atomic
 from pyhandling.annotations import ValueT, FlagT, checker_of, PointT, P, ResultT, merger_of, reformer_of
-from pyhandling.branching import on
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
 from pyhandling.language import then, by
@@ -17,7 +16,7 @@ from pyhandling.structure_management import with_opened_items, in_collection
 from pyhandling.synonyms import returned
 
 
-__all__ = ("Flag", "FlagVector", "flag", "pointed", "nothing")
+__all__ = ("Flag", "FlagVector", "flag", "pointed", "pointed_or", "nothing")
 
 
 class Flag(ABC, Generic[PointT]):
@@ -540,6 +539,12 @@ def pointed(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:
         return flags[0]
 
     return reduce(or_, flags)
+
+
+pointed_or = AnnotationTemplate(Union, [
+    AnnotationTemplate(Flag, [input_annotation]),
+    input_annotation,
+])
 
 
 nothing = flag("nothing", sign=False)
