@@ -23,6 +23,7 @@ __all__ = (
     "execution_context_when",
     "native_execution_context_when",
     "saving_context",
+    "to_context",
     "bad",
     "maybe",
     "until_error",
@@ -90,6 +91,18 @@ saving_context = documenting_by(
     monadically(lambda action: lambda root: contextual(
         action(root.value), when=root.context
     ))
+)
+
+
+to_context: mapping_to_chain_of[Callable[
+    [ContextRoot[ValueT, ContextT]],
+    ContextRoot[ValueT, Any],
+]]
+to_context = documenting_by(
+    """Execution context for context value context calculations."""
+)(
+    saving_context
+    |then>> binding_by(context_oriented |then>> ... |then>> context_oriented)
 )
 
 
