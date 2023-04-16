@@ -3,7 +3,7 @@ from typing import Callable, Any, TypeVar
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
 
-from pyhandling.annotations import one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of
+from pyhandling.annotations import one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of, checker_of
 from pyhandling.atoming import atomically
 from pyhandling.branching import ActionChain, on, mapping_to_chain_of, mapping_to_chain, binding_by
 from pyhandling.contexting import contextual, contextually, contexted, context_pointed
@@ -80,7 +80,11 @@ native_execution_context_when = AnnotationTemplate(mapping_to_chain_of, [
 ])
 
 
-saving_context: execution_context_when[ContextT] = documenting_by(
+saving_context: mapping_to_chain_of[Callable[
+    [ContextRoot[ValueT, ContextT]],
+    ContextRoot[Any, ContextT],
+]]
+saving_context = documenting_by(
     """Execution context without effect."""
 )(
     monadically(lambda action: lambda root: contextual(
