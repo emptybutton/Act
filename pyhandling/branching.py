@@ -20,7 +20,6 @@ __all__ = (
     "binding_by",
     "merged",
     "mergely",
-    "repeating",
     "on",
     "branching",
     "mapping_to_chain_of",
@@ -262,33 +261,6 @@ class mergely:
                 else _empty
             )
         )
-
-
-class repeating:
-    """
-    Function to call an input action multiple times.
-
-    Initially calls an input action from an input value, after repeating the
-    result of an input action itself.
-    """
-
-    def __init__(self, action: reformer_of[ValueT], while_: checker_of[ValueT]):
-        self._action = action
-        self._is_valid_to_repeat = while_
-
-        self.__signature__ = self.__get_signature()
-
-    def __call__(self, value: ValueT) -> ValueT:
-        while self._is_valid_to_repeat(value):
-            value = self._action(value)
-        
-        return value
-
-    def __repr__(self) -> str:
-        return f"({self._action} while {self._is_valid_to_repeat})"
-
-    def __get_signature(self) -> Signature:
-        return calling_signature_of(self._action)
 
 
 class on:

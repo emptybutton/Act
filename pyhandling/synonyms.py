@@ -3,15 +3,19 @@ from functools import update_wrapper
 from typing import NoReturn, Any, Iterable, Callable, Mapping, Tuple
 from inspect import Signature, Parameter
 
-from pyhandling.annotations import P, ValueT, ResultT, ContextT, ErrorHandlingResultT, action_for
+from pyannotating import Special
+
+from pyhandling.annotations import P, ValueT, ResultT, ContextT, ErrorHandlingResultT, action_for, PositiveConditionResultT, NegativeConditionResultT, reformer_of, checker_of
+from pyhandling.atoming import atomically
 from pyhandling.partials import fragmentarily
-from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
+from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of, annotation_sum
 
 
 __all__ = (
     "returned",
     "raise_",
     "assert_",
+    "repeating",
     "trying_to",
     "with_",
     "with_unpacking",
@@ -42,7 +46,31 @@ def assert_(value: Any) -> None:
     assert value
 
 
+class repeating:
+    """
+    Function to call an input action multiple times.
 
+    Initially calls an input action from an input value, after repeating the
+    result of an input action itself.
+    """
+
+    def __init__(self, action: reformer_of[ValueT], while_: checker_of[ValueT]):
+        self._action = action
+        self._is_valid_to_repeat = while_
+
+        self.__signature__ = self.__get_signature()
+
+    def __call__(self, value: ValueT) -> ValueT:
+        while self._is_valid_to_repeat(value):
+            value = self._action(value)
+        
+        return value
+
+    def __repr__(self) -> str:
+        return f"({self._action} while {self._is_valid_to_repeat})"
+
+    def __get_signature(self) -> Signature:
+        return calling_signature_of(self._action)
 
 
 @fragmentarily
