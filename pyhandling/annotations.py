@@ -39,6 +39,8 @@ __all__ = (
     "FlagT",
     "PointT",
     "AtomT",
+    "CallableFormalAnnotation",
+    "notes_of",
     "action_of",
 )
 
@@ -115,10 +117,20 @@ PointT = TypeVar("PointT")
 AtomT = TypeVar("AtomT")
 
 
+class CallableFormalAnnotation(FormalAnnotation):
+    def __call__(self, value: ValueT) -> ValueT:
+        notes = (*notes_of(value), self)
+
+        try:
+            value.__notes__ = notes
+        except AttributeError:
+            ...
+
+        return value
 
 
-
-
+def notes_of(value: Any) -> Tuple:
+    return tuple(value.__notes__) if hasattr(value, "__notes__") else tuple()
 
 
 
