@@ -1,6 +1,6 @@
-from functools import cached_property
-from typing import Callable, Any, _CallableGenericAlias
+from functools import cached_property, update_wrapper
 from inspect import Signature, Parameter, signature
+from typing import Callable, Any, _CallableGenericAlias, Optional
 from operator import is_
 
 from pyhandling.annotations import P, ValueT, ResultT, action_for, one_value_action
@@ -118,6 +118,33 @@ class double(ActionWrapper):
             if isinstance(signature_, _CallableGenericAlias)
             else Parameter.empty
         ))
+
+
+class once:
+    _result: Optional[ResultT] = None
+    _was_called: bool = False
+
+    def __init__(self, action: Callable[P, ResultT]):
+        self._action = action
+        self.__signature__ = calling_signature_of(self._action)
+
+    def __repr__(self) -> str:
+        return f"once({{}}{self._action})".format(
+            f"{self._result} from " if self._was_called else str()
+        )
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
+        if self._was_called:
+            return self._result
+
+        self._was_called = True
+        self._result = self._action(*args, **kwargs)
+
+        self.__signature__ = signature(lambda *_, **__: ...).replace(
+            return_annotation=calling_signature_of(self._action).return_annotation
+        )
+
+        return self._result
 
 
 taken: Callable[ValueT, action_for[ValueT]] = documenting_by(
