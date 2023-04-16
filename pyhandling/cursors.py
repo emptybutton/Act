@@ -31,6 +31,10 @@ __all__ = (
     'e',
     'g',
     'h',
+    'i',
+    'j',
+    'k',
+    'l',
     'm',
     'n',
     'o',
@@ -38,6 +42,7 @@ __all__ = (
     'q',
     'r',
     's',
+    't',
     'u',
     'v',
     'w',
@@ -250,7 +255,6 @@ def priority_of(cursor: _ActionCursor) -> int | float:
     return cursor._parameters[0].priority
 
 
-# Without `i`, `j`, `k` and `t`
 a = action_cursor_by('a')
 b = action_cursor_by('b')
 c = action_cursor_by('c')
@@ -258,6 +262,10 @@ d = action_cursor_by('d')
 e = action_cursor_by('e')
 g = action_cursor_by('g')
 h = action_cursor_by('h')
+i = action_cursor_by('i')
+j = action_cursor_by('j')
+k = action_cursor_by('k')
+l = action_cursor_by('l')
 m = action_cursor_by('m')
 n = action_cursor_by('n')
 o = action_cursor_by('o')
@@ -265,6 +273,7 @@ p = action_cursor_by('p')
 q = action_cursor_by('q')
 r = action_cursor_by('r')
 s = action_cursor_by('s')
+t = action_cursor_by('t')
 u = action_cursor_by('u')
 v = action_cursor_by('v')
 w = action_cursor_by('w')
