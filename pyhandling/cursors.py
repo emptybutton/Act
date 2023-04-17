@@ -3,12 +3,12 @@ from functools import partial, reduce
 from itertools import count
 from inspect import Signature, Parameter
 from operator import call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift, is_, is_not, getitem, contains, xor, rshift, matmul
-from typing import Iterable, Callable, Any, Mapping, Self
+from typing import Iterable, Callable, Any, Mapping, Self, NoReturn, Tuple
 
 from pyannotating import Special
 
 from pyhandling.annotations import one_value_action, merger_of, event_for
-from pyhandling.branching import ActionChain
+from pyhandling.branching import ActionChain, binding_by, on
 from pyhandling.contexting import contextual
 from pyhandling.data_flow import taken, dynamically
 from pyhandling.errors import ActionCursorError
@@ -152,25 +152,10 @@ class _ActionCursor:
         elif len(args) < len(self._parameters):
             return partial(self, *args)
 
-    def to(self, *args, **kwargs) -> Self:
-        cursor = self
+    def to(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
+        return self._with_calling_by(*args, **kwargs)
 
-        if args:
-            cursor = reduce(
-                lambda cursor, argument: cursor._merged_with(argument, by=partial),
-                (self, *args),
             )
-
-        if kwargs:
-            cursor = reduce(
-                lambda cursor, key_and_argument: (cursor._merged_with(
-                    key_and_argument[1],
-                    by=flipped(with_keyword |to| key_and_argument[0]),
-                )),
-                (self, *kwargs.items()),
-            )
-
-        return cursor._with(saving_context(call))
 
     def __getattr__(self, attribute_name: str) -> Self:
         if attribute_name.startswith('_'):
@@ -222,6 +207,31 @@ class _ActionCursor:
             if isinstance(other, _ActionCursor)
             else self._with(rpartial(operation, other))
         )
+
+    def _with_calling_by(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
+        cursor = self
+
+        if args:
+            cursor = reduce(
+                lambda cursor, argument: (
+                    cursor._merged_with(argument.cursor, by=lambda a, b: partial(a, *b))
+                    if isinstance(argument, _ActionCursorUnpacking)
+                    else cursor._merged_with(argument, by=partial)
+                ),
+                (cursor, *args),
+            )
+
+        if kwargs:
+            cursor = reduce(
+                lambda cursor, key_and_argument: (cursor._merged_with(
+                    key_and_argument[1],
+                    by=flipped(with_keyword |to| key_and_argument[0]),
+                )),
+                (cursor, *kwargs.items()),
+            )
+
+        return cursor._with(call)
+
 
     def _update_signature(self) -> None:
         self.__signature__ = Signature(
