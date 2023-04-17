@@ -20,6 +20,7 @@ __all__ = (
     "event",
     "ActionT",
     "P",
+    "ArgumentsT",
     "ValueT",
     "ObjectT",
     "FirstT",
@@ -76,6 +77,8 @@ event = event_for[Any]
 ActionT = TypeVar("ActionT", bound=Callable)
 
 P = ParamSpec('P')
+
+ArgumentsT = TypeVarTuple("ArgumentsT")
 
 ValueT = TypeVar("ValueT")
 
