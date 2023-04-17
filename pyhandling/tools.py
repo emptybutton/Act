@@ -1,8 +1,9 @@
 from datetime import datetime
 from math import inf
+from operator import eq
 from typing import Iterable, Tuple, NoReturn
 
-from pyhandling.annotations import event_for, ObjectT, dirty, reformer_of
+from pyhandling.annotations import event_for, ObjectT, dirty, reformer_of, checker_of, ValueT
 from pyhandling.errors import InvalidInitializationError
 from pyhandling.immutability import property_to
 
@@ -13,6 +14,7 @@ __all__ = (
     "NotInitializable",
     "with_attributes",
     "documenting_by",
+    "to_check",
 )
 
 
@@ -127,3 +129,7 @@ def documenting_by(documentation: str) -> dirty[reformer_of[ObjectT]]:
         return object_
 
     return document
+
+
+def to_check(determinant: checker_of[ValueT] | ValueT) -> checker_of[ValueT]:
+    return determinant if callable(determinant) else partial(eq, determinant)
