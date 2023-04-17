@@ -16,8 +16,11 @@ from pyhandling.flags import nothing
 from pyhandling.immutability import to_clone
 from pyhandling.language import by, then, to
 from pyhandling.monads import reading, saving_context, considering_context
-from pyhandling.partials import flipped, rpartial, rwill
+from pyhandling.partials import flipped, rpartial, rwill, will
 from pyhandling.structure_management import tfilter, groups_in
+from pyhandling.synonyms import with_keyword, collection_of
+from pyhandling.tools import property_to
+from pyhandling.utils import shown
 
 
 __all__ = (
@@ -82,6 +85,21 @@ class _ActionCursorTransformationOperation(_ActionCursorOperation):
         return cursor._with(self._operation)
 
 
+class _ActionCursorUnpacking:
+    cursor = property_to("_cursor")
+
+    def __init__(self, cursor: "_ActionCursor", *, was_unpacked: bool = False):
+        self._cursor = cursor
+        self._was_unpacked = was_unpacked
+
+    def __next__(self) -> Self | NoReturn:
+        if self._was_unpacked:
+            raise StopIteration
+
+        self._was_unpacked = True
+        return self
+
+
 class _ActionCursor:
     _overwritten_attribute_names = ('to', 'is_', "is_not", 'or_', 'and_')
 
@@ -115,6 +133,9 @@ class _ActionCursor:
 
     def __repr__(self) -> str:
         return f"ActionCursor({self._actions})"
+
+    def __iter__(self) -> _ActionCursorUnpacking:
+        return _ActionCursorUnpacking(self)
 
     def __call__(self, *args) -> Any:
         if len(args) > len(self._parameters):
