@@ -38,6 +38,7 @@ __all__ = (
     "FlagT",
     "PointT",
     "AtomT",
+    "AtomizableT",
     "CallableFormalAnnotation",
     "notes_of",
     "dirty",
@@ -111,6 +112,7 @@ FlagT = TypeVar("FlagT", bound='Flag')
 PointT = TypeVar("PointT")
 
 AtomT = TypeVar("AtomT")
+AtomizableT = TypeVar("AtomT", bound="Atomizable")
 
 
 class CallableFormalAnnotation(FormalAnnotation):
