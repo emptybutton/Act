@@ -13,7 +13,7 @@ from pyhandling.language import then, by, to
 from pyhandling.partials import will
 from pyhandling.structure_management import in_collection, as_collection
 from pyhandling.synonyms import returned, raise_, trying_to, on
-from pyhandling.tools import documenting_by
+from pyhandling.tools import documenting_by, to_check
 from pyhandling.utils import isnt
 
 
@@ -230,7 +230,7 @@ def either(
 
     return branching(
         *(
-            (attrgetter("context") |then>> determinant, action)
+            (attrgetter("context") |then>> to_check(determinant), action)
             for determinant_and_action in context_determinants_and_actions
             for determinant, action in (determinant_and_action, )
         ),
