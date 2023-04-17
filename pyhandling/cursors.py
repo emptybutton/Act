@@ -155,7 +155,17 @@ class _ActionCursor:
     def to(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
         return self._with_calling_by(*args, **kwargs)
 
+    def __getitem__(self, key: Special[Self | Tuple[Special[Self]]]) -> Self:
+        return (self
+            ._with(
+                will(getitem) |then>> binding_by(
+                    collection_of
+                    |then>> on(len |then>> (eq |by| 1), getitem |by| 0)
+                    |then>> ...
+                )
             )
+            ._with_calling_by(*key if isinstance(key, tuple) else (key, ))
+        )
 
     def __getattr__(self, attribute_name: str) -> Self:
         if attribute_name.startswith('_'):
@@ -244,7 +254,6 @@ class _ActionCursor:
     or_ = _ActionCursorBinaryOperation(lambda a, b: a or b)
     and_ = _ActionCursorBinaryOperation(lambda a, b: a and b)
 
-    __getitem__ = _ActionCursorBinaryOperation(getitem)
     __contains__ = _ActionCursorBinaryOperation(contains)
 
     __add__ = _ActionCursorBinaryOperation(add)
