@@ -1,5 +1,5 @@
 from operator import attrgetter, eq, pos
-from typing import Callable, Any, TypeVar
+from typing import Callable, Any, TypeVar, Tuple
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
 
@@ -36,6 +36,7 @@ __all__ = (
     "either",
     "future",
     "in_future",
+    "future_from",
     "to_points",
     "to_acyclic_points",
 )
@@ -249,6 +250,18 @@ def in_future(
     value: ValueT | ContextRoot[ValueT, pointed_or[ContextT]],
 ) -> contextual[ValueT, Flag[ContextT | contextually[event_for[ResultT], future]]]:
     return contexted(value, +pointed(contextually(action |to| value, when=future)))
+
+
+def future_from(
+    value: Special[pointed_or[contextually[event_for[ResultT], future]]],
+) -> Tuple[ResultT]:
+    return tmap(
+        call,
+        pointed(value).that(lambda value: (
+            isinstance(value, contextually)
+            and value.context == future
+        )).points,
+    )
 
 
 to_points: mapping_to_chain_among[Flag] = documenting_by(
