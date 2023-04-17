@@ -1,7 +1,7 @@
 from functools import update_wrapper
-from typing import runtime_checkable, Protocol
+from typing import runtime_checkable, Protocol, Self
 
-from pyhandling.annotations import AtomT, ValueT, action_for, ResultT
+from pyhandling.annotations import AtomizableT, action_for, ResultT
 from pyhandling.errors import AtomizationError
 
 
@@ -9,18 +9,18 @@ __all__ = ("Atomizable", "atomic", "atomically")
 
 
 @runtime_checkable
-class Atomizable(Protocol[AtomT]):
+class Atomizable(Protocol):
     """
     Protocol for objects capable of being converted to atomic form.
 
     The `atomic` function is used to convert.
     """
 
-    def __getatom__(self) -> AtomT:
+    def __getatom__(self) -> Self:
         ...
 
 
-def atomic(value: Atomizable[AtomT]) -> AtomT:
+def atomic(value: AtomizableT) -> AtomizableT:
     """
     Function representing an input object in its atomic form.
 
