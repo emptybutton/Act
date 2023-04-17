@@ -66,16 +66,12 @@ class _ActionCursorBinaryOperation(_ActionCursorOperation):
     def __init__(self, operation: merger_of[Any]):
         self._operation = operation
 
-    def __call__(self, first: Special["_ActionCursor"], second: Special["_ActionCursor"]) -> "_ActionCursor":
-        if not isinstance(first, _ActionCursor) and isinstance(second, _ActionCursor):
-            first, second = second, first
-        elif not isinstance(first, _ActionCursor) and not isinstance(second, _ActionCursor):
-            raise ActionCursorError("Absence of any \"_ActionCursor\"")
-
-        cursor = first
-        other = second
-
-        return cursor._merged_with(other, by=self._operation)
+    def __call__(
+        self,
+        cursor: "_ActionCursor",
+        value: Special["_ActionCursor"],
+    ) -> "_ActionCursor":
+        return cursor._merged_with(value, by=self._operation)
 
 
 class _ActionCursorTransformationOperation(_ActionCursorOperation):
