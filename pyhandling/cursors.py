@@ -79,7 +79,7 @@ class _ActionCursorTransformationOperation(_ActionCursorOperation):
         self._operation = operation
 
     def __call__(self, cursor: "_ActionCursor") -> "_ActionCursor":
-        return cursor._with(saving_context(self._operation))
+        return cursor._with(self._operation)
 
 
 class _ActionCursor:
@@ -155,14 +155,14 @@ class _ActionCursor:
         if attribute_name.startswith('_'):
             return super().__getattr__(attribute_name)
 
-        return self._with(saving_context(rwill(getattr)(
+        return self._with(rwill(getattr)(
             attribute_name[:-1]
             if (
                 attribute_name[:-1] in self._overwritten_attribute_names
                 and attribute_name.endswith('_')
             )
             else attribute_name
-        )))
+        ))
 
     @classmethod
     def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
@@ -185,7 +185,7 @@ class _ActionCursor:
         self._update_signature()
 
     def _with(self, action: Callable) -> Self:
-        return self._of(self._actions >> action)
+        return self._of(self._actions >> saving_context(action))
 
     def _merged_with(self, other: Special[Self], *, by: merger_of[Any]) -> Self:
         operation = by
@@ -199,7 +199,7 @@ class _ActionCursor:
                 )]),
             )
             if isinstance(other, _ActionCursor)
-            else self._with(saving_context(rpartial(operation, other)))
+            else self._with(rpartial(operation, other))
         )
 
     def _update_signature(self) -> None:
