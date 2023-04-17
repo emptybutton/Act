@@ -1,5 +1,5 @@
 from contextlib import AbstractContextManager
-from functools import update_wrapper
+from functools import update_wrapper, partial
 from typing import NoReturn, Any, Iterable, Callable, Mapping, Tuple
 from inspect import Signature, Parameter
 
@@ -9,6 +9,7 @@ from pyhandling.annotations import P, ValueT, ResultT, ContextT, ErrorHandlingRe
 from pyhandling.atoming import atomically
 from pyhandling.partials import fragmentarily
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of, annotation_sum
+from pyhandling.tools import to_check
 
 
 __all__ = (
@@ -68,10 +69,7 @@ class on:
         *,
         else_: Callable[P, NegativeConditionResultT] = returned
     ):
-        self._condition_checker = (
-            determinant if callable(determinant) else lambda v: v == determinant
-        )
-
+        self._condition_checker = to_check(determinant)
         self._positive_condition_action = positive_condition_action
         self._negative_condition_action = else_
 
