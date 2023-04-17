@@ -174,6 +174,11 @@ class Flag(ABC, Generic[PointT]):
     def point(self) -> PointT:
         ...
 
+    @property
+    @abstractmethod
+    def points(self) -> Tuple[PointT]:
+        ...
+
     @abstractmethod
     def __getatom__(self) -> Self:
         ...
@@ -314,6 +319,10 @@ class _DoubleFlag(Flag, ABC):
 
     @property
     def point(self) -> Tuple:
+        return self.points
+
+    @property
+    def points(self) -> Tuple:
         return with_opened_items(
             (
                 flag.point
@@ -408,6 +417,10 @@ class _FlagSum(_DoubleFlag):
 
 class _AtomicFlag(Flag, ABC):
     """Class representing flag sum atomic unit."""
+
+    @property
+    def points(self) -> Tuple:
+        return (self.point, )
 
     def __getatom__(self) -> Self:
         return self
