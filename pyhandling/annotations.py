@@ -1,5 +1,5 @@
 from types import UnionType
-from typing import Callable, Any, TypeAlias, TypeVar, ParamSpec, Iterable, Self, Iterator, Tuple, _CallableGenericAlias, _CallableType, _UnionGenericAlias
+from typing import Callable, Any, TypeAlias, TypeVar, ParamSpec, TypeVarTuple, Iterable, Self, Iterator, Tuple, _CallableGenericAlias, _CallableType, _UnionGenericAlias
 
 from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation, Special
 
@@ -38,7 +38,6 @@ __all__ = (
     "MappedT",
     "FlagT",
     "PointT",
-    "AtomT",
     "AtomizableT",
     "CallableFormalAnnotation",
     "notes_of",
@@ -114,7 +113,6 @@ FlagT = TypeVar("FlagT", bound='Flag')
 
 PointT = TypeVar("PointT")
 
-AtomT = TypeVar("AtomT")
 AtomizableT = TypeVar("AtomT", bound="Atomizable")
 
 
