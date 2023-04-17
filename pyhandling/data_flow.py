@@ -1,9 +1,9 @@
 from functools import cached_property, update_wrapper
 from inspect import Signature, Parameter, signature
-from typing import Callable, Any, _CallableGenericAlias, Optional
+from typing import Callable, Any, _CallableGenericAlias, Optional, Tuple
 from operator import is_
 
-from pyhandling.annotations import P, ValueT, ResultT, action_for, one_value_action, dirty
+from pyhandling.annotations import P, ValueT, ResultT, action_for, one_value_action, dirty, ArgumentsT
 from pyhandling.arguments import ArgumentPack
 from pyhandling.atoming import atomically
 from pyhandling.branching import mergely
@@ -26,6 +26,7 @@ __all__ = (
     "taken",
     "yes",
     "no",
+    "via_items",
 )
 
 
@@ -162,3 +163,17 @@ taken: Callable[ValueT, action_for[ValueT]] = documenting_by(
 
 yes: action_for[bool] = documenting_by("""Shortcut for `taken(True)`.""")(taken(True))
 no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(False))
+
+
+@atomically
+class via_items:
+    def __init__(self, action: Callable[[ValueT], ResultT] | Callable[[*ArgumentsT], ResultT]):
+        self._action = action
+
+    def __repr__(self) -> str:
+        return f"({self._action})[{str(calling_signature_of(self._action))[1:-1]}]"
+
+    def __getitem__(self, key: ValueT | Tuple[*ArgumentsT]) -> ResultT:
+        arguments = key if isinstance(key, tuple) else (key, )
+
+        return self._action(*arguments)
