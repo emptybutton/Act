@@ -3,14 +3,14 @@ from typing import Callable, Any, TypeVar
 
 from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
 
-from pyhandling.annotations import one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of, checker_of
+from pyhandling.annotations import one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of, checker_of, event_for
 from pyhandling.atoming import atomically
 from pyhandling.branching import ActionChain, mapping_to_chain_of, mapping_to_chain, binding_by, branching
 from pyhandling.contexting import contextual, contextually, contexted, context_pointed, context_oriented, ContextRoot
 from pyhandling.data_flow import returnly, dynamically
-from pyhandling.flags import flag, nothing, Flag, pointed
+from pyhandling.flags import flag, nothing, Flag, pointed, pointed_or
 from pyhandling.language import then, by, to
-from pyhandling.partials import will
+from pyhandling.partials import will, fragmentarily
 from pyhandling.structure_management import in_collection, as_collection
 from pyhandling.synonyms import returned, raise_, trying_to, on
 from pyhandling.tools import documenting_by, to_check
@@ -34,6 +34,8 @@ __all__ = (
     "right",
     "left",
     "either",
+    "future",
+    "in_future",
     "to_points",
     "to_acyclic_points",
 )
@@ -236,6 +238,17 @@ def either(
         ),
         else_=else_
     )
+
+
+future = flag("future")
+
+
+@fragmentarily
+def in_future(
+    action: Callable[[ValueT], ResultT],
+    value: ValueT | ContextRoot[ValueT, pointed_or[ContextT]],
+) -> contextual[ValueT, Flag[ContextT | contextually[event_for[ResultT], future]]]:
+    return contexted(value, +pointed(contextually(action |to| value, when=future)))
 
 
 to_points: mapping_to_chain_among[Flag] = documenting_by(
