@@ -76,7 +76,7 @@ class _ActionCursorUnpacking:
 
 
 class _ActionCursor:
-    _overwritten_attribute_names = ('to', 'is_', "is_not", 'or_', 'and_')
+    _overwritten_attribute_names: Tuple[str] = ('to', 'is_', "is_not", 'or_', 'and_')
 
     def __init__(
         self,
