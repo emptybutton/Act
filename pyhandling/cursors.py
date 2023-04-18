@@ -7,7 +7,7 @@ from typing import Iterable, Callable, Any, Mapping, Self, NoReturn, Tuple
 
 from pyannotating import Special
 
-from pyhandling.annotations import one_value_action, merger_of, event_for
+from pyhandling.annotations import one_value_action, merger_of, event_for, ResultT
 from pyhandling.branching import ActionChain, binding_by, on
 from pyhandling.contexting import contextual
 from pyhandling.data_flow import taken, dynamically
@@ -16,7 +16,7 @@ from pyhandling.flags import nothing
 from pyhandling.immutability import to_clone
 from pyhandling.language import by, then, to
 from pyhandling.monads import reading, saving_context, considering_context
-from pyhandling.partials import flipped, rpartial, rwill, will
+from pyhandling.partials import flipped, rpartial, rwill, will, fragmentarily
 from pyhandling.structure_management import tfilter, groups_in
 from pyhandling.synonyms import with_keyword, collection_of
 from pyhandling.tools import property_to
@@ -58,31 +58,6 @@ __all__ = (
 class _ActionCursorParameter:
     name: str
     priority: int | float
-
-
-class _ActionCursorOperation:
-    def __get__(self, instance: "_ActionCursor", owner: "Type[_ActionCursor]") -> Self:
-        return partial(self, instance)
-
-
-class _ActionCursorBinaryOperation(_ActionCursorOperation):
-    def __init__(self, operation: merger_of[Any]):
-        self._operation = operation
-
-    def __call__(
-        self,
-        cursor: "_ActionCursor",
-        value: Special["_ActionCursor"],
-    ) -> "_ActionCursor":
-        return cursor._merged_with(value, by=self._operation)
-
-
-class _ActionCursorTransformationOperation(_ActionCursorOperation):
-    def __init__(self, operation: one_value_action):
-        self._operation = operation
-
-    def __call__(self, cursor: "_ActionCursor") -> "_ActionCursor":
-        return cursor._with(self._operation)
 
 
 class _ActionCursorUnpacking:
@@ -249,49 +224,62 @@ class _ActionCursor:
             for cursor_parameter in self._parameters
         )
 
-    is_ = _ActionCursorBinaryOperation(is_)
-    is_not = _ActionCursorBinaryOperation(is_not)
-    or_ = _ActionCursorBinaryOperation(lambda a, b: a or b)
-    and_ = _ActionCursorBinaryOperation(lambda a, b: a and b)
+    @staticmethod
+    @fragmentarily
+    def __merging_by(
+        operation: merger_of[Any],
+        cursor: Self,
+        value: Special[Self],
+    ) -> Self:
+        return cursor._merged_with(value, by=operation)
 
-    __contains__ = _ActionCursorBinaryOperation(contains)
+    @fragmentarily
+    def __transformation_by(operation: Callable[[Any], ResultT], cursor: Self) -> Self:
+        return cursor._with(operation)
 
-    __add__ = _ActionCursorBinaryOperation(add)
-    __sub__ = _ActionCursorBinaryOperation(sub)
-    __mul__ = _ActionCursorBinaryOperation(mul)
-    __floordiv__ = _ActionCursorBinaryOperation(floordiv)
-    __truediv__ = _ActionCursorBinaryOperation(truediv)
-    __mod__ = _ActionCursorBinaryOperation(mod)
-    __pow__ = _ActionCursorBinaryOperation(pow)
-    __or__ = _ActionCursorBinaryOperation(or_)
-    __xor__ = _ActionCursorBinaryOperation(xor)
-    __and__ = _ActionCursorBinaryOperation(and_)
-    __matmul__ = _ActionCursorBinaryOperation(matmul)
-    __lshift__ = _ActionCursorBinaryOperation(lshift)
-    __rshift__ = _ActionCursorBinaryOperation(rshift)
+    is_ = __merging_by(is_)
+    is_not = __merging_by(is_not)
+    or_ = __merging_by(lambda a, b: a or b)
+    and_ = __merging_by(lambda a, b: a and b)
 
-    __radd__ = _ActionCursorBinaryOperation(flipped(add))
-    __rsub__ = _ActionCursorBinaryOperation(flipped(sub))
-    __rmul__ = _ActionCursorBinaryOperation(flipped(mul))
-    __rfloordiv__ = _ActionCursorBinaryOperation(flipped(floordiv))
-    __rtruediv__ = _ActionCursorBinaryOperation(flipped(truediv))
-    __rmod__ = _ActionCursorBinaryOperation(flipped(mod))
-    __rpow__ = _ActionCursorBinaryOperation(flipped(pow))
-    __ror__ = _ActionCursorBinaryOperation(flipped(or_))
-    __rxor__ = _ActionCursorBinaryOperation(flipped(xor))
-    __rand__ = _ActionCursorBinaryOperation(flipped(and_))
-    __rmatmul__ = _ActionCursorBinaryOperation(flipped(matmul))
+    __contains__ = __merging_by(contains)
 
-    __gt__ = _ActionCursorBinaryOperation(gt)
-    __ge__ = _ActionCursorBinaryOperation(ge)
-    __lt__ = _ActionCursorBinaryOperation(lt)
-    __le__ = _ActionCursorBinaryOperation(le)
-    __eq__ = _ActionCursorBinaryOperation(eq)
-    __ne__ = _ActionCursorBinaryOperation(ne)
+    __add__ = __merging_by(add)
+    __sub__ = __merging_by(sub)
+    __mul__ = __merging_by(mul)
+    __floordiv__ = __merging_by(floordiv)
+    __truediv__ = __merging_by(truediv)
+    __mod__ = __merging_by(mod)
+    __pow__ = __merging_by(pow)
+    __or__ = __merging_by(or_)
+    __xor__ = __merging_by(xor)
+    __and__ = __merging_by(and_)
+    __matmul__ = __merging_by(matmul)
+    __lshift__ = __merging_by(lshift)
+    __rshift__ = __merging_by(rshift)
 
-    __pos__ = _ActionCursorTransformationOperation(pos)
-    __neg__ = _ActionCursorTransformationOperation(neg)
-    __invert__ = _ActionCursorTransformationOperation(invert)
+    __radd__ = __merging_by(flipped(add))
+    __rsub__ = __merging_by(flipped(sub))
+    __rmul__ = __merging_by(flipped(mul))
+    __rfloordiv__ = __merging_by(flipped(floordiv))
+    __rtruediv__ = __merging_by(flipped(truediv))
+    __rmod__ = __merging_by(flipped(mod))
+    __rpow__ = __merging_by(flipped(pow))
+    __ror__ = __merging_by(flipped(or_))
+    __rxor__ = __merging_by(flipped(xor))
+    __rand__ = __merging_by(flipped(and_))
+    __rmatmul__ = __merging_by(flipped(matmul))
+
+    __gt__ = __merging_by(gt)
+    __ge__ = __merging_by(ge)
+    __lt__ = __merging_by(lt)
+    __le__ = __merging_by(le)
+    __eq__ = __merging_by(eq)
+    __ne__ = __merging_by(ne)
+
+    __pos__ = __transformation_by(pos)
+    __neg__ = __transformation_by(neg)
+    __invert__ = __transformation_by(invert)
 
 
 def action_cursor_by(
