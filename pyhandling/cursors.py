@@ -75,8 +75,9 @@ class _ActionCursorUnpacking:
         return self
 
 
-class _ActionCursor:
+class _ActionCursor(Mapping):
     _overwritten_attribute_names: Tuple[str] = ('to', 'is_', "is_not", 'or_', 'and_')
+    _unpacking_key_template: str = "__ActionCursor_keyword_unpacking"
 
     def __init__(
         self,
@@ -114,6 +115,9 @@ class _ActionCursor:
     def __iter__(self) -> _ActionCursorUnpacking:
         return _ActionCursorUnpacking(self)
 
+    def __len__(self) -> Literal[1]:
+        return 1
+
     def __call__(self, *args) -> Any:
         if len(args) > len(self._parameters):
             raise ActionCursorError(
@@ -131,6 +135,9 @@ class _ActionCursor:
 
     def to(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
         return self._with_calling_by(*args, **kwargs)
+
+    def keys(self):
+        return (f"{self._unpacking_key_template}_of_{id(self)}", )
 
     def __getitem__(self, key: Special[Self | Tuple[Special[Self]]]) -> Self:
         return (self
