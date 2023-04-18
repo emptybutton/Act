@@ -82,9 +82,11 @@ class _ActionCursor:
         self,
         parameters: Iterable[_ActionCursorParameter],
         actions: ActionChain = ActionChain(),
+        previous: Optional[Self] = None,
     ):
         self._parameters = tuple(sorted(set(parameters), key=attrgetter("priority")))
         self._actions = actions
+        self._previous = previous
 
         if len(self._parameters) == 0:
             raise ActionCursorError("Creating a cursor without parameters")
@@ -167,13 +169,12 @@ class _ActionCursor:
     def _run(self, root: contextual[Any, Mapping[str, Any]]) -> contextual:
         return self._actions(root)
 
-    @to_clone
     def _of(self, action: Special[ActionChain, Callable]) -> None:
-        self._actions = (
-            action if isinstance(action, ActionChain) else ActionChain([action])
+        return type(self)(
+            self._parameters,
+            action if isinstance(action, ActionChain) else ActionChain([action]),
+            self,
         )
-
-        self._update_signature()
 
     def _with(self, action: Callable) -> Self:
         return self._of(self._actions >> saving_context(action))
@@ -188,6 +189,7 @@ class _ActionCursor:
                     operation(self._run(root).value, other._run(root).value),
                     when=root.context,
                 )]),
+                self,
             )
             if isinstance(other, _ActionCursor)
             else self._with(rpartial(operation, other))
