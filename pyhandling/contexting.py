@@ -8,10 +8,10 @@ from pyannotating import Special
 
 from pyhandling.annotations import ValueT, ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, reformer_of, FlagT, action_of
 from pyhandling.atoming import atomic, atomically
-from pyhandling.data_flow import dynamically
 from pyhandling.flags import flag, nothing, Flag, pointed, FlagVector
 from pyhandling.immutability import property_to
 from pyhandling.language import then, by
+from pyhandling.partials import fragmentarily
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 from pyhandling.synonyms import with_unpacking, repeating
 from pyhandling.tools import documenting_by, NotInitializable
@@ -182,6 +182,7 @@ def contexted(
     return contextual(value, context)
 
 
+@fragmentarily
 def with_context_that(
     that: checker_of[PointT],
     value: ValueT | ContextRoot[ValueT, PointT | Flag[PointT]],
