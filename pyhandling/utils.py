@@ -18,6 +18,8 @@ __all__ = (
     "shown",
     "isnt",
     "div",
+    "yes",
+    "no",
     "times",
     "with_error",
     "catching",
@@ -41,6 +43,10 @@ div: Callable[[int | float, int | float], float] = documenting_by(
 )(
         atomically(truediv)
 )
+
+
+yes: action_for[bool] = documenting_by("""Shortcut for `to(True)`.""")(to(True))
+no: action_for[bool] = documenting_by("""Shortcut for `to(False)`.""")(to(False))
 
 
 times: Callable[[int], dirty[action_for[bool]]] = documenting_by(

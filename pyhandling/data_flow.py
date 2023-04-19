@@ -21,9 +21,6 @@ __all__ = (
     "dynamically",
     "double",
     "once",
-    "taken",
-    "yes",
-    "no",
     "via_items",
 )
 
@@ -98,10 +95,10 @@ def dynamically(
 ) -> action_for[ResultT]:
     """Function to dynamically determine arguments for an input action."""
 
-    maybe_replaced = on(is_ |by| Ellipsis, taken(returned))
+    maybe_replaced = on(is_ |by| Ellipsis, to(returned))
 
     return mergely(
-        taken(action),
+        to(action),
         *map(maybe_replaced, argument_placeholders),
         **{
             _: maybe_replaced(value)
@@ -153,17 +150,6 @@ class once:
         )
 
         return self._result
-
-
-taken: Callable[ValueT, action_for[ValueT]] = documenting_by(
-    """Shortcut function for `eventually(returned, ...)`."""
-)(
-    atomically(will(returned) |then>> eventually)
-)
-
-
-yes: action_for[bool] = documenting_by("""Shortcut for `taken(True)`.""")(taken(True))
-no: action_for[bool] = documenting_by("""Shortcut for `taken(False)`.""")(taken(False))
 
 
 @atomically

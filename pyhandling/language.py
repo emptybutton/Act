@@ -1,19 +1,44 @@
-from functools import partial
+from abc import ABC, abstractmethod
+from functools import partial, reduce
 from typing import Generic, Callable, Optional, Iterable, Any, Self
 
 from pyannotating import Special
 
-from pyhandling.annotations import ResultT
+from pyhandling.annotations import ResultT, ValueT, P
+from pyhandling.atoming import atomically
+from pyhandling.data_flow import eventually
 from pyhandling.branching import ActionChain
 from pyhandling.immutability import property_to
-from pyhandling.partials import rpartial
+from pyhandling.partials import rpartial, will
+from pyhandling.synonyms import returned
 from pyhandling.tools import documenting_by
 
 
-__all__ = ("then", "to", "by")
+__all__ = ("PartialApplicationInfix", "then", "to", "by")
 
 
-class BindingInfix(Generic[ResultT]):
+class PartialApplicationInfix(ABC):
+    """
+    Infix class for action partial application.
+
+    Used in the form `action |instance| argument` or `action |instance* arguments`
+    if you want to unpack the arguments.
+    """
+
+    @abstractmethod
+    def __or__(self, argument: Any) -> Callable:
+        ...
+
+    @abstractmethod
+    def __ror__(self, action_to_transform: Callable) -> Self | Callable:
+        ...
+
+    @abstractmethod
+    def __mul__(self, arguments: Iterable) -> Callable:
+        ...
+
+
+class _CustomPartialApplicationInfix(PartialApplicationInfix):
     """
     Infix class for binding functions with arguments.
 
@@ -21,35 +46,56 @@ class BindingInfix(Generic[ResultT]):
     if you want to unpack the arguments.
     """
 
-    binder = property_to("_binder")
-    func = property_to("_func")
-    arguments = property_to("_arguments")
-
     def __init__(
         self,
-        binder: Callable[[Callable, ...], Callable],
-        func: Optional[Callable] = None,
-        arguments: Optional[Iterable] = None
+        transform: Callable[[Callable, ValueT], Callable],
+        *,
+        action_to_transform: Optional[Callable] = None,
+        arguments: Optional[Iterable[ValueT]] = None
     ):
-        self._binder = binder
-        self._func = func
+        self._transform = transform
+        self._action_to_transform = action_to_transform
         self._arguments = arguments
 
     def __repr__(self) -> str:
-        return f"BindingInfix for {self.binder.__name__ if hasattr(self.binder, '__name__') else self.binder}"
+        return "PartialApplicationInfix for {}".format(
+            self._transform.__name__
+            if hasattr(self._transform, '__name__')
+            else self._transform
+        )
 
     def __or__(self, argument: Any) -> Callable:
-        return self._binder(self._func, argument)
+        return self._transform(self._action_to_transform, argument)
 
-    def __ror__(self, func: Callable) -> Self | ResultT:
+    def __ror__(self, action_to_transform: Callable) -> Self | Callable:
         return (
-            type(self)(self.binder, func)
-            if self.arguments is None
-            else self._binder(func, *self.arguments)
+            type(self)(self._transform, action_to_transform=action_to_transform)
+            if self._arguments is None
+            else reduce(self._transform, (action_to_transform, *self._arguments))
         )
 
     def __mul__(self, arguments: Iterable) -> Callable:
-        return type(self)(self.binder, arguments=arguments)
+        return type(self)(self._transform, arguments=arguments)
+
+
+class _CallableCustomPartialApplicationInfix(_CustomPartialApplicationInfix):
+    def __init__(
+        self,
+        transform: Callable[[Callable, ValueT], Callable],
+        *,
+        action_to_call: Callable[P, ResultT] = returned,
+        action_to_transform: Optional[Callable] = None,
+        arguments: Optional[Iterable[ValueT]] = None,
+    ):
+        super().__init__(
+            transform,
+            action_to_transform=action_to_transform,
+            arguments=arguments,
+        )
+        self._action_to_call = action_to_call
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
+        return self._action_to_call(*args, **kwargs)
 
 
 then = documenting_by(
@@ -75,20 +121,28 @@ then = documenting_by(
 
 to = documenting_by(
     """
-    `BindingInfix` instance that implements `partial` as a pseudo operator.
+    `PartialApplicationInfix` instance that implements `partial` as a pseudo
+    operator.
 
-    See `BindingInfix` for usage information.
+    See `PartialApplicationInfix` for usage information.
+    
+    When called, creates a function that returns an input value, ignoring input
+    arguments.
     """
 )(
-    BindingInfix(partial)
+    _CallableCustomPartialApplicationInfix(
+        partial,
+        action_to_call=atomically(will(returned) |then>> eventually),
+    )
 )
 
 by = documenting_by(
     """
-    `BindingInfix` instance that implements `rpartial` as a pseudo operator.
+    `PartialApplicationInfix` instance that implements `rpartial` as a pseudo
+    operator.
 
-    See `BindingInfix` for usage information.
+    See `PartialApplicationInfix` for usage information.
     """
 )(
-    BindingInfix(rpartial)
+    _CustomPartialApplicationInfix(rpartial)
 )
