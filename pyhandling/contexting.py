@@ -157,7 +157,7 @@ class context_pointed(ContextRoot, Generic[ActionT, FlagT]):
 def context_oriented(root_values: contextual_like[ValueT, ContextT]) -> contextual[ContextT, ValueT]:
     """Function to swap a context and value."""
 
-    return contextual(*reversed(root_values))
+    return contextual(*reversed(tuple(root_values)))
 
 
 _ExistingContextT = TypeVar("_ExistingContextT")
