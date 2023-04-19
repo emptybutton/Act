@@ -21,6 +21,7 @@ __all__ = (
     "binding_by",
     "merged",
     "mergely",
+    "stop",
     "branching",
     "mapping_to_chain_of",
     "mapping_to_chain",
@@ -273,6 +274,7 @@ class _Fork(NamedTuple, Generic[P, ResultT]):
     way: Callable[P, ResultT] | ResultT
 
 
+stop = object()
 
 
 def branching(
@@ -292,7 +294,7 @@ def branching(
 
     return on(
         forks[0].determinant,
-        forks[0].action,
+        else_ if forks[0].way is stop else forks[0].way,
         else_=else_ if len(forks) == 1 else branching(*forks[1:], else_=else_)
     )
 
