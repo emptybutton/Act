@@ -38,7 +38,7 @@ __all__ = (
     "in_future",
     "future_from",
     "to_points",
-    "to_acyclic_points",
+    "to_value_points",
 )
 
 
@@ -273,7 +273,7 @@ to_points: mapping_to_chain_among[Flag] = documenting_by(
 )
 
 
-to_acyclic_points: mapping_to_chain_among[Flag] = documenting_by(
+to_value_points: mapping_to_chain_among[Flag] = documenting_by(
     """
     Flag `point` execution context of flags whose `points` do not point to
     themselves.
