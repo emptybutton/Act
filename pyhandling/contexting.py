@@ -186,7 +186,7 @@ def with_context_that(
     that: checker_of[PointT],
     value: ValueT | ContextRoot[ValueT, PointT | Flag[PointT]],
     *,
-    not_empty: bool = False,
+    and_nothing: bool = False,
 ) -> contextual[ValueT, nothing | PointT]:
     """
     Function for transform function `ContextRoot` with context filtered by input
@@ -200,7 +200,7 @@ def with_context_that(
 
     root = atomic(context_pointed(contexted(value), that=that))
 
-    if root.context == nothing and not_empty:
+    if root.context == nothing and not and_nothing:
         raise ValueError(f"Missing context with condition of \"{that}\"")
 
     return root
