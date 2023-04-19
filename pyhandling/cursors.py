@@ -167,7 +167,11 @@ class _ActionCursor(Mapping):
         if name.startswith('_'):
             return super().__getattr__(name)
 
+        if not self:
+            return self._with(
+                to(self._external_value_in(name)),
             )
+
         return self._with(
             rwill(getattr)(
                 name[:-1]
