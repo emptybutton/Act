@@ -58,7 +58,7 @@ class ContextRoot(ABC, Generic[ValueT, ContextT]):
         return f"{self._value} when {self._context}"
 
     def __eq__(self, other: Any) -> bool:
-        if type(self) != type(other):
+        if type(self) is not type(other):
             return False
 
         value, context = other
