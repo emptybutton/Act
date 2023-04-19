@@ -231,6 +231,8 @@ class _ActionCursor(Mapping):
 
         return cursor._with(call)
 
+    def _is_for_keyword_unpacking(self, keyword: str) -> bool:
+        return keyword.startswith(self._unpacking_key_template)
 
     def _update_signature(self) -> None:
         self.__signature__ = Signature(
