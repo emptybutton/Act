@@ -11,7 +11,6 @@ from pyhandling.errors import ReturningError
 from pyhandling.language import then, by
 from pyhandling.partials import will
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
-from pyhandling.structure_management import table_value_map
 from pyhandling.synonyms import returned, on
 from pyhandling.tools import documenting_by
 
@@ -105,7 +104,10 @@ def dynamically(
     return mergely(
         taken(action),
         *map(maybe_replaced, argument_placeholders),
-        **table_value_map(maybe_replaced, keyword_argument_placeholders),
+        **{
+            _: maybe_replaced(value)
+            for _, value in keyword_argument_placeholders.items()
+        },
     )
 
 
