@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from functools import partial, reduce
 from itertools import count
-from inspect import Signature, Parameter
+from inspect import Signature, Parameter, stack
 from operator import call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift, is_, is_not, getitem, contains, xor, rshift, matmul
-from typing import Iterable, Callable, Any, Mapping, Self, NoReturn, Tuple
+from typing import Iterable, Callable, Any, Mapping, Self, NoReturn, Tuple, Optional, Literal
 
 from pyannotating import Special
 
-from pyhandling.annotations import one_value_action, merger_of, event_for, ResultT
+from pyhandling.annotations import one_value_action, merger_of, event_for, ResultT, reformer_of
 from pyhandling.branching import ActionChain, binding_by, on
 from pyhandling.contexting import contextual
 from pyhandling.data_flow import dynamically
@@ -184,6 +184,12 @@ class _ActionCursor(Mapping):
                 reading(to(getitem |by| parameter.name))
             )
         )
+
+    @staticmethod
+    def _external_value_in(name: str) -> Any:
+        locals_ = stack()[1][0].f_back.f_locals
+
+        return locals_[name] if name in locals_.keys() else eval(name)
 
     @staticmethod
     def _previous_of(cursor: Self) -> Self:
