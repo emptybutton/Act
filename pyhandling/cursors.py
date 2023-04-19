@@ -27,6 +27,8 @@ from pyhandling.utils import shown
 __all__ = (
     "action_cursor_by",
     "priority_of",
+    "act",
+    '_',
     'a',
     'b',
     'c',
@@ -393,6 +395,10 @@ def priority_of(cursor: _ActionCursor) -> int | float:
         raise ActionCursorError("Getting constant cursor priority")
 
     return cursor._parameters[0].priority
+
+
+act = _ActionCursor()
+_ = _ActionCursor()
 
 
 a = action_cursor_by('a')
