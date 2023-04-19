@@ -252,6 +252,17 @@ class _ActionCursor(Mapping):
             (self, *argument_by_key.items()),
         )
 
+    def _with_unpacking_of(
+        self,
+        items: Iterable[Special[Self]],
+        *,
+        by: Callable[[tuple], Iterable],
+    ) -> Self:
+        return (
+            self
+            ._with(will(collection_of))
+            ._with_calling_by(*items)
+        )
 
     def _is_for_keyword_unpacking(self, keyword: str) -> bool:
         return keyword.startswith(self._unpacking_key_template)
