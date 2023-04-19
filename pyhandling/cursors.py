@@ -116,6 +116,9 @@ class _ActionCursor(Mapping):
         return 1
 
     def __call__(self, *args) -> Any:
+        if not self:
+            return self._with_unpacking_of(args, by=tuple)
+
         if len(args) > len(self._parameters):
             raise ActionCursorError(
                 f"Extra arguments: {', '.join(map(str, args[len(self._parameters):]))}"
