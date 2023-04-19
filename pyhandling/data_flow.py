@@ -8,7 +8,6 @@ from pyhandling.arguments import ArgumentPack
 from pyhandling.atoming import atomically
 from pyhandling.branching import mergely
 from pyhandling.errors import ReturningError
-from pyhandling.language import then, by
 from pyhandling.partials import will
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 from pyhandling.synonyms import returned, on
@@ -89,7 +88,7 @@ class eventually(ActionWrapper):
 def with_result(result: ResultT, action: Callable[P, Any]) -> Callable[P, ResultT]:
     """Function to force an input result for an input action."""
 
-    return atomically(action |then>> taken(result))
+    return bind(action, to(result))
 
 
 def dynamically(
