@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum, auto
 from functools import partial, reduce
 from itertools import count
 from inspect import Signature, Parameter, stack
@@ -75,6 +76,16 @@ class _ActionCursorUnpacking:
         return self
 
 
+class _ActionCursorNature(Enum):
+    attrgetting = auto()
+    vargetting = auto()
+    itemgetting = auto()
+    calling = auto()
+    unpacking = auto()
+    binary_operation = auto()
+    single_operation = auto()
+
+
 class _ActionCursor(Mapping):
     _overwritten_attribute_names: Tuple[str] = ('_', 'is_', "is_not", 'or_', 'and_')
     _unpacking_key_template: str = "__ActionCursor_keyword_unpacking"
@@ -84,10 +95,12 @@ class _ActionCursor(Mapping):
         parameters: Iterable[_ActionCursorParameter] = tuple(),
         actions: ActionChain = ActionChain(),
         previous: Optional[Self] = None,
+        last_action_nature: Any = None,
     ):
         self._parameters = tuple(sorted(set(parameters), key=attrgetter("priority")))
         self._actions = actions
         self._previous = previous
+        self._last_action_nature = last_action_nature
 
         groups_with_same_priority = tfilter(
             lambda group: len(group) > 1,
@@ -137,6 +150,7 @@ class _ActionCursor(Mapping):
         return (
             self
             ._with_calling_by(*args, **kwargs)
+            ._with(nature=_ActionCursorNature.calling)
         )
 
     def keys(self):
@@ -150,6 +164,7 @@ class _ActionCursor(Mapping):
             return self._with_unpacking_of(
                 key if isinstance(key, tuple) else (key, ),
                 by=list
+            )._with(nature=_ActionCursorNature.unpacking)
 
         return (
             self
@@ -161,6 +176,7 @@ class _ActionCursor(Mapping):
                 )
             )
             ._with_calling_by(*key if isinstance(key, tuple) else (key, ))
+            ._with(nature=_ActionCursorNature.itemgetting)
         )
 
     def __getattr__(self, name: str) -> Self:
@@ -170,6 +186,7 @@ class _ActionCursor(Mapping):
         if not self:
             return self._with(
                 to(self._external_value_in(name)),
+                nature=_ActionCursorNature.vargetting,
             )
 
         return self._with(
@@ -178,6 +195,7 @@ class _ActionCursor(Mapping):
                 if name[:-1] in self._overwritten_attribute_names and name.endswith('_')
                 else name
             ),
+            nature=_ActionCursorNature.attrgetting,
         )
 
     @classmethod
@@ -202,15 +220,16 @@ class _ActionCursor(Mapping):
     def _run(self, root: contextual[Any, Mapping[str, Any]]) -> contextual:
         return self._actions(root)
 
-    def _of(self, action: Special[ActionChain, Callable]) -> None:
+    def _of(self, action: Special[ActionChain, Callable], *, nature: Any = None) -> None:
         return type(self)(
-            self._parameters,
-            action if isinstance(action, ActionChain) else ActionChain([action]),
-            self,
+            parameters=self._parameters,
+            actions=action if isinstance(action, ActionChain) else ActionChain([action]),
+            previous=self,
+            last_action_nature=self._last_action_nature if nature is None else nature,
         )
 
-    def _with(self, action: Callable) -> Self:
-        return self._of(self._actions >> saving_context(action))
+    def _with(self, action: Callable = ActionChain(), *, nature: Any = None) -> Self:
+        return self._of(self._actions >> saving_context(action), nature=nature)
 
     def _merged_with(self, other: Special[Self], *, by: merger_of[Any]) -> Self:
         operation = by
@@ -280,6 +299,7 @@ class _ActionCursor(Mapping):
             self
             ._with(will(collection_of))
             ._with_calling_by(*items)
+            ._with(by, nature=_ActionCursorNature.unpacking)
         )
 
     def _is_for_keyword_unpacking(self, keyword: str) -> bool:
