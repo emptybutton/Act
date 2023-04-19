@@ -23,6 +23,7 @@ __all__ = (
     "times",
     "with_error",
     "catching",
+    "with_repr_by",
 )
 
 
@@ -109,3 +110,18 @@ def catching(
         raise error
 
     return action(error)
+
+
+@fragmentarily
+def with_repr_by(
+    repr_by: Callable[P, str],
+    action: Callable[P, ResultT],
+) -> Callable[P, ResultT]:
+    @wraps(action)
+    def action_with_formating(*args: P.args, **kwargs: P.kwargs) -> ResultT:
+        result = action(*args, **kwargs)
+        result.__repr__ = to(repr_by(*args, **kwargs))
+
+        return result
+
+    return action_with_formating
