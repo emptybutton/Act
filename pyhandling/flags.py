@@ -10,7 +10,6 @@ from pyhandling.atoming import atomic
 from pyhandling.annotations import ValueT, FlagT, checker_of, PointT, P, ResultT, merger_of, reformer_of
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
-from pyhandling.language import then, by
 from pyhandling.signature_assignmenting import calling_signature_of
 from pyhandling.structure_management import with_opened_items, in_collection
 from pyhandling.synonyms import returned
@@ -299,7 +298,7 @@ class _BinaryFlagVector(FlagVector):
         action = (or_ if self._is_positive else sub)
         next_ = self._next if self._next is not None else returned
 
-        return flag >= (action |by| self._flag) |then>> next_
+        return next_(action(flag, self._flag))
 
 
 _FirstPointT = TypeVar("_FirstPointT")
