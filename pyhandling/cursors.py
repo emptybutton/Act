@@ -81,16 +81,13 @@ class _ActionCursor(Mapping):
 
     def __init__(
         self,
-        parameters: Iterable[_ActionCursorParameter],
+        parameters: Iterable[_ActionCursorParameter] = tuple(),
         actions: ActionChain = ActionChain(),
         previous: Optional[Self] = None,
     ):
         self._parameters = tuple(sorted(set(parameters), key=attrgetter("priority")))
         self._actions = actions
         self._previous = previous
-
-        if len(self._parameters) == 0:
-            raise ActionCursorError("Creating a cursor without parameters")
 
         groups_with_same_priority = tfilter(
             lambda group: len(group) > 1,
@@ -303,8 +300,11 @@ def action_cursor_by(
 
 
 def priority_of(cursor: _ActionCursor) -> int | float:
-    if cursor:
-        raise ActionCursorError("Getting a priority of an active cursor")
+    if len(cursor._parameters) > 1:
+        raise ActionCursorError("Getting multicursor priority")
+
+    elif len(cursor._parameters) == 0:
+        raise ActionCursorError("Getting constant cursor priority")
 
     return cursor._parameters[0].priority
 
