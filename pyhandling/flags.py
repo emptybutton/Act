@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
-from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional, Tuple, Union
+from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional, Tuple, Union, Literal
 from operator import or_, sub, attrgetter
 
 from pyannotating import Special, AnnotationTemplate, input_annotation
@@ -434,7 +434,7 @@ class _AtomicFlag(Flag, ABC):
     def __sub__(self, other: Any) -> Self: 
         return nothing if self == other else self
 
-    def __len__(self) -> int:
+    def __len__(self) -> Literal[0] | Literal[1]:
         return 1 if self != nothing else 0
 
     def __iter__(self) -> Iterator[Self]:
