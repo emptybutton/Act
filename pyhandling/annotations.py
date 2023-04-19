@@ -27,6 +27,8 @@ __all__ = (
     "SecondT",
     "ThirdT",
     "FourthT",
+    "RightT",
+    "LeftT",
     "ResultT",
     "KeyT",
     "ErrorT",
@@ -90,6 +92,10 @@ SecondT = TypeVar("SecondT")
 ThirdT = TypeVar("ThirdT")
 
 FourthT = TypeVar("FourthT")
+
+RightT = TypeVar("RightT")
+
+LeftT = TypeVar("LeftT")
 
 ResultT = TypeVar("ResultT")
 
