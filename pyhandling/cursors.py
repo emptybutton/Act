@@ -140,6 +140,9 @@ class _ActionCursor(Mapping):
         return (f"{self._unpacking_key_template}_of_{id(self)}", )
 
     def __getitem__(self, key: Special[Self | Tuple[Special[Self]]]) -> Self:
+        if self._is_for_keyword_unpacking(key):
+            return self
+
         return (
             self
             ._with(
@@ -238,6 +241,10 @@ class _ActionCursor(Mapping):
             lambda cursor, key_and_argument: (
                 cursor._merged_with(
                     key_and_argument[1],
+                    by=lambda a, b: partial(a, **b),
+                )
+                if self._is_for_keyword_unpacking(key_and_argument[0])
+                else cursor._merged_with(
                     key_and_argument[1],
                     by=flipped(with_keyword |to| key_and_argument[0])
                 )
