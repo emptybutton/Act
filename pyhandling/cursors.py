@@ -76,7 +76,7 @@ class _ActionCursorUnpacking:
 
 
 class _ActionCursor(Mapping):
-    _overwritten_attribute_names: Tuple[str] = ('to', 'is_', "is_not", 'or_', 'and_')
+    _overwritten_attribute_names: Tuple[str] = ('_', 'is_', "is_not", 'or_', 'and_')
     _unpacking_key_template: str = "__ActionCursor_keyword_unpacking"
 
     def __init__(
@@ -130,8 +130,11 @@ class _ActionCursor(Mapping):
         elif len(args) < len(self._parameters):
             return partial(self, *args)
 
-    def to(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
-        return self._with_calling_by(*args, **kwargs)
+    def _(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
+        return (
+            self
+            ._with_calling_by(*args, **kwargs)
+        )
 
     def keys(self):
         return (f"{self._unpacking_key_template}_of_{id(self)}", )
