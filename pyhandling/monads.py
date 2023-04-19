@@ -227,7 +227,9 @@ def either(
         Special[checker_of[ContextT]],
         Callable[[contextual[ValueT, ContextT]], ResultT] | ResultT,
     ],
-    else_: Callable[[contextual[ValueT, ContextT]], ResultT] = returned,
+    else_: Callable[[contextual[ValueT, ContextT]], ResultT] = eventually(
+        raise_, ValueError("No condition is met")
+    ),
 ) -> Callable[[contextual[ValueT, ContextT]], ResultT]:
     """Shortcut for `branching` with context checks."""
 
