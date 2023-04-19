@@ -5,11 +5,11 @@ from inspect import Signature, Parameter
 
 from pyannotating import Special
 
-from pyhandling.annotations import P, ValueT, ResultT, ContextT, ErrorHandlingResultT, action_for, PositiveConditionResultT, NegativeConditionResultT, reformer_of, checker_of
+from pyhandling.annotations import P, ValueT, ResultT, ContextT, ErrorHandlingResultT, action_for, PositiveConditionResultT, NegativeConditionResultT, reformer_of, checker_of, RightT, LeftT
 from pyhandling.atoming import atomically
 from pyhandling.partials import fragmentarily
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of, annotation_sum
-from pyhandling.tools import to_check
+from pyhandling.tools import to_check, as_action
 
 
 __all__ = (
@@ -65,34 +65,35 @@ class on:
     def __init__(
         self,
         determinant: Special[Callable[P, bool]],
-        positive_condition_action: Callable[P, PositiveConditionResultT],
+        right_way: Callable[P, RightT] | RightT,
+        /,
         *,
-        else_: Callable[P, NegativeConditionResultT] = returned
+        else_: Callable[P, LeftT] | LeftT = returned
     ):
         self._condition_checker = to_check(determinant)
-        self._positive_condition_action = positive_condition_action
-        self._negative_condition_action = else_
+        self._right_action = as_action(right_way)
+        self._left_action = as_action(else_)
 
         self.__signature__ = self.__get_signature()
 
-    def __call__(self, *args: P.args, **kwargs: P.args) -> PositiveConditionResultT | NegativeConditionResultT:
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> RightT | LeftT:
         return (
-            self._positive_condition_action
+            self._right_action
             if self._condition_checker(*args, **kwargs)
-            else self._negative_condition_action
+            else self._left_action
         )(*args, **kwargs)
 
     def __repr__(self) -> str:
         return (
-            f"({self._positive_condition_action} on {self._condition_checker} "
-            f"else {self._negative_condition_action})"
+            f"({self._right_action} on {self._condition_checker} "
+            f"else {self._left_action})"
         )
 
     def __get_signature(self) -> Signature:
-        return calling_signature_of(self._positive_condition_action).replace(
+        return calling_signature_of(self._right_action).replace(
             return_annotation=annotation_sum(
-                calling_signature_of(self._positive_condition_action).return_annotation,
-                calling_signature_of(self._negative_condition_action).return_annotation,
+                calling_signature_of(self._right_action).return_annotation,
+                calling_signature_of(self._left_action).return_annotation,
             )
         )
 

@@ -270,12 +270,14 @@ class _Fork(NamedTuple, Generic[P, ResultT]):
     """NamedTuple to store an action to execute on a condition."""
 
     determinant: Special[Callable[P, bool]]
-    action: Callable[P, ResultT]
+    way: Callable[P, ResultT] | ResultT
+
+
 
 
 def branching(
-    *forks: tuple[Special[Callable[P, bool]], Callable[P, ResultT]],
-    else_: Callable[P, ResultT] = returned,
+    *forks: tuple[Special[Callable[P, bool]], Special[Callable[P, ResultT] | ResultT]],
+    else_: Callable[P, ResultT] | ResultT = returned,
 ) -> Callable[P, ResultT]:
     """
     Function for using action branching like `if`, `elif` and `else` statements.

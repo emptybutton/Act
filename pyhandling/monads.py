@@ -223,9 +223,9 @@ left = flag('left', sign=False)
 
 
 def either(
-    *determinants_and_actions: tuple[
+    *determinants_and_ways: tuple[
         Special[checker_of[ContextT]],
-        Callable[[contextual[ValueT, ContextT]], ResultT],
+        Callable[[contextual[ValueT, ContextT]], ResultT] | ResultT,
     ],
     else_: Callable[[contextual[ValueT, ContextT]], ResultT] = returned,
 ) -> Callable[[contextual[ValueT, ContextT]], ResultT]:
@@ -233,9 +233,8 @@ def either(
 
     return branching(
         *(
-            (attrgetter("context") |then>> to_check(determinant), action)
-            for determinant_and_action in context_determinants_and_actions
-            for determinant, action in (determinant_and_action, )
+            (attrgetter("context") |then>> to_check(determinant), way)
+            for determinant, way in determinants_and_ways
         ),
         else_=else_
     )
