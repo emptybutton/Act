@@ -163,18 +163,18 @@ class _ActionCursor(Mapping):
             ._with_calling_by(*key if isinstance(key, tuple) else (key, ))
         )
 
-    def __getattr__(self, attribute_name: str) -> Self:
-        if attribute_name.startswith('_'):
-            return super().__getattr__(attribute_name)
+    def __getattr__(self, name: str) -> Self:
+        if name.startswith('_'):
+            return super().__getattr__(name)
 
-        return self._with(rwill(getattr)(
-            attribute_name[:-1]
-            if (
-                attribute_name[:-1] in self._overwritten_attribute_names
-                and attribute_name.endswith('_')
             )
-            else attribute_name
-        ))
+        return self._with(
+            rwill(getattr)(
+                name[:-1]
+                if name[:-1] in self._overwritten_attribute_names and name.endswith('_')
+                else name
+            ),
+        )
 
     @classmethod
     def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
