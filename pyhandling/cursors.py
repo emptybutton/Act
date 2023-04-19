@@ -239,17 +239,19 @@ class _ActionCursor(Mapping):
         )
 
     @staticmethod
-    @fragmentarily
-    def __merging_by(
-        operation: merger_of[Any],
-        cursor: Self,
-        value: Special[Self],
-    ) -> Self:
-        return cursor._merged_with(value, by=operation)
+    def __merging_by(operation: merger_of[Any]) -> Callable[[Self, Special[Self]], Self]:
+        return lambda cursor, value: (
+            cursor
+            ._merged_with(value, by=operation)
+            ._with(nature=_ActionCursorNature.binary_operation)
+        )
 
-    @fragmentarily
-    def __transformation_by(operation: Callable[[Any], ResultT], cursor: Self) -> Self:
-        return cursor._with(operation)
+    @staticmethod
+    def __transformation_by(operation: Callable[[Special[Self]], ResultT]) -> reformer_of[Self]:
+        return lambda cursor: cursor._with(
+            operation,
+            nature=_ActionCursorNature.single_operation,
+        )
 
     is_ = __merging_by(is_)
     is_not = __merging_by(is_not)
