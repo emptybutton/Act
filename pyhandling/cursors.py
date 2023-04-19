@@ -143,6 +143,11 @@ class _ActionCursor(Mapping):
         if self._is_for_keyword_unpacking(key):
             return self
 
+        if not self:
+            return self._with_unpacking_of(
+                key if isinstance(key, tuple) else (key, ),
+                by=list
+
         return (
             self
             ._with(
