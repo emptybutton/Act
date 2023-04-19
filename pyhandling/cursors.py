@@ -208,28 +208,43 @@ class _ActionCursor(Mapping):
         )
 
     def _with_calling_by(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
-        cursor = self
+        return (
+            self
+            ._with_partial_application_from(args)
+            ._with_keyword_partial_application_by(kwargs)
+            ._with(call)
+        )
 
-        if args:
-            cursor = reduce(
-                lambda cursor, argument: (
-                    cursor._merged_with(argument.cursor, by=lambda a, b: partial(a, *b))
-                    if isinstance(argument, _ActionCursorUnpacking)
-                    else cursor._merged_with(argument, by=partial)
-                ),
-                (cursor, *args),
-            )
+    def _with_partial_application_from(self, arguments: Iterable[Special[Self]]) -> Self:
+        arguments = tuple(arguments)
 
-        if kwargs:
-            cursor = reduce(
-                lambda cursor, key_and_argument: (cursor._merged_with(
+        if not arguments:
+            return self
+
+        return reduce(
+            lambda cursor, argument: (
+                cursor._merged_with(argument.cursor, by=lambda a, b: partial(a, *b))
+                if isinstance(argument, _ActionCursorUnpacking)
+                else cursor._merged_with(argument, by=partial)
+            ),
+            (self, *arguments),
+        )
+
+    def _with_keyword_partial_application_by(self, argument_by_key: Mapping[str, Special[Self]]) -> Self:
+        if not argument_by_key.keys():
+            return self
+
+        return reduce(
+            lambda cursor, key_and_argument: (
+                cursor._merged_with(
                     key_and_argument[1],
-                    by=flipped(with_keyword |to| key_and_argument[0]),
-                )),
-                (cursor, *kwargs.items()),
-            )
+                    key_and_argument[1],
+                    by=flipped(with_keyword |to| key_and_argument[0])
+                )
+            ),
+            (self, *argument_by_key.items()),
+        )
 
-        return cursor._with(call)
 
     def _is_for_keyword_unpacking(self, keyword: str) -> bool:
         return keyword.startswith(self._unpacking_key_template)
