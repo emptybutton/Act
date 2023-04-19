@@ -10,7 +10,7 @@ from pyannotating import Special
 from pyhandling.annotations import one_value_action, merger_of, event_for, ResultT
 from pyhandling.branching import ActionChain, binding_by, on
 from pyhandling.contexting import contextual
-from pyhandling.data_flow import taken, dynamically
+from pyhandling.data_flow import dynamically
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import nothing
 from pyhandling.immutability import to_clone
@@ -166,7 +166,7 @@ class _ActionCursor(Mapping):
         return cls(
             [parameter],
             considering_context(
-                reading(taken(getitem |by| parameter.name))
+                reading(to(getitem |by| parameter.name))
             )
         )
 
