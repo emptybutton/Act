@@ -67,7 +67,7 @@ class _ActionCursorUnpacking:
         self._cursor = cursor
         self._was_unpacked = was_unpacked
 
-    def __next__(self) -> Self | NoReturn:
+    def __next__(self) -> Self:
         if self._was_unpacked:
             raise StopIteration
 
