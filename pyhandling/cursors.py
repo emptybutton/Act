@@ -140,7 +140,8 @@ class _ActionCursor(Mapping):
         return (f"{self._unpacking_key_template}_of_{id(self)}", )
 
     def __getitem__(self, key: Special[Self | Tuple[Special[Self]]]) -> Self:
-        return (self
+        return (
+            self
             ._with(
                 will(getitem) |then>> binding_by(
                     collection_of
