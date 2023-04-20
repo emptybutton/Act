@@ -333,6 +333,8 @@ class _ActionCursor(Mapping):
 
     is_ = __merging_by(is_)
     is_not = __merging_by(is_not)
+    in_ = __merging_by(contains)
+    not_in = __merging_by(contains |then>> not_)
     or_ = __merging_by(lambda a, b: a or b)
     and_ = __merging_by(lambda a, b: a and b)
 
