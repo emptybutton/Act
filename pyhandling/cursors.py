@@ -9,11 +9,12 @@ from typing import Iterable, Callable, Any, Mapping, Self, NoReturn, Tuple, Opti
 from pyannotating import Special
 
 from pyhandling.annotations import one_value_action, merger_of, event_for, ResultT, reformer_of
+from pyhandling.arguments import ArgumentPack
 from pyhandling.branching import ActionChain, binding_by, on
 from pyhandling.contexting import contextual
 from pyhandling.data_flow import dynamically
 from pyhandling.errors import ActionCursorError
-from pyhandling.flags import nothing
+from pyhandling.flags import flag_enum_of, nothing
 from pyhandling.immutability import to_clone
 from pyhandling.language import by, then, to
 from pyhandling.monads import reading, saving_context, considering_context
@@ -78,14 +79,17 @@ class _ActionCursorUnpacking:
         return self
 
 
-class _ActionCursorNature(Enum):
-    attrgetting = auto()
-    vargetting = auto()
-    itemgetting = auto()
-    calling = auto()
-    unpacking = auto()
-    binary_operation = auto()
-    single_operation = auto()
+@flag_enum_of
+class _ActionCursorNature:
+    attrgetting = ...
+    vargetting = ...
+    itemgetting = ...
+    calling = ...
+    unpacking = ...
+    setting = ...
+    binary_operation = ...
+    single_operation = ...
+    set_by_initialization = ...
 
 
 class _ActionCursor(Mapping):
@@ -97,7 +101,9 @@ class _ActionCursor(Mapping):
         parameters: Iterable[_ActionCursorParameter] = tuple(),
         actions: ActionChain = ActionChain(),
         previous: Optional[Self] = None,
-        last_action_nature: Any = None,
+        last_action_nature: contextual[_ActionCursorNature.flags, Any] = contextual(
+            _ActionCursorNature.set_by_initialization,
+        ),
     ):
         self._parameters = tuple(sorted(set(parameters), key=attrgetter("priority")))
         self._actions = actions
@@ -134,7 +140,10 @@ class _ActionCursor(Mapping):
         if not self:
             return self._with_unpacking_of(args, by=tuple)
 
-        elif self._last_action_nature is _ActionCursorNature.vargetting:
+        elif self._last_action_nature.value == (
+            _ActionCursorNature.vargetting
+            | _ActionCursorNature.set_by_initialization
+        ):
             return self._(*args)
 
         if len(args) > len(self._parameters):
@@ -152,10 +161,7 @@ class _ActionCursor(Mapping):
             return partial(self, *args)
 
     def _(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
-        return (
-            self
-            ._with_calling_by(*args, **kwargs)
-            ._with(nature=_ActionCursorNature.calling)
+        return self._with_calling_by(*args, **kwargs)
         )
 
     def keys(self):
@@ -169,7 +175,7 @@ class _ActionCursor(Mapping):
             return self._with_unpacking_of(
                 key if isinstance(key, tuple) else (key, ),
                 by=list
-            )._with(nature=_ActionCursorNature.unpacking)
+            )._with(nature=contextual(_ActionCursorNature.unpacking, key))
 
         return (
             self
@@ -181,27 +187,25 @@ class _ActionCursor(Mapping):
                 )
             )
             ._with_calling_by(*key if isinstance(key, tuple) else (key, ))
-            ._with(nature=_ActionCursorNature.itemgetting)
+            ._with(nature=contextual(_ActionCursorNature.itemgetting, key))
         )
 
     def __getattr__(self, name: str) -> Self:
-        if name.startswith('_'):
-            return super().__getattr__(name)
-
         if not self:
-            return self._with(
-                to(self._external_value_in(name)),
-                nature=_ActionCursorNature.vargetting,
-            )
-
-        return self._with(
-            rwill(getattr)(
+            nature = _ActionCursorNature.vargetting
+            cursor = self._with(to(self._external_value_in(name)))
+        else:
+            nature = _ActionCursorNature.attrgetting
+            cursor = self._with(rwill(getattr)(
                 name[:-1]
-                if name[:-1] in self._overwritten_attribute_names and name.endswith('_')
+                if (
+                    name[:-1] in self._overwritten_attribute_names
+                    and name.endswith('_')
+                )
                 else name
-            ),
-            nature=_ActionCursorNature.attrgetting,
-        )
+            ))
+
+        return cursor._with(nature=contextual(nature, name))
 
     @classmethod
     def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
@@ -225,9 +229,15 @@ class _ActionCursor(Mapping):
     def _run(self, root: contextual[Any, Mapping[str, Any]]) -> contextual:
         return self._actions(root)
 
-    def _of(self, action: Special[ActionChain, Callable], *, nature: Any = None) -> None:
+    def _of(
+        self,
+        action: Special[ActionChain, Callable],
+        *,
+        parameters: Optional[tuple[_ActionCursorParameter]] = None,
+        nature: Optional[contextual[_ActionCursorNature.flags, Any]] = None,
+    ) -> None:
         return type(self)(
-            parameters=self._parameters,
+            parameters=self._parameters if parameters is None else parameters,
             actions=action if isinstance(action, ActionChain) else ActionChain([action]),
             previous=self,
             last_action_nature=self._last_action_nature if nature is None else nature,
@@ -239,25 +249,32 @@ class _ActionCursor(Mapping):
     def _merged_with(self, other: Special[Self], *, by: merger_of[Any]) -> Self:
         operation = by
 
-        return (
-            type(self)(
-                self._parameters + other._parameters,
+        cursor = (
+            self._of(
                 ActionChain([lambda root: contextual(
                     operation(self._run(root).value, other._run(root).value),
                     when=root.context,
                 )]),
-                self,
+                parameters=self._parameters + other._parameters,
             )
             if isinstance(other, _ActionCursor)
             else self._with(rpartial(operation, other))
         )
+
+        return cursor._with(nature=contextual(
+            _ActionCursorNature.binary_operation,
+            contextual(operation, other),
+        ))
 
     def _with_calling_by(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
         return (
             self
             ._with_partial_application_from(args)
             ._with_keyword_partial_application_by(kwargs)
-            ._with(call)
+            ._with(call, nature=contextual(
+                _ActionCursorNature.calling,
+                when=ArgumentPack(args, kwargs),
+            ))
         )
 
     def _with_partial_application_from(self, arguments: Iterable[Special[Self]]) -> Self:
@@ -304,7 +321,10 @@ class _ActionCursor(Mapping):
             self
             ._with(will(collection_of))
             ._with_calling_by(*items)
-            ._with(by, nature=_ActionCursorNature.unpacking)
+            ._with(by, nature=contextual(
+                _ActionCursorNature.unpacking,
+                contextual(by, tuple(items))),
+            )
         )
 
     def _is_for_keyword_unpacking(self, keyword: str) -> bool:
@@ -318,17 +338,13 @@ class _ActionCursor(Mapping):
 
     @staticmethod
     def __merging_by(operation: merger_of[Any]) -> Callable[[Self, Special[Self]], Self]:
-        return lambda cursor, value: (
-            cursor
-            ._merged_with(value, by=operation)
-            ._with(nature=_ActionCursorNature.binary_operation)
-        )
+        return lambda cursor, value: cursor._merged_with(value, by=operation)
 
     @staticmethod
     def __transformation_by(operation: Callable[[Special[Self]], ResultT]) -> reformer_of[Self]:
         return lambda cursor: cursor._with(
             operation,
-            nature=_ActionCursorNature.single_operation,
+            nature=contextual(_ActionCursorNature.single_operation, operation),
         )
 
     is_ = __merging_by(is_)
