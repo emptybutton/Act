@@ -93,8 +93,16 @@ class _ActionCursorNature:
 
 
 class _ActionCursor(Mapping):
-    _overwritten_attribute_names: Tuple[str] = ('_', 'is_', "is_not", 'or_', 'and_')
     _unpacking_key_template: str = "__ActionCursor_keyword_unpacking"
+    _overwritten_attribute_names: Tuple[str] = (
+        '_',
+        'set',
+        "keys",
+        'is_',
+        "is_not",
+        'or_',
+        'and_',
+    )
 
     def __init__(
         self,
@@ -162,6 +170,17 @@ class _ActionCursor(Mapping):
 
     def _(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
         return self._with_calling_by(*args, **kwargs)
+
+    def set(self, value: Any) -> Self:
+        nature, place = self._last_action_nature
+
+        if nature != _ActionCursorNature.attrgetting | _ActionCursorNature.itemgetting:
+            raise ActionCursorError("Setting a value when there is nowhere to set")
+
+        return self._previous._with_setting(
+            value,
+            in_=place,
+            by=setattr if nature is _ActionCursorNature.attrgetting else setitem,
         )
 
     def keys(self):
@@ -302,6 +321,26 @@ class _ActionCursor(Mapping):
                 ),
             )),
             (self, *argument_by_key.items()),
+        )
+
+    def _with_setting(
+        self,
+        value: Special[Self],
+        *,
+        in_: str,
+        by: Callable[[Any, str, Any], Any]
+    ) -> Self:
+        place = in_
+        set_ = by
+
+        return (
+            self
+            ._with(shown)
+            ._merged_with(value, by=lambda a, b: set_(a, place, b))
+            ._with(nature=contextual(
+                _ActionCursorNature.setting,
+                contextual(value, place)
+            ))
         )
 
     def _with_unpacking_of(
