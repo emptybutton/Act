@@ -95,12 +95,17 @@ def with_attributes(
     get_object: event_for[ObjectT] = type(
         "_AttributeStorage",
         tuple(),
-        {'__doc__': (
-            """
-            Class used as a standard object factory for subsequent stuffing with
-            attributes in `with_attributes`
-            """
-        )}
+        {
+            '__doc__': (
+                """
+                Class used as a standard object factory for subsequent stuffing with
+                attributes in `with_attributes`
+                """
+            ),
+            '__repr__': lambda object_: "<{}>".format(', '.join(
+                f"{name}={value}" for name, value in object_.__dict__.items()
+            )),
+        }
     ),
     **attributes,
 ) -> ObjectT:
