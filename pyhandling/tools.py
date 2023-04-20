@@ -93,7 +93,7 @@ class NotInitializable:
 
 def with_attributes(
     get_object: event_for[ObjectT] = type(
-        "_with_attributes__default_object_type",
+        "_AttributeStorage",
         tuple(),
         {'__doc__': (
             """
