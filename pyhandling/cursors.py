@@ -319,7 +319,7 @@ class _ActionCursor(Mapping):
     ) -> Self:
         return (
             self
-            ._with(will(collection_of))
+            ._with(to(collection_of))
             ._with_calling_by(*items)
             ._with(by, nature=contextual(
                 _ActionCursorNature.unpacking,
