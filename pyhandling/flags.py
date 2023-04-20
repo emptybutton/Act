@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
-from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional, Tuple, Union, Literal
+from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional, Tuple, Union, Literal, Mapping
 from operator import or_, sub, attrgetter
 
 from pyannotating import Special, AnnotationTemplate, input_annotation
@@ -10,12 +10,22 @@ from pyhandling.atoming import atomic
 from pyhandling.annotations import ValueT, FlagT, checker_of, PointT, P, ResultT, merger_of, reformer_of
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
+from pyhandling.language import by
 from pyhandling.signature_assignmenting import calling_signature_of
-from pyhandling.structure_management import with_opened_items, in_collection
-from pyhandling.synonyms import returned
+from pyhandling.structure_management import with_opened_items, in_collection, dict_of
+from pyhandling.synonyms import returned, on
+from pyhandling.tools import with_attributes
 
 
-__all__ = ("Flag", "FlagVector", "flag", "pointed", "pointed_or", "nothing")
+__all__ = (
+    "Flag",
+    "FlagVector",
+    "flag",
+    "pointed",
+    "flag_enum_of",
+    "pointed_or",
+    "nothing",
+)
 
 
 class Flag(ABC, Generic[PointT]):
@@ -551,6 +561,16 @@ def pointed(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:
         return flags[0]
 
     return reduce(or_, flags)
+
+
+def flag_enum_of(value: Special[Mapping]) -> object:
+    flag_by_name = {
+        name: flag(name) if value is Ellipsis else value
+        for name, value in dict_of(value).items()
+        if value is Ellipsis or isinstance(value, Flag)
+    }
+
+    return with_attributes(**flag_by_name, flags=pointed(*flag_by_name.values()))
 
 
 pointed_or = AnnotationTemplate(Union, [
