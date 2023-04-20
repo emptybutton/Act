@@ -55,7 +55,7 @@ class ContextRoot(ABC, Generic[ValueT, ContextT]):
     _context: ContextT
 
     def __repr__(self) -> str:
-        return f"{self._value} when {self._context}"
+        return f"{self._repr_of(self._value)} when {self._repr_of(self._context)}"
 
     def __eq__(self, other: Any) -> bool:
         if type(self) is not type(other):
@@ -67,6 +67,16 @@ class ContextRoot(ABC, Generic[ValueT, ContextT]):
 
     def __iter__(self) -> Iterator:
         return iter((self._value, self._context))
+
+    def _repr_of(self, value: Special["contextual"]) -> str:
+        return (
+            f"({value})"
+            if (
+                type(value) in (contextual, ContextualError)
+                and type(self) is type(value)
+            )
+            else str(value)
+        )
 
 
 class contextual(ContextRoot, Generic[ValueT, ContextT]):
