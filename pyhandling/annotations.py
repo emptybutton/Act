@@ -3,8 +3,6 @@ from typing import Callable, Any, TypeAlias, TypeVar, ParamSpec, TypeVarTuple, I
 
 from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation, Special
 
-from pyhandling.scoping import value_of
-
 
 __all__ = (
     "checker_of",
