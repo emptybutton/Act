@@ -17,3 +17,6 @@ from pyhandling.synonyms import *
 from pyhandling.testing import *
 from pyhandling.tools import *
 from pyhandling.utils import *
+
+
+__all__ = tfilter(isnt(str.startswith |by| '__'), dir())
