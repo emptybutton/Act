@@ -318,7 +318,7 @@ class _DoubleFlag(Flag, ABC):
 
     @property
     def point(self) -> Tuple:
-        return self.points
+        return self._first
 
     @property
     def points(self) -> Tuple:
