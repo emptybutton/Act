@@ -222,10 +222,6 @@ class _ActionCursor(Mapping):
 
         return locals_[name] if name in locals_.keys() else eval(name)
 
-    @staticmethod
-    def _previous_of(cursor: Self) -> Self:
-        return cursor._previous if cursor._previous is not None else cursor
-
     def _run(self, root: contextual[Any, Mapping[str, Any]]) -> contextual:
         return self._actions(root)
 
