@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from typing import Iterable, Tuple, Callable, Mapping
 
-from pyannotating import many_or_one
+from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import ValueT, MappedT, KeyT, ValueT, action_of
 from pyhandling.atoming import atomically
@@ -21,6 +21,7 @@ __all__ = (
     "table_value_map",
     "from_keys",
     "reversed_table",
+    "dict_of",
 )
 
 
@@ -97,3 +98,7 @@ def from_keys(
 
 def reversed_table(table: Mapping[KeyT, ValueT]) -> OrderedDict[ValueT, KeyT]:
     return OrderedDict(map(reversed, table.items()))
+
+
+def dict_of(value: Special[Mapping[KeyT, ValueT]]) -> dict[KeyT, ValueT]:
+    return dict(**value) if isinstance(value, Mapping) else value.__dict__
