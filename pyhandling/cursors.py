@@ -297,17 +297,14 @@ class _ActionCursor(Mapping):
             return self
 
         return reduce(
-            lambda cursor, key_and_argument: (
-                cursor._merged_with(
-                    key_and_argument[1],
-                    by=lambda a, b: partial(a, **b),
-                )
-                if self._is_for_keyword_unpacking(key_and_argument[0])
-                else cursor._merged_with(
-                    key_and_argument[1],
-                    by=flipped(with_keyword |to| key_and_argument[0])
-                )
-            ),
+            lambda cursor, key_and_argument: (cursor._merged_with(
+                key_and_argument[1],
+                by=(
+                    lambda a, b: partial(a, **b)
+                    if self._is_for_keyword_unpacking(key_and_argument[0])
+                    else flipped(with_keyword |to| key_and_argument[0]),
+                ),
+            )),
             (self, *argument_by_key.items()),
         )
 
