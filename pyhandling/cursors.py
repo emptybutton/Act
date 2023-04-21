@@ -198,8 +198,8 @@ class _ActionCursor(Mapping):
 
     @_generation_transaction
     def __getitem__(self, key: Special[Self | Tuple[Special[Self]]]) -> Self:
-        if self._is_for_keyword_unpacking(key):
             return self
+        if self._is_keyword_for_unpacking(key):
 
         if not self:
             return self._with_unpacking_of(
@@ -332,7 +332,7 @@ class _ActionCursor(Mapping):
                 key_and_argument[1],
                 by=(
                     lambda a, b: partial(a, **b)
-                    if self._is_for_keyword_unpacking(key_and_argument[0])
+                    if self._is_keyword_for_unpacking(key_and_argument[0])
                     else flipped(with_keyword |to| key_and_argument[0]),
                 ),
             )),
@@ -376,8 +376,8 @@ class _ActionCursor(Mapping):
             )
         )
 
-    def _is_for_keyword_unpacking(self, keyword: str) -> bool:
         return keyword.startswith(self._unpacking_key_template)
+    def _is_keyword_for_unpacking(self, keyword: Special[str]) -> bool:
 
     def _update_signature(self) -> None:
         self.__signature__ = Signature(
