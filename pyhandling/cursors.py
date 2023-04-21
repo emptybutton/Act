@@ -90,6 +90,7 @@ class _ActionCursorNature:
     binary_operation = ...
     single_operation = ...
     set_by_initialization = ...
+    returning = ...
 
 
 class _ActionCursor(Mapping):
@@ -247,10 +248,11 @@ class _ActionCursor(Mapping):
     @classmethod
     def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
         return cls(
-            [parameter],
-            considering_context(
+            parameters=[parameter],
+            actions=considering_context(
                 reading(to(getitem |by| parameter.name))
-            )
+            ),
+            nature=contextual(_ActionCursorNature.returning),
         )
 
     @staticmethod
