@@ -109,14 +109,14 @@ class _ActionCursor(Mapping):
         parameters: Iterable[_ActionCursorParameter] = tuple(),
         actions: ActionChain = ActionChain(),
         previous: Optional[Self] = None,
-        last_action_nature: contextual[_ActionCursorNature.flags, Any] = contextual(
+        nature: contextual[_ActionCursorNature.flags, Any] = contextual(
             _ActionCursorNature.set_by_initialization,
         ),
     ):
         self._parameters = tuple(sorted(set(parameters), key=attrgetter("priority")))
         self._actions = actions
         self._previous = previous if previous is not None else self
-        self._last_action_nature = last_action_nature
+        self._nature = nature
 
         groups_with_same_priority = tfilter(
             lambda group: len(group) > 1,
@@ -148,7 +148,7 @@ class _ActionCursor(Mapping):
         if not self:
             return self._with_unpacking_of(args, by=tuple)
 
-        elif self._last_action_nature.value == (
+        elif self._nature.value == (
             _ActionCursorNature.vargetting
             | _ActionCursorNature.set_by_initialization
         ):
@@ -182,7 +182,7 @@ class _ActionCursor(Mapping):
 
     @_generation_transaction
     def set(self, value: Any) -> Self:
-        nature, place = self._last_action_nature
+        nature, place = self._nature
 
         if nature != _ActionCursorNature.attrgetting | _ActionCursorNature.itemgetting:
             raise ActionCursorError("Setting a value when there is nowhere to set")
