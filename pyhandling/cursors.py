@@ -14,7 +14,7 @@ from pyhandling.branching import ActionChain, binding_by, on
 from pyhandling.contexting import contextual
 from pyhandling.data_flow import dynamically, with_result
 from pyhandling.errors import ActionCursorError
-from pyhandling.flags import flag_enum_of, nothing
+from pyhandling.flags import flag_enum_of, nothing, flag
 from pyhandling.immutability import to_clone
 from pyhandling.language import by, then, to
 from pyhandling.monads import reading, saving_context, considering_context
@@ -59,6 +59,12 @@ __all__ = (
 
 
 @dataclass(frozen=True)
+class _OperationModel:
+    sign: str
+    priority: int | float
+
+
+@dataclass(frozen=True)
 class _ActionCursorParameter:
     name: str
     priority: int | float
@@ -87,8 +93,9 @@ class _ActionCursorNature:
     calling = ...
     packing = ...
     setting = ...
-    binary_operation = ...
-    single_operation = ...
+    binary_operation = flag("binary_operation")
+    single_operation = flag("single_operation")
+    operation = binary_operation | single_operation
     set_by_initialization = ...
     returning = ...
 
@@ -114,11 +121,13 @@ class _ActionCursor(Mapping):
         nature: contextual[_ActionCursorNature.flags, Any] = contextual(
             _ActionCursorNature.set_by_initialization,
         ),
+        internal_repr: str = '...'
     ):
         self._parameters = tuple(sorted(set(parameters), key=attrgetter("priority")))
         self._actions = actions
         self._previous = previous
         self._nature = nature
+        self._internal_repr = internal_repr
 
         groups_with_same_priority = tfilter(
             lambda group: len(group) > 1,
@@ -134,11 +143,15 @@ class _ActionCursor(Mapping):
 
         self._update_signature()
 
-    def __bool__(self) -> bool:
-        return len(self._actions) != 0
+    @property
+    def _adapted_internal_repr(self) -> str:
+        return "(...)" if self._internal_repr == '...' else self._internal_repr
 
     def __repr__(self) -> str:
-        return f"ActionCursor({self._actions})"
+        return f"<action: {self._internal_repr}>"
+
+    def __bool__(self) -> bool:
+        return len(self._actions) != 0
 
     def __iter__(self) -> _ActionCursorUnpacking:
         return _ActionCursorUnpacking(self)
@@ -151,6 +164,9 @@ class _ActionCursor(Mapping):
             return (
                 self
                 ._with_packing_of(args, by=tuple)
+                ._with(internal_repr=(
+                    f"({', '.join(map(self._repr_of, args))}{', ' if len(args) <= 1 else str()})"
+                ))
             )
 
         elif self._nature.value == (
@@ -183,7 +199,13 @@ class _ActionCursor(Mapping):
 
     @_generation_transaction
     def _(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
-        return self._with_calling_by(*args, **kwargs)
+        return self._with_calling_by(*args, **kwargs)._with(
+            internal_repr=f"{self._adapted_internal_repr}({{}})".format(
+                ', '.join(map(self._repr_of, args))
+                + (', ' if args and kwargs else str())
+                + ', '.join(f"{key}={self._repr_of(arg)}" for key, arg in kwargs.items())
+            )
+        )
 
     @_generation_transaction
     def set(self, value: Any) -> Self:
@@ -192,10 +214,16 @@ class _ActionCursor(Mapping):
         if nature != _ActionCursorNature.attrgetting | _ActionCursorNature.itemgetting:
             raise ActionCursorError("Setting a value when there is nowhere to set")
 
-        return self._previous._with_setting(
-            value,
-            in_=place,
-            by=setattr if nature is _ActionCursorNature.attrgetting else setitem,
+        return (
+            self._previous
+            ._with_setting(
+                value,
+                in_=place,
+                by=setattr if nature is _ActionCursorNature.attrgetting else setitem,
+            )
+            ._with(
+                internal_repr=f"({self._internal_repr} := {value})",
+            )
         )
 
     def keys(self):
@@ -203,8 +231,11 @@ class _ActionCursor(Mapping):
 
     @_generation_transaction
     def __getitem__(self, key: Special[Self | Tuple[Special[Self]]]) -> Self:
-            return self
         if self._is_keyword_for_unpacking(key):
+            return self._with(internal_repr=f"**{self._adapted_internal_repr}")
+
+        keys = key if isinstance(key, tuple) else (key, )
+        formatted_keys = f"[{', '.join(map(self._repr_of, keys))}]"
 
         if not self:
             return (
@@ -212,6 +243,7 @@ class _ActionCursor(Mapping):
                 ._with_packing_of(keys, by=list)
                 ._with(
                     nature=contextual(_ActionCursorNature.packing, key),
+                    internal_repr=formatted_keys
                 )
             )
 
@@ -224,25 +256,34 @@ class _ActionCursor(Mapping):
                     |then>> ...
                 )
             )
-            ._with_calling_by(*key if isinstance(key, tuple) else (key, ))
-            ._with(nature=contextual(_ActionCursorNature.itemgetting, key))
+            ._with_calling_by(*keys)
+            ._with(
+                nature=contextual(_ActionCursorNature.itemgetting, key),
+                internal_repr=f"{self._internal_repr}{formatted_keys}",
+            )
         )
 
     @_generation_transaction
     def __getattr__(self, name: str) -> Self:
         if not self:
             nature = _ActionCursorNature.vargetting
-            cursor = self._with(to(self._external_value_in(name)))
+            cursor = self._with(
+                to(self._external_value_in(name)),
+                internal_repr=name,
+            )
         else:
             nature = _ActionCursorNature.attrgetting
-            cursor = self._with(rwill(getattr)(
-                name[:-1]
-                if (
-                    name[:-1] in self._overwritten_attribute_names
-                    and name.endswith('_')
-                )
-                else name
-            ))
+            cursor = self._with(
+                rwill(getattr)(
+                    name[:-1]
+                    if (
+                        name[:-1] in self._overwritten_attribute_names
+                        and name.endswith('_')
+                    )
+                    else name
+                ),
+                internal_repr=f"{self._adapted_internal_repr}.{name}",
+            )
 
         return cursor._with(nature=contextual(nature, name))
 
@@ -254,6 +295,7 @@ class _ActionCursor(Mapping):
                 reading(to(getitem |by| parameter.name))
             ),
             nature=contextual(_ActionCursorNature.returning),
+            internal_repr=parameter.name,
         )
 
     @staticmethod
@@ -272,12 +314,14 @@ class _ActionCursor(Mapping):
         parameters: Optional[tuple[_ActionCursorParameter]] = None,
         previous: Optional[Self] = None,
         nature: Optional[contextual[_ActionCursorNature.flags, Any]] = None,
+        internal_repr: Optional[str] = None,
     ) -> None:
         return type(self)(
             parameters=self._parameters if parameters is None else parameters,
             actions=action if isinstance(action, ActionChain) else ActionChain([action]),
             previous=self._previous if previous is None else previous,
             nature=self._nature if nature is None else nature,
+            internal_repr=self._internal_repr if internal_repr is None else internal_repr
         )
 
     def _with(
@@ -287,12 +331,14 @@ class _ActionCursor(Mapping):
         parameters: Optional[tuple[_ActionCursorParameter]] = None,
         previous: Optional[Self] = None,
         nature: Any = None,
+        internal_repr: Optional[str] = None,
     ) -> Self:
         return self._of(
             self._actions >> saving_context(action),
             parameters=parameters,
             previous=previous,
             nature=nature,
+            internal_repr=internal_repr,
         )
 
     @_generation_transaction
@@ -412,62 +458,130 @@ class _ActionCursor(Mapping):
             for cursor_parameter in self._parameters
         )
 
-    @staticmethod
-    def __merging_by(operation: merger_of[Any]) -> Callable[[Self, Special[Self]], Self]:
-        return lambda cursor, value: cursor._merged_with(value, by=operation)
-
-    @staticmethod
-    def __transformation_by(operation: Callable[[Special[Self]], ResultT]) -> reformer_of[Self]:
-        return lambda cursor: cursor._with(
-            operation,
-            nature=contextual(_ActionCursorNature.single_operation, operation),
+    def _internal_repr_by(self, model: _OperationModel) -> str:
+        return (
+            f"({self._internal_repr})"
+            if (
+                self._nature.value == _ActionCursorNature.operation
+                and isinstance(self._nature.context, _OperationModel)
+                and self._nature.context.priority > model.priority
+            )
+            else self._internal_repr
         )
 
-    is_ = __merging_by(is_)
-    is_not = __merging_by(is_not)
-    in_ = __merging_by(contains)
-    not_in = __merging_by(contains |then>> not_)
-    or_ = __merging_by(lambda a, b: a or b)
-    and_ = __merging_by(lambda a, b: a and b)
+    @staticmethod
+    def _repr_of(value: Special[Self]) -> str:
+        if isinstance(value, _ActionCursor):
+            return value._internal_repr
 
-    __contains__ = __merging_by(contains)
+        elif isinstance(value, _ActionCursorUnpacking):
+            return f"*{value.cursor._adapted_internal_repr}"
 
-    __add__ = __merging_by(add)
-    __sub__ = __merging_by(sub)
-    __mul__ = __merging_by(mul)
-    __floordiv__ = __merging_by(floordiv)
-    __truediv__ = __merging_by(truediv)
-    __mod__ = __merging_by(mod)
-    __pow__ = __merging_by(pow)
-    __or__ = __merging_by(or_)
-    __xor__ = __merging_by(xor)
-    __and__ = __merging_by(and_)
-    __matmul__ = __merging_by(matmul)
-    __lshift__ = __merging_by(lshift)
-    __rshift__ = __merging_by(rshift)
+        else:
+            return str(value)
 
-    __radd__ = __merging_by(flipped(add))
-    __rsub__ = __merging_by(flipped(sub))
-    __rmul__ = __merging_by(flipped(mul))
-    __rfloordiv__ = __merging_by(flipped(floordiv))
-    __rtruediv__ = __merging_by(flipped(truediv))
-    __rmod__ = __merging_by(flipped(mod))
-    __rpow__ = __merging_by(flipped(pow))
-    __ror__ = __merging_by(flipped(or_))
-    __rxor__ = __merging_by(flipped(xor))
-    __rand__ = __merging_by(flipped(and_))
-    __rmatmul__ = __merging_by(flipped(matmul))
+    @staticmethod
+    def __merging_by(
+        operation: merger_of[Any],
+        model: _OperationModel,
+        *,
+        is_right: bool = False,
+    ) -> Callable[[Self, Special[Self]], Self]:
+        def cursor_merger(cursor: Self, value: Special[Self]) -> Self:
+            internal_repr = cursor._internal_repr_by(model)
 
-    __gt__ = __merging_by(gt)
-    __ge__ = __merging_by(ge)
-    __lt__ = __merging_by(lt)
-    __le__ = __merging_by(le)
-    __eq__ = __merging_by(eq)
-    __ne__ = __merging_by(ne)
+            return (
+                cursor
+                ._merged_with(
+                    value,
+                    by=operation if not is_right else flipped(operation),
+                )
+                ._with(
+                    nature=contextual(
+                        _ActionCursorNature.binary_operation,
+                        model,
+                    ),
+                    internal_repr=(
+                        (
+                            f"{internal_repr} {model.sign} {{}}"
+                            if not is_right
+                            else f"{{}} {model.sign} {internal_repr}"
+                        ).format(
+                            value._internal_repr_by(model)
+                            if isinstance(value, _ActionCursor)
+                            else value
+                        )
+                    )
+                )
+            )
 
-    __pos__ = __transformation_by(pos)
-    __neg__ = __transformation_by(neg)
-    __invert__ = __transformation_by(invert)
+        return cursor_merger
+
+    @staticmethod
+    def __transformation_by(
+        operation: Callable[[Special[Self]], ResultT],
+        model: _OperationModel,
+    ) -> reformer_of[Self]:
+        def cursor_transformer(cursor: Self) -> Self:
+            return cursor._with(
+                operation,
+                nature=contextual(_ActionCursorNature.single_operation, model),
+                internal_repr=f"{model.sign}{cursor._internal_repr_by(model)}",
+            )
+
+        return cursor_transformer
+
+    is_ = __merging_by(is_, _OperationModel('is', 8))
+    is_not = __merging_by(is_not, _OperationModel("is not", 8))
+    in_ = __merging_by(contains, _OperationModel('in', 8))
+    not_in = __merging_by(contains |then>> not_, _OperationModel('not in', 8))
+    and_ = __merging_by(lambda a, b: a and b, _OperationModel('and', 9))
+    or_ = __merging_by(lambda a, b: a or b, _OperationModel('or', 10))
+
+    __pos__ = __transformation_by(pos, _OperationModel('+', 1))
+    __neg__ = __transformation_by(neg, _OperationModel('-', 1))
+    __invert__ = __transformation_by(invert, _OperationModel('~', 1))
+
+    __pow__ = __merging_by(pow, _OperationModel('**', 0))
+    __mul__ = __merging_by(mul, _OperationModel('*', 2))
+    __floordiv__ = __merging_by(floordiv, _OperationModel('//', 2))
+    __truediv__ = __merging_by(truediv, _OperationModel('/', 2))
+    __matmul__ = __merging_by(matmul, _OperationModel('@', 2))
+    __mod__ = __merging_by(mod, _OperationModel('%', 2))
+    __add__ = __merging_by(add, _OperationModel('+', 3))
+    __sub__ = __merging_by(sub, _OperationModel('-', 3))
+    __lshift__ = __merging_by(lshift, _OperationModel('<<', 4))
+    __rshift__ = __merging_by(rshift, _OperationModel('>>', 4))
+    __and__ = __merging_by(and_, _OperationModel('&', 5))
+    __xor__ = __merging_by(xor, _OperationModel('^', 6))
+
+    def __or__(self, value: Special[ActionChain | Self]) -> Self:
+        return (
+            ActionChain([self, *value])
+            if isinstance(value, ActionChain)
+            else self.__merging_by(or_, _OperationModel('|', 7))(self, value)
+        )
+
+    __rpow__ = __merging_by(pow, _OperationModel('**', 0), is_right=True)
+    __rmul__ = __merging_by(mul, _OperationModel('*', 2), is_right=True)
+    __rfloordiv__ = __merging_by(floordiv, _OperationModel('//', 2), is_right=True)
+    __rtruediv__ = __merging_by(truediv, _OperationModel('/', 2), is_right=True)
+    __rmatmul__ = __merging_by(matmul, _OperationModel('@', 2), is_right=True)
+    __rmod__ = __merging_by(mod, _OperationModel('%', 2), is_right=True)
+    __radd__ = __merging_by(add, _OperationModel('+', 3), is_right=True)
+    __rsub__ = __merging_by(sub, _OperationModel('-', 3), is_right=True)
+    __rlshift__ = __merging_by(lshift, _OperationModel('<<', 4), is_right=True)
+    __rrshift__ = __merging_by(rshift, _OperationModel('>>', 4), is_right=True)
+    __rand__ = __merging_by(and_, _OperationModel('&', 5), is_right=True)
+    __rxor__ = __merging_by(xor, _OperationModel('^', 6), is_right=True)
+    __ror__ = __merging_by(or_, _OperationModel('|', 7), is_right=True)
+
+    __gt__ = __merging_by(gt, _OperationModel('>', 8))
+    __lt__ = __merging_by(lt, _OperationModel('<', 8))
+    __ge__ = __merging_by(ge, _OperationModel('>=', 8))
+    __le__ = __merging_by(le, _OperationModel('>=', 8))
+    __eq__ = __merging_by(eq, _OperationModel('==', 8))
+    __ne__ = __merging_by(ne, _OperationModel('!=', 8))
 
 
 def action_cursor_by(
