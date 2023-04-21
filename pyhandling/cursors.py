@@ -399,8 +399,11 @@ class _ActionCursor(Mapping):
             )
         )
 
-        return keyword.startswith(self._unpacking_key_template)
     def _is_keyword_for_unpacking(self, keyword: Special[str]) -> bool:
+        return (
+            isinstance(keyword, str)
+            and keyword.startswith(self._unpacking_key_template)
+        )
 
     def _update_signature(self) -> None:
         self.__signature__ = Signature(
