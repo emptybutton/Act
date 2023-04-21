@@ -269,17 +269,30 @@ class _ActionCursor(Mapping):
         action: Special[ActionChain, Callable],
         *,
         parameters: Optional[tuple[_ActionCursorParameter]] = None,
+        previous: Optional[Self] = None,
         nature: Optional[contextual[_ActionCursorNature.flags, Any]] = None,
     ) -> None:
         return type(self)(
             parameters=self._parameters if parameters is None else parameters,
             actions=action if isinstance(action, ActionChain) else ActionChain([action]),
-            previous=self,
-            last_action_nature=self._last_action_nature if nature is None else nature,
+            previous=self._previous if previous is None else previous,
+            nature=self._nature if nature is None else nature,
         )
 
-    def _with(self, action: Callable = ActionChain(), *, nature: Any = None) -> Self:
-        return self._of(self._actions >> saving_context(action), nature=nature)
+    def _with(
+        self,
+        action: Callable = ActionChain(),
+        *,
+        parameters: Optional[tuple[_ActionCursorParameter]] = None,
+        previous: Optional[Self] = None,
+        nature: Any = None,
+    ) -> Self:
+        return self._of(
+            self._actions >> saving_context(action),
+            parameters=parameters,
+            previous=previous,
+            nature=nature,
+        )
 
     @_generation_transaction
     def _merged_with(self, other: Special[Self], *, by: merger_of[Any]) -> Self:
