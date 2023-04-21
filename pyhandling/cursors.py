@@ -85,7 +85,7 @@ class _ActionCursorNature:
     vargetting = ...
     itemgetting = ...
     calling = ...
-    unpacking = ...
+    packing = ...
     setting = ...
     binary_operation = ...
     single_operation = ...
@@ -146,7 +146,10 @@ class _ActionCursor(Mapping):
 
     def __call__(self, *args) -> Any:
         if not self:
-            return self._with_unpacking_of(args, by=tuple)
+            return (
+                self
+                ._with_packing_of(args, by=tuple)
+            )
 
         elif self._nature.value == (
             _ActionCursorNature.vargetting
@@ -202,10 +205,13 @@ class _ActionCursor(Mapping):
         if self._is_keyword_for_unpacking(key):
 
         if not self:
-            return self._with_unpacking_of(
-                key if isinstance(key, tuple) else (key, ),
-                by=list
-            )._with(nature=contextual(_ActionCursorNature.unpacking, key))
+            return (
+                self
+                ._with_packing_of(keys, by=list)
+                ._with(
+                    nature=contextual(_ActionCursorNature.packing, key),
+                )
+            )
 
         return (
             self
@@ -359,8 +365,8 @@ class _ActionCursor(Mapping):
             ))
         )
 
-    def _with_unpacking_of(
     @_generation_transaction
+    def _with_packing_of(
         self,
         items: Iterable[Special[Self]],
         *,
@@ -371,7 +377,7 @@ class _ActionCursor(Mapping):
             ._with(to(collection_of))
             ._with_calling_by(*items)
             ._with(by, nature=contextual(
-                _ActionCursorNature.unpacking,
+                _ActionCursorNature.packing,
                 contextual(by, tuple(items))),
             )
         )
