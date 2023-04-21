@@ -176,9 +176,11 @@ class _ActionCursor(Mapping):
             method(cursor, *args, **kwargs)._with(previous=cursor)
         ))
 
+    @_generation_transaction
     def _(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
         return self._with_calling_by(*args, **kwargs)
 
+    @_generation_transaction
     def set(self, value: Any) -> Self:
         nature, place = self._last_action_nature
 
@@ -194,6 +196,7 @@ class _ActionCursor(Mapping):
     def keys(self):
         return (f"{self._unpacking_key_template}_of_{id(self)}", )
 
+    @_generation_transaction
     def __getitem__(self, key: Special[Self | Tuple[Special[Self]]]) -> Self:
         if self._is_for_keyword_unpacking(key):
             return self
@@ -217,6 +220,7 @@ class _ActionCursor(Mapping):
             ._with(nature=contextual(_ActionCursorNature.itemgetting, key))
         )
 
+    @_generation_transaction
     def __getattr__(self, name: str) -> Self:
         if not self:
             nature = _ActionCursorNature.vargetting
@@ -269,6 +273,7 @@ class _ActionCursor(Mapping):
     def _with(self, action: Callable = ActionChain(), *, nature: Any = None) -> Self:
         return self._of(self._actions >> saving_context(action), nature=nature)
 
+    @_generation_transaction
     def _merged_with(self, other: Special[Self], *, by: merger_of[Any]) -> Self:
         operation = by
 
@@ -289,6 +294,7 @@ class _ActionCursor(Mapping):
             contextual(operation, other),
         ))
 
+    @_generation_transaction
     def _with_calling_by(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
         return (
             self
@@ -300,6 +306,7 @@ class _ActionCursor(Mapping):
             ))
         )
 
+    @_generation_transaction
     def _with_partial_application_from(self, arguments: Iterable[Special[Self]]) -> Self:
         arguments = tuple(arguments)
 
@@ -315,6 +322,7 @@ class _ActionCursor(Mapping):
             (self, *arguments),
         )
 
+    @_generation_transaction
     def _with_keyword_partial_application_by(self, argument_by_key: Mapping[str, Special[Self]]) -> Self:
         if not argument_by_key.keys():
             return self
@@ -331,6 +339,7 @@ class _ActionCursor(Mapping):
             (self, *argument_by_key.items()),
         )
 
+    @_generation_transaction
     def _with_setting(
         self,
         value: Special[Self],
@@ -352,6 +361,7 @@ class _ActionCursor(Mapping):
         )
 
     def _with_unpacking_of(
+    @_generation_transaction
         self,
         items: Iterable[Special[Self]],
         *,
