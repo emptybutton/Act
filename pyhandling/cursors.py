@@ -352,7 +352,6 @@ class _ActionCursor(Mapping):
 
         return (
             self
-            ._with(shown)
             ._merged_with(value, by=lambda a, b: set_(a, place, b))
             ._with(nature=contextual(
                 _ActionCursorNature.setting,
