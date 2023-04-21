@@ -6,7 +6,7 @@ from operator import is_
 from pyhandling.annotations import P, ValueT, ResultT, action_for, one_value_action, dirty, ArgumentsT
 from pyhandling.arguments import ArgumentPack
 from pyhandling.atoming import atomically
-from pyhandling.branching import mergely
+from pyhandling.branching import mergely, bind
 from pyhandling.errors import ReturningError
 from pyhandling.partials import will
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
