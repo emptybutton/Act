@@ -107,6 +107,7 @@ class _ActionCursor(Mapping):
 
     def __init__(
         self,
+        *,
         parameters: Iterable[_ActionCursorParameter] = tuple(),
         actions: ActionChain = ActionChain(),
         previous: Optional[Self] = None,
