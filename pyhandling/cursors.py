@@ -12,7 +12,7 @@ from pyhandling.annotations import one_value_action, merger_of, event_for, Resul
 from pyhandling.arguments import ArgumentPack
 from pyhandling.branching import ActionChain, binding_by, on
 from pyhandling.contexting import contextual
-from pyhandling.data_flow import dynamically
+from pyhandling.data_flow import dynamically, with_result
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import flag_enum_of, nothing
 from pyhandling.immutability import to_clone
@@ -360,7 +360,7 @@ class _ActionCursor(Mapping):
 
         return (
             self
-            ._merged_with(value, by=lambda a, b: set_(a, place, b))
+            ._merged_with(value, by=lambda a, b: with_result(b, set_)(a, place, b))
             ._with(nature=contextual(
                 _ActionCursorNature.setting,
                 contextual(value, place)
