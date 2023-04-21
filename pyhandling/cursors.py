@@ -115,7 +115,7 @@ class _ActionCursor(Mapping):
     ):
         self._parameters = tuple(sorted(set(parameters), key=attrgetter("priority")))
         self._actions = actions
-        self._previous = previous if previous is not None else self
+        self._previous = previous
         self._nature = nature
 
         groups_with_same_priority = tfilter(
