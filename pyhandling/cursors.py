@@ -168,6 +168,14 @@ class _ActionCursor(Mapping):
         elif len(args) < len(self._parameters):
             return partial(self, *args)
 
+    @staticmethod
+    def _generation_transaction(
+        method: Callable[[Self, ...], Self],
+    ) -> Callable[[Self, ...], Self]:
+        return wraps(method)(lambda cursor, *args, **kwargs: (
+            method(cursor, *args, **kwargs)._with(previous=cursor)
+        ))
+
     def _(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
         return self._with_calling_by(*args, **kwargs)
 
