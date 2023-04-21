@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from functools import partial, reduce
+from functools import partial, reduce, wraps, cached_property
 from itertools import count
 from inspect import Signature, Parameter, stack
-from operator import call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift, is_, is_not, getitem, contains, xor, rshift, matmul
+from operator import call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift, is_, is_not, getitem, contains, xor, rshift, matmul, setitem
 from typing import Iterable, Callable, Any, Mapping, Self, NoReturn, Tuple, Optional, Literal
 
 from pyannotating import Special
