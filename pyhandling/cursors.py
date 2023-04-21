@@ -374,6 +374,8 @@ class _ActionCursor(Mapping):
         *,
         by: Callable[[tuple], Iterable],
     ) -> Self:
+        items = tuple(items)
+
         return (
             self
             ._with(to(collection_of))
