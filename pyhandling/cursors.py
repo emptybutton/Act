@@ -228,9 +228,15 @@ class _ActionCursor(Mapping):
                 in_=place,
                 by=setattr if nature is _ActionCursorNature.attrgetting else setitem,
             )
-            ._with(
-                internal_repr=f"({self._internal_repr} := {value})",
+                return_as=(
+                    getattr
+                    if nature == _ActionCursorNature.attrgetting
+                    else getitem
+                ),
             )
+            ._with(internal_repr=(
+                f"({self._internal_repr} := {self._repr_of(value)})",
+            ))
         )
 
     def keys(self):
@@ -422,14 +428,17 @@ class _ActionCursor(Mapping):
         value: Special[Self],
         *,
         in_: str,
-        by: Callable[[Any, str, Any], Any]
+        by: Callable[[ObjectT, str, Any], Any],
+        return_as: Callable[[ObjectT, str], Any],
     ) -> Self:
         place = in_
         set_ = by
 
         return (
-            ._merged_with(value, by=lambda a, b: with_result(b, set_)(a, place, b))
             self._previous
+            ._merged_with(value, by=(
+                lambda a, b: return_as(with_result(a, set_)(a, place, b), place)
+            ))
             ._with(nature=contextual(
                 _ActionCursorNature.setting,
                 contextual(value, place)
