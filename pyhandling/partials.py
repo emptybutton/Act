@@ -79,6 +79,7 @@ class fragmentarily(ActionWrapper):
         )
 
 
+@atomically
 class flipped(ActionWrapper):
     def __call__(self, *args, **kwargs) -> ResultT:
         return self._action(*args[::-1], **kwargs)
