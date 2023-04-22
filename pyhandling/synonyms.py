@@ -180,9 +180,6 @@ class with_unpacking(ActionWrapper):
             "arguments", Parameter.POSITIONAL_OR_KEYWORD, annotation=Iterable
         )])
 
-    def __repr__(self) -> str:
-        return _unpacking_repr(self._action)
-
 
 @atomically
 class with_keyword_unpacking(ActionWrapper):
@@ -198,9 +195,6 @@ class with_keyword_unpacking(ActionWrapper):
         return calling_signature_of(self._action).replace(parameters=[Parameter(
             "arguments", Parameter.POSITIONAL_OR_KEYWORD, annotation=Mapping[str, Any]
         )])
-
-    def __repr__(self) -> str:
-        return f"*{_unpacking_repr(self._action)}"
 
 
 def collection_of(*args: ValueT) -> Tuple[ValueT, ...]:
