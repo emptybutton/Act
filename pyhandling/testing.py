@@ -44,7 +44,7 @@ def calling_test_case_of(*test_packs: test_case_pack) -> Type[TestCase]:
     """Function to create a `TestCase` type with input tests."""
 
     return type(
-        f"TestByCalling",
+        "TestByCalling",
         (TestCase, ),
         {
             f"test_{_ordinal_of(test_pack_index)}_action": _calling_test_method_of(test_pack)
