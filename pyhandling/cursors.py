@@ -277,7 +277,7 @@ class _ActionCursor(Mapping):
             ._with_calling_by(*keys)
             ._with(
                 nature=contextual(_ActionCursorNature.itemgetting, key),
-                internal_repr=f"{self._internal_repr}{formatted_keys}",
+                internal_repr=f"{self._adapted_internal_repr}{formatted_keys}",
             )
         )
 
