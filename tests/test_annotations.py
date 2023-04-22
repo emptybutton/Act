@@ -23,3 +23,10 @@ test_action_of = calling_test_case_of(
         Callable[['ann'], Callable[['ann'], 'ann']],
     ),
 )
+
+
+test_noting = calling_test_case_of(
+    (lambda: notes_of(None), tuple()),
+    (lambda: notes_of(list()), tuple()),
+    (lambda: notes_of(pure(dirty(with_attributes()))), (dirty, pure)),
+)
