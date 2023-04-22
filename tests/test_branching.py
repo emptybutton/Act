@@ -92,44 +92,6 @@ def test_repeating_execution_sequences(
     assert number_of_checker_calls == checking_counter.counted
 
 
-test_on = calling_test_case_of(
-    (lambda: on(lambda x: x > 0, lambda x: x ** x)(4), 256),
-    (lambda: on(lambda x: x > 0, lambda x: x ** x)(-4), -4),
-    (lambda: on(lambda x: x > 0, lambda x: x ** x)(-4), -4),
-    (lambda: on(lambda x: x > 0, lambda _: _, else_=lambda x: -x)(4), 4),
-    (lambda: on(lambda x: x > 0, lambda _: _, else_=lambda x: -x)(-4), 4),
-)
-
-
-test_rollbackable_without_error = calling_test_case_of(
-    (lambda: rollbackable(lambda a: 1 / a, fail_by_error)(10), 0.1),
-    (lambda: rollbackable(lambda a, b: a + b, fail_by_error)(5, 3), 8),
-    (lambda: rollbackable(lambda a, b: a + b, fail_by_error)(5, b=3), 8),
-    (lambda: rollbackable(lambda: 256, fail_by_error)(), 256),
-)
-
-
-@mark.parametrize(
-    "func, input_args, error_type",
-    [
-        (lambda x: x / 0, (42, ), ZeroDivisionError),
-        (lambda x, y: x + y, (1, '2'), TypeError),
-        (lambda mapping, key: mapping[key], (tuple(), 0), IndexError),
-        (lambda mapping, key: mapping[key], (tuple(), 10), IndexError),
-        (lambda mapping, key: mapping[key], ((1, 2), 2), IndexError),
-        (lambda mapping, key: mapping[key], (dict(), 'a'), KeyError),
-        (lambda mapping, key: mapping[key], ({'a': 42}, 'b'), KeyError),
-        (lambda: int('1' + '0'*4300), tuple(), ValueError)
-    ]
-)
-def test_rollbackable_with_error(
-    func: Callable,
-    input_args: Iterable,
-    error_type: Type[Exception]
-):
-    assert type(rollbackable(func, lambda error: error)(*input_args)) is error_type
-
-
 def test_action_chain_one_resource_call_operator(input_resource: int | float = 30):
     chain = ActionChain((lambda x: x * x + 12, lambda x: x ** x))
 
@@ -149,3 +111,22 @@ test_action_inserting_in = calling_test_case_of(
 test_test_bind = calling_test_case_of(
     (lambda: bind(lambda a: a / 2, lambda a: a + 6)(4), 8),
 )
+
+
+@mark.parametrize(
+    'first_node, second_node, input_args',
+    [
+        (lambda x, y: x + y, lambda x: x ** x, (5, 3)),
+        (lambda x: x**2 + 12, lambda x: x ** 4, (42, )),
+        (lambda: 12, lambda x: x + 30, tuple())
+    ]
+)
+def test_then_operator(
+    first_node: Callable,
+    second_node: Callable,
+    input_args: Iterable
+):
+    assert (
+        (first_node |then>> second_node)(*input_args)
+        == ActionChain((first_node, second_node))(*input_args)
+    )

@@ -49,3 +49,23 @@ test_returnly = calling_test_case_of(
 )
 def test_taken(value: Any, arguments: Iterable):
     assert taken(value)(*arguments) == value
+
+
+@mark.parametrize(
+    'infix, result',
+    [
+        (to, 16), (by, 12)
+    ]
+)
+def test_single_application_infix(infix: PartialApplicationInfix, result: Any):
+    assert ((lambda a, b, c: (a + b) * c) |infix| 2)(2, 4) == result
+
+
+@mark.parametrize(
+    'infix, result',
+    [
+        (to, 39), (by, 64)
+    ]
+)
+def test_keyword_application_infix(infix: PartialApplicationInfix, result: Any):
+    assert ((lambda a, b, c: (a + b) * c) |infix* (5, 8))(3) == result
