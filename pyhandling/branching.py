@@ -15,7 +15,7 @@ from pyhandling.atoming import atomically
 from pyhandling.errors import TemplatedActionChainError
 from pyhandling.immutability import property_to
 from pyhandling.partials import rpartial
-from pyhandling.signature_assignmenting import calling_signature_of
+from pyhandling.signature_assignmenting import call_signature_of
 from pyhandling.synonyms import returned, with_unpacking, on
 from pyhandling.tools import documenting_by
 
@@ -59,8 +59,8 @@ class bind:
 
     @cached_property
     def __signature__(self) -> Signature:
-        return calling_signature_of(self._first).replace(return_annotation=(
-            calling_signature_of(self._second).return_annotation
+        return call_signature_of(self._first).replace(return_annotation=(
+            call_signature_of(self._second).return_annotation
         ))
 
 
@@ -101,7 +101,7 @@ class ActionChain(Generic[_NodeT]):
             )
 
             update_wrapper(self, self._main_action)
-            self.__signature__ = calling_signature_of(self._main_action)
+            self.__signature__ = call_signature_of(self._main_action)
         else:
             self._main_action = None
 
@@ -199,17 +199,17 @@ class merged:
 
     def __get_signature(self) -> Signature:
         if not self._actions:
-            return calling_signature_of(lambda *args, **kwargs: ...).replace(
+            return call_signature_of(lambda *args, **kwargs: ...).replace(
                 input_annotation=Tuple
             )
 
-        argument_signature = calling_signature_of(
+        argument_signature = call_signature_of(
             self._actions[0] if self._actions else lambda *_, **__: ...
         )
 
         return_annotations = tuple(
             partial(filter, rpartial(is_not, Parameter.empty))(map(
-                lambda act: calling_signature_of(act).return_annotation,
+                lambda act: call_signature_of(act).return_annotation,
                 self._actions
             ))
         )

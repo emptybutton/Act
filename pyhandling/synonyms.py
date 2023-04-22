@@ -12,7 +12,7 @@ from pyhandling.annotations import (
 from pyhandling.atoming import atomically
 from pyhandling.partials import fragmentarily
 from pyhandling.signature_assignmenting import (
-    ActionWrapper, calling_signature_of, annotation_sum
+    Decorator, call_signature_of, annotation_sum
 )
 from pyhandling.tools import to_check, as_action
 
@@ -95,10 +95,10 @@ class on:
         )
 
     def __get_signature(self) -> Signature:
-        return calling_signature_of(self._right_action).replace(
+        return call_signature_of(self._right_action).replace(
             return_annotation=annotation_sum(
-                calling_signature_of(self._right_action).return_annotation,
-                calling_signature_of(self._left_action).return_annotation,
+                call_signature_of(self._right_action).return_annotation,
+                call_signature_of(self._left_action).return_annotation,
             )
         )
 
@@ -128,7 +128,7 @@ class repeating:
         return f"({self._action} while {self._is_valid_to_repeat})"
 
     def __get_signature(self) -> Signature:
-        return calling_signature_of(self._action)
+        return call_signature_of(self._action)
 
 
 @fragmentarily
@@ -160,10 +160,10 @@ class trying_to:
         return f"trying_to({self._action}, rollback={self._rollback})"
 
     def __get_signature(self) -> Signature:
-        return calling_signature_of(self._action).replace(
+        return call_signature_of(self._action).replace(
             return_annotation=annotation_sum(
-                calling_signature_of(self._action).return_annotation,
-                calling_signature_of(self._rollback).return_annotation,
+                call_signature_of(self._action).return_annotation,
+                call_signature_of(self._rollback).return_annotation,
             )
         )
 
@@ -180,7 +180,7 @@ def with_(
 
 
 @atomically
-class with_unpacking(ActionWrapper):
+class with_unpacking(Decorator):
     """
     Decorator function to unpack the passed collection into the input action.
     """
@@ -190,13 +190,13 @@ class with_unpacking(ActionWrapper):
 
     @property
     def _force_signature(self) -> Signature:
-        return calling_signature_of(self._action).replace(parameters=[Parameter(
+        return call_signature_of(self._action).replace(parameters=[Parameter(
             "arguments", Parameter.POSITIONAL_OR_KEYWORD, annotation=Iterable
         )])
 
 
 @atomically
-class with_keyword_unpacking(ActionWrapper):
+class with_keyword_unpacking(Decorator):
     """
     Decorator function to unpack the passed mapping object into the input action.
     """
@@ -206,7 +206,7 @@ class with_keyword_unpacking(ActionWrapper):
 
     @property
     def _force_signature(self) -> Signature:
-        return calling_signature_of(self._action).replace(parameters=[Parameter(
+        return call_signature_of(self._action).replace(parameters=[Parameter(
             "arguments",
             Parameter.POSITIONAL_OR_KEYWORD,
             annotation=Mapping[str, Any],

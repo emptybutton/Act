@@ -16,7 +16,7 @@ from pyhandling.annotations import (
 from pyhandling.data_flow import by
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
-from pyhandling.signature_assignmenting import calling_signature_of
+from pyhandling.signature_assignmenting import call_signature_of
 from pyhandling.structure_management import (
     with_opened_items, in_collection, dict_of
 )
@@ -555,7 +555,7 @@ class _ActionFlag(_NominalFlag):
         super().__init__(name, sign)
 
         self._action = action
-        self.__signature__ = calling_signature_of(action)
+        self.__signature__ = call_signature_of(action)
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
         return self._action(*args, **kwargs)

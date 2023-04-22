@@ -14,7 +14,7 @@ from pyhandling.atoming import atomic
 from pyhandling.flags import nothing, Flag, pointed, FlagVector
 from pyhandling.immutability import property_to
 from pyhandling.partials import fragmentarily
-from pyhandling.signature_assignmenting import calling_signature_of
+from pyhandling.signature_assignmenting import call_signature_of
 from pyhandling.synonyms import repeating
 from pyhandling.tools import documenting_by, NotInitializable
 
@@ -138,7 +138,7 @@ class contextually(ContextRoot, Generic[ActionT, ContextT]):
         return self._value(*args, **kwargs)
 
     def _get_signature(self) -> Signature:
-        return calling_signature_of(self._value)
+        return call_signature_of(self._value)
 
 
 class ContextualError(Exception, ContextRoot, Generic[ErrorT, ContextT]):

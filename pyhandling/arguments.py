@@ -12,7 +12,7 @@ from pyannotating import Special
 from pyhandling.annotations import KeyT, ValueT
 from pyhandling.atoming import atomically
 from pyhandling.signature_assignmenting import (
-    ActionWrapper, calling_signature_of
+    Decorator, call_signature_of
 )
 
 
@@ -184,7 +184,7 @@ def as_argument_pack(*args, **kwargs) -> ArgumentPack:
 
 
 @atomically
-class unpackly(ActionWrapper):
+class unpackly(Decorator):
     """
     Decorator function to unpack the input `ArgumentPack` into the input
     function.
@@ -195,6 +195,6 @@ class unpackly(ActionWrapper):
 
     @cached_property
     def _force_signature(self) -> Signature:
-        return calling_signature_of(self).replace(return_annotation=(
-            calling_signature_of(self._action).return_annotation
+        return call_signature_of(self).replace(return_annotation=(
+            call_signature_of(self._action).return_annotation
         ))

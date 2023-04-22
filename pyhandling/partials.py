@@ -5,7 +5,7 @@ from typing import Any, Self, Iterable, Tuple, Optional
 
 from pyhandling.annotations import action_for, ResultT
 from pyhandling.atoming import atomically
-from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
+from pyhandling.signature_assignmenting import Decorator, call_signature_of
 
 
 __all__ = (
@@ -19,7 +19,7 @@ __all__ = (
 
 
 @atomically
-class fragmentarily(ActionWrapper):
+class fragmentarily(Decorator):
     """
     Decorator for splitting a decorated action call into non-structured
     sub-calls.
@@ -58,16 +58,16 @@ class fragmentarily(ActionWrapper):
         return OrderedDict(
             (_, parameter)
             for _, parameter in (
-                calling_signature_of(self._action).parameters.items()
+                call_signature_of(self._action).parameters.items()
             )
             if _is_parameter_settable(parameter)
         )
 
     @cached_property
     def _force_signature(self) -> Signature:
-        return calling_signature_of(self).replace(
+        return call_signature_of(self).replace(
             return_annotation=(
-                calling_signature_of(self._action).return_annotation | Self,
+                call_signature_of(self._action).return_annotation | Self,
             ),
             parameters=tuple(
                 (
@@ -78,14 +78,14 @@ class fragmentarily(ActionWrapper):
                     else parameter
                 )
                 for parameter in (
-                    calling_signature_of(self._action).parameters.values()
+                    call_signature_of(self._action).parameters.values()
                 )
             )
         )
 
 
 @atomically
-class flipped(ActionWrapper):
+class flipped(Decorator):
     """Decorator to mirror positional parameters without default value."""
 
     def __call__(self, *args, **kwargs) -> ResultT:
@@ -93,9 +93,9 @@ class flipped(ActionWrapper):
 
     @cached_property
     def _force_signature(self) -> Signature:
-        return calling_signature_of(self._action).replace(
+        return call_signature_of(self._action).replace(
             parameters=self.__flip_parameters(
-                calling_signature_of(self._action).parameters.values()
+                call_signature_of(self._action).parameters.values()
             )
         )
 

@@ -4,7 +4,7 @@ from typing import Callable, Type, Any, Concatenate, Self
 
 from pyhandling.annotations import ObjectT, P, ValueT, one_value_action
 from pyhandling.atoming import atomically
-from pyhandling.signature_assignmenting import calling_signature_of
+from pyhandling.signature_assignmenting import call_signature_of
 
 
 __all__ = ("to_clone", "publicly_immutable", "property_to")
@@ -28,7 +28,7 @@ def to_clone(
 
         return clone
 
-    wrapper.__signature__ = calling_signature_of(wrapper).replace(
+    wrapper.__signature__ = call_signature_of(wrapper).replace(
         return_annotation=Self
     )
 

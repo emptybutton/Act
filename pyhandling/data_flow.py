@@ -13,7 +13,7 @@ from pyhandling.atoming import atomically
 from pyhandling.branching import mergely, bind, then
 from pyhandling.errors import ReturningError
 from pyhandling.partials import will, rpartial
-from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
+from pyhandling.signature_assignmenting import Decorator, call_signature_of
 from pyhandling.synonyms import returned, on
 from pyhandling.tools import documenting_by
 
@@ -33,7 +33,7 @@ __all__ = (
 
 
 @atomically
-class returnly(ActionWrapper):
+class returnly(Decorator):
     """
     Decorator that causes an input action to return not the result of its
     execution, but a first argument that is incoming to it.
@@ -46,18 +46,18 @@ class returnly(ActionWrapper):
 
     @cached_property
     def _force_signature(self) -> Signature:
-        parameters = tuple(calling_signature_of(self._action).parameters.values())
+        parameters = tuple(call_signature_of(self._action).parameters.values())
 
         if len(parameters) == 0:
             raise ReturningError("Function must contain at least one parameter")
 
-        return calling_signature_of(self._action).replace(return_annotation=(
+        return call_signature_of(self._action).replace(return_annotation=(
             parameters[0].annotation
         ))
 
 
 @atomically
-class eventually(ActionWrapper):
+class eventually(Decorator):
     """
     Decorator function to call with predefined arguments instead of input ones.
     """
@@ -91,7 +91,7 @@ class eventually(ActionWrapper):
 
     @cached_property
     def _force_signature(self) -> Signature:
-        return calling_signature_of(self._action).replace(parameters=(
+        return call_signature_of(self._action).replace(parameters=(
             Parameter('_', Parameter.VAR_POSITIONAL, annotation=Any),
             Parameter('__', Parameter.VAR_KEYWORD, annotation=Any),
         ))
@@ -130,7 +130,7 @@ def dynamically(
 
 
 @atomically
-class double(ActionWrapper):
+class double(Decorator):
     """
     Decorator to double call an input action.
 
@@ -149,7 +149,7 @@ class double(ActionWrapper):
 
     @property
     def _force_signature(self) -> Signature:
-        signature_ = calling_signature_of(self._action)
+        signature_ = call_signature_of(self._action)
 
         return signature_.replace(return_annotation=(
             signature_.return_annotation.__args__[-1]
@@ -173,7 +173,7 @@ class once:
 
     def __init__(self, action: Callable[P, ResultT]):
         self._action = action
-        self.__signature__ = calling_signature_of(self._action)
+        self.__signature__ = call_signature_of(self._action)
 
     def __repr__(self) -> str:
         return f"once({{}}{self._action})".format(
@@ -188,7 +188,7 @@ class once:
         self._result = self._action(*args, **kwargs)
 
         self.__signature__ = signature(lambda *_, **__: ...).replace(
-            return_annotation=calling_signature_of(self._action).return_annotation
+            return_annotation=call_signature_of(self._action).return_annotation
         )
 
         return self._result
@@ -208,7 +208,7 @@ class via_items:
         self._action = action
 
     def __repr__(self) -> str:
-        return f"({self._action})[{str(calling_signature_of(self._action))[1:-1]}]"
+        return f"({self._action})[{str(call_signature_of(self._action))[1:-1]}]"
 
     def __getitem__(self, key: ValueT | Tuple[*ArgumentsT]) -> ResultT:
         arguments = key if isinstance(key, tuple) else (key, )
