@@ -1,8 +1,8 @@
 from functools import partial, reduce, wraps, cached_property, update_wrapper
-from inspect import Signature, signature, _empty
 from math import inf
 from operator import itemgetter, or_, is_not
 from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional, Type, Tuple, NamedTuple, _CallableGenericAlias
+from inspect import Signature, Parameter
 
 from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotation
 
@@ -194,7 +194,9 @@ class merged:
         )
 
         return_annotation = (
-            reduce(or_, return_annotations) if return_annotations else _empty
+            reduce(or_, return_annotations)
+            if return_annotations
+            else Parameter.empty
         )
 
         return argument_signature.replace(return_annotation=return_annotation)
@@ -264,7 +266,7 @@ class mergely:
             return_annotation=(
                 return_annotation.__args__[-1]
                 if isinstance(return_annotation, _CallableGenericAlias)
-                else _empty
+                else Parameter.empty
             )
         )
 
