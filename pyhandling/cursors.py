@@ -302,7 +302,7 @@ class _ActionCursor(Mapping):
 
     @staticmethod
     def _external_value_in(name: str) -> Any:
-        locals_ = stack()[1][0].f_back.f_locals
+        locals_ = stack()[1][0].f_back.f_back.f_locals
 
         return locals_[name] if name in locals_.keys() else eval(name)
 
