@@ -69,12 +69,17 @@ class eventually(ActionWrapper):
         return self._action(*self._args, **self._kwargs)
 
     def __repr__(self) -> str:
+        formatted_kwargs = ', '.join(map(
+            lambda item: str(item[0]) + '=' + str(item[1]),
+            self._kwargs.items()
+        ))
+
         return (
             f"{type(self).__name__}({self._action}"
             f"{', ' if self._args or self._kwargs else str()}"
             f"{', '.join(map(str, self._args))}"
             f"{', ' if self._args and self._kwargs else str()}"
-            f"{', '.join(map(lambda item: str(item[0]) + '=' + str(item[1]), self._kwargs.items()))})"
+            f"{formatted_kwargs})"
         )
 
     @cached_property
