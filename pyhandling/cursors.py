@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum, auto
-from functools import partial, reduce, wraps, cached_property
+from functools import partial, reduce, wraps
 from itertools import count
 from inspect import Signature, Parameter, stack
 from operator import call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift, is_, is_not, getitem, contains, xor, rshift, matmul, setitem
@@ -10,19 +9,16 @@ from pyannotating import Special
 
 from pyhandling.annotations import one_value_action, merger_of, event_for, ResultT, reformer_of
 from pyhandling.arguments import ArgumentPack
-from pyhandling.branching import ActionChain, binding_by, on
+from pyhandling.branching import ActionChain, binding_by, on, then
 from pyhandling.contexting import contextual
-from pyhandling.data_flow import dynamically, with_result
+from pyhandling.data_flow import with_result, by, to
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import flag_enum_of, nothing, flag
-from pyhandling.immutability import to_clone
-from pyhandling.language import by, then, to
 from pyhandling.monads import reading, saving_context, considering_context
-from pyhandling.partials import flipped, rpartial, rwill, will, fragmentarily
+from pyhandling.partials import flipped, rpartial, rwill, will
 from pyhandling.structure_management import tfilter, groups_in
 from pyhandling.synonyms import with_keyword, collection_of
 from pyhandling.tools import property_to
-from pyhandling.utils import shown
 
 
 __all__ = (
