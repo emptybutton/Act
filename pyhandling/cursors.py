@@ -148,7 +148,9 @@ class _ActionCursor(Mapping):
         return "(...)" if self._internal_repr == '...' else self._internal_repr
 
     def __repr__(self) -> str:
-        return f"<action: {self._internal_repr}>"
+        return f"<action({{}}): {self._internal_repr}>".format(
+            ', '.join(map(attrgetter('name'), self._parameters))
+        )
 
     def __bool__(self) -> bool:
         return len(self._actions) != 0
