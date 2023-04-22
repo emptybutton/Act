@@ -3,9 +3,10 @@ from typing import Iterable, Tuple, Callable, Mapping
 
 from pyannotating import many_or_one, Special
 
-from pyhandling.annotations import ValueT, MappedT, KeyT, ValueT, action_of
+from pyhandling.annotations import ValueT, MappedT, KeyT, action_of
 from pyhandling.atoming import atomically
-from pyhandling.language import by, then
+from pyhandling.data_flow import by
+from pyhandling.branching import then
 from pyhandling.synonyms import on
 from pyhandling.tools import documenting_by
 

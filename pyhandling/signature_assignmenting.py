@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from functools import update_wrapper
 from inspect import Signature, signature, Parameter
 from typing import Generic, Callable, Any, Union
 

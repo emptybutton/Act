@@ -5,7 +5,7 @@ from pyhandling.arguments import ArgumentPack, ArgumentKey
 from pyhandling.annotations import one_value_action
 from pyhandling.branching import *
 from pyhandling.testing import calling_test_case_of
-from tests.mocks import MockAction, Counter, fail_by_error
+from tests.mocks import MockAction, Counter
 
 from pytest import mark, fail, raises
 
