@@ -39,6 +39,9 @@ test_on = calling_test_case_of(
     (lambda: on(lambda x: x > 0, lambda x: x ** x)(-4), -4),
     (lambda: on(lambda x: x > 0, lambda _: _, else_=lambda x: -x)(4), 4),
     (lambda: on(lambda x: x > 0, lambda _: _, else_=lambda x: -x)(-4), 4),
+    (lambda: on(False, True)(False), True),
+    (lambda: on(False, True)(True), False),
+    (lambda: on(False, True, else_=None)(True), None),
 )
 
 
