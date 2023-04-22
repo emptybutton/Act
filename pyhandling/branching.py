@@ -155,8 +155,8 @@ def binding_by(
 
     def insert_to_template(intercalary_action: Callable) -> ActionChain:
         """
-        Function given as a result of calling `binding_by`. See `binding_by` for
-        more info.
+        Function given as a result of calling `binding_by`. See `binding_by`
+        for more info.
         """
 
         return ActionChain(
@@ -170,10 +170,10 @@ def binding_by(
 @atomically
 class merged:
     """
-    Function to merge multiple functions with the same input interface into one.
+    Function to merge multiple actions with the same input interface into one.
 
-    Functions are called in parallel, after which a tuple of their results is
-    returned, in the order in which the functions were passed.
+    Merged actions are called in parallel, after which a tuple of their results
+    is returned, in the order in which the actions were passed.
     """
 
     def __init__(self, *actions: Callable[P, Any]):

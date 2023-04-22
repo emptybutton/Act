@@ -95,13 +95,17 @@ class Flag(ABC, Generic[PointT]):
     pointed() is nothing
 
     pointed(4).point == 4
+    pointed(4).points == (4, )
 
     super_ = flag("super")
     super_.point is super_
+    super_.points == (super_, )
 
     nothing.point is nothing
+    nothing.points == (nothing, )
 
-    (first | second).point == (first.point, second.point)
+    (first | second).point == first.point
+    (first | second).points == (first.point, second.point)
     ```
 
     Flags indicating a value are binary by value. Nominal by their signs.
@@ -138,13 +142,14 @@ class Flag(ABC, Generic[PointT]):
     ```
 
     Flags can be represented in vector form via unary plus or minus and added
-    via `<<`.
+    via `<<` (or via call).
     ```
     pointed(1) != +pointed(1)
     pointed(1) != -pointed(1)
 
     pointed(1, 2) << +pointed(3) # pointed(1, 2, 3)
     pointed(1, 2, 3) << -pointed(3) # pointed(1, 2)
+    (-pointed(1))(pointed(1)) # nothing
     ```
 
     They also have unary plus and minus and a sum, which can be created with the
@@ -172,6 +177,7 @@ class Flag(ABC, Generic[PointT]):
     flag_or_vector = choice([pointed(1), +pointed(1)])
 
     isinstance(~flag_or_vector, Flag) is True # Always
+    isinstance(+flag_or_vector, FlagVector) is True # Always
     ```
 
     Flags available for instance checking as a synonym for equality.
@@ -412,21 +418,7 @@ class _DoubleFlag(Flag, ABC):
 
 
 class _FlagSum(_DoubleFlag):
-    """
-    Flag sum class.
-
-    Created via the `|` operator between flags or by using tshe `pointed`
-    function, which is a safe flag sum constructor.
-
-    Not safe for self-initialization because it has no mechanisms to prevent
-    summation with `nothing`.
-
-    Throws `FlagError` when created with `nothing`.
-
-    Recursively delegates calls to its two stored flags.
-    Indicates the sum of its flags (self).
-    Binary between its flags in `or` form.
-    """
+    """`DoubleFlag` class for combining flags according to `or` logic."""
 
     _separation_sign = '|'
 
@@ -483,7 +475,7 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
     Not safe for initialization as there is no mechanism to prevent pointing to
     another flag.
 
-    To create, use the `as_flag` method or the `flag_to` function preferably.
+    To create, use the `as_flag` method or the `pointed` function preferably.
 
     Throws a `FlagError` when created with a flag.
 

@@ -35,10 +35,8 @@ __all__ = (
 @atomically
 class returnly(ActionWrapper):
     """
-    Decorator that causes the input function to return not the result of its
-    execution, but some argument that is incoming to it.
-
-    Returns the first argument by default.
+    Decorator that causes an input action to return not the result of its
+    execution, but a first argument that is incoming to it.
     """
 
     def __call__(self, value: ValueT, *args, **kwargs) -> ValueT:
@@ -110,7 +108,14 @@ def dynamically(
     *argument_placeholders: one_value_action | Ellipsis,
     **keyword_argument_placeholders: one_value_action | Ellipsis,
 ) -> action_for[ResultT]:
-    """Function to dynamically determine arguments for an input action."""
+    """
+    Function to dynamically determine arguments for an input action.
+    
+    The resulting function takes one argument.
+
+    When arguments are specified as ... (Ellipsis) replaces them with an input
+    argument.
+    """
 
     maybe_replaced = on(is_ |by| Ellipsis, to(returned))
 

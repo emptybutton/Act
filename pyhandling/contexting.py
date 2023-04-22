@@ -85,7 +85,7 @@ class ContextRoot(ABC, Generic[ValueT, ContextT]):
 
 
 class contextual(ContextRoot, Generic[ValueT, ContextT]):
-    """Representer of an input value as a value with a context."""
+    """Basic `ContextRoot` form representing values with no additional effect."""
 
     value = property_to("_value")
     context = property_to("_context")
@@ -118,8 +118,8 @@ class contextually(ContextRoot, Generic[ActionT, ContextT]):
 
 class ContextualError(Exception, ContextRoot, Generic[ErrorT, ContextT]):
     """
-    Error class to store the context of another error and itself.
-    Iterates to unpack.
+    `ContextRoot` form for annotating an error with a context while retaining
+    the ability to `raise` the call.
     """
 
     error = property_to("_value")
@@ -137,13 +137,10 @@ class ContextualError(Exception, ContextRoot, Generic[ErrorT, ContextT]):
 
 class context_pointed(ContextRoot, Generic[ActionT, FlagT]):
     """
-    Class to replace a context of a `contextual-like` object with a flag
-    pointing to the original context.
+    Extract `ContextRoot` form from a `contextual_like` object  with a context
+    flag pointing the original context.
 
-    Optionally selects flags.
-
-    Getting a value and the newly created context is only available through
-    unpacking.
+    Optionally selects flags at initialization.
 
     Has an atomic form, specified as the same value in context of point of the
     newly converted context (flag) atomic version.
@@ -209,13 +206,14 @@ def with_context_that(
     and_nothing: bool = False,
 ) -> contextual[ValueT, nothing | PointT]:
     """
-    Function for transform function `ContextRoot` with context filtered by input
+    Function for transform `ContextRoot` with context filtered by input
     checker.
 
     When a context is `Flag`, the resulting context will be filtered by any of
     its values.
 
-    Returns `nothing` if a context is invalid for an input checker.
+    Returns `nothing` if a context is invalid for an input checker or throws an
+    error when `and_nothing=True`.
     """
 
     root = atomic(context_pointed(contexted(value), that=that))

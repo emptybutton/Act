@@ -123,10 +123,8 @@ bad = flag('bad', sign=False)
 maybe: native_execution_context_when[Special[bad]]
 maybe = documenting_by(
     """
-    The execution context that stops a thread of execution when a value is
-    returned in the `bad` context.
-
-    Skips execution if the input value is in a `bad` context.
+    The execution context that stops a thread of execution when a value is None
+    or returned in the `bad` context.
     """
 )(
     monadically(lambda action: contexted |then>> (lambda root: (
@@ -146,8 +144,8 @@ until_error = documenting_by(
     """
     Execution context that stops the thread of execution when an error occurs.
 
-    When skipping, it saves the last validly calculated value and an occurred
-    error as context.
+    When skipping, it saves the last validly calculated value and a pointed
+    occurred error as context.
     """
 )(
     monadically(lambda action: contexted |then>> (lambda root: (
@@ -192,6 +190,9 @@ reading = flag("reading")
 
     When writing to a context, result of a contextual node will be a result
     calculated before it, and when reading, a result of reading.
+
+    When specifying `writing` and `reading` contexts at the same time, writes to
+    a context and continues with a result of the write.
     """
 )
 @monadically
@@ -234,7 +235,24 @@ def either(
         raise_, ValueError("No condition is met")
     ),
 ) -> Callable[[contextual[ValueT, ContextT]], ResultT]:
-    """Shortcut for `branching` with context checks."""
+    """
+    Function for using action branching like `if`, `elif` and `else` statements
+    over value in `ContextRoot` form.
+
+    Accepts branches as tuples, where in the first place is the action of
+    checking by a context of an input value and in the second place is the
+    action that implements the logic of this condition over the value with its
+    context.
+
+    When condition checkers are not called, compares an input context with these
+    check values.
+
+    With non-callable implementations of the conditional logic, returns those
+    non-callable values.
+
+    With default `else_` throws an error about a failed comparison if none of
+    the conditions are met.
+    """
 
     return branching(
         *(

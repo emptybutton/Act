@@ -27,7 +27,7 @@ __all__ = (
 
 
 def in_collection(value: ValueT) -> tuple[ValueT]:
-    """Function to represent the input value as a single collection."""
+    """Function to represent the input value in a single collection."""
 
     return (value, )
 

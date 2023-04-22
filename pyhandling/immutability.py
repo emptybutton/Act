@@ -17,6 +17,8 @@ def to_clone(
     """
     Decorator function to spawn new objects by cloning and applying an input
     method to them.
+
+    Specifies the use of `copy` or `deepcopy` by `deeply` parameter.
     """
 
     @wraps(method)

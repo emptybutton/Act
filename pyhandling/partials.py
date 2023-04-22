@@ -21,11 +21,16 @@ __all__ = (
 @atomically
 class fragmentarily(ActionWrapper):
     """
-    Decorator for splitting a decorated function call into non-structured
+    Decorator for splitting a decorated action call into non-structured
     sub-calls.
 
-    Partially binds subcall arguments to a decorated function using the `binder`
-    parameter.
+    Each sub-call adds arguments, as long as their number does not exceed the
+    required ones. After filling, the action is called with these arguments.
+
+    On each sub-call returns a decorated action with padded arguments.
+
+    Required arguments are those that are not specified by keyword and do not
+    have a default value.
     """
 
     def __call__(self, *args, **kwargs) -> Any | Self:
@@ -115,8 +120,8 @@ def mirrored_partial(
     **kwargs,
 ) -> action_for[ResultT]:
     """
-    Function equivalent to pyhandling.handlers.rpartial but with the
-    difference that additional arguments from this function call are unfolded.
+    Function to partially apply input action with mirrored parameters by input
+    arguments.
     """
 
     return flipped(partial(flipped(action), *args, **kwargs))
@@ -124,9 +129,8 @@ def mirrored_partial(
 
 def rpartial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
     """
-    Function equivalent to functools.partial but with the difference that
-    additional arguments are added not before the incoming ones from the final
-    call, but after.
+    Function similar to `functools.partial` with the difference that partially
+    applied arguments are set not to the left but to the right.
     """
 
     return mirrored_partial(action, *args[::-1], **kwargs)
