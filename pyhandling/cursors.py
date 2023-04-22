@@ -335,11 +335,11 @@ class _ActionCursor(Mapping):
         internal_repr: Optional[str] = None,
     ) -> None:
         return type(self)(
-            parameters=self._parameters if parameters is None else parameters,
             actions=action if isinstance(action, ActionChain) else ActionChain([action]),
+            parameters=on(None, self._parameters)(parameters),
             previous=self._previous if previous is None else previous,
-            nature=self._nature if nature is None else nature,
-            internal_repr=self._internal_repr if internal_repr is None else internal_repr
+            nature=on(None, self._nature)(nature),
+            internal_repr=on(None, self._internal_repr)(internal_repr),
         )
 
     def _with(
