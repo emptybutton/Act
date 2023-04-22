@@ -127,6 +127,15 @@ AtomizableT = TypeVar("AtomT", bound="Atomizable")
 
 
 class CallableFormalAnnotation(FormalAnnotation):
+    """
+    `FormalAnnotation` class for annotation via call.
+    
+    Annotating instance is stored in an annotated value as a reference in the
+    `__notes__` attribute when called.
+
+    For safe interaction with `__notes__` see `notes_of`.
+    """
+
     def __call__(self, value: ValueT) -> ValueT:
         notes = (*notes_of(value), self)
 
@@ -139,6 +148,12 @@ class CallableFormalAnnotation(FormalAnnotation):
 
 
 def notes_of(value: Any) -> Tuple:
+    """
+    Function to get annotation notes from an input value.
+
+    Returns notes from the `__notes__` attribute, if present.
+    """
+
     return tuple(value.__notes__) if hasattr(value, "__notes__") else tuple()
 
 
@@ -159,6 +174,30 @@ pure = CallableFormalAnnotation(
 
 
 class _CallableConstructor:
+    """
+    Class for generating a ceoidal `Callable` annotation from unconstrained
+    input annotations.
+
+    "Called" via `[]` call.
+
+    Populates annotations starting from arguments and if there are not enough
+    annotations, inserts `Any` i.e.
+    ```
+    instance[tuple()] == Callable
+    instance[int] == Callable[[int], Any]
+    instance[int, str] == Callable[[int], str]
+    ```
+
+    Restricts one `Callable` annotation to only one argument by chaining
+    `Callable` that return other `Callable` i.e.
+    ```
+    instance[int, str, float] == Callable[[int], Callable[[str], float]]
+    instance[int, str, float, set] == (
+        Callable[[int], Callable[[str], Callable[[float], set]]]
+    )
+    ```
+    """
+
     def __getitem__(
         self,
         annotations: Special[Iterable],

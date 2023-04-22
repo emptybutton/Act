@@ -271,12 +271,34 @@ def in_future(
     action: Callable[[ValueT], ResultT],
     value: ValueT | ContextRoot[ValueT, pointed_or[ContextT]],
 ) -> contextual[ValueT, Flag[ContextT | contextually[event_for[ResultT], future]]]:
+    """
+    Decorator to delay the execution of an input action.
+    
+    When calling the resulting action on a value, contextualizes the input value
+    by the sum of the flags with a partially applied version of the resulting
+    action by that value in `future` context.
+
+    This decorator can be called the resulting action on a value, by passing
+    the value as the second argument.
+
+    For safe calling of such "future" actions from context see `future_from`.
+    """
+
     return contexted(value, +pointed(contextually(action |to| value, when=future)))
 
 
 def future_from(
     value: Special[pointed_or[contextually[event_for[ResultT], future]]],
 ) -> Tuple[ResultT]:
+    """
+    Function for safe execution of actions in `future` context.
+
+    Calls from both the normal "future" action and the sum of the flags pointing
+    the "future" actions.
+
+    Returns a tuple of the results of found actions.
+    """
+
     return tmap(
         call,
         pointed(value).that(lambda value: (

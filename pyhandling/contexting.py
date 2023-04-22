@@ -36,6 +36,17 @@ __all__ = (
 
 
 class contextual_like(NotInitializable):
+    """
+    Annotation class of objects that can be cast to `ContextRoot`.
+
+    Such objects are iterable objects consisting the main value and the context
+    describing the main value.
+
+    Checks using the `isinstance` function.
+
+    The `[]` callback can be used to create an appropriate annotation.
+    """
+
     def __class_getitem__(
         cls,
         value_or_value_and_context: Any | tuple[Any, Any],
@@ -56,6 +67,18 @@ class contextual_like(NotInitializable):
 
 
 class ContextRoot(ABC, Generic[ValueT, ContextT]):
+    """
+    Abstract value form class, for holding an additional value, describing the
+    main value.
+
+    Comparable by form implementation and stored values.
+
+    Iterable over stored values for unpacking capability, where the first value
+    is the main value and the second is the context describing the main value.
+
+    Attributes for stored values are defined in concrete forms.
+    """
+
     _value: ValueT
     _context: ContextT
 
@@ -96,6 +119,8 @@ class contextual(ContextRoot, Generic[ValueT, ContextT]):
 
 
 class contextually(ContextRoot, Generic[ActionT, ContextT]):
+    """`ContextRoot` form for annotating actions with saving their call."""
+
     action = property_to("_value")
     context = property_to("_context")
 
@@ -184,6 +209,9 @@ def contexted(
     """
     Function to represent an input value in `contextual` form if it is not
     already present.
+
+    When passing a forced context in the form of `FlagVector`, add an additional
+    flag to the context by this vector, otherwise sets a forced context.
     """
 
     value, context = (

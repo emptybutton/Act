@@ -270,6 +270,11 @@ class Flag(ABC, Generic[PointT]):
 
 
 class FlagVector(ABC):
+    """
+    Abstract memorization class `Flag` expressions.
+    For usage description see `Flag`.
+    """
+    
     @abstractmethod
     def __xor__(self, other: Self) -> Self:
         ...
@@ -293,6 +298,11 @@ class FlagVector(ABC):
 
 
 class _BinaryFlagVector(FlagVector):
+    """
+    `FlagVector` class that implements the memorization of `Flag` expressions
+    and the connection of several `FlagVector`.
+    """
+
     def __init__(
         self,
         flag: Flag,
@@ -329,6 +339,8 @@ _SecondPointT = TypeVar("_SecondPointT")
 
 
 class _DoubleFlag(Flag, ABC):
+    """Abstract `Flag` class to combine them."""
+
     _separation_sign: str = ', '
     _comparison_priority = 1
 
@@ -535,6 +547,10 @@ class _NominalFlag(_AtomicFlag):
 
 
 class _ActionFlag(_NominalFlag):
+    """
+    `_NominalFlag` class for also implementing delegation call to input action.
+    """
+
     def __init__(self, name: str, sign: bool, action: Callable[P, ResultT]):
         super().__init__(name, sign)
 
@@ -554,6 +570,9 @@ def flag(
     """
     Function constructor of an atomic named flag pointing to itself.
     See `Flag` for behavior info.
+
+    Specifies a flag casting to `bool` given the `sign` parameter.
+    When `action` is specified, the resulting flag will be called on that action.
     """
 
     return (
@@ -580,6 +599,21 @@ def pointed(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:
 
 
 def flag_enum_of(value: Special[Mapping]) -> object:
+    """
+    Decorator for creating an `Enum`-like object consisting of `Flags`.
+    
+    Creates from an input dictionary if an input value is a dictionary,
+    otherwise from attributes of an input object.
+
+    Takes from input values the values that are `Flags`, under their keyword.
+
+    With a value of `...` (`Ellipsis`) generates a flag named keyword, from
+    which this value is taken and also takes it.
+
+    Stores all flags taken or generated as a sum in the reserved `flags`
+    attribute.
+    """
+
     flag_by_name = {
         name: flag(name) if value is Ellipsis else value
         for name, value in dict_of(value).items()
@@ -600,5 +634,7 @@ nothing.__doc__ = (
     """
     Special flag identifying the absence of a flag.
     Is a neutral element in flag sum operations.
+
+    See `Flag` for behavior info.
     """
 )

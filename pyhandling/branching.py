@@ -38,6 +38,14 @@ _NodeT = TypeVar("_NodeT", bound=Callable | Type[Ellipsis])
 
 @atomically
 class bind:
+    """
+    Function to call two input actions sequentially as one function in the
+    form of a pipeline.
+
+    Used as an atomic binding expression as a function in higher order
+    functions (e.g. `reduce`), otherwise less preferred than `then` operator.
+    """
+
     def __init__(
         self,
         first: Callable[P, ValueT],
@@ -74,7 +82,10 @@ class ActionChain(Generic[_NodeT]):
 
     Has a one value call synonyms `>=` and `<=` where is the chain on the
     right i.e. `input_value >= chain_instance` and less preferred
-    `chain_instance <= input_value`. 
+    `chain_instance <= input_value`.
+
+    Directly used to create a pipeline from a collection of actions, in other
+    cases it is less preferable than the `then` operator.
     """
 
     is_template = property_to("_is_template")
@@ -298,7 +309,14 @@ class _Fork(NamedTuple, Generic[P, ResultT]):
     way: Callable[P, ResultT] | ResultT
 
 
-stop = object()
+stop = documenting_by(
+    """
+    Unique object to annotate branching to an `else` branch in `branching` or
+    similar actions.
+    """
+)(
+    object()
+)
 
 
 def branching(
@@ -311,7 +329,18 @@ def branching(
     """
     Function for using action branching like `if`, `elif` and `else` statements.
 
-    With default `else_` takes actions of one value.
+    Accepts branches as tuples, where in the first place is the action of
+    checking the condition and in the second place is the action that implements
+    the logic of this condition.
+
+    When condition checkers are not called, compares an input value with these
+    check values.
+
+    With non-callable implementations of the conditional logic, returns those
+    non-callable values.
+
+    With default `else_` takes actions of one value and returns an input value
+    if none of the conditions are met.
     """
 
     forks = tuple(map(with_unpacking(_Fork), forks))

@@ -86,6 +86,8 @@ class fragmentarily(ActionWrapper):
 
 @atomically
 class flipped(ActionWrapper):
+    """Decorator to mirror positional parameters without default value."""
+
     def __call__(self, *args, **kwargs) -> ResultT:
         return self._action(*args[::-1], **kwargs)
 
@@ -137,14 +139,26 @@ def rpartial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT
 
 
 def will(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
+    """
+    Decorator to represent an input action into an action that partially applies
+    that input action like `partial` function.
+    """
+
     return partial(partial, action)
 
 
 def rwill(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
+    """
+    Decorator to represent an input action into an action that partially applies
+    that input action like `rpartial` function.
+    """
+
     return partial(rpartial, action)
 
 
 def _is_parameter_settable(parameter: Parameter) -> bool:
+    """Function that determines whether a parameter is required to be called."""
+    
     return (
         parameter.default is _empty
         and parameter.kind in (

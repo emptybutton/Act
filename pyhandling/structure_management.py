@@ -74,6 +74,11 @@ tfilter = documenting_by("""`filter` function returning `tuple`""")(
 
 
 def groups_in(items: Iterable[ValueT], id_of: action_of[ValueT]) -> Tuple[ValueT]:
+    """
+    Function of selecting groups among the elements of an input collection.
+    Segregates elements by id resulting from calling the `id_of` argument.
+    """
+
     id_by_item = from_keys(items, id_of)
     group_by_id = dict.fromkeys(id_by_item.values(), tuple())
 
@@ -87,6 +92,12 @@ def table_value_map(
     mapped: Callable[[ValueT], MappedT],
     table: Mapping[KeyT, ValueT],
 ) -> OrderedDict[KeyT, MappedT]:
+    """
+    Function to map values of an input `Mapping` object by action.
+
+    Saves sequence.
+    """
+
     return OrderedDict((_, mapped(value)) for _, value in table.items())
 
 
@@ -94,12 +105,33 @@ def from_keys(
     keys: Iterable[KeyT],
     value_of: Callable[[KeyT], ValueT] = lambda _: None,
 ) -> OrderedDict[KeyT, ValueT]:
+    """
+    Function to create a `Mapping` with keys from an input collection and
+    values obtained by applying an input action to a key under which a
+    resulting value will be stored.
+    
+    Saves sequence.
+    """
+
     return OrderedDict((key, value_of(key)) for key in keys)
 
 
 def reversed_table(table: Mapping[KeyT, ValueT]) -> OrderedDict[ValueT, KeyT]:
+    """
+    Function to swap keys and values in `Mapping`.
+
+    Saves sequence.
+    """
+
     return OrderedDict(map(reversed, table.items()))
 
 
 def dict_of(value: Special[Mapping[KeyT, ValueT]]) -> dict[KeyT, ValueT]:
+    """
+    Function converting input value to `dict`.
+
+    When passing a `Mapping` object, cast it to a `dict`, otherwise return
+    `__dict__` of an input object.
+    """
+    
     return dict(**value) if isinstance(value, Mapping) else value.__dict__

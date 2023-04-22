@@ -131,6 +131,14 @@ def dynamically(
 
 @atomically
 class double(ActionWrapper):
+    """
+    Decorator to double call an input action.
+
+    The first call is the call of an input action itself with the first
+    positional argument, and the second is the call of its resulting action
+    with the remaining arguments.
+    """
+
     def __call__(
         self,
         value: Any,
@@ -153,6 +161,13 @@ class double(ActionWrapper):
 @dirty
 @atomically
 class once:
+    """
+    Decorator for lazy action call.
+
+    Calls an input action once, then returns a value of that first call,
+    ignoring input arguments.
+    """
+
     _result: Optional[ResultT] = None
     _was_called: bool = False
 
@@ -181,6 +196,11 @@ class once:
 
 @atomically
 class via_items:
+    """
+    Decorator for an action, allowing it to be called via `[]` call rather than
+    `()`.
+    """
+
     def __init__(
         self,
         action: Callable[[ValueT], ResultT] | Callable[[*ArgumentsT], ResultT],
