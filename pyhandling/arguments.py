@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from functools import cached_property, partial
 from dataclasses import dataclass, field
 from inspect import Signature
@@ -118,8 +119,11 @@ class ArgumentPack:
         Method for cloning a pack excluding arguments whose keys are input to
         this method.
         """
-        
-        return self.only_with(*(set(self.keys) - set(argument_keys)))
+
+        return self.only_with(*OrderedDict.fromkeys((
+            *self.keys,
+            *argument_keys,
+        )))
 
     def call(self, caller: Callable) -> Any:
         """
