@@ -166,7 +166,7 @@ class _ActionCursor(Mapping):
         return 1
 
     def __call__(self, *args) -> Any:
-        if not self:
+        if len(self._actions) == 0:
             return (
                 self
                 ._with_packing_of(args, by=tuple)
@@ -245,7 +245,7 @@ class _ActionCursor(Mapping):
         keys = key if isinstance(key, tuple) else (key, )
         formatted_keys = f"[{', '.join(map(self._repr_of, keys))}]"
 
-        if not self:
+        if len(self._actions) == 0:
             return (
                 self
                 ._with_packing_of(keys, by=list)
@@ -273,7 +273,7 @@ class _ActionCursor(Mapping):
 
     @_generation_transaction
     def __getattr__(self, name: str) -> Self:
-        if not self:
+        if len(self._actions) == 0:
             nature = _ActionCursorNature.vargetting
             cursor = self._with(
                 to(self._external_value_in(name)),
