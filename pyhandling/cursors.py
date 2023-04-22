@@ -111,6 +111,7 @@ class _ActionCursor(Mapping):
         'or_',
         'and_',
     )
+    _sign: bool = False
 
     def __init__(
         self,
@@ -157,7 +158,7 @@ class _ActionCursor(Mapping):
         )
 
     def __bool__(self) -> bool:
-        return len(self._actions) != 0
+        return self._sign
 
     def __iter__(self) -> _ActionCursorUnpacking:
         return _ActionCursorUnpacking(self)
@@ -563,6 +564,20 @@ class _ActionCursor(Mapping):
 
         return cursor_transformer
 
+    @staticmethod
+    def __with_forced_sign(forced_sign: bool) -> reformer_of[Callable[P, Self]]:
+        def decorator(action: Callable[P, Self]) -> Callable[P, Self]:
+            @wraps(action)
+            def action_with_forced_sign(*args: P.args, **kwargs: P.kwargs) -> Self:
+                cursor = action(*args, **kwargs)
+                cursor._sign = forced_sign
+
+                return cursor
+
+            return action_with_forced_sign
+
+        return decorator
+
     is_ = __merging_by(is_, _OperationModel('is', 8))
     is_not = __merging_by(is_not, _OperationModel("is not", 8))
     in_ = __merging_by(contains, _OperationModel('in', 8))
@@ -608,12 +623,12 @@ class _ActionCursor(Mapping):
     __rxor__ = __merging_by(xor, _OperationModel('^', 6), is_right=True)
     __ror__ = __merging_by(or_, _OperationModel('|', 7), is_right=True)
 
-    __gt__ = __merging_by(gt, _OperationModel('>', 8))
-    __lt__ = __merging_by(lt, _OperationModel('<', 8))
-    __ge__ = __merging_by(ge, _OperationModel('>=', 8))
-    __le__ = __merging_by(le, _OperationModel('>=', 8))
-    __eq__ = __merging_by(eq, _OperationModel('==', 8))
-    __ne__ = __merging_by(ne, _OperationModel('!=', 8))
+    __gt__ = __with_forced_sign(False)(__merging_by(gt, _OperationModel('>', 8)))
+    __lt__ = __with_forced_sign(False)(__merging_by(lt, _OperationModel('<', 8)))
+    __ge__ = __with_forced_sign(False)(__merging_by(ge, _OperationModel('>=', 8)))
+    __le__ = __with_forced_sign(False)(__merging_by(le, _OperationModel('>=', 8)))
+    __ne__ = __with_forced_sign(True)(__merging_by(ne, _OperationModel('!=', 8)))
+    __eq__ = __with_forced_sign(False)(__merging_by(eq, _OperationModel('==', 8)))
 
 
 def action_cursor_by(
