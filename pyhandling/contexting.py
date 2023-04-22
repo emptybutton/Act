@@ -34,7 +34,10 @@ __all__ = (
 
 
 class contextual_like(NotInitializable):
-    def __class_getitem__(self, value_or_value_and_context: Any | tuple[Any, Any]) -> GenericAlias:
+    def __class_getitem__(
+        cls,
+        value_or_value_and_context: Any | tuple[Any, Any],
+    ) -> GenericAlias:
         value_and_context = (
             value_or_value_and_context
             if isinstance(value_or_value_and_context, Iterable)
@@ -46,7 +49,7 @@ class contextual_like(NotInitializable):
         return tuple[value, context]
 
     @classmethod
-    def __instancecheck__(self, instance: Any) -> bool:
+    def __instancecheck__(cls, instance: Any) -> bool:
         return isinstance(instance, Iterable) and len(tuple(instance)) == 2
 
 
