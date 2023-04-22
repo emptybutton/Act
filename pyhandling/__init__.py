@@ -8,7 +8,6 @@ from pyhandling.data_flow import *
 from pyhandling.error_storing import *
 from pyhandling.flags import *
 from pyhandling.immutability import *
-from pyhandling.language import *
 from pyhandling.monads import *
 from pyhandling.partials import *
 from pyhandling.protocols import *
