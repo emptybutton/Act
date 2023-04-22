@@ -14,7 +14,7 @@ from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_
 __all__ = ("ArgumentKey", "ArgumentPack", "as_argument_pack", "unpackly")
 
 
-_EMPTY_DEFAULT: Final[object] = object()
+_EMPTY_DEFAULT_VALUE: Final[object] = object()
 
 
 @dataclass(frozen=True)
@@ -23,7 +23,11 @@ class ArgumentKey(Generic[KeyT, ValueT]):
 
     key: KeyT
     is_keyword: bool = field(default=False, kw_only=True)
-    default: ValueT = field(default_factory=lambda: _EMPTY_DEFAULT, compare=False, kw_only=True)
+    default: ValueT = field(
+        default_factory=lambda: _EMPTY_DEFAULT_VALUE,
+        compare=False,
+        kw_only=True,
+    )
 
 
 class ArgumentPack:
@@ -73,7 +77,7 @@ class ArgumentPack:
     def __getitem__(self, argument: ArgumentKey) -> Any:
         return (
             (self.kwargs if argument.is_keyword else self.args)[argument.key]
-            if argument in self or argument.default is _EMPTY_DEFAULT
+            if argument in self or argument.default is _EMPTY_DEFAULT_VALUE
             else argument.default
         )
 
