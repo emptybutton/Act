@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from functools import update_wrapper
-from inspect import Signature, signature, _empty
+from inspect import Signature, signature, Parameter
 from typing import Generic, Callable, Any, Union
 
 from pyannotating import Special
@@ -35,7 +35,7 @@ def calling_signature_of(action: Callable) -> Signature:
         return signature(lambda *args, **kwargs: ...)
 
 
-def annotation_sum(*args: Special[_empty]) -> Any:
-    annotations = tuple(arg for arg in args if arg is not _empty)
+def annotation_sum(*args: Special[Parameter.empty]) -> Any:
+    annotations = tuple(arg for arg in args if arg is not Parameter.empty)
 
-    return Union[*annotations] if annotations else _empty
+    return Union[*annotations] if annotations else Parameter.empty
