@@ -108,7 +108,9 @@ class ActionChain(Generic[_NodeT]):
         return len(self._nodes) != 0
 
     def __getitem__(self, key: int | slice) -> Self:
-        return type(self)(as_collection(self._nodes[key]))
+        nodes = self._nodes[key]
+
+        return type(self)(nodes if isinstance(nodes, tuple) else (nodes, ))
 
     def __repr__(self) -> str:
         return (
