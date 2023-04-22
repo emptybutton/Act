@@ -188,7 +188,7 @@ def contexted(
     value, context = value if isinstance(value, ContextRoot) else contextual(value)
 
     if isinstance(when, FlagVector):
-        context = when(context)
+        context = when(pointed(context))
     elif when is not None:
         context = when
 
