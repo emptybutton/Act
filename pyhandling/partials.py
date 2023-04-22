@@ -4,6 +4,7 @@ from inspect import Parameter, Signature, _empty
 from typing import Any, Self, Iterable, Tuple, Optional
 
 from pyhandling.annotations import action_for, ResultT
+from pyhandling.atoming import atomically
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 
 
@@ -17,6 +18,7 @@ __all__ = (
 )
 
 
+@atomically
 class fragmentarily(ActionWrapper):
     """
     Decorator for splitting a decorated function call into non-structured
