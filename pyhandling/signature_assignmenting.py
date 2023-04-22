@@ -11,7 +11,7 @@ from pyhandling.annotations import ActionT
 __all__ = ("ActionWrapper", "calling_signature_of", "annotation_sum")
 
 
-class ActionWrapper(ABC, Generic[ActionT]):
+class Decorator(ABC, Generic[ActionT]):
     def __init__(self, action: ActionT):
         self._action = action
         self._become_native()
