@@ -222,7 +222,7 @@ class _ActionCursor(Mapping):
             raise ActionCursorError("Setting a value when there is nowhere to set")
 
         return (
-            self._previous
+            self
             ._with_setting(
                 value,
                 in_=place,
@@ -428,8 +428,8 @@ class _ActionCursor(Mapping):
         set_ = by
 
         return (
-            self
             ._merged_with(value, by=lambda a, b: with_result(b, set_)(a, place, b))
+            self._previous
             ._with(nature=contextual(
                 _ActionCursorNature.setting,
                 contextual(value, place)
