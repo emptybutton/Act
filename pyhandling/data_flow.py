@@ -22,6 +22,9 @@ __all__ = (
     "double",
     "once",
     "via_items",
+    "PartialApplicationInfix",
+    "to",
+    "by",
 )
 
 
@@ -164,3 +167,121 @@ class via_items:
         arguments = key if isinstance(key, tuple) else (key, )
 
         return self._action(*arguments)
+
+
+class PartialApplicationInfix(ABC):
+    """
+    Infix class for action partial application.
+
+    Used in the form `action |instance| argument` or `action |instance* arguments`
+    if you want to unpack the arguments.
+    """
+
+    @abstractmethod
+    def __or__(self, argument: Any) -> Callable:
+        ...
+
+    @abstractmethod
+    def __ror__(self, action_to_transform: Callable) -> Self | Callable:
+        ...
+
+    @abstractmethod
+    def __mul__(self, arguments: Iterable) -> Callable:
+        ...
+
+
+class _CustomPartialApplicationInfix(PartialApplicationInfix):
+    """Named implementation of `PartialApplicationInfix` from input values."""
+
+    def __init__(
+        self,
+        transform: Callable[[Callable, ValueT], Callable],
+        *,
+        action_to_transform: Optional[Callable] = None,
+        arguments: Optional[Iterable[ValueT]] = None,
+        name: Optional[str] = None,
+    ):
+        self._transform = transform
+        self._action_to_transform = action_to_transform
+        self._arguments = arguments
+        self._name = "<PartialApplicationInfix>" if name is None else name
+
+    def __repr__(self) -> str:
+        return self._name
+
+    def __or__(self, argument: Any) -> Callable:
+        return self._transform(self._action_to_transform, argument)
+
+    def __ror__(self, action_to_transform: Callable) -> Self | Callable:
+        return (
+            type(self)(
+                self._transform,
+                action_to_transform=action_to_transform,
+                name=self._name,
+            )
+            if self._arguments is None
+            else reduce(
+                self._transform,
+                (action_to_transform, *self._arguments)
+            )
+        )
+
+    def __mul__(self, arguments: Iterable) -> Callable:
+        return type(self)(self._transform, arguments=arguments, name=self._name)
+
+
+class _CallableCustomPartialApplicationInfix(_CustomPartialApplicationInfix):
+    """
+    `_CustomPartialApplicationInfix` delegating its call to the input action.
+    """
+    
+    def __init__(
+        self,
+        transform: Callable[[Callable, ValueT], Callable],
+        *,
+        action_to_call: Callable[P, ResultT] = returned,
+        action_to_transform: Optional[Callable] = None,
+        arguments: Optional[Iterable[ValueT]] = None,
+        name: Optional[str] = None
+    ):
+        super().__init__(
+            transform,
+            action_to_transform=action_to_transform,
+            arguments=arguments,
+            name=name,
+        )
+        self._action_to_call = action_to_call
+
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
+        return self._action_to_call(*args, **kwargs)
+
+
+to = documenting_by(
+    """
+    `PartialApplicationInfix` instance that implements `partial` as a pseudo
+    operator.
+
+    See `PartialApplicationInfix` for usage information.
+
+    When called, creates a function that returns an input value, ignoring input
+    arguments.
+    """
+)(
+    _CallableCustomPartialApplicationInfix(
+        partial,
+        name='to',
+        action_to_call=atomically(will(returned) |then>> eventually),
+    )
+)
+
+
+by = documenting_by(
+    """
+    `PartialApplicationInfix` instance that implements `rpartial` as a pseudo
+    operator.
+
+    See `PartialApplicationInfix` for usage information.
+    """
+)(
+    _CustomPartialApplicationInfix(rpartial, name='by')
+)

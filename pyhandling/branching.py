@@ -299,6 +299,39 @@ def branching(
     )
 
 
+then = documenting_by(
+    """
+    Neutral instance of `ActionChain`.
+
+    Used as a pseudo-operator to build an `ActionChain` and, accordingly,
+    combine calls of several functions in a pipeline.
+
+    Assumes usage like:
+    ```
+    first_action |then>> second_action
+    ```
+
+    Additional you can add any value to the beginning of the construction
+    and >= after it to call the constructed chain with this value.
+
+    You get something like this:
+    ```
+    value >= first_action |then>> second_action
+    ```
+
+    Optionally, the sequential use of this pseudo-operator can be shortened by
+    replacing all but the first pseudo-operator with the `>>` operator:
+    ```
+    first |then>> second >> third >> fourth
+    ```
+
+    See `ActionChain` for a description of this pseudo-operator result behavior.
+    """
+)(
+    ActionChain()
+)
+
+
 mapping_to_chain_of = AnnotationTemplate(
     Callable,
     [[many_or_one[one_value_action]], AnnotationTemplate(ActionChain, [input_annotation])]
