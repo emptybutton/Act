@@ -28,7 +28,7 @@ class Decorator(ABC, Generic[ActionT]):
         self.__signature__ = self._force_signature
 
 
-def calling_signature_of(action: Callable) -> Signature:
+def call_signature_of(action: Callable) -> Signature:
     try:
         return signature(action)
     except ValueError:
