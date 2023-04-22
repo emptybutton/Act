@@ -121,7 +121,7 @@ class ContextualError(Exception, ContextRoot, Generic[ErrorT, ContextT]):
     Error class to store the context of another error and itself.
     Iterates to unpack.
     """
-   
+
     error = property_to("_value")
     context = property_to("_context")
 

@@ -121,7 +121,7 @@ class repeating:
     def __call__(self, value: ValueT) -> ValueT:
         while self._is_valid_to_repeat(value):
             value = self._action(value)
-        
+
         return value
 
     def __repr__(self) -> str:

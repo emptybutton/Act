@@ -38,7 +38,7 @@ __all__ = (
 class Flag(ABC, Generic[PointT]):
     """
     Base class of atomic unique values and their algebraic operations.
-    
+
     Add instances with `|` operator and subtract with `-`.
     Checks for the presence of an instance using the `==` operator.
 
@@ -241,7 +241,7 @@ class Flag(ABC, Generic[PointT]):
                 isinstance(other, Flag)
                 and self._comparison_priority < other._comparison_priority
             )
-            else self._atomically_equal_to(other)  
+            else self._atomically_equal_to(other)
         )
 
     @abstractmethod
@@ -456,7 +456,7 @@ class _AtomicFlag(Flag, ABC):
     def __neg__(self) -> FlagVector:
         return _BinaryFlagVector(self, is_positive=False)
 
-    def __sub__(self, other: Any) -> Self: 
+    def __sub__(self, other: Any) -> Self:
         return nothing if self == other else self
 
     def __len__(self) -> Literal[0] | Literal[1]:
@@ -464,7 +464,7 @@ class _AtomicFlag(Flag, ABC):
 
     def __iter__(self) -> Iterator[Self]:
         return iter((self, ) if self != nothing else tuple())
- 
+
     def that(self, is_for_selection: checker_of[PointT]) -> Self:
         return (
             self

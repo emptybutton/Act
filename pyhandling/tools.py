@@ -129,7 +129,7 @@ def with_attributes(
 
 def documenting_by(documentation: str) -> dirty[reformer_of[ObjectT]]:
     """
-    Function of getting other function that getting value with the input 
+    Function of getting other function that getting value with the input
     documentation from this first function.
     """
 
