@@ -145,7 +145,7 @@ class _ActionCursor(Mapping):
 
     @property
     def _adapted_internal_repr(self) -> str:
-        return "(...)" if self._internal_repr == '...' else self._internal_repr
+        return self.__get_adapted_internal_repr()
 
     def __repr__(self) -> str:
         return f"<action({{}}): {self._internal_repr}>".format(
@@ -489,6 +489,19 @@ class _ActionCursor(Mapping):
 
         else:
             return str(value)
+
+    def __get_adapted_internal_repr(self, *, single: bool = False) -> str:
+        return (
+            f"({self._internal_repr})"
+            if (
+                self._internal_repr == '...'
+                or (
+                    not single
+                    and self._nature.value == _ActionCursorNature.operation
+                )
+            )
+            else self._internal_repr
+        )
 
     @staticmethod
     def __merging_by(
