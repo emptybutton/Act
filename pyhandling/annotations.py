@@ -57,7 +57,9 @@ formatter_of = AnnotationTemplate(Callable, [[input_annotation], str])
 
 transformer_to = AnnotationTemplate(Callable, [[Any], input_annotation])
 
-reformer_of = AnnotationTemplate(Callable, [[input_annotation], input_annotation])
+reformer_of = AnnotationTemplate(
+    Callable, [[input_annotation], input_annotation]
+)
 
 merger_of = AnnotationTemplate(Callable, [
     [input_annotation, input_annotation], input_annotation
