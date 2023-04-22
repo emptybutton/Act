@@ -226,8 +226,11 @@ class _ActionCursor(Mapping):
             ._with_setting(
                 value,
                 in_=place,
-                by=setattr if nature is _ActionCursorNature.attrgetting else setitem,
-            )
+                by=(
+                    setattr
+                    if nature == _ActionCursorNature.attrgetting
+                    else setitem
+                ),
                 return_as=(
                     getattr
                     if nature == _ActionCursorNature.attrgetting
