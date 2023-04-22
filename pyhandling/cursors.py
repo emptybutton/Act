@@ -147,6 +147,10 @@ class _ActionCursor(Mapping):
     def _adapted_internal_repr(self) -> str:
         return self.__get_adapted_internal_repr()
 
+    @property
+    def _single_adapted_internal_repr(self) -> str:
+        return self.__get_adapted_internal_repr(single=True)
+
     def __repr__(self) -> str:
         return f"<action({{}}): {self._internal_repr}>".format(
             ', '.join(map(attrgetter('name'), self._parameters))
@@ -234,7 +238,9 @@ class _ActionCursor(Mapping):
     @_generation_transaction
     def __getitem__(self, key: Special[Self | Tuple[Special[Self]]]) -> Self:
         if self._is_keyword_for_unpacking(key):
-            return self._with(internal_repr=f"**{self._adapted_internal_repr}")
+            return self._with(
+                internal_repr=f"**{self._single_adapted_internal_repr}"
+            )
 
         keys = key if isinstance(key, tuple) else (key, )
         formatted_keys = f"[{', '.join(map(self._repr_of, keys))}]"
@@ -485,7 +491,7 @@ class _ActionCursor(Mapping):
             return value._internal_repr
 
         elif isinstance(value, _ActionCursorUnpacking):
-            return f"*{value.cursor._adapted_internal_repr}"
+            return f"*{value.cursor._single_adapted_internal_repr}"
 
         else:
             return str(value)
