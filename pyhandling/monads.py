@@ -172,10 +172,6 @@ writing = flag("writing", action=lambda action: contextually(action, when=writin
 reading = flag("reading", action=lambda action: contextually(action, when=reading))
 
 
-_ReadingResultT = TypeVar("_ReadingResultT")
-_NewContextT = TypeVar("_NewContextT")
-
-
 @documenting_by(
     """
     Execution context with the ability to read and write to a context.
@@ -194,18 +190,17 @@ _NewContextT = TypeVar("_NewContextT")
 @will
 def considering_context(
     action: Callable[[ValueT], ResultT] | contextually[
-        Callable[[ValueT], Callable[[ContextT], _NewContextT]]
-        | Callable[[ValueT], Callable[[ContextT], _ReadingResultT]],
+        Callable[[ValueT], Callable[[ContextT], MappedT]]
         Special[writing | reading],
     ],
-    root: contextual[ValueT, ContextT]
-) -> contextual[ResultT | ValueT | _ReadingResultT, ContextT | _NewContextT]:
-    root = contexted(root)
+    value: ValueT | contextual[ValueT, ContextT]
+) -> contextual[ResultT | ValueT | MappedT, MappedT | ContextT]:
+    value_and_context = contexted(value)
 
     if not isinstance(action, contextually) or action.context != writing | reading:
-        return saving_context(action)(root)
+        return saving_context(action)(value_and_context)
 
-    value, context = root
+    value, context = value_and_context
 
     transformed_context = action(value)(context)
 
