@@ -94,7 +94,6 @@ class flipped(ActionWrapper):
 
             index_border_to_invert = parameter_index
 
-
         return (
             *parameters[index_border_to_invert::-1],
             *parameters[index_border_to_invert + 1:],
