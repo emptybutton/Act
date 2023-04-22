@@ -168,8 +168,8 @@ def showly(
     )
 
 
-writing = flag("writing", action=lambda action: contextually(action, when=writing))
-reading = flag("reading", action=lambda action: contextually(action, when=reading))
+writing = flag("writing")
+reading = flag("reading")
 
 
 @documenting_by(
