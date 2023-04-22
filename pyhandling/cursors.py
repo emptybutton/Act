@@ -460,13 +460,21 @@ class _ActionCursor(Mapping):
             for cursor_parameter in self._parameters
         )
 
-    def _internal_repr_by(self, model: _OperationModel) -> str:
+    def _internal_repr_by(
+        self,
+        model: _OperationModel,
+        *,
+        on_left_side: bool = True,
+    ) -> str:
         return (
             f"({self._internal_repr})"
             if (
                 self._nature.value == _ActionCursorNature.operation
                 and isinstance(self._nature.context, _OperationModel)
-                and self._nature.context.priority > model.priority
+                and (gt if on_left_side else ge)(
+                    self._nature.context.priority,
+                    model.priority,
+                )
             )
             else self._internal_repr
         )
@@ -490,7 +498,10 @@ class _ActionCursor(Mapping):
         is_right: bool = False,
     ) -> Callable[[Self, Special[Self]], Self]:
         def cursor_merger(cursor: Self, value: Special[Self]) -> Self:
-            internal_repr = cursor._internal_repr_by(model)
+            internal_repr = cursor._internal_repr_by(
+                model,
+                on_left_side=not is_right
+            )
 
             return (
                 cursor
@@ -509,7 +520,7 @@ class _ActionCursor(Mapping):
                             if not is_right
                             else f"{{}} {model.sign} {internal_repr}"
                         ).format(
-                            value._internal_repr_by(model)
+                            value._internal_repr_by(model, on_left_side=is_right)
                             if isinstance(value, _ActionCursor)
                             else value
                         )
