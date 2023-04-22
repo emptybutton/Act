@@ -39,10 +39,15 @@ def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
     old_setattr = class_.__setattr__
 
     @wraps(old_setattr)
-    def new_setattr(instance: object, attribute_name: str, attribute_value: Any) -> None:
+    def new_setattr(
+        instance: object,
+        attribute_name: str,
+        attribute_value: Any,
+    ) -> None:
         if attribute_name and attribute_name[0] != '_':
             raise AttributeError(
-                f"cannot set '{attribute_name}' attribute of publicly immutable type '{class_}'"
+                f"cannot set '{attribute_name}' attribute of publicly immutable"
+                f" type '{class_}'"
             )
 
         return old_setattr(instance, attribute_name, attribute_value)
@@ -75,15 +80,20 @@ class property_to:
         self.setting_converter = setting_converter
 
     def __get__(self, instance: object, owner: type) -> Any:
-        return self.getting_converter(getattr(instance, self.delegated_attribute_name))
+        return self.getting_converter(getattr(
+            instance,
+            self.delegated_attribute_name,
+        ))
 
     def __set__(self, instance: object, value: Any) -> None:
         if not self.settable:
             raise AttributeError(
-                "delegating property of '{attribute_name}' for '{class_name}' object is not settable".format(
-                    attribute_name=self.delegated_attribute_name,
-                    class_name=type(instance).__name__
-                )
+                f"delegating property of '{self.delegated_attribute_name}' for"
+                f" '{type(instance).__name__}' object is not settable"
             )
 
-        setattr(instance, self.delegated_attribute_name, self.setting_converter(value))
+        setattr(
+            instance,
+            self.delegated_attribute_name,
+            self.setting_converter(value),
+        )

@@ -50,14 +50,18 @@ class fragmentarily(ActionWrapper):
     def _parameters_to_call(self) -> OrderedDict[str, Parameter]:
         return OrderedDict(
             (_, parameter)
-            for _, parameter in calling_signature_of(self._action).parameters.items()
+            for _, parameter in (
+                calling_signature_of(self._action).parameters.items()
+            )
             if _is_parameter_settable(parameter)
         )
 
     @cached_property
     def _force_signature(self) -> Signature:
         return calling_signature_of(self).replace(
-            return_annotation=calling_signature_of(self._action).return_annotation | Self,
+            return_annotation=(
+                calling_signature_of(self._action).return_annotation | Self,
+            ),
             parameters=tuple(
                 (
                     parameter.replace(
@@ -66,7 +70,9 @@ class fragmentarily(ActionWrapper):
                     if _is_parameter_settable(parameter)
                     else parameter
                 )
-                for parameter in calling_signature_of(self._action).parameters.values()
+                for parameter in (
+                    calling_signature_of(self._action).parameters.values()
+                )
             )
         )
 
@@ -100,7 +106,11 @@ class flipped(ActionWrapper):
         )
 
 
-def mirrored_partial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
+def mirrored_partial(
+    action: action_for[ResultT],
+    *args,
+    **kwargs,
+) -> action_for[ResultT]:
     """
     Function equivalent to pyhandling.handlers.rpartial but with the
     difference that additional arguments from this function call are unfolded.

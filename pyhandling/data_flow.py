@@ -1,14 +1,18 @@
-from functools import cached_property, update_wrapper
+from abc import ABC, abstractmethod
+from functools import cached_property, partial, reduce
 from inspect import Signature, Parameter, signature
-from typing import Callable, Any, _CallableGenericAlias, Optional, Tuple
+from typing import (
+    Callable, Any, _CallableGenericAlias, Optional, Tuple, Self, Iterable
+)
 from operator import is_
 
-from pyhandling.annotations import P, ValueT, ResultT, action_for, one_value_action, dirty, ArgumentsT
-from pyhandling.arguments import ArgumentPack
+from pyhandling.annotations import (
+    P, ValueT, ResultT, action_for, one_value_action, dirty, ArgumentsT
+)
 from pyhandling.atoming import atomically
-from pyhandling.branching import mergely, bind
+from pyhandling.branching import mergely, bind, then
 from pyhandling.errors import ReturningError
-from pyhandling.partials import will
+from pyhandling.partials import will, rpartial
 from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
 from pyhandling.synonyms import returned, on
 from pyhandling.tools import documenting_by
@@ -60,7 +64,12 @@ class eventually(ActionWrapper):
     Decorator function to call with predefined arguments instead of input ones.
     """
 
-    def __init__(self, action: Callable[P, ResultT], *args: P.args, **kwargs: P.kwargs):
+    def __init__(
+        self,
+        action: Callable[P, ResultT],
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ):
         super().__init__(action)
         self._args = args
         self._kwargs = kwargs
@@ -99,7 +108,7 @@ def with_result(result: ResultT, action: Callable[P, Any]) -> Callable[P, Result
 def dynamically(
     action: action_for[ResultT],
     *argument_placeholders: one_value_action | Ellipsis,
-    **keyword_argument_placeholders: one_value_action  | Ellipsis,
+    **keyword_argument_placeholders: one_value_action | Ellipsis,
 ) -> action_for[ResultT]:
     """Function to dynamically determine arguments for an input action."""
 
@@ -117,7 +126,12 @@ def dynamically(
 
 @atomically
 class double(ActionWrapper):
-    def __call__(self, value: Any, *result_action_args, **result_action_kwargs) -> Any:
+    def __call__(
+        self,
+        value: Any,
+        *result_action_args,
+        **result_action_kwargs,
+    ) -> Any:
         return self._action(value)(*result_action_args, **result_action_kwargs)
 
     @property
@@ -162,7 +176,10 @@ class once:
 
 @atomically
 class via_items:
-    def __init__(self, action: Callable[[ValueT], ResultT] | Callable[[*ArgumentsT], ResultT]):
+    def __init__(
+        self,
+        action: Callable[[ValueT], ResultT] | Callable[[*ArgumentsT], ResultT],
+    ):
         self._action = action
 
     def __repr__(self) -> str:

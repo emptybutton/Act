@@ -3,13 +3,17 @@ from functools import cached_property, partial
 from dataclasses import dataclass, field
 from inspect import Signature
 from types import MappingProxyType
-from typing import Final, Generic, Iterable, Optional, Tuple, Self, Any, Callable
+from typing import (
+    Final, Generic, Iterable, Optional, Tuple, Self, Any, Callable
+)
 
 from pyannotating import Special
 
 from pyhandling.annotations import KeyT, ValueT
 from pyhandling.atoming import atomically
-from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
+from pyhandling.signature_assignmenting import (
+    ActionWrapper, calling_signature_of
+)
 
 
 __all__ = ("ArgumentKey", "ArgumentPack", "as_argument_pack", "unpackly")
@@ -20,7 +24,9 @@ _EMPTY_DEFAULT_VALUE: Final[object] = object()
 
 @dataclass(frozen=True)
 class ArgumentKey(Generic[KeyT, ValueT]):
-    """Data class for structuring getting value from `ArgumentPack` via `[]`."""
+    """
+    Data class for structuring getting value from `ArgumentPack` via `[]`.
+    """
 
     key: KeyT
     is_keyword: bool = field(default=False, kw_only=True)
@@ -39,9 +45,15 @@ class ArgumentPack:
     instance.
     """
 
-    def __init__(self, args: Iterable = tuple(), kwargs: Optional[dict] = None):
+    def __init__(
+        self,
+        args: Iterable = tuple(),
+        kwargs: Optional[dict] = None,
+    ):
         self._args = tuple(args)
-        self._kwargs = MappingProxyType(kwargs if kwargs is not None else dict())
+        self._kwargs = MappingProxyType(
+            kwargs if kwargs is not None else dict()
+        )
 
     @property
     def args(self) -> Tuple:
@@ -64,8 +76,13 @@ class ArgumentPack:
     def __str__(self) -> str:
         return "{formatted_args}{argument_separation_part}{formatted_kwargs}".format(
             formatted_args=', '.join(map(str, self.args)),
-            argument_separation_part=', ' if self.args and self.kwargs else str(),
-            formatted_kwargs=', '.join(map(lambda item: f"{item[0]}={item[1]}", self.kwargs.items())),
+            argument_separation_part=(
+                ', ' if self.args and self.kwargs else str(),
+            ),
+            formatted_kwargs=', '.join(map(
+                lambda item: f"{item[0]}={item[1]}",
+                self.kwargs.items())
+            ),
         )
 
     def __eq__(self, other: Special[Self]) -> bool:
@@ -97,7 +114,9 @@ class ArgumentPack:
         )
 
     def merge_with(self, argument_pack: Self) -> Self:
-        """Method to create another pack by merging with an input argument pack."""
+        """
+        Method to create another pack by merging with an input argument pack.
+        """
 
         return self.__class__(
             (*self.args, *argument_pack.args),
@@ -107,11 +126,20 @@ class ArgumentPack:
     def only_with(self, *argument_keys: ArgumentKey) -> Self:
         """Method for cloning with values obtained from input keys."""
 
-        keyword_argument_keys = set(filter(lambda argument_key: argument_key.is_keyword, argument_keys))
+        keyword_argument_keys = set(filter(
+            lambda argument_key: argument_key.is_keyword,
+            argument_keys
+        ))
 
         return self.__class__(
-            tuple(self[argument_key] for argument_key in set(argument_keys) - keyword_argument_keys),
-            {keyword_argument_key.key: self[keyword_argument_key] for keyword_argument_key in keyword_argument_keys}
+            tuple(
+                self[argument_key]
+                for argument_key in set(argument_keys) - keyword_argument_keys
+            ),
+            {
+                keyword_argument_key.key: self[keyword_argument_key]
+                for keyword_argument_key in keyword_argument_keys
+            },
         )
 
     def without(self, *argument_keys: ArgumentKey) -> Self:
@@ -158,7 +186,8 @@ def as_argument_pack(*args, **kwargs) -> ArgumentPack:
 @atomically
 class unpackly(ActionWrapper):
     """
-    Decorator function to unpack the input `ArgumentPack` into the input function.
+    Decorator function to unpack the input `ArgumentPack` into the input
+    function.
     """
 
     def __call__(self, pack: ArgumentPack) -> Any:
@@ -166,6 +195,6 @@ class unpackly(ActionWrapper):
 
     @cached_property
     def _force_signature(self) -> Signature:
-        return calling_signature_of(self).replace(
-            return_annotation=calling_signature_of(self._action).return_annotation
-        )
+        return calling_signature_of(self).replace(return_annotation=(
+            calling_signature_of(self._action).return_annotation
+        ))

@@ -1,19 +1,21 @@
-from abc import ABC, abstractmethod
-from functools import cached_property, update_wrapper
+from abc import ABC
+from functools import update_wrapper
 from inspect import Signature
-from operator import attrgetter, not_
-from typing import Generic, Any, Iterator, Callable, Iterable, GenericAlias, TypeVar, Optional
+from typing import (
+    Generic, Any, Iterator, Callable, Iterable, GenericAlias, TypeVar, Optional
+)
 
 from pyannotating import Special
 
-from pyhandling.annotations import ValueT, ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, reformer_of, FlagT, action_of
-from pyhandling.atoming import atomic, atomically
-from pyhandling.flags import flag, nothing, Flag, pointed, FlagVector
+from pyhandling.annotations import (
+    ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, FlagT
+)
+from pyhandling.atoming import atomic
+from pyhandling.flags import nothing, Flag, pointed, FlagVector
 from pyhandling.immutability import property_to
-from pyhandling.language import then, by
 from pyhandling.partials import fragmentarily
-from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of
-from pyhandling.synonyms import with_unpacking, repeating
+from pyhandling.signature_assignmenting import calling_signature_of
+from pyhandling.synonyms import repeating
 from pyhandling.tools import documenting_by, NotInitializable
 
 
@@ -167,7 +169,9 @@ class context_pointed(ContextRoot, Generic[ActionT, FlagT]):
         return contextual(self._value, when=atomic(self._context).point)
 
 
-def context_oriented(root_values: contextual_like[ValueT, ContextT]) -> contextual[ContextT, ValueT]:
+def context_oriented(
+    root_values: contextual_like[ValueT, ContextT]
+) -> contextual[ContextT, ValueT]:
     """Function to swap a context and value."""
 
     return contextual(*reversed(tuple(root_values)))
@@ -185,7 +189,9 @@ def contexted(
     already present.
     """
 
-    value, context = value if isinstance(value, ContextRoot) else contextual(value)
+    value, context = (
+        value if isinstance(value, ContextRoot) else contextual(value)
+    )
 
     if isinstance(when, FlagVector):
         context = when(pointed(context))

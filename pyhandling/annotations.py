@@ -1,7 +1,11 @@
-from types import UnionType
-from typing import Callable, Any, TypeAlias, TypeVar, ParamSpec, TypeVarTuple, Iterable, Self, Iterator, Tuple, _CallableGenericAlias, _CallableType, _UnionGenericAlias
+from typing import (
+    Callable, Any, TypeAlias, TypeVar, ParamSpec, TypeVarTuple, Iterable,
+    Tuple, _CallableGenericAlias, _CallableType,
+)
 
-from pyannotating import FormalAnnotation, AnnotationTemplate, input_annotation, Special
+from pyannotating import (
+    FormalAnnotation, AnnotationTemplate, input_annotation, Special
+)
 
 
 __all__ = (
@@ -153,18 +157,28 @@ pure = CallableFormalAnnotation(
 
 
 class _CallableConstructor:
-    def __getitem__(self, annotations: Special[Iterable]) -> _CallableGenericAlias | _CallableType:
+    def __getitem__(
+        self,
+        annotations: Special[Iterable],
+    ) -> _CallableGenericAlias | _CallableType:
         if not isinstance(annotations, _AnnotationsT):
             annotations = (annotations, )
 
         annotations = tuple(
-            self[annotation] if isinstance(annotation, _AnnotationsT) else annotation
+            (
+                self[annotation]
+                if isinstance(annotation, _AnnotationsT)
+                else annotation
+            )
             for annotation in annotations
         )
 
         return self._annotation_from(annotations)
 
-    def _annotation_from(self, annotations: Tuple) -> _CallableGenericAlias | _CallableType:
+    def _annotation_from(
+        self,
+        annotations: Tuple,
+    ) -> _CallableGenericAlias | _CallableType:
         if len(annotations) == 0:
             return Callable
         elif len(annotations) == 1:

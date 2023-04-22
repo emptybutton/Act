@@ -1,18 +1,23 @@
-from functools import partial, reduce, wraps, cached_property, update_wrapper
-from math import inf
-from operator import itemgetter, or_, is_not
-from typing import Union, TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Optional, Type, Tuple, NamedTuple, _CallableGenericAlias
+from functools import partial, reduce, cached_property, update_wrapper
 from inspect import Signature, Parameter
+from operator import or_, is_not
+from typing import (
+    TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Type,
+    Tuple, NamedTuple, _CallableGenericAlias,
+)
 
-from pyannotating import many_or_one, Special, AnnotationTemplate, input_annotation
+from pyannotating import (
+    many_or_one, Special, AnnotationTemplate, input_annotation
+)
 
-from pyhandling.annotations import ResultT, one_value_action, P, action_for, reformer_of, ValueT, PositiveConditionResultT, NegativeConditionResultT, ErrorHandlingResultT, checker_of
+from pyhandling.annotations import ResultT, one_value_action, P, ValueT
 from pyhandling.atoming import atomically
 from pyhandling.errors import TemplatedActionChainError
 from pyhandling.immutability import property_to
 from pyhandling.partials import rpartial
-from pyhandling.signature_assignmenting import calling_signature_of, annotation_sum
+from pyhandling.signature_assignmenting import calling_signature_of
 from pyhandling.synonyms import returned, with_unpacking, on
+from pyhandling.tools import documenting_by
 
 
 __all__ = (
@@ -46,9 +51,9 @@ class bind:
 
     @cached_property
     def __signature__(self) -> Signature:
-        return calling_signature_of(self._first).replace(
-            return_annotation=calling_signature_of(self._second).return_annotation
-        )
+        return calling_signature_of(self._first).replace(return_annotation=(
+            calling_signature_of(self._second).return_annotation
+        ))
 
 
 class ActionChain(Generic[_NodeT]):
@@ -91,7 +96,9 @@ class ActionChain(Generic[_NodeT]):
 
     def __call__(self, *args, **kwargs) -> Any:
         if self._is_template:
-            raise TemplatedActionChainError("Templated ActionChain is not callable")
+            raise TemplatedActionChainError(
+                "Templated ActionChain is not callable"
+            )
 
         return self._main_action(*args, **kwargs)
 
@@ -136,7 +143,9 @@ class ActionChain(Generic[_NodeT]):
         return type(self)((*self, *other) if not is_right else (*other, *self))
 
 
-def binding_by(template: Iterable[Callable | Ellipsis]) -> Callable[[Callable], ActionChain]:
+def binding_by(
+    template: Iterable[Callable | Ellipsis],
+) -> Callable[[Callable], ActionChain]:
     """
     Function to create a function by insertion its input function in the input
     template.
@@ -188,9 +197,10 @@ class merged:
         )
 
         return_annotations = tuple(
-            partial(filter, rpartial(is_not, _empty))(
-                map(lambda act: calling_signature_of(act).return_annotation, self._actions)
-            )
+            partial(filter, rpartial(is_not, Parameter.empty))(map(
+                lambda act: calling_signature_of(act).return_annotation,
+                self._actions
+            ))
         )
 
         return_annotation = (
@@ -241,26 +251,36 @@ class mergely:
             ),
             **{
                 _: keyword_parallel_action(*args, **kwargs)
-                for _, keyword_parallel_action in self._keyword_parallel_actions.items()
+                for _, keyword_parallel_action in (
+                    self._keyword_parallel_actions.items()
+                )
             }
         )
 
     def __repr__(self) -> str:
-        keyword_part = '='.join(
-            f"{keyword}={action}"
-            for keyword, action in self._keyword_parallel_actions.items()
-        )
-
         return (
             f"mergely("
-            f"{self._merging_of} -> ({', '.join(map(str, self._parallel_actions))}"
-            f"{', ' if self._parallel_actions and self._keyword_parallel_actions else str()}"
-            f"{keyword_part}"
+            f"{self._merging_of} -> ("
+            f"{', '.join(map(str, self._parallel_actions))}"
+            "{part_between_positions_and_keywords}"
+            "{keyword_part}"
             f'))'
+        ).format(
+            part_between_positions_and_keywords=(
+                ', '
+                if self._parallel_actions and self._keyword_parallel_actions
+                else str()
+            ),
+            keyword_part='='.join(
+                f"{keyword}={action}"
+                for keyword, action in self._keyword_parallel_actions.items()
+            )
         )
 
     def __get_signature(self) -> Signature:
-        return_annotation = calling_signature_of(self._merging_of).return_annotation
+        return_annotation = calling_signature_of(
+            self._merging_of,
+        ).return_annotation
 
         return calling_signature_of(self._merging_of).replace(
             return_annotation=(
@@ -282,7 +302,10 @@ stop = object()
 
 
 def branching(
-    *forks: tuple[Special[Callable[P, bool]], Special[Callable[P, ResultT] | ResultT]],
+    *forks: tuple[
+        Special[Callable[P, bool]],
+        Special[Callable[P, ResultT] | ResultT],
+    ],
     else_: Callable[P, ResultT] | ResultT = returned,
 ) -> Callable[P, ResultT]:
     """
@@ -338,7 +361,10 @@ then = documenting_by(
 
 mapping_to_chain_of = AnnotationTemplate(
     Callable,
-    [[many_or_one[one_value_action]], AnnotationTemplate(ActionChain, [input_annotation])]
+    [[one_value_action | ActionChain[one_value_action]], AnnotationTemplate(
+        ActionChain,
+        [input_annotation],
+    )],
 )
 
 mapping_to_chain: TypeAlias = mapping_to_chain_of[one_value_action]

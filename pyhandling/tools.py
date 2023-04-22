@@ -4,7 +4,10 @@ from math import inf
 from operator import eq
 from typing import Iterable, Tuple, NoReturn
 
-from pyhandling.annotations import event_for, ObjectT, dirty, reformer_of, checker_of, ValueT, ActionT, action_for
+from pyhandling.annotations import (
+    event_for, ObjectT, dirty, reformer_of, checker_of, ValueT, ActionT,
+    action_for
+)
 from pyhandling.errors import InvalidInitializationError
 from pyhandling.immutability import property_to
 
@@ -37,7 +40,10 @@ class Clock:
         self._initial_ticks_to_disability = ticks_to_disability
 
     def __repr__(self) -> str:
-        return f"{'in' if not self else str()}valid {self.__class__.__name__}({self.ticks_to_disability})"
+        return (
+            f"{'in' if not self else str()}valid {self.__class__.__name__}"
+            f"({self.ticks_to_disability})"
+        )
 
     def __bool__(self) -> bool:
         return self.ticks_to_disability > 0
@@ -99,8 +105,8 @@ def with_attributes(
         {
             '__doc__': (
                 """
-                Class used as a standard object factory for subsequent stuffing with
-                attributes in `with_attributes`
+                Class used as a standard object factory for subsequent stuffing
+                with attributes in `with_attributes`
                 """
             ),
             '__repr__': lambda object_: "<{}>".format(', '.join(

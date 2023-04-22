@@ -1,18 +1,25 @@
 from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
-from typing import Self, Iterator, Any, Generic, TypeVar, Protocol, Callable, Optional, Tuple, Union, Literal, Mapping
+from typing import (
+    Self, Iterator, Any, Generic, TypeVar, Callable, Optional, Tuple, Union,
+    Literal, Mapping
+)
 from operator import or_, sub, attrgetter
 
 from pyannotating import Special, AnnotationTemplate, input_annotation
 
 from pyhandling.atoming import atomic
-from pyhandling.annotations import ValueT, FlagT, checker_of, PointT, P, ResultT, merger_of, reformer_of
+from pyhandling.annotations import (
+    ValueT, FlagT, checker_of, PointT, P, ResultT, merger_of, reformer_of
+)
+from pyhandling.data_flow import by
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
-from pyhandling.language import by
 from pyhandling.signature_assignmenting import calling_signature_of
-from pyhandling.structure_management import with_opened_items, in_collection, dict_of
+from pyhandling.structure_management import (
+    with_opened_items, in_collection, dict_of
+)
 from pyhandling.synonyms import returned, on
 from pyhandling.tools import with_attributes
 
@@ -344,13 +351,19 @@ class _DoubleFlag(Flag, ABC):
     def __repr__(self) -> str:
         to_repr_of = on(isinstance |by| _ValueFlag, attrgetter("_value"))
 
-        return f"{to_repr_of(self._first)} {self._separation_sign} {to_repr_of(self._second)}"
+        return f"{{}} {self._separation_sign} {{}}".format(
+            to_repr_of(self._first),
+            to_repr_of(self._second),
+        )
 
     def __getatom__(self) -> Flag:
         return atomic(self._first)
 
     def __pos__(self) -> FlagVector:
-        return _BinaryFlagVector(self._first, next_=_BinaryFlagVector(self._second))
+        return _BinaryFlagVector(
+            self._first,
+            next_=_BinaryFlagVector(self._second),
+        )
 
     def __neg__(self) -> FlagVector:
         return _BinaryFlagVector(
@@ -384,7 +397,10 @@ class _DoubleFlag(Flag, ABC):
     def __iter__(self) -> Iterator[Flag]:
         return chain(self._first, self._second)
 
-    def that(self, is_for_selection: checker_of[_FirstPointT | _SecondPointT]) -> Flag:
+    def that(
+        self,
+        is_for_selection: checker_of[_FirstPointT | _SecondPointT],
+    ) -> Flag:
         return self._combined(
             self._first.that(is_for_selection),
             self._second.that(is_for_selection),
@@ -450,7 +466,11 @@ class _AtomicFlag(Flag, ABC):
         return iter((self, ) if self != nothing else tuple())
  
     def that(self, is_for_selection: checker_of[PointT]) -> Self:
-        return self if self != nothing and is_for_selection(self.point) else nothing
+        return (
+            self
+            if self != nothing and is_for_selection(self.point)
+            else nothing
+        )
 
     def _atomically_equal_to(self, other: Any) -> bool:
         return type(self) is type(other) and hash(self) == hash(other)
@@ -544,7 +564,11 @@ def flag(
     See `Flag` for behavior info.
     """
 
-    return _NominalFlag(name, sign) if action is None else _ActionFlag(name, sign, action)
+    return (
+        _NominalFlag(name, sign)
+        if action is None
+        else _ActionFlag(name, sign, action)
+    )
 
 
 def pointed(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:

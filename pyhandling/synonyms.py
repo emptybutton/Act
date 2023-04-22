@@ -5,10 +5,15 @@ from inspect import Signature, Parameter
 
 from pyannotating import Special
 
-from pyhandling.annotations import P, ValueT, ResultT, ContextT, ErrorHandlingResultT, action_for, PositiveConditionResultT, NegativeConditionResultT, reformer_of, checker_of, RightT, LeftT
+from pyhandling.annotations import (
+    P, ValueT, ResultT, ErrorHandlingResultT, action_for, reformer_of,
+    checker_of, RightT, LeftT
+)
 from pyhandling.atoming import atomically
 from pyhandling.partials import fragmentarily
-from pyhandling.signature_assignmenting import ActionWrapper, calling_signature_of, annotation_sum
+from pyhandling.signature_assignmenting import (
+    ActionWrapper, calling_signature_of, annotation_sum
+)
 from pyhandling.tools import to_check, as_action
 
 
@@ -141,7 +146,11 @@ class trying_to:
         self._rollback = rollback
         self.__signature__ = self.__get_signature()
 
-    def __call__(self, *args: P.args, **kwargs: P.args) -> ResultT | ErrorHandlingResultT:
+    def __call__(
+        self,
+        *args: P.args,
+        **kwargs: P.args,
+    ) -> ResultT | ErrorHandlingResultT:
         try:
             return self._action(*args, **kwargs)
         except Exception as error:
@@ -160,7 +169,10 @@ class trying_to:
 
 
 @fragmentarily
-def with_(context_manager: AbstractContextManager, action: action_for[ResultT]) -> ResultT:
+def with_(
+    context_manager: AbstractContextManager,
+    action: action_for[ResultT],
+) -> ResultT:
     """Function emulating the `with as` context manager."""
 
     with context_manager as context:
@@ -169,7 +181,9 @@ def with_(context_manager: AbstractContextManager, action: action_for[ResultT]) 
 
 @atomically
 class with_unpacking(ActionWrapper):
-    """Decorator function to unpack the passed collection into the input action."""
+    """
+    Decorator function to unpack the passed collection into the input action.
+    """
 
     def __call__(self, arguments: Iterable) -> Any:
         return self._action(*arguments)
@@ -193,7 +207,9 @@ class with_keyword_unpacking(ActionWrapper):
     @property
     def _force_signature(self) -> Signature:
         return calling_signature_of(self._action).replace(parameters=[Parameter(
-            "arguments", Parameter.POSITIONAL_OR_KEYWORD, annotation=Mapping[str, Any]
+            "arguments",
+            Parameter.POSITIONAL_OR_KEYWORD,
+            annotation=Mapping[str, Any],
         )])
 
 
@@ -203,5 +219,9 @@ def collection_of(*args: ValueT) -> Tuple[ValueT, ...]:
     return args
 
 
-def with_keyword(keyword: str, value: Any, action: action_for[ResultT]) -> action_for[ResultT]:
+def with_keyword(
+    keyword: str,
+    value: Any,
+    action: action_for[ResultT],
+) -> action_for[ResultT]:
     return partial(action, **{keyword: value})

@@ -1,18 +1,26 @@
-from operator import attrgetter, eq, pos
+from operator import attrgetter, eq, pos, call
 from typing import Callable, Any, TypeVar, Tuple
 
-from pyannotating import many_or_one, AnnotationTemplate, input_annotation, Special
+from pyannotating import (
+    many_or_one, AnnotationTemplate, input_annotation, Special
+)
 
-from pyhandling.annotations import one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of, checker_of, event_for, PointT
+from pyhandling.annotations import (
+    one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of,
+    checker_of, event_for, PointT
+)
 from pyhandling.atoming import atomically
-from pyhandling.branching import ActionChain, mapping_to_chain_of, mapping_to_chain, binding_by, branching
-from pyhandling.contexting import contextual, contextually, contexted, context_pointed, context_oriented, ContextRoot
-from pyhandling.data_flow import returnly, dynamically, eventually
+from pyhandling.branching import (
+    ActionChain, mapping_to_chain_of, binding_by, branching, then
+)
+from pyhandling.contexting import (
+    contextual, contextually, contexted, context_oriented, ContextRoot
+)
+from pyhandling.data_flow import returnly, eventually, by, to
 from pyhandling.flags import flag, nothing, Flag, pointed, pointed_or
-from pyhandling.language import then, by, to
 from pyhandling.partials import will, fragmentarily
-from pyhandling.structure_management import in_collection, as_collection
-from pyhandling.synonyms import returned, raise_, trying_to, on
+from pyhandling.structure_management import in_collection, as_collection, tmap
+from pyhandling.synonyms import raise_, trying_to, on
 from pyhandling.tools import documenting_by, to_check
 from pyhandling.utils import isnt
 
@@ -260,8 +268,9 @@ def future_from(
     )
 
 
-to_points: mapping_to_chain_of[Callable[[pointed_or[PointT]], Flag[PointT]]] = documenting_by(
-    """Execution context of flag `points`."""
+to_points: mapping_to_chain_of[Callable[[pointed_or[PointT]], Flag[PointT]]]
+to_points = documenting_by(
+    """Execution context to execute inside `Flag.points`."""
 )(
     monadically(lambda action: lambda flags: pointed(*map(
         action,

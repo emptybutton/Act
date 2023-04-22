@@ -3,7 +3,10 @@ from functools import partial, wraps
 from operator import not_, add, truediv
 from typing import Callable, Optional, Type, Concatenate
 
-from pyhandling.annotations import dirty, action_of, ValueT, ResultT, checker_of, action_for, P, reformer_of, ErrorT
+from pyhandling.annotations import (
+    dirty, action_of, ValueT, ResultT, checker_of, action_for, P, reformer_of,
+    ErrorT
+)
 from pyhandling.atoming import atomically
 from pyhandling.branching import binding_by
 from pyhandling.contexting import contextual
