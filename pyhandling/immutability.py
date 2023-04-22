@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import deepcopy, copy
 from functools import wraps
 from typing import Callable, Type, Any, Concatenate, Self
 
@@ -10,7 +10,10 @@ from pyhandling.signature_assignmenting import calling_signature_of
 __all__ = ("to_clone", "publicly_immutable", "property_to")
 
 
-def to_clone(method: Callable[Concatenate[ObjectT, P], Any]) -> Callable[Concatenate[ObjectT, P], ObjectT]:
+def to_clone(
+    method: Callable[Concatenate[ObjectT, P], Any],
+    deeply: bool = True,
+) -> Callable[Concatenate[ObjectT, P], ObjectT]:
     """
     Decorator function to spawn new objects by cloning and applying an input
     method to them.
@@ -18,7 +21,7 @@ def to_clone(method: Callable[Concatenate[ObjectT, P], Any]) -> Callable[Concate
 
     @wraps(method)
     def wrapper(instance: ObjectT, *args: P.args, **kwargs: P.kwargs) -> ObjectT:
-        clone = deepcopy(instance)
+        clone = (deepcopy if deeply else copy)(instance)
         method(clone, *args, **kwargs)
 
         return clone
