@@ -2,12 +2,20 @@ from dataclasses import dataclass
 from functools import partial, reduce, wraps
 from itertools import count
 from inspect import Signature, Parameter, stack
-from operator import call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub, mul, floordiv, truediv, mod, or_, and_, lshift, is_, is_not, getitem, contains, xor, rshift, matmul, setitem
-from typing import Iterable, Callable, Any, Mapping, Self, NoReturn, Tuple, Optional, Literal
+from operator import (
+    call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub,
+    mul, floordiv, truediv, mod, or_, lshift, is_, is_not, getitem, contains,
+    xor, rshift, matmul, setitem
+)
+from typing import (
+    Iterable, Callable, Any, Mapping, Self, Tuple, Optional, Literal
+)
 
 from pyannotating import Special
 
-from pyhandling.annotations import one_value_action, merger_of, event_for, ResultT, reformer_of
+from pyhandling.annotations import (
+    merger_of, event_for, ResultT, reformer_of, P, ObjectT
+)
 from pyhandling.arguments import ArgumentPack
 from pyhandling.branching import ActionChain, binding_by, on, then
 from pyhandling.contexting import contextual
@@ -120,7 +128,10 @@ class _ActionCursor(Mapping):
         ),
         internal_repr: str = '...'
     ):
-        self._parameters = tuple(sorted(set(parameters), key=attrgetter("priority")))
+        self._parameters = tuple(sorted(
+            set(parameters),
+            key=attrgetter("priority"),
+        ))
         self._actions = actions
         self._previous = previous
         self._nature = nature
@@ -168,7 +179,8 @@ class _ActionCursor(Mapping):
                 self
                 ._with_packing_of(args, by=tuple)
                 ._with(internal_repr=(
-                    f"({', '.join(map(self._repr_of, args))}{', ' if len(args) <= 1 else str()})"
+                    f"({', '.join(map(self._repr_of, args))}"
+                    f"{', ' if len(args) <= 1 else str()})"
                 ))
             )
 
@@ -180,9 +192,10 @@ class _ActionCursor(Mapping):
 
         if len(args) > len(self._parameters):
             raise ActionCursorError(
-                f"Extra arguments: {', '.join(map(str, args[len(self._parameters):]))}"
+                f"Extra arguments: "
+                f"{', '.join(map(str, args[len(self._parameters):]))}"
             )
-        
+
         elif len(args) == len(self._parameters):
             return self._run(contextual(
                 nothing,
@@ -206,7 +219,10 @@ class _ActionCursor(Mapping):
             internal_repr=f"{self._adapted_internal_repr}({{}})".format(
                 ', '.join(map(self._repr_of, args))
                 + (', ' if args and kwargs else str())
-                + ', '.join(f"{key}={self._repr_of(arg)}" for key, arg in kwargs.items())
+                + ', '.join(
+                    f"{key}={self._repr_of(arg)}"
+                    for key, arg in kwargs.items()
+                )
             )
         )
 
@@ -214,8 +230,12 @@ class _ActionCursor(Mapping):
     def set(self, value: Any) -> Self:
         nature, place = self._nature
 
-        if nature != _ActionCursorNature.attrgetting | _ActionCursorNature.itemgetting:
-            raise ActionCursorError("Setting a value when there is nowhere to set")
+        if nature != (
+            _ActionCursorNature.attrgetting | _ActionCursorNature.itemgetting
+        ):
+            raise ActionCursorError(
+                "Setting a value when there is nowhere to set"
+            )
 
         return (
             self
@@ -331,8 +351,12 @@ class _ActionCursor(Mapping):
         internal_repr: Optional[str] = None,
     ) -> None:
         return type(self)(
-            actions=action if isinstance(action, ActionChain) else ActionChain([action]),
             parameters=on(None, self._parameters)(parameters),
+            actions=(
+                action
+                if isinstance(action, ActionChain)
+                else ActionChain([action])
+            ),
             previous=self._previous if previous is None else previous,
             nature=on(None, self._nature)(nature),
             internal_repr=on(None, self._internal_repr)(internal_repr),
@@ -377,7 +401,11 @@ class _ActionCursor(Mapping):
         ))
 
     @_generation_transaction
-    def _with_calling_by(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
+    def _with_calling_by(
+        self,
+        *args: Special[Self],
+        **kwargs: Special[Self],
+    ) -> Self:
         return (
             self
             ._with_partial_application_from(args)
@@ -389,7 +417,10 @@ class _ActionCursor(Mapping):
         )
 
     @_generation_transaction
-    def _with_partial_application_from(self, arguments: Iterable[Special[Self]]) -> Self:
+    def _with_partial_application_from(
+        self,
+        arguments: Iterable[Special[Self]],
+    ) -> Self:
         arguments = tuple(arguments)
 
         if not arguments:
@@ -397,7 +428,10 @@ class _ActionCursor(Mapping):
 
         return reduce(
             lambda cursor, argument: (
-                cursor._merged_with(argument.cursor, by=lambda a, b: partial(a, *b))
+                cursor._merged_with(
+                    argument.cursor,
+                    by=lambda a, b: partial(a, *b)
+                )
                 if isinstance(argument, _ActionCursorUnpacking)
                 else cursor._merged_with(argument, by=partial)
             ),
@@ -405,7 +439,10 @@ class _ActionCursor(Mapping):
         )
 
     @_generation_transaction
-    def _with_keyword_partial_application_by(self, argument_by_key: Mapping[str, Special[Self]]) -> Self:
+    def _with_keyword_partial_application_by(
+        self,
+        argument_by_key: Mapping[str, Special[Self]],
+    ) -> Self:
         if not argument_by_key.keys():
             return self
 
