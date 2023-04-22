@@ -8,7 +8,7 @@ from pyannotating import Special
 from pyhandling.annotations import ActionT
 
 
-__all__ = ("ActionWrapper", "calling_signature_of", "annotation_sum")
+__all__ = ("Decorator", "call_signature_of", "annotation_sum")
 
 
 class Decorator(ABC, Generic[ActionT]):
