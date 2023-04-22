@@ -33,7 +33,8 @@ class Clock:
     initial_ticks_to_disability = property_to("_initial_ticks_to_disability")
 
     def __init__(self, ticks_to_disability: int):
-        self.ticks_to_disability = self._initial_ticks_to_disability = ticks_to_disability
+        self.ticks_to_disability = ticks_to_disability
+        self._initial_ticks_to_disability = ticks_to_disability
 
     def __repr__(self) -> str:
         return f"{'in' if not self else str()}valid {self.__class__.__name__}({self.ticks_to_disability})"
