@@ -39,7 +39,6 @@ test_on = calling_test_case_of(
 )
 
 
-
 test_repeating = calling_test_case_of(
     (lambda: repeating(lambda x: x + 1, lambda x: x < 10)(0), 10),
     (lambda: repeating(lambda x: x - 1, lambda x: x > 0)(0), 0),
@@ -59,13 +58,14 @@ def test_repeating_execution_sequences(
 
     repeating(
         lambda _: handling_counter(),
-        lambda _: checking_counter() or checking_counter.counted < number_of_checker_calls
+        lambda _: (
+            checking_counter()
+            or checking_counter.counted < number_of_checker_calls
+        )
     )(None)
 
     assert number_of_handler_calls == handling_counter.counted
     assert number_of_checker_calls == checking_counter.counted
-
-
 
 
 test_trying_to_without_error = calling_test_case_of(
@@ -95,7 +95,6 @@ def test_trying_to_with_error(
     error_type: Type[Exception]
 ):
     assert type(trying_to(func, lambda error: error)(*input_args)) is error_type
-
 
 
 test_with_unpacking = calling_test_case_of((

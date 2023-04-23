@@ -26,7 +26,10 @@ test_action_chain_calling = calling_test_case_of(
         [tuple(), tuple()]
     ]
 )
-def test_action_chain_connection_to_other(first_nodes: Iterable[one_value_action], second_nodes: Iterable[one_value_action]):
+def test_action_chain_connection_to_other(
+    first_nodes: Iterable[one_value_action],
+    second_nodes: Iterable[one_value_action],
+):
     assert (
         tuple(ActionChain((*first_nodes, *second_nodes)))
         == tuple(ActionChain(first_nodes) >> ActionChain(second_nodes))
@@ -56,12 +59,17 @@ def test_mergely_by_formula_function(
     original_y: int | float,
     original_z: int | float,
 ):
-    assert mergely(
-        lambda factor: (lambda x, y, z: factor * (x ** y + z)),
-        lambda factor: factor * original_x,
-        lambda factor: factor * original_y,
-        lambda factor: factor * original_z,
-    )(factor) == factor * ((factor * original_x) ** (factor * original_y) + (factor * original_z))
+    assert (
+        mergely(
+            lambda factor: (lambda x, y, z: factor * (x ** y + z)),
+            lambda factor: factor * original_x,
+            lambda factor: factor * original_y,
+            lambda factor: factor * original_z,
+        )(factor)
+        == factor * (
+            (factor * original_x) ** (factor * original_y) + (factor * original_z)
+        )
+    )
 
 
 def test_action_chain_one_resource_call_operator(input_resource: int | float = 30):

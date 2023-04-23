@@ -5,7 +5,7 @@ from pytest import fail
 
 class CustomContext:
     """Class emulating context."""
-    
+
     def __init__(self, enter_result: Any = None):
         self.enter_result = enter_result
 
@@ -15,7 +15,12 @@ class CustomContext:
     def __enter__(self) -> Any:
         return self.enter_result
 
-    def __exit__(self, error_type: Optional[Type[Exception]], error: Optional[Exception], traceback: Any):
+    def __exit__(
+        self,
+        error_type: Optional[Type[Exception]],
+        error: Optional[Exception],
+        traceback: Any,
+    ):
         pass
 
 
@@ -63,4 +68,7 @@ class Counter:
 
 
 def fail_by_error(error: Exception) -> NoReturn:
-    fail(f"Catching the unexpected error {error.__class__.__name__} \"{str(error)}\"")
+    fail(
+        "Catching the unexpected error "
+        f"{error.__class__.__name__} \"{str(error)}\""
+    )

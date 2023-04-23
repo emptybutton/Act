@@ -5,9 +5,14 @@ from pyhandling.tools import with_attributes
 
 test_errors_from = calling_test_case_of(
     (lambda: type(errors_from(Exception())[0]), Exception),
-    (lambda: type(errors_from(with_attributes(error=ZeroDivisionError()))[0]), ZeroDivisionError),
     (
-        lambda: tuple(map(type, errors_from(with_attributes(TypeError, error=ZeroDivisionError()))
+        lambda: type(errors_from(with_attributes(error=ZeroDivisionError()))[0]),
+        ZeroDivisionError,
+    ),
+    (
+        lambda: tuple(map(
+            type,
+            errors_from(with_attributes(TypeError, error=ZeroDivisionError())),
         )),
         (TypeError, ZeroDivisionError),
     ),
