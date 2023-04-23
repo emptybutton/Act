@@ -28,6 +28,7 @@ __all__ = (
     "mergely",
     "stop",
     "branching",
+    "then",
     "mapping_to_chain_of",
     "mapping_to_chain",
 )
