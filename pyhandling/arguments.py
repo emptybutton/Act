@@ -157,6 +157,9 @@ class Arguments(Mapping, Generic[ValueT]):
         )
 
     def __getitem__(self, key: ArgumentKey | int | str) -> ValueT:
+        if isinstance(key, int | str):
+            key = ArgumentKey(key, is_keyword=isinstance(key, str))
+
         return (
             (self.kwargs if key.is_keyword else self.args)[key.value]
             if key in self.keys or key.default is _EMPTY_DEFAULT_VALUE
