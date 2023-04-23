@@ -18,7 +18,7 @@ from pyhandling.annotations import (
 )
 from pyhandling.arguments import ArgumentPack
 from pyhandling.branching import ActionChain, binding_by, on, then
-from pyhandling.contexting import contextual
+from pyhandling.contexting import contextual, contextually
 from pyhandling.data_flow import with_result, by, to
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import flag_enum_of, nothing, flag
@@ -326,7 +326,7 @@ class _ActionCursor(Mapping):
         return cls(
             parameters=[parameter],
             actions=considering_context(
-                reading(to(getitem |by| parameter.name))
+                contextually(getitem |by| parameter.name, when=reading)
             ),
             nature=contextual(_ActionCursorNature.returning),
             internal_repr=parameter.name,
