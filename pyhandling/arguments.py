@@ -16,7 +16,7 @@ from pyhandling.signature_assignmenting import (
 )
 
 
-__all__ = ("ArgumentKey", "ArgumentPack", "as_argument_pack", "unpackly")
+__all__ = ("ArgumentKey", "Arguments", "as_arguments", "unpackly")
 
 
 _EMPTY_DEFAULT_VALUE: Final[object] = object()
@@ -25,7 +25,7 @@ _EMPTY_DEFAULT_VALUE: Final[object] = object()
 @dataclass(frozen=True)
 class ArgumentKey(Generic[KeyT, ValueT]):
     """
-    Data class for structuring getting value from `ArgumentPack` via `[]`.
+    Data class for structuring getting value from `Arguments` via `[]`.
     """
 
     key: KeyT
@@ -37,7 +37,7 @@ class ArgumentKey(Generic[KeyT, ValueT]):
     )
 
 
-class ArgumentPack:
+class Arguments(Mapping, Generic[ValueT]):
     """
     Data class for structuring the storage of any arguments.
 
@@ -85,9 +85,10 @@ class ArgumentPack:
             ),
         )
 
+
     def __eq__(self, other: Special[Self]) -> bool:
         return (
-            isinstance(other, ArgumentPack)
+            isinstance(other, Arguments)
             and self.args == other.args
             and self.kwargs == other.kwargs
         )
@@ -168,30 +169,25 @@ class ArgumentPack:
         return cls(args, kwargs)
 
 
-def as_argument_pack(*args, **kwargs) -> ArgumentPack:
-    """
-    Function to optionally convert input arguments into `ArgumentPack` with
-    that input arguments.
 
-    When passed a single positional `ArgumentPack` to the function, it returns
-    it.
+def as_arguments(*args, **kwargs) -> Arguments:
+    """
+    Function to optionally convert input arguments into `Arguments`.
+    When passed a single positional `Arguments` to the function, it returns it.
     """
 
-    if len(args) == 1 and isinstance(args[0], ArgumentPack) and not kwargs:
+    if len(args) == 1 and isinstance(args[0], Arguments) and not kwargs:
         return args[0]
 
-    return ArgumentPack(args, kwargs)
+    return Arguments(args, kwargs)
 
 
 @atomically
 class unpackly(Decorator):
-    """
-    Decorator function to unpack the input `ArgumentPack` into the input
-    function.
-    """
+    """Decorator to unpack the input `Arguments` into an input action."""
 
-    def __call__(self, pack: ArgumentPack) -> Any:
-        return pack.call(self._action)
+    def __call__(self, arguments: Arguments) -> Any:
+        return arguments.call(self._action)
 
     @cached_property
     def _force_signature(self) -> Signature:

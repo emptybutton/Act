@@ -16,7 +16,7 @@ from pyannotating import Special
 from pyhandling.annotations import (
     merger_of, event_for, ResultT, reformer_of, P, ObjectT
 )
-from pyhandling.arguments import ArgumentPack
+from pyhandling.arguments import Arguments
 from pyhandling.branching import ActionChain, binding_by, on, then
 from pyhandling.contexting import contextual, contextually
 from pyhandling.data_flow import with_result, by, to
@@ -412,7 +412,7 @@ class _ActionCursor(Mapping):
             ._with_keyword_partial_application_by(kwargs)
             ._with(call, nature=contextual(
                 _ActionCursorNature.calling,
-                when=ArgumentPack(args, kwargs),
+                when=Arguments(args, kwargs),
             ))
         )
 
