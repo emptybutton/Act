@@ -22,6 +22,7 @@ __all__ = (
     "tfilter",
     "groups_in",
     "table_map",
+    "table_filter",
     "from_keys",
     "reversed_table",
     "dict_of",
@@ -104,6 +105,19 @@ def map_table(
     """
 
     return OrderedDict((_, mapped(value)) for _, value in table.items())
+
+
+def filter_table(
+    is_valid: checker_of[ValueT],
+    table: Mapping[KeyT, ValueT],
+) -> OrderedDict[KeyT, ValueT]:
+    """
+    Function to filter values of an input `Mapping` object by an input action.
+
+    Saves sequence.
+    """
+
+    return OrderedDict((_, value) for _, value in table.items() if is_valid(value))
 
 
 def from_keys(
