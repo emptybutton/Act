@@ -3,16 +3,22 @@ from functools import cached_property, partial
 from dataclasses import dataclass, field
 from inspect import Signature
 from types import MappingProxyType
+from operator import attrgetter
 from typing import (
     Final, Generic, Iterable, Optional, Tuple, Self, Any, Callable, TypeVar,
+    Iterator, Mapping
 )
 
 from pyannotating import Special
 
-from pyhandling.annotations import KeyT, ValueT
+from pyhandling.annotations import ValueT
 from pyhandling.atoming import atomically
 from pyhandling.signature_assignmenting import (
     Decorator, call_signature_of
+)
+from pyhandling.structure_management import (
+    without, frozendict, with_opened_items, tmap, without_duplicates,
+    reversed_table
 )
 
 
@@ -62,6 +68,39 @@ class ArgumentKey(Generic[_ArgumentKeyT, ValueT]):
             if self.is_keyword
             else formatted_key
         )
+
+
+class ArgumentKeys:
+    def __init__(self, keys: Iterable[ArgumentKey]):
+        self._keys = tuple(keys)
+
+    @cached_property
+    def keywords(self) -> Tuple[ArgumentKey[str, Any]]:
+        return tuple(OrderedDict.fromkeys(filter(
+            lambda key: key.is_keyword,
+            self._keys
+        )).keys())
+
+    @cached_property
+    def positional(self) -> Tuple[ArgumentKey[int, Any]]:
+        return without(self._keys, self.keywords)
+
+    def __repr__(self) -> str:
+        return f"ArgumentKeys({str(self)})"
+
+    def __str__(self) -> str:
+        return "({})".format(', '.join(map(
+            partial(ArgumentKey.__str__, with_position=False),
+            self._keys,
+        )))
+
+    def __iter__(self) -> Iterator[ArgumentKey]:
+        return iter(self._keys)
+
+    def __call__(self) -> Tuple[int | str]:
+        return tmap(attrgetter("value"), self._keys)
+
+
 class Arguments(Mapping, Generic[ValueT]):
     """
     Data class for structuring the storage of any arguments.
