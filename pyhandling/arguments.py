@@ -178,22 +178,19 @@ class Arguments(Mapping, Generic[ValueT]):
     def __contains__(self, value: ValueT) -> bool:
         return value in tuple(self)
 
-    def expand_with(self, *args, **kwargs) -> Self:
+    def expanded_with(self, *args: Special[Self], **kwargs: Any) -> Self:
         """Method to create another pack with input arguments."""
+
+        args = with_opened_items(
+            arg.args if isinstance(arg, Arguments) else (arg, ) for arg in args
+        )
+
+        kwargs
+        OrderedDict(key: value for key, value in kwargs.items() if )
 
         return self.__class__(
             (*self.args, *args),
             self.kwargs | kwargs
-        )
-
-    def merge_with(self, argument_pack: Self) -> Self:
-        """
-        Method to create another pack by merging with an input argument pack.
-        """
-
-        return self.__class__(
-            (*self.args, *argument_pack.args),
-            self.kwargs | argument_pack.kwargs
         )
 
     def only_with(self, *argument_keys: ArgumentKey) -> Self:
