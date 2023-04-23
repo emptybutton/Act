@@ -21,6 +21,7 @@ __all__ = (
     "tzip",
     "tfilter",
     "groups_in",
+    "without",
     "table_map",
     "table_filter",
     "from_keys",
@@ -92,6 +93,30 @@ def groups_in(items: Iterable[ValueT], id_of: action_of[ValueT]) -> Tuple[ValueT
         group_by_id[id_by_item[item]] = (*group_by_id[id_by_item[item]], item)
 
     return tuple(group_by_id.values())
+
+
+def without(
+    collection: Iterable[ValueT],
+    items_or_item: Iterable[ValueT] | ValueT,
+) -> Tuple[ValueT]:
+    """
+    Function to get collection difference.
+
+    The second operand can be item of a subtract collection or a subtract
+    collection itself.
+    """
+
+    reduced_items = (
+        tuple(items_or_item)
+        if isinstance(items_or_item, Iterable)
+        else (items_or_item, )
+    )
+
+    return tuple(
+        item
+        for item in collection
+        if item not in reduced_items
+    )
 
 
 def map_table(
