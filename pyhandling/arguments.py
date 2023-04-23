@@ -24,7 +24,7 @@ _EMPTY_DEFAULT_VALUE: Final[object] = object()
 _ArgumentKeyT = TypeVar("_ArgumentKeyT", bound=int | str)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, repr=False)
 class ArgumentKey(Generic[_ArgumentKeyT, ValueT]):
     """
     Data class for structuring getting value from `Arguments` via `[]`.
@@ -45,6 +45,23 @@ class ArgumentKey(Generic[_ArgumentKeyT, ValueT]):
         ):
             raise ArgumentError("keyword ArgumentKey value must be a string")
 
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({str(self)})"
+
+    def __str__(self, *, with_position: bool = True) -> str:
+        formatted_key = (
+            str(self.value) if with_position or self.is_keyword else '...'
+        )
+
+        formatted_value = (
+            '...' if self.default is _EMPTY_DEFAULT_VALUE else str(self.default)
+        )
+
+        return (
+            f"{formatted_key}={formatted_value}"
+            if self.is_keyword
+            else formatted_key
+        )
 class Arguments(Mapping, Generic[ValueT]):
     """
     Data class for structuring the storage of any arguments.
