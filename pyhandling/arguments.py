@@ -166,6 +166,9 @@ class Arguments(Mapping, Generic[ValueT]):
             else key.default
         )
 
+    def __iter__(self) -> Iterator[ValueT]:
+        return iter((*self.args, *self.kwargs.keys()))
+
     def __or__(self, other: Self) -> Self:
         return self.merge_with(other)
 
