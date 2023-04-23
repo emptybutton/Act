@@ -5,6 +5,7 @@ from unittest import TestCase
 from pyannotating import Subgroup
 
 from pyhandling.annotations import event
+from pyhandling.data_flow import everything
 
 
 __all__ = ("calling_test_case_of", "test_case_pack")
@@ -42,7 +43,7 @@ def _calling_test_method_of(
     return testing_method
 
 
-def calling_test_case_of(*test_packs: test_case_pack) -> Type[TestCase]:
+def calling_test_case_of(*test_packs: test_case_pack | event) -> Type[TestCase]:
     """Function to create a `TestCase` type with input tests."""
 
     return type(
@@ -52,7 +53,10 @@ def calling_test_case_of(*test_packs: test_case_pack) -> Type[TestCase]:
             f"test_{_ordinal_of(test_pack_index)}_action": _calling_test_method_of(
                 test_pack,
             )
-            for test_pack_index, test_pack in enumerate(test_packs)
+            for test_pack_index, test_pack in enumerate(map(
+                lambda p: p if isinstance(p, tuple | list) else (p, everything),
+                test_packs,
+            ))
         }
         | {
             "__doc__": (
