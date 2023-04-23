@@ -199,7 +199,7 @@ reading = flag("reading")
 @will
 def considering_context(
     action: Callable[[ValueT], ResultT] | contextually[
-        Callable[[ValueT], Callable[[ContextT], MappedT]]
+        Callable[[ValueT], Callable[[ContextT], MappedT]],
         Special[writing | reading],
     ],
     value: ValueT | contextual[ValueT, ContextT]
