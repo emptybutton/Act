@@ -1,9 +1,6 @@
-from typing import Any, Optional, Type, Callable, NoReturn
+from typing import Any, Optional, Type, NoReturn
 
-from pyannotating import many_or_one
-
-from pyhandling.annotations import event_for, ObjectT
-from pyhandling.arguments import ArgumentPack
+from pytest import fail
 
 
 class CustomContext:

@@ -1,13 +1,11 @@
-from functools import partial
-from typing import Any, Iterable, Mapping, Callable, Type, Optional
+from typing import Iterable, Callable
 
-from pyhandling.arguments import ArgumentPack, ArgumentKey
 from pyhandling.annotations import one_value_action
 from pyhandling.branching import *
 from pyhandling.testing import calling_test_case_of
 from tests.mocks import MockAction
 
-from pytest import mark, fail, raises
+from pytest import mark
 
 
 test_action_chain_calling = calling_test_case_of(

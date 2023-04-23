@@ -1,6 +1,6 @@
-from typing import Iterable, Callable, Any
+from typing import Iterable, Any
 
-from pytest import mark, fail, raises
+from pytest import mark
 
 from pyhandling.testing import calling_test_case_of
 from pyhandling.structure_management import *

@@ -1,5 +1,4 @@
 from pyhandling.contexting import *
-from pyhandling.flags import nothing
 from pyhandling.testing import calling_test_case_of
 
 

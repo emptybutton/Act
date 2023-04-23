@@ -1,7 +1,5 @@
-from functools import partial
-from typing import Callable, Any, Iterable, Type
+from typing import Callable, Iterable, Type
 
-from pyhandling.arguments import ArgumentPack
 from pyhandling.synonyms import *
 from pyhandling.testing import calling_test_case_of
 from tests.mocks import CustomContext, fail_by_error, Counter

@@ -1,8 +1,7 @@
-from typing import Optional, Any, Iterable
+from typing import Any, Iterable
 
 from pytest import mark
 
-from pyhandling.arguments import ArgumentPack, ArgumentKey
 from pyhandling.data_flow import *
 from pyhandling.testing import calling_test_case_of
 from tests.mocks import Counter

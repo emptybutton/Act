@@ -1,18 +1,9 @@
 from functools import partial
-from typing import Any, Iterable, Type, Callable, Mapping, Optional
 
-from pyannotating import number, many_or_one
-from pytest import mark, raises
-
-from pyhandling.arguments import ArgumentPack
-from pyhandling.annotations import checker_of, event_for
-from pyhandling.branching import ActionChain, then
+from pyhandling.branching import then
 from pyhandling.contexting import contextual
-from pyhandling.flags import nothing
 from pyhandling.monads import *
 from pyhandling.testing import calling_test_case_of
-from pyhandling.tools import with_attributes, Logger
-from tests.mocks import CustomContext, Counter, MockAction
 
 
 test_monadically = calling_test_case_of(

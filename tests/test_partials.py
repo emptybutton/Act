@@ -1,12 +1,5 @@
-from inspect import signature
-from typing import Optional, Any
-
-from pytest import mark
-
-from pyhandling.arguments import ArgumentPack, ArgumentKey
 from pyhandling.partials import *
 from pyhandling.testing import calling_test_case_of
-from tests.mocks import Counter
 
 
 test_rpartial = calling_test_case_of(

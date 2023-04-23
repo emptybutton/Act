@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from functools import cached_property, partial, reduce
+from functools import cached_property, partial
 from inspect import Signature, Parameter, signature
 from typing import (
     Callable, Any, _CallableGenericAlias, Optional, Tuple, Self, Iterable
