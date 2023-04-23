@@ -17,7 +17,7 @@ from pyhandling.immutability import property_to
 from pyhandling.partials import rpartial
 from pyhandling.signature_assignmenting import call_signature_of
 from pyhandling.synonyms import returned, with_unpacking, on
-from pyhandling.tools import documenting_by
+from pyhandling.tools import documenting_by, with_attributes
 
 
 __all__ = (
@@ -315,7 +315,7 @@ stop = documenting_by(
     similar actions.
     """
 )(
-    object()
+    with_attributes()
 )
 
 
