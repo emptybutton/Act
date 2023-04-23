@@ -21,7 +21,7 @@ __all__ = (
     "tzip",
     "tfilter",
     "groups_in",
-    "table_value_map",
+    "table_map",
     "from_keys",
     "reversed_table",
     "dict_of",
@@ -93,12 +93,12 @@ def groups_in(items: Iterable[ValueT], id_of: action_of[ValueT]) -> Tuple[ValueT
     return tuple(group_by_id.values())
 
 
-def table_value_map(
+def map_table(
     mapped: Callable[[ValueT], MappedT],
     table: Mapping[KeyT, ValueT],
 ) -> OrderedDict[KeyT, MappedT]:
     """
-    Function to map values of an input `Mapping` object by action.
+    Function to map values of an input `Mapping` object by an input action.
 
     Saves sequence.
     """
