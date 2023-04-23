@@ -2,7 +2,6 @@ from collections import OrderedDict
 from functools import cached_property, partial
 from dataclasses import dataclass, field
 from inspect import Signature
-from types import MappingProxyType
 from operator import attrgetter
 from typing import (
     Final, Generic, Iterable, Optional, Tuple, Self, Any, Callable, TypeVar,
@@ -115,7 +114,7 @@ class Arguments(Mapping, Generic[ValueT]):
         kwargs: Optional[dict] = None,
     ):
         self._args = tuple(args)
-        self._kwargs = MappingProxyType(
+        self._kwargs = frozendict(
             kwargs if kwargs is not None else dict()
         )
 
@@ -124,7 +123,7 @@ class Arguments(Mapping, Generic[ValueT]):
         return self._args
 
     @property
-    def kwargs(self) -> MappingProxyType:
+    def kwargs(self) -> frozendict[str, ValueT]:
         return self._kwargs
 
     @cached_property
