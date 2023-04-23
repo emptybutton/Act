@@ -226,7 +226,7 @@ class Arguments(Mapping, Generic[ValueT]):
 
     @classmethod
     def of(cls, *args, **kwargs) -> Self:
-        """Method for creating a pack with this method's input arguments."""
+        """Method for creating arguments with this method's input arguments."""
 
         return cls(args, kwargs)
 
