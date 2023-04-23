@@ -1,5 +1,6 @@
 from collections import OrderedDict
-from typing import Iterable, Tuple, Callable, Mapping
+from types import MappingProxyType
+from typing import Iterable, Tuple, Callable, Mapping, TypeAlias
 
 from pyannotating import many_or_one, Special
 
@@ -12,6 +13,7 @@ from pyhandling.tools import documenting_by
 
 
 __all__ = (
+    "frozendict",
     "in_collection",
     "with_opened_items",
     "as_collection",
@@ -24,6 +26,9 @@ __all__ = (
     "reversed_table",
     "dict_of",
 )
+
+
+frozendict: TypeAlias = MappingProxyType
 
 
 def in_collection(value: ValueT) -> tuple[ValueT]:
