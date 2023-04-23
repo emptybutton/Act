@@ -1,5 +1,5 @@
 from operator import attrgetter, eq, pos, call
-from typing import Callable, Any, TypeVar, Tuple
+from typing import Callable, Any, Tuple
 
 from pyannotating import (
     many_or_one, AnnotationTemplate, input_annotation, Special
@@ -7,7 +7,7 @@ from pyannotating import (
 
 from pyhandling.annotations import (
     one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of,
-    checker_of, event_for, PointT
+    checker_of, event_for, PointT, MappedT
 )
 from pyhandling.atoming import atomically
 from pyhandling.branching import (

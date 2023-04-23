@@ -6,9 +6,7 @@ from typing import (
     Tuple, NamedTuple, _CallableGenericAlias,
 )
 
-from pyannotating import (
-    many_or_one, Special, AnnotationTemplate, input_annotation
-)
+from pyannotating import Special, AnnotationTemplate, input_annotation
 
 from pyhandling.annotations import ResultT, one_value_action, P, ValueT
 from pyhandling.atoming import atomically
