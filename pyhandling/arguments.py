@@ -156,11 +156,11 @@ class Arguments(Mapping, Generic[ValueT]):
             and self.kwargs == other.kwargs
         )
 
-    def __getitem__(self, argument: ArgumentKey) -> Any:
+    def __getitem__(self, key: ArgumentKey | int | str) -> ValueT:
         return (
-            (self.kwargs if argument.is_keyword else self.args)[argument.key]
-            if argument in self or argument.default is _EMPTY_DEFAULT_VALUE
-            else argument.default
+            (self.kwargs if key.is_keyword else self.args)[key.value]
+            if key in self.keys or key.default is _EMPTY_DEFAULT_VALUE
+            else key.default
         )
 
     def __or__(self, other: Self) -> Self:
