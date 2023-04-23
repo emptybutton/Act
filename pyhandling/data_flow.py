@@ -29,6 +29,7 @@ __all__ = (
     "PartialApplicationInfix",
     "to",
     "by",
+    "everything",
 )
 
 
@@ -328,4 +329,25 @@ by = documenting_by(
     """
 )(
     _CustomPartialApplicationInfix(rpartial, name='by')
+)
+
+
+class _ForceComparable:
+    """Class for objects that are aware of the results of their `==` checks."""
+
+    def __init__(self, name: str, *, forced_sign: bool):
+        self._name = name
+        self._forced_sign = forced_sign
+
+    def __repr__(self) -> str:
+        return self._name
+
+    def __eq__(self, _: Any) -> bool:
+        return self._forced_sign
+
+
+everything = documenting_by(
+    """Special object always returning `True` when `==` is checked."""
+)(
+    _ForceComparable("everything", forced_sign=True)
 )
