@@ -3,6 +3,7 @@ from typing import Iterable, Callable, Any
 from pytest import mark
 
 from pyhandling.arguments import *
+from pyhandling.testing import calling_test_case_of
 
 
 @mark.parametrize(
@@ -110,4 +111,9 @@ def test_argument_pack_getting_argument_by_key(
 )
 def test_as_argument_pack(args: Iterable, kwargs: dict, result_argument_pack: ArgumentPack):
     assert as_argument_pack(*args, **kwargs) == result_argument_pack
+
+
+test_unpackly = calling_test_case_of(
+    (lambda: unpackly(lambda a, b, c: a / b + c)(ArgumentPack.of(8, 4, 6)), 8),
+)
 

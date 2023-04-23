@@ -14,11 +14,6 @@ test_eventually = calling_test_case_of(
 )
 
 
-test_unpackly = calling_test_case_of(
-    (lambda: unpackly(lambda a, b, c: a / b + c)(ArgumentPack.of(8, 4, 6)), 8),
-)
-
-
 @mark.parametrize('call_number', tuple(range(4)) + (8, 128, 1024))
 def test_returnly_call_number(call_number: int):
     call_counter = Counter()
@@ -47,8 +42,8 @@ test_returnly = calling_test_case_of(
         (None, (1, 2, 3)),
     ]
 )
-def test_taken(value: Any, arguments: Iterable):
-    assert taken(value)(*arguments) == value
+def test_to_action(value: Any, arguments: Iterable):
+    assert to(value)(*arguments) == value
 
 
 @mark.parametrize(

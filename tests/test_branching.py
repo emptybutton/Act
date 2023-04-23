@@ -5,7 +5,7 @@ from pyhandling.arguments import ArgumentPack, ArgumentKey
 from pyhandling.annotations import one_value_action
 from pyhandling.branching import *
 from pyhandling.testing import calling_test_case_of
-from tests.mocks import MockAction, Counter
+from tests.mocks import MockAction
 
 from pytest import mark, fail, raises
 
@@ -64,32 +64,6 @@ def test_mergely_by_formula_function(
         lambda factor: factor * original_y,
         lambda factor: factor * original_z,
     )(factor) == factor * ((factor * original_x) ** (factor * original_y) + (factor * original_z))
-
-
-test_repeating = calling_test_case_of(
-    (lambda: repeating(lambda x: x + 1, lambda x: x < 10)(0), 10),
-    (lambda: repeating(lambda x: x - 1, lambda x: x > 0)(0), 0),
-)
-
-
-@mark.parametrize(
-    "number_of_handler_calls, number_of_checker_calls",
-    [(i, i + 1) for i in range(3)] + [(100, 101), (653, 654), (999, 1000)]
-)
-def test_repeating_execution_sequences(
-    number_of_handler_calls: int,
-    number_of_checker_calls: int
-):
-    handling_counter = Counter()
-    checking_counter = Counter()
-
-    repeating(
-        lambda _: handling_counter(),
-        lambda _: checking_counter() or checking_counter.counted < number_of_checker_calls
-    )(None)
-
-    assert number_of_handler_calls == handling_counter.counted
-    assert number_of_checker_calls == checking_counter.counted
 
 
 def test_action_chain_one_resource_call_operator(input_resource: int | float = 30):
