@@ -138,13 +138,13 @@ class Arguments(Mapping, Generic[ValueT]):
         ))
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}({self.__str__()})"
+        return f"{type(self).__name__}{str(self)}"
 
     def __str__(self) -> str:
-        return "{formatted_args}{argument_separation_part}{formatted_kwargs}".format(
+        return "({formatted_args}{argument_separation_part}{formatted_kwargs})".format(
             formatted_args=', '.join(map(str, self.args)),
             argument_separation_part=(
-                ', ' if self.args and self.kwargs else str(),
+                ', ' if self.args and self.kwargs else str()
             ),
             formatted_kwargs=', '.join(map(
                 lambda item: f"{item[0]}={item[1]}",
