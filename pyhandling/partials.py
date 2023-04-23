@@ -158,7 +158,7 @@ def rwill(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
 
 def _is_parameter_settable(parameter: Parameter) -> bool:
     """Function that determines whether a parameter is required to be called."""
-    
+
     return (
         parameter.default is _empty
         and parameter.kind in (

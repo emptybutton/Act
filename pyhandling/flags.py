@@ -274,7 +274,7 @@ class FlagVector(ABC):
     Abstract memorization class `Flag` expressions.
     For usage description see `Flag`.
     """
-    
+
     @abstractmethod
     def __xor__(self, other: Self) -> Self:
         ...
@@ -601,7 +601,7 @@ def pointed(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:
 def flag_enum_of(value: Special[Mapping]) -> object:
     """
     Decorator for creating an `Enum`-like object consisting of `Flags`.
-    
+
     Creates from an input dictionary if an input value is a dictionary,
     otherwise from attributes of an input object.
 

@@ -273,7 +273,7 @@ def in_future(
 ) -> contextual[ValueT, Flag[ContextT | contextually[event_for[ResultT], future]]]:
     """
     Decorator to delay the execution of an input action.
-    
+
     When calling the resulting action on a value, contextualizes the input value
     by the sum of the flags with a partially applied version of the resulting
     action by that value in `future` context.

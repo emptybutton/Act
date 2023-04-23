@@ -110,7 +110,7 @@ def dynamically(
 ) -> action_for[ResultT]:
     """
     Function to dynamically determine arguments for an input action.
-    
+
     The resulting function takes one argument.
 
     When arguments are specified as ... (Ellipsis) replaces them with an input
@@ -281,7 +281,7 @@ class _CallableCustomPartialApplicationInfix(_CustomPartialApplicationInfix):
     """
     `_CustomPartialApplicationInfix` delegating its call to the input action.
     """
-    
+
     def __init__(
         self,
         transform: Callable[[Callable, ValueT], Callable],

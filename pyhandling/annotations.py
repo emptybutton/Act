@@ -129,7 +129,7 @@ AtomizableT = TypeVar("AtomT", bound="Atomizable")
 class CallableFormalAnnotation(FormalAnnotation):
     """
     `FormalAnnotation` class for annotation via call.
-    
+
     Annotating instance is stored in an annotated value as a reference in the
     `__notes__` attribute when called.
 

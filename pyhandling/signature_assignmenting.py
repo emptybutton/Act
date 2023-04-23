@@ -50,7 +50,7 @@ def call_signature_of(action: Callable) -> Signature:
 
 def annotation_sum(*args: Special[Parameter.empty]) -> Any:
     """Function to create `Union` given `Parameter.empty`."""
-    
+
     annotations = tuple(arg for arg in args if arg is not Parameter.empty)
 
     return Union[*annotations] if annotations else Parameter.empty

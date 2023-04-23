@@ -109,7 +109,7 @@ def from_keys(
     Function to create a `Mapping` with keys from an input collection and
     values obtained by applying an input action to a key under which a
     resulting value will be stored.
-    
+
     Saves sequence.
     """
 
@@ -133,5 +133,5 @@ def dict_of(value: Special[Mapping[KeyT, ValueT]]) -> dict[KeyT, ValueT]:
     When passing a `Mapping` object, cast it to a `dict`, otherwise return
     `__dict__` of an input object.
     """
-    
+
     return dict(**value) if isinstance(value, Mapping) else value.__dict__
