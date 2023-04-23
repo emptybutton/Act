@@ -169,6 +169,9 @@ class Arguments(Mapping, Generic[ValueT]):
     def __iter__(self) -> Iterator[ValueT]:
         return iter((*self.args, *self.kwargs.keys()))
 
+    def __len__(self) -> int:
+        return len(self.keys)
+
     def __or__(self, other: Self) -> Self:
         return self.merge_with(other)
 
