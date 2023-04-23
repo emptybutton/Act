@@ -12,6 +12,7 @@ from pyannotating import Special
 
 from pyhandling.annotations import ValueT
 from pyhandling.atoming import atomically
+from pyhandling.data_flow import to
 from pyhandling.signature_assignmenting import (
     Decorator, call_signature_of
 )
@@ -193,23 +194,15 @@ class Arguments(Mapping, Generic[ValueT]):
             self.kwargs | kwargs
         )
 
-    def only_with(self, *argument_keys: ArgumentKey) -> Self:
+    def only_with(self, *arguments_or_keys: ValueT | ArgumentKey) -> Self:
         """Method for cloning with values obtained from input keys."""
 
-        keyword_argument_keys = set(filter(
-            lambda argument_key: argument_key.is_keyword,
-            argument_keys
-        ))
+        keys = tmap(self._as_key, without_duplicates(arguments_or_keys))
+        keyword_keys = ArgumentKeys(keys).keywords
 
-        return self.__class__(
-            tuple(
-                self[argument_key]
-                for argument_key in set(argument_keys) - keyword_argument_keys
-            ),
-            {
-                keyword_argument_key.key: self[keyword_argument_key]
-                for keyword_argument_key in keyword_argument_keys
-            },
+        return type(self)(
+            tuple(self[key] for key in without(keys, keyword_keys)),
+            {keyword_key.value: self[keyword_key] for keyword_key in keyword_keys},
         )
 
     def without(self, *arguments_or_keys: ValueT | ArgumentKey) -> Self:
@@ -234,6 +227,16 @@ class Arguments(Mapping, Generic[ValueT]):
 
         return cls(args, kwargs)
 
+    def _as_key(self, value: Any) -> ArgumentKey:
+        if isinstance(value, ArgumentKey):
+            return value
+
+        try:
+            key_of = partial(ArgumentKey, self.args.index(value))
+        except ValueError:
+            key_of = partial(ArgumentKey, reversed_table(self.kwargs)[value])
+
+        return key_of(default=value)
 
 
 def as_arguments(*args, **kwargs) -> Arguments:
