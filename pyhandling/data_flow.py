@@ -242,10 +242,10 @@ class _CustomPartialApplicationInfix(PartialApplicationInfix):
 
     def __init__(
         self,
-        transform: Callable[[Callable, ValueT], Callable],
+        transform: Callable[[Callable, *ArgumentsT], Callable],
         *,
         action_to_transform: Optional[Callable] = None,
-        arguments: Optional[Iterable[ValueT]] = None,
+        arguments: Optional[Iterable[*ArgumentsT]] = None,
         name: Optional[str] = None,
     ):
         self._transform = transform
@@ -267,10 +267,7 @@ class _CustomPartialApplicationInfix(PartialApplicationInfix):
                 name=self._name,
             )
             if self._arguments is None
-            else reduce(
-                self._transform,
-                (action_to_transform, *self._arguments)
-            )
+            else self._transform(action_to_transform, *self._arguments)
         )
 
     def __mul__(self, arguments: Iterable) -> Callable:
