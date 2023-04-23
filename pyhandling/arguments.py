@@ -209,16 +209,13 @@ class Arguments(Mapping, Generic[ValueT]):
             },
         )
 
-    def without(self, *argument_keys: ArgumentKey) -> Self:
+    def without(self, *arguments_or_keys: ValueT | ArgumentKey) -> Self:
         """
         Method for cloning a pack excluding arguments whose keys are input to
         this method.
         """
 
-        return self.only_with(*OrderedDict.fromkeys((
-            *self.keys,
-            *argument_keys,
-        )))
+        return self.only_with(*without(self.keys, arguments_or_keys))
 
     def call(self, caller: Callable) -> Any:
         """
