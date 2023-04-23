@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from inspect import Signature
 from types import MappingProxyType
 from typing import (
-    Final, Generic, Iterable, Optional, Tuple, Self, Any, Callable
+    Final, Generic, Iterable, Optional, Tuple, Self, Any, Callable, TypeVar,
 )
 
 from pyannotating import Special
@@ -21,14 +21,16 @@ __all__ = ("ArgumentKey", "Arguments", "as_arguments", "unpackly")
 
 _EMPTY_DEFAULT_VALUE: Final[object] = object()
 
+_ArgumentKeyT = TypeVar("_ArgumentKeyT", bound=int | str)
+
 
 @dataclass(frozen=True)
-class ArgumentKey(Generic[KeyT, ValueT]):
+class ArgumentKey(Generic[_ArgumentKeyT, ValueT]):
     """
     Data class for structuring getting value from `Arguments` via `[]`.
     """
 
-    key: KeyT
+    value: _ArgumentKeyT
     is_keyword: bool = field(default=False, kw_only=True)
     default: ValueT = field(
         default_factory=lambda: _EMPTY_DEFAULT_VALUE,
