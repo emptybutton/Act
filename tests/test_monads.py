@@ -15,28 +15,6 @@ from pyhandling.tools import with_attributes, Logger
 from tests.mocks import CustomContext, Counter, MockAction
 
 
-# @mark.parametrize(
-#     "number_of_handlers, number_of_writer_calls",
-#     tuple(map(
-#         lambda number: (number, number),
-#         (*range(0, 4), 32, 64, 128, 516)
-#     ))
-# )
-# def test_showly_by_logger(number_of_handlers: int, number_of_writer_calls: int):
-#     writing_counter = Counter()
-
-#     showly(
-#         (
-#             MockAction()
-#             if number_of_handlers == 1
-#             else ActionChain((MockAction(), ) * number_of_handlers)
-#         ),
-#         show=lambda _: writing_counter()
-#     )(None)
-
-#     assert writing_counter.counted == number_of_writer_calls
-
-
 test_monadically = calling_test_case_of(
     (lambda: tuple(monadically(lambda _: _)(print)), (print, )),
     (lambda: tuple(monadically(lambda _: _)([print, sum])), (print, sum)),
