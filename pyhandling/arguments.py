@@ -128,11 +128,14 @@ class Arguments(Mapping, Generic[ValueT]):
         return self._kwargs
 
     @cached_property
-    def keys(self) -> Tuple[ArgumentKey, ...]:
-        return (
+    def keys(self) -> ArgumentKeys:
+        return ArgumentKeys((
             *map(ArgumentKey, range(len(self.args))),
-            *map(partial(ArgumentKey, is_keyword=True), self.kwargs.keys())
-        )
+            *(
+                ArgumentKey(key, default=value, is_keyword=True)
+                for key, value in self.kwargs.items()
+            ),
+        ))
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.__str__()})"
