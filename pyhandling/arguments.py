@@ -110,8 +110,8 @@ class Arguments(Mapping, Generic[ValueT]):
 
     def __init__(
         self,
-        args: Iterable = tuple(),
-        kwargs: Optional[dict] = None,
+        args: Iterable[ValueT] = tuple(),
+        kwargs: Optional[Mapping[str, ValueT]] = None,
     ):
         self._args = tuple(args)
         self._kwargs = frozendict(
@@ -119,7 +119,7 @@ class Arguments(Mapping, Generic[ValueT]):
         )
 
     @property
-    def args(self) -> Tuple:
+    def args(self) -> Tuple[ValueT]:
         return self._args
 
     @property
