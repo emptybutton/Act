@@ -5,4 +5,3 @@ extend-ignore = E225, F821, E741
 max-line-length = 85
 
 count = True
-show-source = True
