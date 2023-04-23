@@ -125,6 +125,22 @@ def test_argument_pack_getting_argument_by_key(
     assert argument_pack[argument_key] == result
 
 
+test_argument_pack_only_with = calling_test_case_of(
+    (
+        lambda: Arguments((1, 2, 3), dict(a=4)).only_with(ArgumentKey(0)),
+        Arguments((1, )),
+    ),
+    (
+        lambda: Arguments((0, 1, 2, 3), dict(a=4, b=5)).only_with(
+            ArgumentKey(0),
+            ArgumentKey(2),
+            ArgumentKey('a', is_keyword=True)
+        ),
+        Arguments((0, 2), dict(a=4)),
+    ),
+)
+
+
 @mark.parametrize(
     'args, kwargs, result_argument_pack',
     [
