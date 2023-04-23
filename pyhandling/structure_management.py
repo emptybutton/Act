@@ -22,6 +22,7 @@ __all__ = (
     "tfilter",
     "groups_in",
     "without",
+    "without_duplicates",
     "table_map",
     "table_filter",
     "from_keys",
@@ -117,6 +118,12 @@ def without(
         for item in collection
         if item not in reduced_items
     )
+
+
+def without_duplicates(items: Iterable[ValueT]) -> Tuple[ValueT]:
+    """Function to get collection without duplicates."""
+
+    return tuple(OrderedDict.fromkeys(items).keys())
 
 
 def map_table(
