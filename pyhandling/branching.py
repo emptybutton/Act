@@ -289,11 +289,9 @@ class mergely:
         )
 
     def __get_signature(self) -> Signature:
-        return_annotation = calling_signature_of(
-            self._merging_of,
-        ).return_annotation
+        return_annotation = call_signature_of(self._merging_of).return_annotation
 
-        return calling_signature_of(self._merging_of).replace(
+        return call_signature_of(self._merging_of).replace(
             return_annotation=(
                 return_annotation.__args__[-1]
                 if isinstance(return_annotation, _CallableGenericAlias)
