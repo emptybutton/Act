@@ -175,8 +175,8 @@ class Arguments(Mapping, Generic[ValueT]):
     def __or__(self, other: Self) -> Self:
         return self.merge_with(other)
 
-    def __contains__(self, argument: ArgumentKey) -> bool:
-        return argument in self.keys
+    def __contains__(self, value: ValueT) -> bool:
+        return value in tuple(self)
 
     def expand_with(self, *args, **kwargs) -> Self:
         """Method to create another pack with input arguments."""
