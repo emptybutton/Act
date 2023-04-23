@@ -38,6 +38,12 @@ class ArgumentKey(Generic[_ArgumentKeyT, ValueT]):
         kw_only=True,
     )
 
+    def __post_init__(self) -> None:
+        if (
+            isinstance(self.value, int) and self.is_keyword
+            or isinstance(self.value, str) and not self.is_keyword
+        ):
+            raise ArgumentError("keyword ArgumentKey value must be a string")
 
 class Arguments(Mapping, Generic[ValueT]):
     """
