@@ -152,7 +152,6 @@ class Arguments(Mapping, Generic[ValueT]):
             ),
         )
 
-
     def __eq__(self, other: Special[Self]) -> bool:
         return (
             isinstance(other, Arguments)

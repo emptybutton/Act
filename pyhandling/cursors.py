@@ -698,7 +698,6 @@ def priority_of(cursor: _ActionCursor) -> int | float:
 act = _ActionCursor()
 _ = _ActionCursor()
 
-
 a = action_cursor_by('a')
 b = action_cursor_by('b')
 c = action_cursor_by('c')
