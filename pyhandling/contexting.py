@@ -9,6 +9,7 @@ from pyannotating import Special
 
 from pyhandling.annotations import (
     ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, Pm, checker_of, FlagT,
+    A, B, C, V, R
 )
 from pyhandling.atoming import atomic
 from pyhandling.flags import nothing, Flag, pointed, FlagVector
@@ -30,6 +31,8 @@ __all__ = (
     "contexted",
     "saving_context",
     "to_context",
+    "to_write",
+    "to_read",
     "with_context_that",
     "is_metacontextual",
     "with_reduced_metacontext",
@@ -251,6 +254,24 @@ def to_context(
         action,
         context_oriented(value_and_context),
     ))
+
+
+@fragmentarily
+def to_write(
+    action: Callable[[V, C], R],
+    value: contextual_like[V, C],
+) -> contextual[V, R]:
+    stored_value, context = value
+
+    return contextual(context, action(stored_value, context))
+
+
+@fragmentarily
+def to_read(
+    action: Callable[[V, C], R],
+    value: contextual_like[V, C],
+) -> contextual[R, V]:
+    return context_oriented(to_write(action, context_oriented(value)))
 
 
 @fragmentarily

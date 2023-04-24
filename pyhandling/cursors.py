@@ -22,7 +22,6 @@ from pyhandling.contexting import contextual, to_read, saving_context
 from pyhandling.data_flow import with_result, by, to
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import flag_enum_of, nothing, flag
-from pyhandling.monads import reading, saving_context, considering_context
 from pyhandling.partials import flipped, rpartial, rwill, will
 from pyhandling.structure_management import tfilter, groups_in
 from pyhandling.synonyms import with_keyword, collection_of
@@ -325,9 +324,7 @@ class _ActionCursor(Mapping):
     def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
         return cls(
             parameters=[parameter],
-            actions=considering_context(
-                contextually(getitem |by| parameter.name, when=reading)
-            ),
+            actions=to_read(getitem |by| parameter.name),
             nature=contextual(_ActionCursorNature.returning),
             internal_repr=parameter.name,
         )

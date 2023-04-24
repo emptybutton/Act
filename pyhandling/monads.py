@@ -34,9 +34,6 @@ __all__ = (
     "maybe",
     "until_error",
     "showly",
-    "writing",
-    "reading",
-    "considering_context",
     "right",
     "left",
     "either",
@@ -146,54 +143,6 @@ def showly(
     return monadically(binding_by(... |then>> returnly(show)))(
         action_or_actions
     )
-
-
-writing = flag("writing")
-reading = flag("reading")
-
-
-@documenting_by(
-    """
-    Execution context with the ability to read and write to a context.
-
-    Writes to context by contextual node with `writing` context and reads value
-    from context by contextual node with `reading` context.
-
-    Before interacting with a context, the last calculated result must come to
-    contextual nodes, after a context itself.
-
-    When writing to a context, result of a contextual node will be a result
-    calculated before it, and when reading, a result of reading.
-
-    When specifying `writing` and `reading` contexts at the same time, writes to
-    a context and continues with a result of the write.
-    """
-)
-@monadically
-@will
-def considering_context(
-    action: Callable[[ValueT], ResultT] | contextually[
-        Callable[[ValueT], Callable[[ContextT], MappedT]],
-        Special[writing | reading],
-    ],
-    value: ValueT | contextual[ValueT, ContextT]
-) -> contextual[ResultT | ValueT | MappedT, MappedT | ContextT]:
-    value_and_context = contexted(value)
-
-    if not isinstance(action, contextually) or action.context != writing | reading:
-        return saving_context(action)(value_and_context)
-
-    value, context = value_and_context
-
-    transformed_context = action(value)(context)
-
-    if action.context == writing:
-        context = transformed_context
-
-    if action.context == reading:
-        value = transformed_context
-
-    return contextual(value, when=context)
 
 
 right = flag("right")
