@@ -27,6 +27,7 @@ __all__ = (
     "stop",
     "branching",
     "then",
+    "discretely",
 )
 
 
