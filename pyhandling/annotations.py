@@ -50,6 +50,32 @@ __all__ = (
     "FlagT",
     "PointT",
     "AtomizableT",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
     "CallableFormalAnnotation",
     "notes_of",
     "dirty",
@@ -145,6 +171,33 @@ FlagT = TypeVar("FlagT", bound='Flag')
 PointT = TypeVar("PointT")
 
 AtomizableT = TypeVar("AtomT", bound="Atomizable")
+
+A = TypeVar('A')
+B = TypeVar('B')
+C = TypeVar('C')
+D = TypeVar('D')
+E = TypeVar('E')
+F = TypeVar('F')
+G = TypeVar('G')
+H = TypeVar('H')
+I = TypeVar('I')
+J = TypeVar('J')
+K = TypeVar('K')
+L = TypeVar('L')
+M = TypeVar('M')
+N = TypeVar('N')
+O = TypeVar('O')
+P = TypeVar('P')
+Q = TypeVar('Q')
+R = TypeVar('R')
+S = TypeVar('S')
+T = TypeVar('T')
+U = TypeVar('U')
+V = TypeVar('V')
+W = TypeVar('W')
+X = TypeVar('X')
+Y = TypeVar('Y')
+Z = TypeVar('Z')
 
 
 class CallableFormalAnnotation(FormalAnnotation):
