@@ -2,11 +2,11 @@ from functools import partial, reduce, cached_property, update_wrapper
 from inspect import Signature, Parameter
 from operator import or_, is_not, not_
 from typing import (
-    TypeAlias, TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Type,
+    TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Type,
     Tuple, NamedTuple, _CallableGenericAlias,
 )
 
-from pyannotating import Special, AnnotationTemplate, input_annotation
+from pyannotating import Special
 
 from pyhandling.annotations import ResultT, Pm, ValueT, A, B, C, D
 from pyhandling.atoming import atomically
@@ -27,8 +27,6 @@ __all__ = (
     "stop",
     "branching",
     "then",
-    "mapping_to_chain_of",
-    "mapping_to_chain",
 )
 
 
@@ -385,13 +383,6 @@ then = documenting_by(
 )
 
 
-mapping_to_chain_of = AnnotationTemplate(
-    Callable,
-    [[one_value_action | ActionChain[one_value_action]], AnnotationTemplate(
-        ActionChain,
-        [input_annotation],
-    )],
-)
 discretely: Callable[
     [Callable[[Callable[[A], B]], Callable[[C], D]]],
     Callable[[ActionChain[Callable[[A], B]] | Callable[[A], B]], Callable[[C], D]],
@@ -401,7 +392,6 @@ discretely = documenting_by(
     Function for decorator to map an action or actions of an `ActionChain` into
     an `ActionChain`.
 
-mapping_to_chain: TypeAlias = mapping_to_chain_of[one_value_action]
     Maps an input decorator for each action individually.
     """
 )(

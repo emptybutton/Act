@@ -1,9 +1,7 @@
 from operator import attrgetter, call
 from typing import Callable, Any, Tuple, Optional
 
-from pyannotating import (
-    many_or_one, AnnotationTemplate, input_annotation, Special
-)
+from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import (
     dirty, ValueT, ContextT, ResultT,
@@ -24,9 +22,6 @@ from pyhandling.tools import documenting_by, to_check
 
 
 __all__ = (
-    "mapping_to_chain_among",
-    "execution_context_when",
-    "native_execution_context_when",
     "bad",
     "maybe",
     "until_error",
@@ -37,25 +32,6 @@ __all__ = (
     "future",
     "in_future",
     "future_from",
-)
-
-
-mapping_to_chain_among = AnnotationTemplate(mapping_to_chain_of, [
-    AnnotationTemplate(reformer_of, [input_annotation])
-])
-
-
-execution_context_when = AnnotationTemplate(mapping_to_chain_among, [
-    AnnotationTemplate(contextual, [Any, input_annotation])
-])
-
-
-native_execution_context_when = AnnotationTemplate(mapping_to_chain_of, [
-    AnnotationTemplate(Callable, [
-        [Any],
-        AnnotationTemplate(contextual, [Any, input_annotation])
-    ])
-])
 )
 
 

@@ -33,7 +33,6 @@ __all__ = (
     "to_points",
     "to_value_points",
     "flag_enum_of",
-    "pointed_or",
     "nothing",
 )
 
@@ -641,12 +640,6 @@ def flag_enum_of(value: Special[Mapping]) -> object:
     }
 
     return with_attributes(**flag_by_name, flags=pointed(*flag_by_name.values()))
-
-
-pointed_or = AnnotationTemplate(Union, [
-    AnnotationTemplate(Flag, [input_annotation]),
-    input_annotation,
-])
 
 
 nothing = flag("nothing", sign=False)
