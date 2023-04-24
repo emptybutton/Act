@@ -38,6 +38,7 @@ __all__ = (
     'c',
     'd',
     'e',
+    'f',
     'g',
     'h',
     'i',
@@ -703,6 +704,7 @@ b = action_cursor_by('b')
 c = action_cursor_by('c')
 d = action_cursor_by('d')
 e = action_cursor_by('e')
+f = action_cursor_by('f')
 g = action_cursor_by('g')
 h = action_cursor_by('h')
 i = action_cursor_by('i')
