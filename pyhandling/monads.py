@@ -187,24 +187,3 @@ def future_from(
             and value.context == future
         )).points,
     )
-
-
-to_points: mapping_to_chain_of[Callable[[pointed_or[PointT]], Flag[PointT]]]
-to_points = documenting_by(
-    """Execution context to execute inside `Flag.points`."""
-)(
-    monadically(lambda action: lambda flags: pointed(*map(
-        action,
-        pointed(flags).points,
-    )))
-)
-
-
-to_value_points: mapping_to_chain_among[Flag] = documenting_by(
-    """
-    Flag `point` execution context of flags whose `points` do not point to
-    themselves.
-    """
-)(
-    monadically(on |to| isnt(isinstance |by| Flag)) |then>> to_points
-)
