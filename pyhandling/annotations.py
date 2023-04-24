@@ -25,17 +25,6 @@ __all__ = (
     "ArgumentsT",
     "ValueT",
     "ObjectT",
-    "FirstT",
-    "SecondT",
-    "ThirdT",
-    "FourthT",
-    "SixthT",
-    "SeventhT",
-    "EighthT",
-    "NinthT",
-    "TenthT",
-    "EleventhT",
-    "TwelfthT",
     "RightT",
     "LeftT",
     "ResultT",
@@ -121,28 +110,6 @@ ArgumentsT = TypeVarTuple("ArgumentsT")
 ValueT = TypeVar("ValueT")
 
 ObjectT = TypeVar("ObjectT")
-
-FirstT = TypeVar("FirstT")
-
-SecondT = TypeVar("SecondT")
-
-ThirdT = TypeVar("ThirdT")
-
-FourthT = TypeVar("FourthT")
-
-SixthT = TypeVar("SixthT")
-
-SeventhT = TypeVar("SeventhT")
-
-EighthT = TypeVar("EighthT")
-
-NinthT = TypeVar("NinthT")
-
-TenthT = TypeVar("TenthT")
-
-EleventhT = TypeVar("EleventhT")
-
-TwelfthT = TypeVar("TwelfthT")
 
 RightT = TypeVar("RightT")
 
