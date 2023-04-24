@@ -187,9 +187,6 @@ class Arguments(Mapping, Generic[ValueT]):
             arg.args if isinstance(arg, Arguments) else (arg, ) for arg in args
         )
 
-        kwargs
-        OrderedDict(key: value for key, value in kwargs.items() if )
-
         return self.__class__(
             (*self.args, *args),
             self.kwargs | kwargs
