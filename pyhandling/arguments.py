@@ -176,9 +176,6 @@ class Arguments(Mapping, Generic[ValueT]):
     def __len__(self) -> int:
         return len(self.keys)
 
-    def __or__(self, other: Self) -> Self:
-        return self.merge_with(other)
-
     def __contains__(self, value: ValueT) -> bool:
         return value in tuple(self)
 
