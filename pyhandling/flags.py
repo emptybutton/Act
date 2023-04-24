@@ -2,20 +2,21 @@ from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
 from typing import (
-    Self, Iterator, Any, Generic, TypeVar, Callable, Optional, Tuple, Union,
+    Self, Iterator, Any, Generic, TypeVar, Callable, Optional, Tuple,
     Literal, Mapping
 )
-from operator import or_, sub, attrgetter
+from operator import or_, sub, attrgetter, not_
 
-from pyannotating import Special, AnnotationTemplate, input_annotation
+from pyannotating import Special
 
 from pyhandling.atoming import atomic
 from pyhandling.annotations import (
     ValueT, FlagT, checker_of, PointT, Pm, ResultT, merger_of, reformer_of, A, B
 )
-from pyhandling.data_flow import by
+from pyhandling.data_flow import by, then
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
+from pyhandling.partials import fragmentarily
 from pyhandling.signature_assignmenting import call_signature_of
 from pyhandling.structure_management import (
     with_opened_items, in_collection, dict_of
@@ -29,6 +30,8 @@ __all__ = (
     "FlagVector",
     "flag",
     "pointed",
+    "to_points",
+    "to_value_points",
     "flag_enum_of",
     "pointed_or",
     "nothing",
@@ -596,6 +599,23 @@ def pointed(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:
         return flags[0]
 
     return reduce(or_, flags)
+
+
+@fragmentarily
+def to_points(action: Callable[[A], B], value: A | Flag[A]) -> Flag[B]:
+    """Decorator to execute inside `Flag.points`."""
+
+    return pointed(*map(action, pointed(value).points))
+
+
+@fragmentarily
+def to_value_points(action: Callable[[A], B], value: A | Flag[A]) -> Flag[B]:
+    """
+    Flag `point` execution context of flags whose `points` do not point to
+    themselves.
+    """
+
+    return to_points(on((isinstance |by| Flag) |then>> not_, action), value)
 
 
 def flag_enum_of(value: Special[Mapping]) -> object:
