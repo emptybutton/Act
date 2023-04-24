@@ -38,7 +38,7 @@ def test_argument_pack_merger(
     second_kwargs: dict,
 ):
     assert (
-        Arguments(first_args, first_kwargs).expand_with(
+        Arguments(first_args, first_kwargs).expanded_with(
             Arguments(second_args, second_kwargs),
         )
         == Arguments.of(
@@ -67,7 +67,7 @@ def test_argument_pack_expanding(
     second_kwargs: dict
 ):
     assert (
-        Arguments(first_args, first_kwargs).expand_with(
+        Arguments(first_args, first_kwargs).expanded_with(
             *second_args,
             **second_kwargs
         )
@@ -166,12 +166,12 @@ test_argument_pack_only_with = calling_test_case_of(
         ),
     ]
 )
-def test_as_argument_pack(
+def test_as_arguments(
     args: Iterable,
     kwargs: dict,
     result_argument_pack: Arguments,
 ):
-    assert as_argument_pack(*args, **kwargs) == result_argument_pack
+    assert as_arguments(*args, **kwargs) == result_argument_pack
 
 
 test_unpackly = calling_test_case_of(

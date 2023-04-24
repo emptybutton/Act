@@ -93,6 +93,24 @@ test_test_bind = calling_test_case_of(
 )
 
 
+test_discretely = calling_test_case_of(
+    (lambda: tuple(discretely(lambda _: _)(print)), (print, )),
+    (lambda: tuple(discretely(lambda _: _)(print |then>> sum)), (print, sum)),
+    (
+        lambda: (
+            discretely(
+                lambda action: lambda values: (*values, action(values[-1]))
+            )(
+                (lambda a: a + 1)
+                |then>> (lambda b: b + 2)
+                |then>> (lambda c: c + 3)
+            )
+        )([0]),
+        (0, 1, 3, 6),
+    ),
+)
+
+
 @mark.parametrize(
     'first_node, second_node, input_args',
     [

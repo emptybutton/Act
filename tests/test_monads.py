@@ -6,38 +6,6 @@ from pyhandling.monads import *
 from pyhandling.testing import calling_test_case_of
 
 
-test_monadically = calling_test_case_of(
-    (lambda: tuple(monadically(lambda _: _)(print)), (print, )),
-    (lambda: tuple(monadically(lambda _: _)(print |then>> sum)), (print, sum)),
-    (
-        lambda: (
-            monadically(
-                lambda action: lambda values: (*values, action(values[-1]))
-            )(
-                (lambda a: a + 1)
-                |then>> (lambda b: b + 2)
-                |then>> (lambda c: c + 3)
-            )
-        )([0]),
-        (0, 1, 3, 6),
-    ),
-)
-
-
-test_saving_context = calling_test_case_of(
-    (
-        lambda: saving_context(lambda a: a + 10)(contextual(6, None)),
-        contextual(16, None),
-    ),
-    (
-        lambda: saving_context((lambda a: a + 1) |then>> (lambda a: a + 3))(
-            contextual(12, None)
-        ),
-        contextual(16, None),
-    ),
-)
-
-
 test_maybe = calling_test_case_of(
     (
         lambda: contextual(14, when="input context") >= maybe(
