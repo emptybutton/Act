@@ -1,5 +1,6 @@
 __all__ = (
     "PyhandingError",
+    "ArgumentError",
     "ReturningError",
     "InvalidInitializationError",
     "AtomizationError",
@@ -9,6 +10,10 @@ __all__ = (
 
 
 class PyhandingError(Exception):
+    ...
+
+
+class ArgumentError(PyhandingError):
     ...
 
 
