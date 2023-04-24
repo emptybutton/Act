@@ -243,9 +243,9 @@ class mergely:
 
     def __init__(
         self,
-        merging_of: Callable[P, Callable[..., ResultT]],
-        *parallel_actions: Callable[P, Any],
-        **keyword_parallel_actions: Callable[P, Any],
+        merging_of: Callable[Pm, Callable[..., ResultT]],
+        *parallel_actions: Callable[Pm, Any],
+        **keyword_parallel_actions: Callable[Pm, Any],
     ):
         self._merging_of = merging_of
         self._parallel_actions = parallel_actions
