@@ -84,6 +84,7 @@ def until_error(
         return contexted(value, +pointed(error))
 
 
+@dirty
 def showly(
     action_or_actions: many_or_one[Callable[[A], B]],
     *,
