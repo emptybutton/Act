@@ -182,12 +182,17 @@ class Flag(ABC, Generic[PointT]):
     isinstance(+flag_or_vector, FlagVector) is True # Always
     ```
 
-    Flags available for instance checking as a synonym for equality.
+    Flags available for instance checking as a synonym for `instance` checking
+    by `points`.
     ```
-    isinstance(4, instance) is False
-    isinstance(instance, instance) is True
-    isinstance(first, first | second) is True
-    isinstance(first, second) is False
+    isinstance(4, super_) is False
+    isinstance(super_, super_) is True
+    isinstance(super_, super_ | not_super) is True
+    isinstance(super_, not_super) is False
+
+    isinstance(1, pointed(int)) is True
+    isinstance(1, super_ | int) is True
+    isinstance(super_, super_ | int) is True
     ```
     """
 
@@ -205,6 +210,10 @@ class Flag(ABC, Generic[PointT]):
 
     @abstractmethod
     def __getatom__(self) -> Self:
+        ...
+
+    @abstractmethod
+    def __instancecheck__(self, instance: Any) -> bool:
         ...
 
     @abstractmethod
@@ -233,9 +242,6 @@ class Flag(ABC, Generic[PointT]):
 
     def __invert__(self) -> Self:
         return self
-
-    def __instancecheck__(self,  instance: Any) -> bool:
-        return self == instance
 
     def __or__(self, other: Special[Self]) -> Self:
         return self.__sum(self, pointed(other), merge=_FlagSum)
@@ -436,6 +442,9 @@ class _FlagSum(_DoubleFlag):
 
     _separation_sign = '|'
 
+    def __instancecheck__(self, instance: Any) -> bool:
+        return isinstance(self._first) or isinstance(self._second)
+
     def __bool__(self) -> bool:
         return bool(self._first or self._second)
 
@@ -455,6 +464,9 @@ class _AtomicFlag(Flag, ABC):
 
     def __getatom__(self) -> Self:
         return self
+
+    def __instancecheck__(self, instance: Any) -> bool:
+        return isinstance(instance, self.point)
 
     def __pos__(self) -> FlagVector:
         return _BinaryFlagVector(self)
