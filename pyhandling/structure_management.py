@@ -4,7 +4,7 @@ from typing import Iterable, Tuple, Callable, Mapping, TypeAlias
 
 from pyannotating import many_or_one, Special
 
-from pyhandling.annotations import ValueT, MappedT, KeyT, action_of
+from pyhandling.annotations import ValueT, MappedT, KeyT, action_of, checker_of
 from pyhandling.atoming import atomically
 from pyhandling.data_flow import by
 from pyhandling.branching import then
@@ -23,8 +23,8 @@ __all__ = (
     "groups_in",
     "without",
     "without_duplicates",
-    "table_map",
-    "table_filter",
+    "map_table",
+    "filter_table",
     "from_keys",
     "reversed_table",
     "dict_of",

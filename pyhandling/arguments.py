@@ -12,7 +12,6 @@ from pyannotating import Special
 
 from pyhandling.annotations import ValueT
 from pyhandling.atoming import atomically
-from pyhandling.data_flow import to
 from pyhandling.errors import ArgumentError
 from pyhandling.signature_assignmenting import (
     Decorator, call_signature_of
