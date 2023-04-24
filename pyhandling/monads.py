@@ -1,32 +1,29 @@
-from operator import attrgetter, eq, pos, call
-from typing import Callable, Any, Tuple
+from operator import attrgetter, call
+from typing import Callable, Any, Tuple, Optional
 
 from pyannotating import (
     many_or_one, AnnotationTemplate, input_annotation, Special
 )
 
 from pyhandling.annotations import (
-    one_value_action, dirty, ValueT, ContextT, ResultT, reformer_of,
-    checker_of, event_for, PointT, MappedT
+    dirty, ValueT, ContextT, ResultT,
+    checker_of, event_for, A, B, V, FlagT, C
 )
-from pyhandling.atoming import atomically
 from pyhandling.branching import (
-    ActionChain, mapping_to_chain_of, binding_by, branching, then
+    discretely, ActionChain, binding_by, branching, then
 )
 from pyhandling.contexting import (
     contextual, contextually, contexted, ContextRoot, saving_context
 )
 from pyhandling.data_flow import returnly, eventually, by, to
-from pyhandling.flags import flag, nothing, Flag, pointed, pointed_or
+from pyhandling.flags import flag, nothing, Flag, pointed
 from pyhandling.partials import will, fragmentarily
-from pyhandling.structure_management import in_collection, as_collection, tmap
-from pyhandling.synonyms import raise_, trying_to, on
+from pyhandling.structure_management import tmap
+from pyhandling.synonyms import raise_
 from pyhandling.tools import documenting_by, to_check
-from pyhandling.utils import isnt
 
 
 __all__ = (
-    "monadically",
     "mapping_to_chain_among",
     "execution_context_when",
     "native_execution_context_when",
@@ -40,30 +37,6 @@ __all__ = (
     "future",
     "in_future",
     "future_from",
-)
-
-
-monadically: Callable[
-    [Callable[[one_value_action], reformer_of[ValueT]]],
-    mapping_to_chain_of[reformer_of[ValueT]]
-]
-monadically = documenting_by(
-    """
-    Function for decorator to map actions of a certain sequence (or just one
-    action) into a chain of transformations of a certain type.
-
-    Maps actions by an input decorator one at a time.
-    """
-)(
-    atomically(
-        will(map)
-        |then>> binding_by(
-            on(isnt(isinstance |by| ActionChain), in_collection, else_=as_collection)
-            |then>> ...
-            |then>> ActionChain
-        )
-        |then>> atomically
-    )
 )
 
 
@@ -89,56 +62,63 @@ native_execution_context_when = AnnotationTemplate(mapping_to_chain_of, [
 bad = flag('bad', sign=False)
 
 
-maybe: native_execution_context_when[Special[bad]]
-maybe = documenting_by(
+@documenting_by(
     """
-    The execution context that stops a thread of execution when a value is None
+    Execution context that stops a thread of execution when a value is None
     or returned in the `bad` context.
     """
-)(
-    monadically(lambda action: contexted |then>> (lambda root: (
-        root.value >= action |then>> contexted |then>> on(
-            attrgetter("context") |then>> (eq |to| bad),
-            contexted |by| +pointed(root.context),
-            else_=attrgetter("value") |then>> (contextual |by| root.context),
-        )
-        if root.value is not None and root.context != bad
-        else root
-    )))
 )
+@discretely
+@will
+def maybe(
+    action: Callable[[A], B],
+    value: Optional[A] | ContextRoot[Optional[V], Special[bad, FlagT]],
+) -> Optional[A | contextual[B | Optional[V], Special[bad, FlagT]]]:
+    stored_value, context = contexted(value)
+
+    return (
+        value
+        if value is None or stored_value is None or context == bad
+        else saving_context(action, value)
+    )
 
 
-until_error: native_execution_context_when[Special[Exception | Flag[Exception]]]
-until_error = documenting_by(
+@documenting_by(
     """
     Execution context that stops the thread of execution when an error occurs.
 
     When skipping, it saves the last validly calculated value and a pointed
     occurred error as context.
     """
-)(
-    monadically(lambda action: contexted |then>> (lambda root: (
-        trying_to(
-            saving_context(action),
-            pointed |then>> pos |then>> (contexted |to| root),
-        )(root)
-        if pointed(root.context).that(isinstance |by| Exception) == nothing
-        else root
-    )))
 )
+@discretely
+@will
+def until_error(
+    action: Callable[[A], B],
+    value: A | ContextRoot[A, Special[Exception | Flag[Exception] | C]],
+) -> contextual[A | B, Flag[Exception] | C]:
+    value = contexted(value)
+
+    if pointed(value.context).that(isinstance |by| Exception) != nothing:
+        return value
+
+    try:
+        return saving_context(action)
+    except Exception as error:
+        return contexted(value, +pointed(error))
 
 
 def showly(
-    action_or_actions: many_or_one[one_value_action],
+    action_or_actions: many_or_one[Callable[[A], B]],
     *,
-    show: dirty[one_value_action] = print,
-) -> dirty[ActionChain]:
+    show: dirty[Callable[[B], Any]] = print,
+) -> dirty[ActionChain[Callable[[A], B]]]:
     """
     Executing context with the effect of writing results.
     Prints results by default.
     """
 
-    return monadically(binding_by(... |then>> returnly(show)))(
+    return discretely(binding_by(... |then>> returnly(show)))(
         action_or_actions
     )
 
@@ -190,7 +170,7 @@ future = flag("future")
 @fragmentarily
 def in_future(
     action: Callable[[ValueT], ResultT],
-    value: ValueT | ContextRoot[ValueT, pointed_or[ContextT]],
+    value: ValueT | ContextRoot[ValueT, Flag[ContextT] | ContextT],
 ) -> contextual[ValueT, Flag[ContextT | contextually[event_for[ResultT], future]]]:
     """
     Decorator to delay the execution of an input action.
@@ -209,7 +189,10 @@ def in_future(
 
 
 def future_from(
-    value: Special[pointed_or[contextually[event_for[ResultT], future]]],
+    value: Special[
+        contextually[event_for[ResultT], future]
+        | Flag[contextually[event_for[ResultT], future]]
+    ],
 ) -> Tuple[ResultT]:
     """
     Function for safe execution of actions in `future` context.
