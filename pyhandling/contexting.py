@@ -28,6 +28,8 @@ __all__ = (
     "context_pointed",
     "context_oriented",
     "contexted",
+    "saving_context",
+    "to_context",
     "with_context_that",
     "is_metacontextual",
     "with_reduced_metacontext",
@@ -224,6 +226,31 @@ def contexted(
         context = when
 
     return contextual(value, context)
+
+
+@fragmentarily
+def saving_context(
+    action: Callable[[A], B],
+    value_and_context: contextual_like[A, ContextT],
+) -> ContextRoot[B, ContextT]:
+    """Execution context without effect."""
+
+    value, context = value_and_context
+
+    return contextual(action(value), when=context)
+
+
+@fragmentarily
+def to_context(
+    action: Callable[[A], B],
+    value_and_context: contextual_like[ValueT, A],
+) -> ContextRoot[ValueT, B]:
+    """Execution context for context value context calculations."""
+
+    return context_oriented(saving_context(
+        action,
+        context_oriented(value_and_context),
+    ))
 
 
 @fragmentarily

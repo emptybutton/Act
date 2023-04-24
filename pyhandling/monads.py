@@ -14,7 +14,7 @@ from pyhandling.branching import (
     ActionChain, mapping_to_chain_of, binding_by, branching, then
 )
 from pyhandling.contexting import (
-    contextual, contextually, contexted, context_oriented, ContextRoot
+    contextual, contextually, contexted, ContextRoot, saving_context
 )
 from pyhandling.data_flow import returnly, eventually, by, to
 from pyhandling.flags import flag, nothing, Flag, pointed, pointed_or
@@ -30,8 +30,6 @@ __all__ = (
     "mapping_to_chain_among",
     "execution_context_when",
     "native_execution_context_when",
-    "saving_context",
-    "to_context",
     "bad",
     "maybe",
     "until_error",
@@ -90,30 +88,6 @@ native_execution_context_when = AnnotationTemplate(mapping_to_chain_of, [
         AnnotationTemplate(contextual, [Any, input_annotation])
     ])
 ])
-
-
-saving_context: mapping_to_chain_of[Callable[
-    [ContextRoot[ValueT, ContextT]],
-    ContextRoot[Any, ContextT],
-]]
-saving_context = documenting_by(
-    """Execution context without effect."""
-)(
-    monadically(lambda action: lambda root: contextual(
-        action(root.value), when=root.context
-    ))
-)
-
-
-to_context: mapping_to_chain_of[Callable[
-    [ContextRoot[ValueT, ContextT]],
-    ContextRoot[ValueT, Any],
-]]
-to_context = documenting_by(
-    """Execution context for context value context calculations."""
-)(
-    saving_context
-    |then>> binding_by(context_oriented |then>> ... |then>> context_oriented)
 )
 
 
