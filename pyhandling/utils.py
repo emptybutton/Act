@@ -2,7 +2,7 @@ from operator import not_, add, truediv
 from typing import Callable, Optional, Type
 
 from pyhandling.annotations import (
-    dirty, action_of, ValueT, ResultT, checker_of, action_for, P, reformer_of,
+    dirty, action_of, ValueT, ResultT, checker_of, action_for, Pm, reformer_of,
     ErrorT
 )
 from pyhandling.atoming import atomically
@@ -82,8 +82,8 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
 
 
 with_error: Callable[
-    [Callable[P, ResultT]],
-    Callable[P, contextual[Optional[ResultT], Optional[Exception]]]
+    [Callable[Pm, ResultT]],
+    Callable[Pm, contextual[Optional[ResultT], Optional[Exception]]]
 ]
 with_error = documenting_by(
     """

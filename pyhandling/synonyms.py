@@ -6,7 +6,7 @@ from inspect import Signature, Parameter
 from pyannotating import Special
 
 from pyhandling.annotations import (
-    P, ValueT, ResultT, ErrorHandlingResultT, action_for, reformer_of,
+    Pm, ValueT, ResultT, ErrorHandlingResultT, action_for, reformer_of,
     checker_of, RightT, LeftT
 )
 from pyhandling.atoming import atomically
@@ -69,11 +69,11 @@ class on:
 
     def __init__(
         self,
-        determinant: Special[Callable[P, bool]],
-        right_way: Callable[P, RightT] | RightT,
+        determinant: Special[Callable[Pm, bool]],
+        right_way: Callable[Pm, RightT] | RightT,
         /,
         *,
-        else_: Callable[P, LeftT] | LeftT = returned
+        else_: Callable[Pm, LeftT] | LeftT = returned
     ):
         self._condition_checker = to_check(determinant)
         self._right_action = as_action(right_way)
@@ -81,7 +81,7 @@ class on:
 
         self.__signature__ = self.__get_signature()
 
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> RightT | LeftT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> RightT | LeftT:
         return (
             self._right_action
             if self._condition_checker(*args, **kwargs)
@@ -139,7 +139,7 @@ class trying_to:
 
     def __init__(
         self,
-        action: Callable[P, ResultT],
+        action: Callable[Pm, ResultT],
         rollback: Callable[[Exception], ErrorHandlingResultT],
     ):
         self._action = action
@@ -148,8 +148,8 @@ class trying_to:
 
     def __call__(
         self,
-        *args: P.args,
-        **kwargs: P.args,
+        *args: Pm.args,
+        **kwargs: Pm.args,
     ) -> ResultT | ErrorHandlingResultT:
         try:
             return self._action(*args, **kwargs)

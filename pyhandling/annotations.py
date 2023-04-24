@@ -21,7 +21,7 @@ __all__ = (
     "decorator",
     "event",
     "ActionT",
-    "P",
+    "Pm",
     "ArgumentsT",
     "ValueT",
     "ObjectT",
@@ -88,7 +88,7 @@ event = event_for[Any]
 
 ActionT = TypeVar("ActionT", bound=Callable)
 
-P = ParamSpec('P')
+Pm = ParamSpec('Pm')
 
 ArgumentsT = TypeVarTuple("ArgumentsT")
 

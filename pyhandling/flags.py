@@ -11,7 +11,7 @@ from pyannotating import Special, AnnotationTemplate, input_annotation
 
 from pyhandling.atoming import atomic
 from pyhandling.annotations import (
-    ValueT, FlagT, checker_of, PointT, P, ResultT, merger_of, reformer_of
+    ValueT, FlagT, checker_of, PointT, Pm, ResultT, merger_of, reformer_of, A, B
 )
 from pyhandling.data_flow import by
 from pyhandling.errors import FlagError
@@ -551,13 +551,13 @@ class _ActionFlag(_NominalFlag):
     `_NominalFlag` class for also implementing delegation call to input action.
     """
 
-    def __init__(self, name: str, sign: bool, action: Callable[P, ResultT]):
+    def __init__(self, name: str, sign: bool, action: Callable[Pm, ResultT]):
         super().__init__(name, sign)
 
         self._action = action
         self.__signature__ = call_signature_of(action)
 
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> ResultT:
         return self._action(*args, **kwargs)
 
 

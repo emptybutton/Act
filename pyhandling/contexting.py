@@ -8,7 +8,7 @@ from typing import (
 from pyannotating import Special
 
 from pyhandling.annotations import (
-    ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, P, checker_of, FlagT
+    ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, Pm, checker_of, FlagT,
 )
 from pyhandling.atoming import atomic
 from pyhandling.flags import nothing, Flag, pointed, FlagVector
@@ -124,7 +124,7 @@ class contextually(ContextRoot, Generic[ActionT, ContextT]):
     action = property_to("_value")
     context = property_to("_context")
 
-    def __init__(self, action: Callable[P, ResultT], when: ContextT = nothing):
+    def __init__(self, action: Callable[Pm, ResultT], when: ContextT = nothing):
         self._value = action
         self._context = when
 
@@ -134,7 +134,7 @@ class contextually(ContextRoot, Generic[ActionT, ContextT]):
     def __repr__(self) -> str:
         return f"contextually({super().__repr__()})"
 
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> ResultT:
         return self._value(*args, **kwargs)
 
     def _get_signature(self) -> Signature:

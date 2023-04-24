@@ -7,7 +7,7 @@ from typing import (
 from operator import is_
 
 from pyhandling.annotations import (
-    P, ValueT, ResultT, action_for, one_value_action, dirty, ArgumentsT
+    Pm, ValueT, ResultT, action_for, one_value_action, dirty, ArgumentsT
 )
 from pyhandling.atoming import atomically
 from pyhandling.branching import mergely, bind, then
@@ -65,9 +65,9 @@ class eventually(Decorator):
 
     def __init__(
         self,
-        action: Callable[P, ResultT],
-        *args: P.args,
-        **kwargs: P.kwargs,
+        action: Callable[Pm, ResultT],
+        *args: Pm.args,
+        **kwargs: Pm.kwargs,
     ):
         super().__init__(action)
         self._args = args
@@ -98,7 +98,7 @@ class eventually(Decorator):
         ))
 
 
-def with_result(result: ResultT, action: Callable[P, Any]) -> Callable[P, ResultT]:
+def with_result(result: ResultT, action: Callable[Pm, Any]) -> Callable[Pm, ResultT]:
     """Function to force an input result for an input action."""
 
     return bind(action, to(result))
@@ -172,7 +172,7 @@ class once:
     _result: Optional[ResultT] = None
     _was_called: bool = False
 
-    def __init__(self, action: Callable[P, ResultT]):
+    def __init__(self, action: Callable[Pm, ResultT]):
         self._action = action
         self.__signature__ = call_signature_of(self._action)
 
@@ -181,7 +181,7 @@ class once:
             f"{self._result} from " if self._was_called else str()
         )
 
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> ResultT:
         if self._was_called:
             return self._result
 
@@ -284,7 +284,7 @@ class _CallableCustomPartialApplicationInfix(_CustomPartialApplicationInfix):
         self,
         transform: Callable[[Callable, ValueT], Callable],
         *,
-        action_to_call: Callable[P, ResultT] = returned,
+        action_to_call: Callable[Pm, ResultT] = returned,
         action_to_transform: Optional[Callable] = None,
         arguments: Optional[Iterable[ValueT]] = None,
         name: Optional[str] = None
@@ -297,7 +297,7 @@ class _CallableCustomPartialApplicationInfix(_CustomPartialApplicationInfix):
         )
         self._action_to_call = action_to_call
 
-    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> ResultT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> ResultT:
         return self._action_to_call(*args, **kwargs)
 
 

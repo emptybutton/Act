@@ -2,7 +2,7 @@ from copy import deepcopy, copy
 from functools import wraps
 from typing import Callable, Type, Any, Concatenate, Self
 
-from pyhandling.annotations import ObjectT, P, ValueT, one_value_action
+from pyhandling.annotations import ObjectT, Pm, ValueT, one_value_action
 from pyhandling.atoming import atomically
 from pyhandling.signature_assignmenting import call_signature_of
 
@@ -11,9 +11,9 @@ __all__ = ("to_clone", "publicly_immutable", "property_to")
 
 
 def to_clone(
-    method: Callable[Concatenate[ObjectT, P], Any],
+    method: Callable[Concatenate[ObjectT, Pm], Any],
     deeply: bool = True,
-) -> Callable[Concatenate[ObjectT, P], ObjectT]:
+) -> Callable[Concatenate[ObjectT, Pm], ObjectT]:
     """
     Decorator function to spawn new objects by cloning and applying an input
     method to them.
@@ -22,7 +22,7 @@ def to_clone(
     """
 
     @wraps(method)
-    def wrapper(instance: ObjectT, *args: P.args, **kwargs: P.kwargs) -> ObjectT:
+    def wrapper(instance: ObjectT, *args: Pm.args, **kwargs: Pm.kwargs) -> ObjectT:
         clone = (deepcopy if deeply else copy)(instance)
         method(clone, *args, **kwargs)
 

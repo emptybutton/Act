@@ -14,7 +14,7 @@ from typing import (
 from pyannotating import Special
 
 from pyhandling.annotations import (
-    merger_of, event_for, ResultT, reformer_of, P, ObjectT
+    merger_of, event_for, ResultT, reformer_of, Pm, ObjectT
 )
 from pyhandling.arguments import Arguments
 from pyhandling.branching import ActionChain, binding_by, on, then
@@ -610,10 +610,10 @@ class _ActionCursor(Mapping):
         return cursor_transformer
 
     @staticmethod
-    def __with_forced_sign(forced_sign: bool) -> reformer_of[Callable[P, Self]]:
-        def decorator(action: Callable[P, Self]) -> Callable[P, Self]:
+    def __with_forced_sign(forced_sign: bool) -> reformer_of[Callable[Pm, Self]]:
+        def decorator(action: Callable[Pm, Self]) -> Callable[Pm, Self]:
             @wraps(action)
-            def action_with_forced_sign(*args: P.args, **kwargs: P.kwargs) -> Self:
+            def action_with_forced_sign(*args: Pm.args, **kwargs: Pm.kwargs) -> Self:
                 cursor = action(*args, **kwargs)
                 cursor._sign = forced_sign
 
