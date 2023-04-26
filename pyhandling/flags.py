@@ -32,7 +32,6 @@ __all__ = (
     "pointed",
     "to_points",
     "to_value_points",
-    "flag_enum_of",
     "nothing",
 )
 
@@ -627,31 +626,6 @@ def to_value_points(action: Callable[[A], B], value: A | Flag[A]) -> Flag[B]:
     """
 
     return to_points(on((isinstance |by| Flag) |then>> not_, action), value)
-
-
-def flag_enum_of(value: Special[Mapping]) -> object:
-    """
-    Decorator for creating an `Enum`-like object consisting of `Flags`.
-
-    Creates from an input dictionary if an input value is a dictionary,
-    otherwise from attributes of an input object.
-
-    Takes from input values the values that are `Flags`, under their keyword.
-
-    With a value of `...` (`Ellipsis`) generates a flag named keyword, from
-    which this value is taken and also takes it.
-
-    Stores all flags taken or generated as a sum in the reserved `flags`
-    attribute.
-    """
-
-    flag_by_name = {
-        name: flag(name) if value is Ellipsis else value
-        for name, value in dict_of(value).items()
-        if value is Ellipsis or isinstance(value, Flag)
-    }
-
-    return with_attributes(**flag_by_name, flags=pointed(*flag_by_name.values()))
 
 
 nothing = flag("nothing", sign=False)
