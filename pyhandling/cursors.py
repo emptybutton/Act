@@ -13,9 +13,7 @@ from typing import (
 
 from pyannotating import Special
 
-from pyhandling.annotations import (
-    merger_of, event_for, ResultT, reformer_of, Pm, ObjectT
-)
+from pyhandling.annotations import merger_of, event_for, R, reformer_of, Pm, V
 from pyhandling.arguments import Arguments
 from pyhandling.branching import ActionChain, binding_by, on, then
 from pyhandling.contexting import contextual, to_read, saving_context
@@ -590,7 +588,7 @@ class _ActionCursor(Mapping):
 
     @staticmethod
     def __transformation_by(
-        operation: Callable[[Special[Self]], ResultT],
+        operation: Callable[[Special[Self]], R],
         model: _OperationModel,
     ) -> reformer_of[Self]:
         def cursor_transformer(cursor: Self) -> Self:
