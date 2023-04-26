@@ -19,3 +19,11 @@ def back_scope_in(number_of_backs: int, /) -> dict[str, Any]:
 
     return dict() if scope is None else scope.f_locals
 
+
+def value_in(__name: str, /, *, scope_in: int = 0) -> Any:
+    """Function to get value from an external scope."""
+
+    __scope = back_scope_in(scope_in + 1)
+    del scope_in
+
+    return __scope[__name] if __name in __scope.keys() else eval(__name)
