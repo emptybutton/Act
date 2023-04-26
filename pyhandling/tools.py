@@ -2,7 +2,7 @@ from datetime import datetime
 from functools import partial
 from math import inf
 from operator import eq
-from typing import Iterable, Tuple, NoReturn
+from typing import Iterable, Tuple, NoReturn, Type
 
 from pyhandling.annotations import (
     event_for, V, dirty, reformer_of, checker_of, ActionT, action_for
@@ -15,6 +15,7 @@ __all__ = (
     "Clock",
     "Logger",
     "NotInitializable",
+    "namespace_of",
     "with_attributes",
     "documenting_by",
     "to_check",
@@ -95,6 +96,30 @@ class NotInitializable:
         raise InvalidInitializationError(
             f"\"{type(self).__name__}\" type object cannot be initialized"
         )
+
+
+def namespace_of(type_: type) -> Type[NotInitializable]:
+    """
+    Decorator for creating a namespace based on an input type.
+
+    Creates an inheritor of an input type with `staticmethod` methods that
+    cannot be initialized.
+
+    Already `staticmethod` methods are not re-decorated.
+    """
+
+    return type(
+        type_.__name__,
+        (NotInitializable, type_),
+        {
+            _: (
+                staticmethod(attribute)
+                if callable(attribute) and not isinstance(attribute, staticmethod)
+                else attribute
+            )
+            for _, attribute in type_.__dict__.items()
+        }
+    )
 
 
 def with_attributes(
