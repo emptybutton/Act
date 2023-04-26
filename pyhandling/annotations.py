@@ -20,24 +20,12 @@ __all__ = (
     "checker",
     "decorator",
     "event",
-    "ActionT",
     "Pm",
     "ArgumentsT",
-    "ValueT",
-    "ObjectT",
-    "RightT",
-    "LeftT",
-    "ResultT",
-    "KeyT",
+    "ActionT",
     "ErrorT",
     "TypeT",
-    "ContextT",
-    "PositiveConditionResultT",
-    "NegativeConditionResultT",
-    "ErrorHandlingResultT",
-    "MappedT",
     "FlagT",
-    "PointT",
     "AtomizableT",
     "A",
     "B",
@@ -101,43 +89,20 @@ decorator = reformer_of[Callable]
 event = event_for[Any]
 
 
-ActionT = TypeVar("ActionT", bound=Callable)
-
 Pm = ParamSpec('Pm')
 
 ArgumentsT = TypeVarTuple("ArgumentsT")
 
-ValueT = TypeVar("ValueT")
-
-ObjectT = TypeVar("ObjectT")
-
-RightT = TypeVar("RightT")
-
-LeftT = TypeVar("LeftT")
-
-ResultT = TypeVar("ResultT")
-
-PositiveConditionResultT = TypeVar("PositiveConditionResultT")
-
-NegativeConditionResultT = TypeVar("NegativeConditionResultT")
-
-ErrorHandlingResultT = TypeVar("ErrorHandlingResultT")
+ActionT = TypeVar("ActionT", bound=Callable)
 
 ErrorT = TypeVar("ErrorT", bound=Exception)
 
 TypeT = TypeVar("TypeT", bound=type)
 
-ContextT = TypeVar("ContextT")
-
-KeyT = TypeVar('KeyT')
-
-MappedT = TypeVar("MappedT")
-
 FlagT = TypeVar("FlagT", bound='Flag')
 
-PointT = TypeVar("PointT")
-
 AtomizableT = TypeVar("AtomT", bound="Atomizable")
+
 
 A = TypeVar('A')
 B = TypeVar('B')
