@@ -25,7 +25,7 @@ from pyhandling.flags import flag_enum_of, nothing, flag
 from pyhandling.partials import flipped, rpartial, rwill, will
 from pyhandling.structure_management import tfilter, groups_in
 from pyhandling.synonyms import with_keyword, collection_of
-from pyhandling.tools import property_to
+from pyhandling.tools import property_to, namespace_of
 
 
 __all__ = (
@@ -89,19 +89,22 @@ class _ActionCursorUnpacking:
         return self
 
 
-@flag_enum_of
+@namespace_of
 class _ActionCursorNature:
-    attrgetting = ...
-    vargetting = ...
-    itemgetting = ...
-    calling = ...
-    packing = ...
-    setting = ...
+    attrgetting = flag("attrgetting")
+    itemgetting = flag("itemgetting")
+    vargetting = flag("vargetting")
+
     binary_operation = flag("binary_operation")
     single_operation = flag("single_operation")
     operation = binary_operation | single_operation
-    set_by_initialization = ...
-    returning = ...
+
+    calling = flag("calling")
+    setting = flag("setting")
+    packing = flag("packing")
+
+    returning = flag("returning")
+    set_by_initialization = flag("set_by_initialization")
 
 
 class _ActionCursor(Mapping):
@@ -123,7 +126,7 @@ class _ActionCursor(Mapping):
         parameters: Iterable[_ActionCursorParameter] = tuple(),
         actions: ActionChain = ActionChain(),
         previous: Optional[Self] = None,
-        nature: contextual[_ActionCursorNature.flags, Any] = contextual(
+        nature: contextual[Flag, Any] = contextual(
             _ActionCursorNature.set_by_initialization,
         ),
         internal_repr: str = '...'
@@ -345,7 +348,7 @@ class _ActionCursor(Mapping):
         *,
         parameters: Optional[tuple[_ActionCursorParameter]] = None,
         previous: Optional[Self] = None,
-        nature: Optional[contextual[_ActionCursorNature.flags, Any]] = None,
+        nature: Optional[contextual[Flag, Any]] = None,
         internal_repr: Optional[str] = None,
     ) -> None:
         return type(self)(
