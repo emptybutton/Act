@@ -303,6 +303,8 @@ class _ActionCursor(Mapping):
 
     @_generation_transaction
     def __getattr__(self, name: str) -> Self:
+        name = self._getting_name_by(name)
+
         if len(self._actions) == 0:
             nature = _ActionCursorNature.vargetting
             cursor = self._with(
@@ -312,14 +314,7 @@ class _ActionCursor(Mapping):
         else:
             nature = _ActionCursorNature.attrgetting
             cursor = self._with(
-                rwill(getattr)(
-                    name[:-1]
-                    if (
-                        name[:-1] in self._overwritten_attribute_names
-                        and name.endswith('_')
-                    )
-                    else name
-                ),
+                getattr |by| name,
                 internal_repr=f"{self._adapted_internal_repr}.{name}",
             )
 
@@ -507,6 +502,19 @@ class _ActionCursor(Mapping):
             isinstance(keyword, str)
             and keyword.startswith(self._unpacking_key_template)
         )
+
+    def _getting_name_by(self, attribute_name: str) -> str:
+        for overwritten_attribute_name in self._overwritten_attribute_names:
+            if (
+                attribute_name.startswith(overwritten_attribute_name)
+                and all(map(
+                    eq |by| '_',
+                    attribute_name[len(overwritten_attribute_name) + 1:]),
+                )
+            ):
+                return attribute_name[:-1]
+
+        return attribute_name
 
     def _update_signature(self) -> None:
         self.__signature__ = Signature(
