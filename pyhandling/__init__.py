@@ -1,3 +1,4 @@
+from pyhandling.aggregates import *
 from pyhandling.annotations import *
 from pyhandling.arguments import *
 from pyhandling.atoming import *
