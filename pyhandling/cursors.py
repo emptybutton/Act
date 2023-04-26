@@ -295,10 +295,7 @@ class _ActionCursor(Mapping):
 
         if len(self._actions) == 0:
             nature = _ActionCursorNature.vargetting
-            cursor = self._with(
-                to(self._external_value_in(name)),
-                internal_repr=name,
-            )
+            cursor = self._with(to(value_in(name, scope_in=2)), internal_repr=name)
         else:
             nature = _ActionCursorNature.attrgetting
             cursor = self._with(
