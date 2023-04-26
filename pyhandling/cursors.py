@@ -231,32 +231,20 @@ class _ActionCursor(Mapping):
         )
 
     @_generation_transaction
-    def set(self, value: Any) -> Self:
+    def set(self, value: Special[Self]) -> Self:
         nature, place = self._nature
 
-        if nature != (
-            _ActionCursorNature.attrgetting | _ActionCursorNature.itemgetting
-        ):
-            raise ActionCursorError(
-                "Setting a value when there is nowhere to set"
+        if nature == _ActionCursorNature.attrgetting:
+            access = Access(get=getattr, set=setattr)
+        elif nature == _ActionCursorNature.itemgetting:
+            access = Access(get=getitem, set=setitem)
             )
+        else:
+            raise ActionCursorError("Setting a value when there is nowhere to set")
 
         return (
             self
-            ._with_setting(
-                value,
-                in_=place,
-                by=(
-                    setattr
-                    if nature == _ActionCursorNature.attrgetting
-                    else setitem
-                ),
-                return_as=(
-                    getattr
-                    if nature == _ActionCursorNature.attrgetting
-                    else getitem
-                ),
-            )
+            ._with_setting(value, in_=place, by=access)
             ._with(internal_repr=(
                 f"({self._internal_repr} := {self._repr_of(value)})",
             ))
@@ -458,20 +446,18 @@ class _ActionCursor(Mapping):
     @_generation_transaction
     def _with_setting(
         self,
-        value: Special[Self],
+        value: V | Self,
         *,
         in_: str,
-        by: Callable[[ObjectT, str, Any], Any],
-        return_as: Callable[[ObjectT, str], Any],
+        by: Access[Any, str, V, Any, Any],
     ) -> Self:
-        place = in_
-        set_ = by
+        access = by
 
         return (
             self._previous
-            ._merged_with(value, by=(
-                lambda a, b: return_as(with_result(a, set_)(a, place, b), place)
-            ))
+            ._merged_with(value, by=(lambda a, b: (
+                access.get(with_result(a, access.set)(a, place, b), place)
+            )))
             ._with(nature=contextual(
                 _ActionCursorNature.setting,
                 contextual(value, place)
