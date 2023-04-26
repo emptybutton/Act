@@ -10,7 +10,7 @@ from typing import (
 
 from pyannotating import Special
 
-from pyhandling.annotations import ValueT
+from pyhandling.annotations import A, D
 from pyhandling.atoming import atomically
 from pyhandling.errors import ArgumentError
 from pyhandling.signature_assignmenting import (
@@ -31,14 +31,14 @@ _ArgumentKeyT = TypeVar("_ArgumentKeyT", bound=int | str)
 
 
 @dataclass(frozen=True, repr=False)
-class ArgumentKey(Generic[_ArgumentKeyT, ValueT]):
+class ArgumentKey(Generic[_ArgumentKeyT, D]):
     """
     Data class for structuring getting value from `Arguments` via `[]`.
     """
 
     value: _ArgumentKeyT
     is_keyword: bool = field(default=False, kw_only=True)
-    default: ValueT = field(
+    default: D = field(
         default_factory=lambda: _EMPTY_DEFAULT_VALUE,
         compare=False,
         kw_only=True,
@@ -101,7 +101,7 @@ class ArgumentKeys:
         return tmap(attrgetter("value"), self._keys)
 
 
-class Arguments(Mapping, Generic[ValueT]):
+class Arguments(Mapping, Generic[A]):
     """
     Data class for structuring the storage of any arguments.
 
@@ -111,8 +111,8 @@ class Arguments(Mapping, Generic[ValueT]):
 
     def __init__(
         self,
-        args: Iterable[ValueT] = tuple(),
-        kwargs: Optional[Mapping[str, ValueT]] = None,
+        args: Iterable[A] = tuple(),
+        kwargs: Optional[Mapping[str, A]] = None,
     ):
         self._args = tuple(args)
         self._kwargs = frozendict(
@@ -120,11 +120,11 @@ class Arguments(Mapping, Generic[ValueT]):
         )
 
     @property
-    def args(self) -> Tuple[ValueT]:
+    def args(self) -> Tuple[A]:
         return self._args
 
     @property
-    def kwargs(self) -> frozendict[str, ValueT]:
+    def kwargs(self) -> frozendict[str, A]:
         return self._kwargs
 
     @cached_property
@@ -159,7 +159,7 @@ class Arguments(Mapping, Generic[ValueT]):
             and self.kwargs == other.kwargs
         )
 
-    def __getitem__(self, key: ArgumentKey | int | str) -> ValueT:
+    def __getitem__(self, key: ArgumentKey | int | str) -> A:
         if isinstance(key, int | str):
             key = ArgumentKey(key, is_keyword=isinstance(key, str))
 
@@ -169,13 +169,13 @@ class Arguments(Mapping, Generic[ValueT]):
             else key.default
         )
 
-    def __iter__(self) -> Iterator[ValueT]:
+    def __iter__(self) -> Iterator[A]:
         return iter((*self.args, *self.kwargs.keys()))
 
     def __len__(self) -> int:
         return len(self.keys)
 
-    def __contains__(self, value: ValueT) -> bool:
+    def __contains__(self, value: A) -> bool:
         return value in tuple(self)
 
     def expanded_with(self, *args: Special[Self], **kwargs: Any) -> Self:
@@ -190,7 +190,7 @@ class Arguments(Mapping, Generic[ValueT]):
             self.kwargs | kwargs
         )
 
-    def only_with(self, *arguments_or_keys: ValueT | ArgumentKey) -> Self:
+    def only_with(self, *arguments_or_keys: A | ArgumentKey) -> Self:
         """Method for cloning with values obtained from input keys."""
 
         keys = tmap(self._as_key, without_duplicates(arguments_or_keys))
@@ -201,7 +201,7 @@ class Arguments(Mapping, Generic[ValueT]):
             {keyword_key.value: self[keyword_key] for keyword_key in keyword_keys},
         )
 
-    def without(self, *arguments_or_keys: ValueT | ArgumentKey) -> Self:
+    def without(self, *arguments_or_keys: A | ArgumentKey) -> Self:
         """
         Method for cloning a pack excluding arguments whose keys are input to
         this method.

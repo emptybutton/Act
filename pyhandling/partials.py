@@ -3,7 +3,7 @@ from functools import cached_property, partial
 from inspect import Parameter, Signature, _empty
 from typing import Any, Self, Iterable, Tuple, Optional
 
-from pyhandling.annotations import action_for, ResultT
+from pyhandling.annotations import action_for, R
 from pyhandling.atoming import atomically
 from pyhandling.signature_assignmenting import Decorator, call_signature_of
 
@@ -88,7 +88,7 @@ class fragmentarily(Decorator):
 class flipped(Decorator):
     """Decorator to mirror positional parameters without default value."""
 
-    def __call__(self, *args, **kwargs) -> ResultT:
+    def __call__(self, *args, **kwargs) -> R:
         return self._action(*args[::-1], **kwargs)
 
     @cached_property
@@ -116,11 +116,7 @@ class flipped(Decorator):
         )
 
 
-def mirrored_partial(
-    action: action_for[ResultT],
-    *args,
-    **kwargs,
-) -> action_for[ResultT]:
+def mirrored_partial(action: action_for[R], *args, **kwargs) -> action_for[R]:
     """
     Function to partially apply input action with mirrored parameters by input
     arguments.
@@ -129,7 +125,7 @@ def mirrored_partial(
     return flipped(partial(flipped(action), *args, **kwargs))
 
 
-def rpartial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT]:
+def rpartial(action: action_for[R], *args, **kwargs) -> action_for[R]:
     """
     Function similar to `functools.partial` with the difference that partially
     applied arguments are set not to the left but to the right.
@@ -138,7 +134,7 @@ def rpartial(action: action_for[ResultT], *args, **kwargs) -> action_for[ResultT
     return mirrored_partial(action, *args[::-1], **kwargs)
 
 
-def will(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
+def will(action: action_for[R]) -> action_for[action_for[R]]:
     """
     Decorator to represent an input action into an action that partially applies
     that input action like `partial` function.
@@ -147,7 +143,7 @@ def will(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
     return partial(partial, action)
 
 
-def rwill(action: action_for[ResultT]) -> action_for[action_for[ResultT]]:
+def rwill(action: action_for[R]) -> action_for[action_for[R]]:
     """
     Decorator to represent an input action into an action that partially applies
     that input action like `rpartial` function.

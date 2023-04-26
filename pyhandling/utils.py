@@ -2,8 +2,7 @@ from operator import not_, add, truediv
 from typing import Callable, Optional, Type
 
 from pyhandling.annotations import (
-    dirty, action_of, ValueT, ResultT, checker_of, action_for, Pm, reformer_of,
-    ErrorT
+    dirty, action_of, V, R, checker_of, action_for, Pm, reformer_of, ErrorT
 )
 from pyhandling.atoming import atomically
 from pyhandling.branching import binding_by, then
@@ -27,13 +26,13 @@ __all__ = (
 )
 
 
-shown: dirty[reformer_of[ValueT]]
+shown: dirty[reformer_of[V]]
 shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
     returnly(print)
 )
 
 
-isnt: Callable[[action_of[ValueT]], checker_of[ValueT]]
+isnt: Callable[[action_of[V]], checker_of[V]]
 isnt = documenting_by("""Negation adding function.""")(
     binding_by(... |then>> not_)
 )
@@ -82,8 +81,8 @@ times: Callable[[int], dirty[action_for[bool]]] = documenting_by(
 
 
 with_error: Callable[
-    [Callable[Pm, ResultT]],
-    Callable[Pm, contextual[Optional[ResultT], Optional[Exception]]]
+    [Callable[Pm, R]],
+    Callable[Pm, contextual[Optional[R], Optional[Exception]]]
 ]
 with_error = documenting_by(
     """
@@ -103,9 +102,9 @@ with_error = documenting_by(
 @fragmentarily
 def catching(
     error_type_to_catch: Type[ErrorT],
-    action: Callable[[ErrorT], ResultT],
+    action: Callable[[ErrorT], R],
     error: ErrorT,
-) -> ResultT:
+) -> R:
     if not isinstance(error, error_type_to_catch):
         raise error
 

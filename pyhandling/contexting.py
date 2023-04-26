@@ -8,8 +8,7 @@ from typing import (
 from pyannotating import Special
 
 from pyhandling.annotations import (
-    ContextT, ActionT, ErrorT, ValueT, PointT, ResultT, Pm, checker_of, FlagT,
-    A, B, C, V, R
+    ActionT, ErrorT, P, Pm, checker_of, FlagT, A, B, C, V, R
 )
 from pyhandling.atoming import atomic
 from pyhandling.flags import nothing, Flag, pointed, FlagVector
@@ -71,7 +70,7 @@ class contextual_like(NotInitializable):
         return isinstance(instance, Iterable) and len(tuple(instance)) == 2
 
 
-class ContextRoot(ABC, Generic[ValueT, ContextT]):
+class ContextRoot(ABC, Generic[V, C]):
     """
     Abstract value form class, for holding an additional value, describing the
     main value.
@@ -84,8 +83,8 @@ class ContextRoot(ABC, Generic[ValueT, ContextT]):
     Attributes for stored values are defined in concrete forms.
     """
 
-    _value: ValueT
-    _context: ContextT
+    _value: V
+    _context: C
 
     def __repr__(self) -> str:
         return f"{self._repr_of(self._value)} when {self._repr_of(self._context)}"
@@ -112,24 +111,24 @@ class ContextRoot(ABC, Generic[ValueT, ContextT]):
         )
 
 
-class contextual(ContextRoot, Generic[ValueT, ContextT]):
+class contextual(ContextRoot, Generic[V, C]):
     """Basic `ContextRoot` form representing values with no additional effect."""
 
     value = property_to("_value")
     context = property_to("_context")
 
-    def __init__(self, value: ValueT, when: ContextT = nothing):
+    def __init__(self, value: V, when: C = nothing):
         self._value = value
         self._context = when
 
 
-class contextually(ContextRoot, Generic[ActionT, ContextT]):
+class contextually(ContextRoot, Generic[ActionT, C]):
     """`ContextRoot` form for annotating actions with saving their call."""
 
     action = property_to("_value")
     context = property_to("_context")
 
-    def __init__(self, action: Callable[Pm, ResultT], when: ContextT = nothing):
+    def __init__(self, action: Callable[Pm, R], when: C = nothing):
         self._value = action
         self._context = when
 
@@ -139,14 +138,14 @@ class contextually(ContextRoot, Generic[ActionT, ContextT]):
     def __repr__(self) -> str:
         return f"contextually({super().__repr__()})"
 
-    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> ResultT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._value(*args, **kwargs)
 
     def _get_signature(self) -> Signature:
         return call_signature_of(self._value)
 
 
-class ContextualError(Exception, ContextRoot, Generic[ErrorT, ContextT]):
+class ContextualError(Exception, ContextRoot, Generic[ErrorT, C]):
     """
     `ContextRoot` form for annotating an error with a context while retaining
     the ability to `raise` the call.
@@ -155,7 +154,7 @@ class ContextualError(Exception, ContextRoot, Generic[ErrorT, ContextT]):
     error = property_to("_value")
     context = property_to("_context")
 
-    def __init__(self, error: ErrorT, context: ContextT):
+    def __init__(self, error: ErrorT, context: C):
         self._value = error
         self._context = context
 
@@ -181,8 +180,8 @@ class context_pointed(ContextRoot, Generic[ActionT, FlagT]):
 
     def __init__(
         self,
-        value_and_context: contextual_like[ValueT, PointT | Flag[PointT]],
-        that: checker_of[PointT] = lambda _: True,
+        value_and_context: contextual_like[V, P | Flag[P]],
+        that: checker_of[P] = lambda _: True,
     ):
         value, context = value_and_context
 
@@ -192,25 +191,23 @@ class context_pointed(ContextRoot, Generic[ActionT, FlagT]):
     def __repr__(self) -> str:
         return f"context_pointed({super().__repr__()})"
 
-    def __getatom__(self) -> contextual[ValueT, PointT]:
+    def __getatom__(self) -> contextual[V, P]:
         return contextual(self._value, when=atomic(self._context).point)
 
 
-def context_oriented(
-    root_values: contextual_like[ValueT, ContextT]
-) -> contextual[ContextT, ValueT]:
+def context_oriented(root_values: contextual_like[V, C]) -> contextual[C, V]:
     """Function to swap a context and value."""
 
     return contextual(*reversed(tuple(root_values)))
 
 
-_ExistingContextT = TypeVar("_ExistingContextT")
+_ExistingC = TypeVar("_ExistingC")
 
 
 def contexted(
-    value: ValueT | ContextRoot[ValueT, _ExistingContextT],
-    when: Optional[Special[FlagVector, ContextT]] = None,
-) -> ContextRoot[ValueT, _ExistingContextT | Flag | ContextT]:
+    value: V | ContextRoot[V, _ExistingC],
+    when: Optional[Special[FlagVector, C]] = None,
+) -> ContextRoot[V, _ExistingC | Flag | C]:
     """
     Function to represent an input value in `contextual` form if it is not
     already present.
@@ -234,8 +231,8 @@ def contexted(
 @fragmentarily
 def saving_context(
     action: Callable[[A], B],
-    value_and_context: contextual_like[A, ContextT],
-) -> ContextRoot[B, ContextT]:
+    value_and_context: contextual_like[A, C],
+) -> ContextRoot[B, C]:
     """Execution context without effect."""
 
     value, context = value_and_context
@@ -246,8 +243,8 @@ def saving_context(
 @fragmentarily
 def to_context(
     action: Callable[[A], B],
-    value_and_context: contextual_like[ValueT, A],
-) -> ContextRoot[ValueT, B]:
+    value_and_context: contextual_like[V, A],
+) -> ContextRoot[V, B]:
     """Execution context for context value context calculations."""
 
     return context_oriented(saving_context(
@@ -276,11 +273,11 @@ def to_read(
 
 @fragmentarily
 def with_context_that(
-    that: checker_of[PointT],
-    value: ValueT | ContextRoot[ValueT, PointT | Flag[PointT]],
+    that: checker_of[P],
+    value: V | ContextRoot[V, P | Flag[P]],
     *,
-    and_nothing: bool = False,
-) -> contextual[ValueT, nothing | PointT]:
+    and_nothing: bool = True,
+) -> contextual[V, nothing | P]:
     """
     Function for transform `ContextRoot` with context filtered by input
     checker.
@@ -310,8 +307,8 @@ def is_metacontextual(value: Special[ContextRoot[ContextRoot, Any], Any]) -> boo
 
 
 def with_reduced_metacontext(
-    value: ContextRoot[ContextRoot[ValueT, Any], Any]
-) -> contextual[ValueT, Flag]:
+    value: ContextRoot[ContextRoot[V, Any], Any]
+) -> contextual[V, Flag]:
     """
     Function to remove nesting of two `ContextRoot`s.
     The resulting context is a flag sum from the top and bottom `ContextRoot`.

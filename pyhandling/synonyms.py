@@ -6,8 +6,7 @@ from inspect import Signature, Parameter
 from pyannotating import Special
 
 from pyhandling.annotations import (
-    Pm, ValueT, ResultT, ErrorHandlingResultT, action_for, reformer_of,
-    checker_of, RightT, LeftT
+    Pm, V, R, E, action_for, reformer_of, checker_of, L
 )
 from pyhandling.atoming import atomically
 from pyhandling.partials import fragmentarily
@@ -32,7 +31,7 @@ __all__ = (
 )
 
 
-def returned(value: ValueT) -> ValueT:
+def returned(value: V) -> V:
     """
     Function representing the absence of an action.
     Returns the value passed to it back.
@@ -70,10 +69,10 @@ class on:
     def __init__(
         self,
         determinant: Special[Callable[Pm, bool]],
-        right_way: Callable[Pm, RightT] | RightT,
+        right_way: Callable[Pm, R] | R,
         /,
         *,
-        else_: Callable[Pm, LeftT] | LeftT = returned
+        else_: Callable[Pm, L] | L = returned
     ):
         self._condition_checker = to_check(determinant)
         self._right_action = as_action(right_way)
@@ -81,7 +80,7 @@ class on:
 
         self.__signature__ = self.__get_signature()
 
-    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> RightT | LeftT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R | L:
         return (
             self._right_action
             if self._condition_checker(*args, **kwargs)
@@ -112,13 +111,13 @@ class repeating:
     result of an input action itself.
     """
 
-    def __init__(self, action: reformer_of[ValueT], while_: checker_of[ValueT]):
+    def __init__(self, action: reformer_of[V], while_: checker_of[V]):
         self._action = action
         self._is_valid_to_repeat = while_
 
         self.__signature__ = self.__get_signature()
 
-    def __call__(self, value: ValueT) -> ValueT:
+    def __call__(self, value: V) -> V:
         while self._is_valid_to_repeat(value):
             value = self._action(value)
 
@@ -139,18 +138,14 @@ class trying_to:
 
     def __init__(
         self,
-        action: Callable[Pm, ResultT],
-        rollback: Callable[[Exception], ErrorHandlingResultT],
+        action: Callable[Pm, R],
+        rollback: Callable[[Exception], E],
     ):
         self._action = action
         self._rollback = rollback
         self.__signature__ = self.__get_signature()
 
-    def __call__(
-        self,
-        *args: Pm.args,
-        **kwargs: Pm.args,
-    ) -> ResultT | ErrorHandlingResultT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.args) -> R | E:
         try:
             return self._action(*args, **kwargs)
         except Exception as error:
@@ -169,10 +164,7 @@ class trying_to:
 
 
 @fragmentarily
-def with_(
-    context_manager: AbstractContextManager,
-    action: action_for[ResultT],
-) -> ResultT:
+def with_(context_manager: AbstractContextManager, action: action_for[R]) -> R:
     """Function emulating the `with as` context manager."""
 
     with context_manager as context:
@@ -213,7 +205,7 @@ class with_keyword_unpacking(Decorator):
         )])
 
 
-def collection_of(*args: ValueT) -> Tuple[ValueT, ...]:
+def collection_of(*args: V) -> Tuple[V, ...]:
     """Function to create a `tuple` from unlimited input arguments."""
 
     return args
@@ -222,6 +214,6 @@ def collection_of(*args: ValueT) -> Tuple[ValueT, ...]:
 def with_keyword(
     keyword: str,
     value: Any,
-    action: action_for[ResultT],
-) -> action_for[ResultT]:
+    action: action_for[R],
+) -> action_for[R]:
     return partial(action, **{keyword: value})

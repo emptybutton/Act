@@ -4,7 +4,7 @@ from typing import Iterable, Tuple, Callable, Mapping, TypeAlias
 
 from pyannotating import many_or_one, Special
 
-from pyhandling.annotations import ValueT, MappedT, KeyT, action_of, checker_of
+from pyhandling.annotations import V, M, K, action_of, checker_of
 from pyhandling.atoming import atomically
 from pyhandling.data_flow import by
 from pyhandling.branching import then
@@ -34,7 +34,7 @@ __all__ = (
 frozendict: TypeAlias = MappingProxyType
 
 
-def in_collection(value: ValueT) -> tuple[ValueT]:
+def in_collection(value: V) -> tuple[V]:
     """Function to represent the input value in a single collection."""
 
     return (value, )
@@ -55,7 +55,7 @@ def with_opened_items(collection: Iterable) -> Tuple:
     return tuple(collection_with_opened_items)
 
 
-as_collection: Callable[[many_or_one[ValueT]], Tuple[ValueT]]
+as_collection: Callable[[many_or_one[V]], Tuple[V]]
 as_collection = documenting_by(
     """
     Function to convert an input value into a tuple collection.
@@ -81,7 +81,7 @@ tfilter = documenting_by("""`filter` function returning `tuple`""")(
 )
 
 
-def groups_in(items: Iterable[ValueT], id_of: action_of[ValueT]) -> Tuple[ValueT]:
+def groups_in(items: Iterable[V], id_of: action_of[V]) -> Tuple[V]:
     """
     Function of selecting groups among the elements of an input collection.
     Segregates elements by id resulting from calling the `id_of` argument.
@@ -96,10 +96,7 @@ def groups_in(items: Iterable[ValueT], id_of: action_of[ValueT]) -> Tuple[ValueT
     return tuple(group_by_id.values())
 
 
-def without(
-    collection: Iterable[ValueT],
-    items_or_item: Iterable[ValueT] | ValueT,
-) -> Tuple[ValueT]:
+def without(collection: Iterable[V], items_or_item: Iterable[V] | V) -> Tuple[V]:
     """
     Function to get collection difference.
 
@@ -120,16 +117,13 @@ def without(
     )
 
 
-def without_duplicates(items: Iterable[ValueT]) -> Tuple[ValueT]:
+def without_duplicates(items: Iterable[V]) -> Tuple[V]:
     """Function to get collection without duplicates."""
 
     return tuple(OrderedDict.fromkeys(items).keys())
 
 
-def map_table(
-    mapped: Callable[[ValueT], MappedT],
-    table: Mapping[KeyT, ValueT],
-) -> OrderedDict[KeyT, MappedT]:
+def map_table(mapped: Callable[[V], M], table: Mapping[K, V]) -> OrderedDict[K, M]:
     """
     Function to map values of an input `Mapping` object by an input action.
 
@@ -140,9 +134,9 @@ def map_table(
 
 
 def filter_table(
-    is_valid: checker_of[ValueT],
-    table: Mapping[KeyT, ValueT],
-) -> OrderedDict[KeyT, ValueT]:
+    is_valid: checker_of[V],
+    table: Mapping[K, V],
+) -> OrderedDict[K, V]:
     """
     Function to filter values of an input `Mapping` object by an input action.
 
@@ -153,9 +147,9 @@ def filter_table(
 
 
 def from_keys(
-    keys: Iterable[KeyT],
-    value_of: Callable[[KeyT], ValueT] = lambda _: None,
-) -> OrderedDict[KeyT, ValueT]:
+    keys: Iterable[K],
+    value_of: Callable[[K], V] = lambda _: None,
+) -> OrderedDict[K, V]:
     """
     Function to create a `Mapping` with keys from an input collection and
     values obtained by applying an input action to a key under which a
@@ -167,7 +161,7 @@ def from_keys(
     return OrderedDict((key, value_of(key)) for key in keys)
 
 
-def reversed_table(table: Mapping[KeyT, ValueT]) -> OrderedDict[ValueT, KeyT]:
+def reversed_table(table: Mapping[K, V]) -> OrderedDict[V, K]:
     """
     Function to swap keys and values in `Mapping`.
 
@@ -177,7 +171,7 @@ def reversed_table(table: Mapping[KeyT, ValueT]) -> OrderedDict[ValueT, KeyT]:
     return OrderedDict(map(reversed, table.items()))
 
 
-def dict_of(value: Special[Mapping[KeyT, ValueT]]) -> dict[KeyT, ValueT]:
+def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
     """
     Function converting input value to `dict`.
 

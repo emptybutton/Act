@@ -11,7 +11,7 @@ from pyannotating import Special
 
 from pyhandling.atoming import atomic
 from pyhandling.annotations import (
-    ValueT, FlagT, checker_of, PointT, Pm, ResultT, merger_of, reformer_of, A, B
+    V, FlagT, checker_of, Pm, R, merger_of, reformer_of, A, B, P
 )
 from pyhandling.data_flow import by, then
 from pyhandling.errors import FlagError
@@ -37,7 +37,7 @@ __all__ = (
 )
 
 
-class Flag(ABC, Generic[PointT]):
+class Flag(ABC, Generic[P]):
     """
     Base class of atomic unique values and their algebraic operations.
 
@@ -200,12 +200,12 @@ class Flag(ABC, Generic[PointT]):
 
     @property
     @abstractmethod
-    def point(self) -> PointT:
+    def point(self) -> P:
         ...
 
     @property
     @abstractmethod
-    def points(self) -> Tuple[PointT]:
+    def points(self) -> Tuple[P]:
         ...
 
     @abstractmethod
@@ -237,7 +237,7 @@ class Flag(ABC, Generic[PointT]):
         ...
 
     @abstractmethod
-    def that(self, is_for_selection: checker_of[PointT]) -> Self:
+    def that(self, is_for_selection: checker_of[P]) -> Self:
         ...
 
     def __invert__(self) -> Self:
@@ -483,7 +483,7 @@ class _AtomicFlag(Flag, ABC):
     def __iter__(self) -> Iterator[Self]:
         return iter((self, ) if self != nothing else tuple())
 
-    def that(self, is_for_selection: checker_of[PointT]) -> Self:
+    def that(self, is_for_selection: checker_of[P]) -> Self:
         return (
             self
             if self != nothing and is_for_selection(self.point)
@@ -494,7 +494,7 @@ class _AtomicFlag(Flag, ABC):
         return type(self) is type(other) and hash(self) == hash(other)
 
 
-class _ValueFlag(_AtomicFlag, Generic[ValueT]):
+class _ValueFlag(_AtomicFlag, Generic[V]):
     """
     Atomic flag class pointing to some value.
 
@@ -508,14 +508,14 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
     Delegates `__hash__` and `__bool__` to the pointing value.
     """
 
-    def __init__(self, value: ValueT):
+    def __init__(self, value: V):
         self._value = value
 
         if isinstance(self._value, Flag):
             raise FlagError("Flag pointing to another flag")
 
     @property
-    def point(self) -> ValueT:
+    def point(self) -> V:
         return self._value
 
     def __repr__(self) -> str:
@@ -528,7 +528,7 @@ class _ValueFlag(_AtomicFlag, Generic[ValueT]):
         return bool(self._value)
 
     @classmethod
-    def as_flag(cls, value: FlagT | ValueT) -> FlagT | Flag[ValueT]:
+    def as_flag(cls, value: FlagT | V) -> FlagT | Flag[V]:
         return value if isinstance(value, Flag) else cls(value)
 
 
@@ -565,13 +565,13 @@ class _ActionFlag(_NominalFlag):
     `_NominalFlag` class for also implementing delegation call to input action.
     """
 
-    def __init__(self, name: str, sign: bool, action: Callable[Pm, ResultT]):
+    def __init__(self, name: str, sign: bool, action: Callable[Pm, R]):
         super().__init__(name, sign)
 
         self._action = action
         self.__signature__ = call_signature_of(action)
 
-    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> ResultT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._action(*args, **kwargs)
 
 
@@ -596,7 +596,7 @@ def flag(
     )
 
 
-def pointed(*values: FlagT | ValueT) -> FlagT | _ValueFlag[ValueT]:
+def pointed(*values: FlagT | V) -> FlagT | _ValueFlag[V]:
     """
     Function to create a flag sum pointing to input values.
     See `Flag` for behavior info.

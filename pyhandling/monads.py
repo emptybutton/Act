@@ -4,7 +4,7 @@ from typing import Callable, Any, Tuple, Optional
 from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import (
-    dirty, ValueT, ContextT, ResultT,
+    dirty, V, C, R,
     checker_of, event_for, A, B, V, FlagT, C
 )
 from pyhandling.branching import (
@@ -106,13 +106,13 @@ left = flag('left', sign=False)
 
 def either(
     *determinants_and_ways: tuple[
-        Special[checker_of[ContextT]],
-        Callable[[contextual[ValueT, ContextT]], ResultT] | ResultT,
+        Special[checker_of[C]],
+        Callable[[contextual[V, C]], R] | R,
     ],
-    else_: Callable[[contextual[ValueT, ContextT]], ResultT] = eventually(
+    else_: Callable[[contextual[V, C]], R] = eventually(
         raise_, ValueError("No condition is met")
     ),
-) -> Callable[[contextual[ValueT, ContextT]], ResultT]:
+) -> Callable[[contextual[V, C]], R]:
     """
     Function for using action branching like `if`, `elif` and `else` statements
     over value in `ContextRoot` form.
@@ -146,9 +146,9 @@ future = flag("future")
 
 @fragmentarily
 def in_future(
-    action: Callable[[ValueT], ResultT],
-    value: ValueT | ContextRoot[ValueT, Flag[ContextT] | ContextT],
-) -> contextual[ValueT, Flag[ContextT | contextually[event_for[ResultT], future]]]:
+    action: Callable[[V], R],
+    value: V | ContextRoot[V, Flag[C] | C],
+) -> contextual[V, Flag[C | contextually[event_for[R], future]]]:
     """
     Decorator to delay the execution of an input action.
 
@@ -167,10 +167,10 @@ def in_future(
 
 def future_from(
     value: Special[
-        contextually[event_for[ResultT], future]
-        | Flag[contextually[event_for[ResultT], future]]
+        contextually[event_for[R], future]
+        | Flag[contextually[event_for[R], future]]
     ],
-) -> Tuple[ResultT]:
+) -> Tuple[R]:
     """
     Function for safe execution of actions in `future` context.
 

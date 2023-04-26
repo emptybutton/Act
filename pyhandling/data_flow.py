@@ -7,7 +7,7 @@ from typing import (
 from operator import is_
 
 from pyhandling.annotations import (
-    Pm, ValueT, ResultT, action_for, one_value_action, dirty, ArgumentsT
+    Pm, V, R, action_for, one_value_action, dirty, ArgumentsT
 )
 from pyhandling.atoming import atomically
 from pyhandling.branching import mergely, bind, then
@@ -40,7 +40,7 @@ class returnly(Decorator):
     execution, but a first argument that is incoming to it.
     """
 
-    def __call__(self, value: ValueT, *args, **kwargs) -> ValueT:
+    def __call__(self, value: V, *args, **kwargs) -> V:
         self._action(value, *args, **kwargs)
 
         return value
@@ -65,7 +65,7 @@ class eventually(Decorator):
 
     def __init__(
         self,
-        action: Callable[Pm, ResultT],
+        action: Callable[Pm, R],
         *args: Pm.args,
         **kwargs: Pm.kwargs,
     ):
@@ -73,7 +73,7 @@ class eventually(Decorator):
         self._args = args
         self._kwargs = kwargs
 
-    def __call__(self, *_, **__) -> ResultT:
+    def __call__(self, *_, **__) -> R:
         return self._action(*self._args, **self._kwargs)
 
     def __repr__(self) -> str:
@@ -98,17 +98,17 @@ class eventually(Decorator):
         ))
 
 
-def with_result(result: ResultT, action: Callable[Pm, Any]) -> Callable[Pm, ResultT]:
+def with_result(result: R, action: Callable[Pm, Any]) -> Callable[Pm, R]:
     """Function to force an input result for an input action."""
 
     return bind(action, to(result))
 
 
 def dynamically(
-    action: action_for[ResultT],
+    action: action_for[R],
     *argument_placeholders: one_value_action | Ellipsis,
     **keyword_argument_placeholders: one_value_action | Ellipsis,
-) -> action_for[ResultT]:
+) -> action_for[R]:
     """
     Function to dynamically determine arguments for an input action.
 
@@ -169,10 +169,10 @@ class once:
     ignoring input arguments.
     """
 
-    _result: Optional[ResultT] = None
+    _result: Optional[R] = None
     _was_called: bool = False
 
-    def __init__(self, action: Callable[Pm, ResultT]):
+    def __init__(self, action: Callable[Pm, R]):
         self._action = action
         self.__signature__ = call_signature_of(self._action)
 
@@ -181,7 +181,7 @@ class once:
             f"{self._result} from " if self._was_called else str()
         )
 
-    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> ResultT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         if self._was_called:
             return self._result
 
@@ -204,14 +204,14 @@ class via_items:
 
     def __init__(
         self,
-        action: Callable[[ValueT], ResultT] | Callable[[*ArgumentsT], ResultT],
+        action: Callable[[V], R] | Callable[[*ArgumentsT], R],
     ):
         self._action = action
 
     def __repr__(self) -> str:
         return f"({self._action})[{str(call_signature_of(self._action))[1:-1]}]"
 
-    def __getitem__(self, key: ValueT | Tuple[*ArgumentsT]) -> ResultT:
+    def __getitem__(self, key: V | Tuple[*ArgumentsT]) -> R:
         arguments = key if isinstance(key, tuple) else (key, )
 
         return self._action(*arguments)
@@ -282,11 +282,11 @@ class _CallableCustomPartialApplicationInfix(_CustomPartialApplicationInfix):
 
     def __init__(
         self,
-        transform: Callable[[Callable, ValueT], Callable],
+        transform: Callable[[Callable, V], Callable],
         *,
-        action_to_call: Callable[Pm, ResultT] = returned,
+        action_to_call: Callable[Pm, R] = returned,
         action_to_transform: Optional[Callable] = None,
-        arguments: Optional[Iterable[ValueT]] = None,
+        arguments: Optional[Iterable[V]] = None,
         name: Optional[str] = None
     ):
         super().__init__(
@@ -297,7 +297,7 @@ class _CallableCustomPartialApplicationInfix(_CustomPartialApplicationInfix):
         )
         self._action_to_call = action_to_call
 
-    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> ResultT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._action_to_call(*args, **kwargs)
 
 

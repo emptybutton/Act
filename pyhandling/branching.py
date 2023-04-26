@@ -8,7 +8,7 @@ from typing import (
 
 from pyannotating import Special
 
-from pyhandling.annotations import ResultT, Pm, ValueT, A, B, C, D
+from pyhandling.annotations import R, Pm, V, A, B, C, D
 from pyhandling.atoming import atomically
 from pyhandling.errors import TemplatedActionChainError
 from pyhandling.immutability import property_to
@@ -44,15 +44,11 @@ class bind:
     functions (e.g. `reduce`), otherwise less preferred than `then` operator.
     """
 
-    def __init__(
-        self,
-        first: Callable[Pm, ValueT],
-        second: Callable[[ValueT], ResultT]
-    ):
+    def __init__(self, first: Callable[Pm, V], second: Callable[[V], R]):
         self._first = first
         self._second = second
 
-    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> ResultT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._second(self._first(*args, **kwargs))
 
     @cached_property
@@ -242,7 +238,7 @@ class mergely:
 
     def __init__(
         self,
-        merging_of: Callable[Pm, Callable[..., ResultT]],
+        merging_of: Callable[Pm, Callable[..., R]],
         *parallel_actions: Callable[Pm, Any],
         **keyword_parallel_actions: Callable[Pm, Any],
     ):
@@ -252,7 +248,7 @@ class mergely:
 
         self.__signature__ = self.__get_signature()
 
-    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> ResultT:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._merging_of(*args, **kwargs)(
             *(
                 parallel_action(*args, **kwargs)
@@ -298,11 +294,11 @@ class mergely:
         )
 
 
-class _Fork(NamedTuple, Generic[Pm, ResultT]):
+class _Fork(NamedTuple, Generic[Pm, R]):
     """NamedTuple to store an action to execute on a condition."""
 
     determinant: Special[Callable[Pm, bool]]
-    way: Callable[Pm, ResultT] | ResultT
+    way: Callable[Pm, R] | R
 
 
 stop = documenting_by(
@@ -316,12 +312,9 @@ stop = documenting_by(
 
 
 def branching(
-    *forks: tuple[
-        Special[Callable[Pm, bool]],
-        Special[Callable[Pm, ResultT] | ResultT],
-    ],
-    else_: Callable[Pm, ResultT] | ResultT = returned,
-) -> Callable[Pm, ResultT]:
+    *forks: tuple[Special[Callable[Pm, bool]], Special[Callable[Pm, R] | R]],
+    else_: Callable[Pm, R] | R = returned,
+) -> Callable[Pm, R]:
     """
     Function for using action branching like `if`, `elif` and `else` statements.
 

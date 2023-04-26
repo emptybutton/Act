@@ -2,7 +2,7 @@ from copy import deepcopy, copy
 from functools import wraps
 from typing import Callable, Type, Any, Concatenate, Self
 
-from pyhandling.annotations import ObjectT, Pm, ValueT, one_value_action
+from pyhandling.annotations import V, Pm, one_value_action, TypeT
 from pyhandling.atoming import atomically
 from pyhandling.signature_assignmenting import call_signature_of
 
@@ -11,9 +11,10 @@ __all__ = ("to_clone", "publicly_immutable", "property_to")
 
 
 def to_clone(
-    method: Callable[Concatenate[ObjectT, Pm], Any],
+    method: Callable[Concatenate[V, Pm], Any],
+    *,
     deeply: bool = True,
-) -> Callable[Concatenate[ObjectT, Pm], ObjectT]:
+) -> Callable[Concatenate[V, Pm], V]:
     """
     Decorator function to spawn new objects by cloning and applying an input
     method to them.
@@ -22,7 +23,7 @@ def to_clone(
     """
 
     @wraps(method)
-    def wrapper(instance: ObjectT, *args: Pm.args, **kwargs: Pm.kwargs) -> ObjectT:
+    def wrapper(instance: V, *args: Pm.args, **kwargs: Pm.kwargs) -> V:
         clone = (deepcopy if deeply else copy)(instance)
         method(clone, *args, **kwargs)
 
@@ -35,7 +36,7 @@ def to_clone(
     return wrapper
 
 
-def publicly_immutable(class_: Type[ValueT]) -> Type[ValueT]:
+def publicly_immutable(class_: TypeT) -> TypeT:
     """Decorator for an input class that forbids it change its public fields."""
 
     old_setattr = class_.__setattr__

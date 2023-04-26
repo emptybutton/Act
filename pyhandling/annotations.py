@@ -177,7 +177,7 @@ class CallableFormalAnnotation(FormalAnnotation):
     For safe interaction with `__notes__` see `notes_of`.
     """
 
-    def __call__(self, value: ValueT) -> ValueT:
+    def __call__(self, value: V) -> V:
         notes = (*notes_of(value), self)
 
         try:

@@ -5,8 +5,7 @@ from operator import eq
 from typing import Iterable, Tuple, NoReturn
 
 from pyhandling.annotations import (
-    event_for, ObjectT, dirty, reformer_of, checker_of, ValueT, ActionT,
-    action_for
+    event_for, V, dirty, reformer_of, checker_of, ActionT, action_for
 )
 from pyhandling.errors import InvalidInitializationError
 from pyhandling.immutability import property_to
@@ -99,7 +98,7 @@ class NotInitializable:
 
 
 def with_attributes(
-    get_object: event_for[ObjectT] = type(
+    get_object: event_for[V] = type(
         "_AttributeStorage",
         tuple(),
         {
@@ -115,7 +114,7 @@ def with_attributes(
         }
     ),
     **attributes,
-) -> ObjectT:
+) -> V:
     """
     Function to create an object with attributes from keyword arguments.
     Sets attributes manually.
@@ -127,13 +126,13 @@ def with_attributes(
     return attribute_keeper
 
 
-def documenting_by(documentation: str) -> dirty[reformer_of[ObjectT]]:
+def documenting_by(documentation: str) -> dirty[reformer_of[V]]:
     """
     Function of getting other function that getting value with the input
     documentation from this first function.
     """
 
-    def document(object_: ObjectT) -> ObjectT:
+    def document(object_: V) -> V:
         """
         Function created with `documenting_by` function that sets the __doc__
         attribute and returns the input object.
@@ -145,9 +144,9 @@ def documenting_by(documentation: str) -> dirty[reformer_of[ObjectT]]:
     return document
 
 
-def to_check(determinant: checker_of[ValueT] | ValueT) -> checker_of[ValueT]:
+def to_check(determinant: checker_of[V] | V) -> checker_of[V]:
     return determinant if callable(determinant) else partial(eq, determinant)
 
 
-def as_action(value: ActionT | ValueT) -> ActionT | action_for[ValueT]:
+def as_action(value: ActionT | V) -> ActionT | action_for[V]:
     return value if callable(value) else lambda *_, **__: value

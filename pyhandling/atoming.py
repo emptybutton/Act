@@ -1,7 +1,7 @@
 from functools import update_wrapper
 from typing import runtime_checkable, Protocol, Self
 
-from pyhandling.annotations import AtomizableT, action_for, ResultT
+from pyhandling.annotations import AtomizableT, action_for, R
 from pyhandling.errors import AtomizationError
 
 
@@ -39,12 +39,12 @@ class atomically:
     calling.
     """
 
-    def __init__(self, action: action_for[ResultT]):
+    def __init__(self, action: action_for[R]):
         self._action = action
         update_wrapper(self, self._action)
 
     def __repr__(self) -> str:
         return f"atomically({self._action})"
 
-    def __call__(self, *args, **kwargs) -> ResultT:
+    def __call__(self, *args, **kwargs) -> R:
         return self._action(*args, **kwargs)
