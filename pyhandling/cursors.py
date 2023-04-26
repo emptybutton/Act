@@ -13,6 +13,7 @@ from typing import (
 
 from pyannotating import Special
 
+from pyhandling.aggregates import Access
 from pyhandling.annotations import merger_of, event_for, R, reformer_of, Pm, V
 from pyhandling.arguments import Arguments
 from pyhandling.branching import ActionChain, binding_by, on, then
@@ -21,6 +22,7 @@ from pyhandling.data_flow import with_result, by, to
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import nothing, flag, Flag
 from pyhandling.partials import flipped, rpartial, rwill, will
+from pyhandling.scoping import back_scope_in
 from pyhandling.structure_management import tfilter, groups_in
 from pyhandling.synonyms import with_keyword, collection_of
 from pyhandling.tools import property_to, namespace_of
@@ -236,6 +238,10 @@ class _ActionCursor(Mapping):
             access = Access(get=getattr, set=setattr)
         elif nature == _ActionCursorNature.itemgetting:
             access = Access(get=getitem, set=setitem)
+        elif nature == _ActionCursorNature.vargetting:
+            access = Access(
+                get=lambda _, name: value_in(name, scope_in=4),
+                set=lambda _, name, value: setitem(back_scope_in(3), name, value),
             )
         else:
             raise ActionCursorError("Setting a value when there is nowhere to set")
