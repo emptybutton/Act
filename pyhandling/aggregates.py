@@ -18,6 +18,7 @@ __all__ = (
     "Access",
     "Effect",
     "as_effect",
+    "context_effect",
 )
 
 
@@ -136,3 +137,12 @@ as_effect = documenting_by(
 )
 
 
+context_effect: Callable[
+    Callable[Callable[V, R], Callable[C, C]],
+    Effect[V, R, contextual[C, Any]],
+]
+context_effect = documenting_by(
+    """`Effect` constructor with container type as `contextual`."""
+)(
+    Effect(lift=contexted, is_lifted=isinstance |by| contextual)
+)
