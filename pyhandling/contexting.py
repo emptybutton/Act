@@ -174,7 +174,7 @@ class ContextualError(Exception, ContextRoot, _BinaryForm, Generic[ErrorT, C]):
         super().__init__(repr(self))
 
     def __repr__(self) -> str:
-        return f"\"{self._value}\" error when {self._context}"
+        return f"ContextualError({ContextRoot.__repr__(self)})"
 
     def _reset(self, value: ErrorT, context: C) -> None:
         self._value = value
