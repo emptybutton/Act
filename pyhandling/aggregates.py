@@ -17,6 +17,7 @@ from pyhandling.utils import isnt, yes
 __all__ = (
     "Access",
     "Effect",
+    "as_effect",
 )
 
 
@@ -119,3 +120,19 @@ class Effect(Generic[V, R, C]):
             lift=self._lift,
             is_lifted=self._is_lifted,
         )
+
+
+as_effect: Callable[
+    Effect[V, R, C] | Callable[Callable[V, R], Callable[C, C]],
+    Effect[V, R, C],
+]
+as_effect = documenting_by(
+    """
+    Function representing an input decorator in `Effect` form.
+    When an input decorator is already in the `Effect` form returns the form.
+    """
+)(
+    on(isnt(isinstance |by| Effect), Effect(lift=returned, is_lifted=yes))
+)
+
+
