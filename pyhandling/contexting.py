@@ -218,13 +218,10 @@ def context_oriented(root_values: contextual_like[V, C]) -> contextual[C, V]:
     return contextual(*reversed(tuple(root_values)))
 
 
-_ExistingC = TypeVar("_ExistingC")
-
-
 def contexted(
-    value: V | ContextRoot[V, _ExistingC],
+    value: V | ContextRoot[V, E],
     when: Optional[Special[FlagVector, C]] = None,
-) -> ContextRoot[V, _ExistingC | Flag | C]:
+) -> ContextRoot[V, E | Flag | C]:
     """
     Function to represent an input value in `contextual` form if it is not
     already present.
