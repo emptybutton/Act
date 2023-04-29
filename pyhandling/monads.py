@@ -3,6 +3,7 @@ from typing import Callable, Any, Tuple, Optional
 
 from pyannotating import many_or_one, Special
 
+from pyhandling.aggregates import context_effect, as_effect
 from pyhandling.annotations import (
     dirty, V, C, R,
     checker_of, event_for, A, B, V, FlagT, C
@@ -44,6 +45,7 @@ bad = flag('bad', sign=False)
     or returned in the `bad` context.
     """
 )
+@context_effect
 @discretely
 @will
 def maybe(
@@ -67,14 +69,13 @@ def maybe(
     occurred error as context.
     """
 )
+@context_effect
 @discretely
 @will
 def until_error(
     action: Callable[[A], B],
-    value: A | ContextRoot[A, Special[Exception | Flag[Exception] | C]],
+    value: ContextRoot[A, Special[Exception | Flag[Exception] | C]],
 ) -> contextual[A | B, Flag[Exception] | C]:
-    value = contexted(value)
-
     if pointed(value.context).that(isinstance |by| Exception) != nothing:
         return value
 
