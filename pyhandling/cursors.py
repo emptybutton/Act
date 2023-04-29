@@ -14,7 +14,9 @@ from typing import (
 from pyannotating import Special
 
 from pyhandling.aggregates import Access
-from pyhandling.annotations import merger_of, event_for, R, reformer_of, Pm, V
+from pyhandling.annotations import (
+    merger_of, event_for, R, reformer_of, Pm, V, O, W, dirty
+)
 from pyhandling.arguments import Arguments
 from pyhandling.branching import ActionChain, binding_by, on, then
 from pyhandling.contexting import contextual, to_read, saving_context
@@ -673,6 +675,7 @@ class _ActionCursor(Mapping):
     __eq__ = __with_forced_sign(False)(__merging_by(eq, _OperationModel('==', 8)))
 
 
+@dirty
 def action_cursor_by(
     name: str,
     *,
