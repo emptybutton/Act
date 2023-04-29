@@ -48,13 +48,13 @@ bad = flag('bad', sign=False)
 @will
 def maybe(
     action: Callable[[A], B],
-    value: Optional[A] | ContextRoot[Optional[V], Special[bad, FlagT]],
-) -> Optional[A | contextual[B | Optional[V], Special[bad, FlagT]]]:
-    stored_value, context = contexted(value)
+    value: contextual[Optional[V], Special[bad, FlagT]],
+) -> contextual[B | Optional[V], Special[bad, FlagT]]:
+    stored_value, context = value
 
     return (
         value
-        if value is None or stored_value is None or context == bad
+        if stored_value is None or context == bad
         else saving_context(action, value)
     )
 
