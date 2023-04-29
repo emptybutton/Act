@@ -450,7 +450,7 @@ class _ActionCursor(Mapping):
         value: V | Self,
         *,
         in_: str,
-        by: Access[Any, str, V, Any, Any],
+        by: Access[Callable[[O, str], Any], Callable[[O, str, V], Any]],
     ) -> Self:
         access = by
 
