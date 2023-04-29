@@ -132,10 +132,10 @@ class _ActionCursor(Mapping):
         ),
         internal_repr: str = '...'
     ):
-        self._parameters = tuple(sorted(
+        self._parameters = tuple(reversed(sorted(
             set(parameters),
             key=attrgetter("priority"),
-        ))
+        )))
         self._actions = actions
         self._previous = previous
         self._nature = nature
@@ -676,7 +676,7 @@ class _ActionCursor(Mapping):
 def action_cursor_by(
     name: str,
     *,
-    priority: int | float | event_for[int | float] = next |by| count()
+    priority: int | float | event_for[int | float] = next |to| count(26, -1)
 ) -> _ActionCursor:
     if callable(priority):
         priority = priority()
