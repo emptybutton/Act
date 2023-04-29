@@ -4,14 +4,14 @@ from typing import Callable, Type, Any, Concatenate, Self
 
 from pyhandling.annotations import V, Pm, one_value_action, TypeT
 from pyhandling.atoming import atomically
-from pyhandling.partials import fragmentarily
+from pyhandling.partials import partially
 from pyhandling.signature_assignmenting import call_signature_of
 
 
 __all__ = ("to_clone", "publicly_immutable", "property_to")
 
 
-@fragmentarily
+@partially
 def to_clone(
     method: Callable[Concatenate[V, Pm], Any],
     *,

@@ -13,7 +13,7 @@ from pyhandling.annotations import (
 from pyhandling.atoming import atomic
 from pyhandling.flags import nothing, Flag, pointed, FlagVector
 from pyhandling.immutability import property_to
-from pyhandling.partials import fragmentarily
+from pyhandling.partials import partially
 from pyhandling.signature_assignmenting import call_signature_of
 from pyhandling.synonyms import repeating
 from pyhandling.tools import documenting_by, NotInitializable
@@ -228,7 +228,7 @@ def contexted(
     return contextual(value, context)
 
 
-@fragmentarily
+@partially
 def saving_context(
     action: Callable[[A], B],
     value_and_context: contextual_like[A, C],
@@ -240,7 +240,7 @@ def saving_context(
     return contextual(action(value), when=context)
 
 
-@fragmentarily
+@partially
 def to_context(
     action: Callable[[A], B],
     value_and_context: contextual_like[V, A],
@@ -253,7 +253,7 @@ def to_context(
     ))
 
 
-@fragmentarily
+@partially
 def to_write(
     action: Callable[[V, C], R],
     value: contextual_like[V, C],
@@ -263,7 +263,7 @@ def to_write(
     return contextual(context, action(stored_value, context))
 
 
-@fragmentarily
+@partially
 def to_read(
     action: Callable[[V, C], R],
     value: contextual_like[V, C],
@@ -271,7 +271,7 @@ def to_read(
     return context_oriented(to_write(action, context_oriented(value)))
 
 
-@fragmentarily
+@partially
 def with_context_that(
     that: checker_of[P],
     value: V | ContextRoot[V, P | Flag[P]],

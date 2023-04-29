@@ -9,7 +9,7 @@ from pyhandling.annotations import (
     Pm, V, R, E, action_for, reformer_of, checker_of, L
 )
 from pyhandling.atoming import atomically
-from pyhandling.partials import fragmentarily
+from pyhandling.partials import partially
 from pyhandling.signature_assignmenting import (
     Decorator, call_signature_of, annotation_sum
 )
@@ -130,7 +130,7 @@ class repeating:
         return call_signature_of(self._action)
 
 
-@fragmentarily
+@partially
 class trying_to:
     """
     Decorator function providing handling of possible errors in an input action.
@@ -163,7 +163,7 @@ class trying_to:
         )
 
 
-@fragmentarily
+@partially
 def with_(context_manager: AbstractContextManager, action: action_for[R]) -> R:
     """Function emulating the `with as` context manager."""
 

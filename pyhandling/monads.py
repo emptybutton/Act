@@ -15,7 +15,7 @@ from pyhandling.contexting import (
 )
 from pyhandling.data_flow import returnly, eventually, by, to
 from pyhandling.flags import flag, nothing, Flag, pointed
-from pyhandling.partials import will, fragmentarily
+from pyhandling.partials import will, partially
 from pyhandling.structure_management import tmap
 from pyhandling.synonyms import raise_
 from pyhandling.tools import documenting_by, to_check
@@ -144,7 +144,7 @@ def either(
 future = flag("future")
 
 
-@fragmentarily
+@partially
 def in_future(
     action: Callable[[V], R],
     value: V | ContextRoot[V, Flag[C] | C],

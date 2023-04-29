@@ -9,7 +9,7 @@ from pyhandling.signature_assignmenting import Decorator, call_signature_of
 
 
 __all__ = (
-    "fragmentarily",
+    "partially",
     "flipped",
     "mirrored_partial",
     "rpartial",
@@ -19,7 +19,7 @@ __all__ = (
 
 
 @atomically
-class fragmentarily(Decorator):
+class partially(Decorator):
     """
     Decorator for splitting a decorated action call into non-structured
     sub-calls.
@@ -50,7 +50,7 @@ class fragmentarily(Decorator):
         return (
             augmented_action()
             if len(actual_parameters_to_call) == 0
-            else fragmentarily(augmented_action)
+            else partially(augmented_action)
         )
 
     @cached_property

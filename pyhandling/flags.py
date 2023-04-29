@@ -16,7 +16,7 @@ from pyhandling.annotations import (
 from pyhandling.data_flow import by, then
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
-from pyhandling.partials import fragmentarily
+from pyhandling.partials import partially
 from pyhandling.signature_assignmenting import call_signature_of
 from pyhandling.structure_management import (
     with_opened_items, in_collection, dict_of
@@ -611,14 +611,14 @@ def pointed(*values: FlagT | V) -> FlagT | _ValueFlag[V]:
     return reduce(or_, flags)
 
 
-@fragmentarily
+@partially
 def to_points(action: Callable[[A], B], value: A | Flag[A]) -> Flag[B]:
     """Decorator to execute inside `Flag.points`."""
 
     return pointed(*map(action, pointed(value).points))
 
 
-@fragmentarily
+@partially
 def to_value_points(action: Callable[[A], B], value: A | Flag[A]) -> Flag[B]:
     """
     Flag `point` execution context of flags whose `points` do not point to

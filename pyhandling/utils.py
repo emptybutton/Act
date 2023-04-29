@@ -9,7 +9,7 @@ from pyhandling.branching import binding_by, then
 from pyhandling.contexting import contextual
 from pyhandling.data_flow import returnly, eventually, by, to
 from pyhandling.flags import nothing
-from pyhandling.partials import will, fragmentarily
+from pyhandling.partials import will, partially
 from pyhandling.synonyms import trying_to, on
 from pyhandling.tools import documenting_by, Clock
 
@@ -99,7 +99,7 @@ with_error = documenting_by(
 )
 
 
-@fragmentarily
+@partially
 def catching(
     error_type_to_catch: Type[ErrorT],
     action: Callable[[ErrorT], R],
