@@ -290,7 +290,7 @@ def with_context_that(
     that: checker_of[P],
     value: V | ContextRoot[V, P | Flag[P]],
     *,
-    and_nothing: bool = True,
+    and_nothing: bool = False,
 ) -> contextual[V, nothing | P]:
     """
     Function for transform `ContextRoot` with context filtered by input
