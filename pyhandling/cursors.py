@@ -20,7 +20,7 @@ from pyhandling.annotations import (
 from pyhandling.arguments import Arguments
 from pyhandling.branching import ActionChain, binding_by, on, then
 from pyhandling.contexting import contextual, to_read, saving_context
-from pyhandling.data_flow import with_result, by, to
+from pyhandling.data_flow import with_result, by, to, to_right
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import nothing, flag, Flag
 from pyhandling.partials import flipped, rpartial, rwill, will
@@ -315,7 +315,7 @@ class _ActionCursor(Mapping):
     def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
         return cls(
             parameters=[parameter],
-            actions=to_read(getitem |by| parameter.name),
+            actions=ActionChain([to_read(to_right(getitem |by| parameter.name))]),
             nature=contextual(_ActionCursorNature.returning),
             internal_repr=parameter.name,
         )
