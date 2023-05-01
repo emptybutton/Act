@@ -274,7 +274,7 @@ def to_write(
 ) -> contextual[V, R]:
     stored_value, context = value
 
-    return contextual(context, action(stored_value, context))
+    return contextual(stored_value, action(stored_value, context))
 
 
 @partially
