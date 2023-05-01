@@ -320,12 +320,6 @@ class _ActionCursor(Mapping):
             internal_repr=parameter.name,
         )
 
-    @staticmethod
-    def _external_value_in(name: str) -> Any:
-        locals_ = stack()[1][0].f_back.f_back.f_locals
-
-        return locals_[name] if name in locals_.keys() else eval(name)
-
     def _run(self, root: contextual[Any, Mapping[str, Any]]) -> contextual:
         return self._actions(root)
 
