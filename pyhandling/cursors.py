@@ -486,18 +486,15 @@ class _ActionCursor(Mapping):
             and keyword.startswith(self._unpacking_key_template)
         )
 
-    def _getting_name_by(self, attribute_name: str) -> str:
-        for overwritten_attribute_name in self._overwritten_attribute_names:
+    def _getting_name_by(self, name: str) -> str:
+        for attribute_name in dir(self):
             if (
-                attribute_name.startswith(overwritten_attribute_name)
-                and all(map(
-                    eq |by| '_',
-                    attribute_name[len(overwritten_attribute_name) + 1:]),
-                )
+                name.startswith(attribute_name)
+                and all(map(eq |by| '_', name[len(attribute_name) + 1:]))
             ):
-                return attribute_name[:-1]
+                return name[:-1]
 
-        return attribute_name
+        return name
 
     def _update_signature(self) -> None:
         self.__signature__ = Signature(
