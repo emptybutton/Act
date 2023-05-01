@@ -205,7 +205,7 @@ class _ActionCursor(Mapping):
         elif len(args) == len(self._parameters):
             return self._run(contextual(
                 nothing,
-                when=dict(zip(map(attrgetter('name'), self._parameters), args))
+                dict(zip(map(attrgetter('name'), self._parameters), args)),
             )).value
 
         elif len(args) < len(self._parameters):
@@ -366,7 +366,7 @@ class _ActionCursor(Mapping):
             self._of(
                 ActionChain([lambda root: contextual(
                     operation(self._run(root).value, other._run(root).value),
-                    when=root.context,
+                    root.context,
                 )]),
                 parameters=self._parameters + other._parameters,
             )
@@ -391,7 +391,7 @@ class _ActionCursor(Mapping):
             ._with_keyword_partial_application_by(kwargs)
             ._with(call, nature=contextual(
                 _ActionCursorNature.calling,
-                when=Arguments(args, kwargs),
+                Arguments(args, kwargs),
             ))
         )
 

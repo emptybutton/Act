@@ -209,7 +209,7 @@ class context_pointed(ContextRoot, Generic[ActionT, FlagT]):
         return f"context_pointed({super().__repr__()})"
 
     def __getatom__(self) -> contextual[V, P]:
-        return contextual(self._value, when=atomic(self._context).point)
+        return contextual(self._value, atomic(self._context).point)
 
 
 def context_oriented(root_values: contextual_like[V, C]) -> contextual[C, V]:
@@ -251,7 +251,7 @@ def saving_context(
 
     value, context = value_and_context
 
-    return contextual(action(value), when=context)
+    return contextual(action(value), context)
 
 
 @partially
