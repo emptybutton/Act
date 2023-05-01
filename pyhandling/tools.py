@@ -98,7 +98,9 @@ class NotInitializable:
         )
 
 
-def namespace_of(type_: type) -> Type[NotInitializable]:
+def namespace_of(
+    type_: type = type("namespace", tuple(), dict()),
+) -> Type[NotInitializable]:
     """
     Decorator for creating a namespace based on an input type.
 
