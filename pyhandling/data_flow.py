@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from functools import cached_property, partial
+from functools import cached_property, partial, wraps
 from inspect import Signature, Parameter, signature
 from typing import (
     Callable, Any, _CallableGenericAlias, Optional, Tuple, Self, Iterable
@@ -12,7 +12,7 @@ from pyhandling.annotations import (
 from pyhandling.atoming import atomically
 from pyhandling.branching import mergely, bind, then
 from pyhandling.errors import ReturningError
-from pyhandling.partials import will, rpartial
+from pyhandling.partials import will, rpartial, flipped
 from pyhandling.signature_assignmenting import Decorator, call_signature_of
 from pyhandling.synonyms import returned, on
 from pyhandling.tools import documenting_by
@@ -22,6 +22,8 @@ __all__ = (
     "returnly",
     "eventually",
     "with_result",
+    "to_right",
+    "to_left",
     "dynamically",
     "double",
     "once",
@@ -102,6 +104,31 @@ def with_result(result: R, action: Callable[Pm, Any]) -> Callable[Pm, R]:
     """Function to force an input result for an input action."""
 
     return bind(action, to(result))
+
+
+@atomically
+class to_right(Decorator):
+    """Decorator to ignore all arguments except the first."""
+
+    def __call__(self, right: V, *_, **__) -> R:
+        return self._action(right)
+
+    @property
+    def _force_signature(self) -> Signature:
+        signature_ = call_signature_of(self._action)
+
+        return signature_.replace(parameters=[
+            tuple(signature_.parameters.values())[0],
+            *call_signature_of(lambda *_, **__: ...).parameters.values(),
+        ])
+
+
+to_left: Callable[Callable[V, R], Callable[[..., V], R]]
+to_left = documenting_by(
+    """Decorator to ignore all arguments except the last."""
+)(
+    atomically(to_right |then>> flipped)
+)
 
 
 def dynamically(
