@@ -24,7 +24,7 @@ from pyhandling.data_flow import with_result, by, to, to_right
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import nothing, flag, Flag
 from pyhandling.partials import flipped, rpartial, rwill, will
-from pyhandling.scoping import back_scope_in
+from pyhandling.scoping import back_scope_in, value_in
 from pyhandling.structure_management import tfilter, groups_in
 from pyhandling.synonyms import with_keyword, collection_of
 from pyhandling.tools import property_to, namespace_of

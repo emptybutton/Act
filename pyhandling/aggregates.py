@@ -1,10 +1,10 @@
 from functools import partial
 from dataclasses import dataclass
-from typing import TypeVar, Callable, Generic, Optional, Self, Final, Mapping, Any
+from typing import TypeVar, Callable, Generic, Optional, Self, Final, Any
 
 from pyannotating import Special
 
-from pyhandling.annotations import V, R, C, V, reformer_of
+from pyhandling.annotations import V, R, C, M, reformer_of
 from pyhandling.branching import then
 from pyhandling.contexting import contexted, contextual
 from pyhandling.data_flow import by

@@ -1,6 +1,6 @@
 from copy import deepcopy, copy
 from functools import wraps
-from typing import Callable, Type, Any, Concatenate, Self
+from typing import Callable, Any, Concatenate, Self
 
 from pyhandling.annotations import V, Pm, one_value_action, TypeT
 from pyhandling.atoming import atomically
