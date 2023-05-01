@@ -34,7 +34,7 @@ class Access(Generic[_GetterT, _SetterT]):
     set: _SetterT
 
 
-_NO_MAPPING_VALUE: Final[object] = object()
+_NO_EFFECT_VALUE: Final[object] = object()
 
 
 class Effect(Generic[V, R, C]):
@@ -93,13 +93,13 @@ class Effect(Generic[V, R, C]):
     def __call__(
         self,
         action: Callable[V, R | C],
-        value: Special[V | C] = _NO_MAPPING_VALUE,
+        value: Special[V | C] = _NO_EFFECT_VALUE,
     ) -> Callable[V | C, C] | C:
         lifted_action = self.lifted |then>> self._decorator(action) >> self.lifted
 
         return (
             lifted_action
-            if value is _NO_MAPPING_VALUE
+            if value is _NO_EFFECT_VALUE
             else lifted_action(value)
         )
 
