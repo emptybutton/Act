@@ -237,20 +237,17 @@ class _ActionCursor(Mapping):
         nature, place = self._nature
 
         if nature == _ActionCursorNature.attrgetting:
-            access = Access(get=getattr, set=setattr)
+            setting = setattr
         elif nature == _ActionCursorNature.itemgetting:
-            access = Access(get=getitem, set=setitem)
+            setting = setitem
         elif nature == _ActionCursorNature.vargetting:
-            access = Access(
-                get=lambda _, name: value_in(name, scope_in=4),
-                set=lambda _, name, value: setitem(back_scope_in(3), name, value),
-            )
+            setting = lambda _, name, value: setitem(back_scope_in(3), name, value)
         else:
             raise ActionCursorError("Setting a value when there is nowhere to set")
 
         return (
             self
-            ._with_setting(value, in_=place, by=access)
+            ._with_setting(value, in_=place, by=setting)
             ._with(internal_repr=(
                 f"({self._internal_repr} := {self._repr_of(value)})",
             ))
@@ -446,18 +443,17 @@ class _ActionCursor(Mapping):
         value: V | Self,
         *,
         in_: str,
-        by: Access[Callable[[O, str], Any], Callable[[O, str, V], Any]],
+        by: Callable[[O, str, V], Any],
     ) -> Self:
-        access = by
+        place = in_
+        set_ = by
 
         return (
             self._previous
-            ._merged_with(value, by=(lambda a, b: (
-                access.get(with_result(a, access.set)(a, place, b), place)
-            )))
+            ._merged_with(value, by=lambda a, b: with_result(a, set_)(a, place, b))
             ._with(nature=contextual(
                 _ActionCursorNature.setting,
-                contextual(value, place)
+                contextual(value, place),
             ))
         )
 
