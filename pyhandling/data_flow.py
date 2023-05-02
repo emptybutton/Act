@@ -31,7 +31,7 @@ __all__ = (
     "PartialApplicationInfix",
     "to",
     "by",
-    "everything",
+    "anything",
 )
 
 
@@ -373,8 +373,8 @@ class _ForceComparable:
         return self._forced_sign
 
 
-everything = documenting_by(
+anything = documenting_by(
     """Special object always returning `True` when `==` is checked."""
 )(
-    _ForceComparable("everything", forced_sign=True)
+    _ForceComparable("anything", forced_sign=True)
 )

@@ -5,7 +5,7 @@ from unittest import TestCase
 from pyannotating import Subgroup
 
 from pyhandling.annotations import event
-from pyhandling.data_flow import everything
+from pyhandling.data_flow import anything
 
 
 __all__ = ("calling_test_case_of", "test_case_pack")
@@ -54,7 +54,7 @@ def calling_test_case_of(*test_packs: test_case_pack | event) -> Type[TestCase]:
                 test_pack,
             )
             for test_pack_index, test_pack in enumerate(map(
-                lambda p: p if isinstance(p, tuple | list) else (p, everything),
+                lambda p: p if isinstance(p, tuple | list) else (p, anything),
                 test_packs,
             ))
         }
