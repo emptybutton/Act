@@ -4,7 +4,7 @@ from pyannotating import AnnotationTemplate, input_annotation
 
 from pyhandling.annotations import ErrorT
 from pyhandling.errors import PyhandingError
-from pyhandling.structure_management import with_opened_items
+from pyhandling.structure_management import flat
 
 
 __all__ = (
@@ -47,6 +47,6 @@ def errors_from(error_storage: error_storage_of[ErrorT] | ErrorT) -> Tuple[Error
     if isinstance(error_storage, SingleErrorKepper):
         errors += errors_from(error_storage.error)
     if isinstance(error_storage, ErrorKepper):
-        errors += with_opened_items(map(errors_from, error_storage.errors))
+        errors += flat(map(errors_from, error_storage.errors))
 
     return errors

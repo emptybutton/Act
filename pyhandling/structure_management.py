@@ -15,11 +15,11 @@ from pyhandling.tools import documenting_by
 __all__ = (
     "frozendict",
     "in_collection",
-    "with_opened_items",
     "as_collection",
     "tmap",
     "tzip",
     "tfilter",
+    "flat",
     "groups_in",
     "without",
     "without_duplicates",
@@ -40,7 +40,7 @@ def in_collection(value: V) -> tuple[V]:
     return (value, )
 
 
-def with_opened_items(collection: Iterable) -> Tuple:
+def flat(collection: Iterable[Special[Iterable, V]]) -> Tuple[V]:
     """Function to expand input collection's subcollections to it."""
 
     collection_with_opened_items = list()
