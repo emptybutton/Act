@@ -25,7 +25,6 @@ __all__ = (
     "contextual",
     "contextually",
     "ContextualError",
-    "context_pointed",
     "context_oriented",
     "contexted",
     "saving_context",
@@ -181,39 +180,9 @@ class ContextualError(Exception, ContextRoot, _BinaryForm, Generic[ErrorT, C]):
         self._context = context
 
 
-class context_pointed(ContextRoot, Generic[ActionT, FlagT]):
     """
-    Extract `ContextRoot` form from a `contextual_like` object  with a context
-    flag pointing the original context.
-
-    Optionally selects flags at initialization.
-
-    Has an atomic form, specified as the same value in context of point of the
     newly converted context (flag) atomic version.
     """
-
-    value = property_to("_value")
-    flag = property_to("_context")
-
-    def __init__(
-        self,
-        value_and_context: contextual_like[V, P | Flag[P]],
-        that: checker_of[P] = lambda _: True,
-    ):
-        value, context = value_and_context
-
-        self._value = value
-        self._context = pointed(context).that(that)
-
-    def __repr__(self) -> str:
-        return f"context_pointed({super().__repr__()})"
-
-    def __getatom__(self) -> contextual[V, P]:
-        return contextual(self._value, atomic(self._context).point)
-
-
-def context_oriented(root_values: contextual_like[V, C]) -> contextual[C, V]:
-    """Function to swap a context and value."""
 
     return contextual(*reversed(tuple(root_values)))
 
