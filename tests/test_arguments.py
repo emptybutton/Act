@@ -31,7 +31,7 @@ def test_argument_pack_creation_via_call(args: Iterable, kwargs: dict):
         ((1, 2, 3), dict(a=4, b=5, c=6), (4, 5, 6), dict(a=7, b=8, c=9)),
     ]
 )
-def test_argument_pack_merger(
+def test_argument_pack_merging(
     first_args: Iterable,
     first_kwargs: dict,
     second_args: Iterable,
