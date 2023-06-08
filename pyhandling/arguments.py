@@ -200,17 +200,11 @@ class Arguments(Mapping, Generic[A]):
     def __contains__(self, value: A) -> bool:
         return value in self.args or value in self.kwargs.values()
 
-    def expanded_with(self, *args: Special[Self], **kwargs: Any) -> Self:
-        """Method to create another pack with input arguments."""
 
-        args = flat(
-            arg.args if isinstance(arg, Arguments) else (arg, ) for arg in args
-        )
+    def expanded_with(self, other: Self) -> Self:
+        """Method to create another pack from an input."""
 
-        return self.__class__(
-            (*self.args, *args),
-            self.kwargs | kwargs
-        )
+        return type(self)((*self.args, *other.args), self.kwargs | other.kwargs)
 
     def only_with(self, *arguments_or_keys: A | ArgumentKey) -> Self:
         """Method for cloning with values obtained from input keys."""
