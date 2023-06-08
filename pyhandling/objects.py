@@ -141,3 +141,43 @@ def namespace_of(object_: Special[Mapping]) -> Arbitrary:
 
 
 void = Arbitrary()  # Arbitrary object without data
+
+
+class Unia:
+    annotations = property(attrgetter("_annotations"))
+
+    def __new__(cls, *annotations: Special[Self], **kwargs) -> Self:
+        if len(annotations) == 1:
+            return annotations[0]
+        elif len(annotations) == 0:
+            raise UniaError("Unia without annotations")
+        else:
+            return super().__new__(cls)
+
+    def __init__(self, *annotations: Special[Self]) -> None:
+        self._annotations = self._annotations_from(annotations)
+
+    def __class_getitem__(cls, annotation_or_annotations: Special[tuple]) -> Self:
+        return cls(
+            annotation_or_annotations
+            if isinstance(annotation_or_annotations, tuple)
+            else (annotation_or_annotations, )
+        )
+
+    def __instancecheck__(self, instance: Any) -> bool:
+        return all(
+            isinstance(instance, annotation) for annotation in self._annotations
+        )
+
+    @staticmethod
+    def _annotations_from(annotations: Tuple[Special[Self]]) -> tuple:
+        result_annotations = list()
+
+        for annotation in annotations:
+            (
+                result_annotations.extend
+                if isinstance(annotation, Unia)
+                else result_annotations.append
+            )(annotation.annotations)
+
+        return tuple(result_annotations)
