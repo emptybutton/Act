@@ -170,10 +170,9 @@ class Unia:
         result_annotations = list()
 
         for annotation in annotations:
-            (
-                result_annotations.extend
-                if isinstance(annotation, Unia)
-                else result_annotations.append
-            )(annotation.annotations)
+            if isinstance(annotation, Unia):
+                result_annotations.extend(annotation.annotations)
+            else:
+                result_annotations.append(annotation)
 
         return tuple(result_annotations)
