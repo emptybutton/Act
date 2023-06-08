@@ -95,7 +95,9 @@ class Effect(Generic[V, R, C]):
         action: Callable[V, R | C],
         value: Special[V | C] = _NO_EFFECT_VALUE,
     ) -> Callable[V | C, C] | C:
-        lifted_action = self.lifted |then>> self._decorator(action) >> self.lifted
+        lifted_action = (
+            self.lifted |then>> self._decorator(action) |then>> self.lifted
+        )
 
         return (
             lifted_action
