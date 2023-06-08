@@ -146,4 +146,5 @@ def test_as_arguments(
 
 test_unpackly = calling_test_case_of(
     (lambda: unpackly(lambda a, b, c: a / b + c)(Arguments.of(8, 4, 6)), 8),
+    (lambda: unpackly(lambda a, b, c: a / b + c)([8, 4, 6]), 8),
 )
