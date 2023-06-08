@@ -69,7 +69,7 @@ iteration_over = documenting_by(
     """
 )(
     atomically(iter |then>> will(eventually)(
-        next |then>> (trying_to |by| catching(StopIteration, to(to(None))))
+        next |then>> (trying_to |by| to(catching(StopIteration, to(None))))
     ))
 )
 

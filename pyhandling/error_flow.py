@@ -32,7 +32,7 @@ with_error = documenting_by(
 )(
     atomically(
         binding_by(... |then>> contextual)
-        |then>> (trying_to |by| (contextual |to| nothing))
+        |then>> (trying_to |by| to(contextual |to| None))
     )
 )
 
