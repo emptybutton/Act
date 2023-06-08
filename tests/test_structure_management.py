@@ -16,21 +16,8 @@ from pyhandling.structure_management import *
         (str(), tuple()),
     ]
 )
-def test_with_opened_items(input_collection: Iterable, result_collection: tuple):
-    assert with_opened_items(input_collection) == result_collection
-
-
-@mark.parametrize(
-    'resource, result_collection',
-    [
-        (42, (42, )),
-        (str(), (str(), )),
-        (tuple(), (tuple(), )),
-        ((1, 2, 3), ((1, 2, 3), ))
-    ]
-)
-def test_in_collection(resource: Any, result_collection: tuple):
-    assert in_collection(resource) == result_collection
+def test_flat(input_collection: Iterable, result_collection: tuple):
+    assert flat(input_collection) == result_collection
 
 
 @mark.parametrize(

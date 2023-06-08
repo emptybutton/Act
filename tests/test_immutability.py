@@ -3,11 +3,11 @@ from typing import Any
 from pytest import mark, raises
 
 from pyhandling.immutability import *
-from pyhandling.tools import with_attributes
+from pyhandling.objects import of
 
 
 def test_to_clone():
-    object_ = with_attributes(mock_attribute=42)
+    object_ = of(mock_attribute=42)
 
     cloned_object = to_clone(setattr)(object_, 'mock_attribute', 4)
 
@@ -48,7 +48,7 @@ def test_delegating_property_getting(
     is_waiting_for_attribute_setting_error: bool,
     delegating_property_delegated_attribute_name: str = '_some_attribue'
 ):
-    mock = with_attributes(**{delegating_property_delegated_attribute_name: 0})
+    mock = of(**{delegating_property_delegated_attribute_name: 0})
 
     property_ = property_to(
         delegating_property_delegated_attribute_name,

@@ -34,19 +34,19 @@ test_rwill = calling_test_case_of((
 ))
 
 
-test_fragmentarily = calling_test_case_of(
-    (lambda: fragmentarily(lambda a, b, c: a / b + c)(10, 2, 3), 8),
-    (lambda: fragmentarily(lambda a, b, c: a / b + c)(10, 2)(3), 8),
-    (lambda: fragmentarily(lambda a, b, c: a / b + c)(10)(2, 3), 8),
-    (lambda: fragmentarily(lambda a, b, c: a / b + c)(10)(2)(3), 8),
-    (lambda: fragmentarily(lambda: 16)(), 16),
-    (lambda: fragmentarily(lambda *_: 16)(), 16),
-    (lambda: fragmentarily(lambda *_, a=...: 16)(), 16),
-    (lambda: fragmentarily(lambda *_, **__: 16)(), 16),
-    (lambda: fragmentarily(lambda a, k=0: a + k)(k=4)(60), 64),
+test_partially = calling_test_case_of(
+    (lambda: partially(lambda a, b, c: a / b + c)(10, 2, 3), 8),
+    (lambda: partially(lambda a, b, c: a / b + c)(10, 2)(3), 8),
+    (lambda: partially(lambda a, b, c: a / b + c)(10)(2, 3), 8),
+    (lambda: partially(lambda a, b, c: a / b + c)(10)(2)(3), 8),
+    (lambda: partially(lambda: 16)(), 16),
+    (lambda: partially(lambda *_: 16)(), 16),
+    (lambda: partially(lambda *_, a=...: 16)(), 16),
+    (lambda: partially(lambda *_, **__: 16)(), 16),
+    (lambda: partially(lambda a, k=0: a + k)(k=4)(60), 64),
     (
         lambda: (
-            fragmentarily(
+            partially(
                 lambda *numbers, **kw_nubers: sum((*numbers, *kw_nubers.values()))
             )(1, 2, 5, a=5, b=3)
         ),

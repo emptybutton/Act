@@ -23,17 +23,16 @@ test_action_chain_calling = calling_test_case_of(
         [(MockAction(), ), (MockAction(), MockAction())],
         [(MockAction(), lambda x: x + 1), tuple()],
         [tuple(), (MockAction(), )],
-        [tuple(), tuple()]
+        [tuple(), tuple()],
+        [ActionChain([int, ActionChain([float, str])]), (int, float, str)],
     ]
 )
-def test_action_chain_connection_to_other(
+def test_action_chain_iteration(
     first_nodes: Iterable[one_value_action],
     second_nodes: Iterable[one_value_action],
 ):
     assert (
         tuple(ActionChain((*first_nodes, *second_nodes)))
-        == tuple(ActionChain(first_nodes) >> ActionChain(second_nodes))
-        == tuple(ActionChain(first_nodes) | ActionChain(second_nodes))
         == (*first_nodes, *second_nodes)
     )
 

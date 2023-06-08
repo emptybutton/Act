@@ -1,3 +1,4 @@
+from pyhandling.branching import then
 from pyhandling.contexting import *
 from pyhandling.testing import calling_test_case_of
 
