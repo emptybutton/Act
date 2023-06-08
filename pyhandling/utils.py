@@ -83,7 +83,7 @@ iteration_over = documenting_by(
     Return function ignores its input arguments.
     """
 )
-@atomically(bind |by| iteration_over)
+@binding_by(... |then>> iteration_over)
 def times(max_steps: int, /) -> Generator[bool, None, None]:
     steps = max_steps
 
