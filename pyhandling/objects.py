@@ -1,12 +1,13 @@
 from functools import reduce, partial
-from operator import or_
+from operator import or_, attrgetter
 from typing import (
-    NoReturn, Mapping, Callable, Self, Generic, Concatenate, Optional
+    NoReturn, Mapping, Callable, Self, Generic, Concatenate, Optional, Protocol,
+    runtime_checkable
 )
 
 from pyannotating import Special
 
-from pyhandling.annotations import K, V, I, event_for, Pm, R
+from pyhandling.annotations import K, V, I, event_for, Pm, R, P, TypeT
 from pyhandling.errors import InvalidInitializationError
 from pyhandling.immutability import to_clone
 from pyhandling.partials import partially
@@ -23,8 +24,6 @@ __all__ = (
     "namespace_of",
     "void",
     "Unia",
-    "Protocolable",
-    "protocoled",
 )
 
 
