@@ -64,11 +64,18 @@ def maybe(
 ) -> contextual[Optional[A | B], Special[bad, FlagT]]:
     stored_value, context = value
 
-    return (
-        value
-        if stored_value is None or context == bad
-        else saving_context(action, value)
-    )
+    if contexted(stored_value).context == bad:
+        return contexted(stored_value, +pointed(context))
+    elif stored_value is None or context == bad:
+        return value
+    else:
+        return value >= (
+            saving_context(action)
+            |then>> on(
+                lambda result: contexted(result).context == bad,
+                with_reduced_metacontext,
+            )
+        )
 
 
 @documenting_by(
