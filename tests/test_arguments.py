@@ -16,7 +16,7 @@ from pyhandling.testing import calling_test_case_of
         (tuple(), dict()),
     ]
 )
-def test_argument_pack_creation_via_call(args: Iterable, kwargs: dict):
+def test_arguments_creation_via_call(args: Iterable, kwargs: dict):
     assert Arguments.of(*args, **kwargs) == Arguments(args, kwargs)
 
 
