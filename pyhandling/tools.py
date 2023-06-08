@@ -75,4 +75,3 @@ def _module_prefix_of(action: Callable) -> str:
     prefix = str() if action.__module__ is None else action.__module__
 
     return str() if prefix in ("__main__", "builtins") else prefix + '.'
-

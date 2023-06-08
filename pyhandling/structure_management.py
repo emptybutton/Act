@@ -51,7 +51,6 @@ __all__ = (
 )
 
 
-
 frozendict: TypeAlias = MappingProxyType
 
 
@@ -155,7 +154,7 @@ class _SliceGenerator:
 
     @staticmethod
     def __native_slice_repr_of(slice_: slice) -> str:
-        return f"[{{}}:{{}}:{{}}]".format(*map(
+        return "[{}:{}:{}]".format(*map(
             on(None, str()),
             (slice_.start, slice_.stop, slice_.step),
         ))
@@ -208,7 +207,7 @@ def range_from(
 
 
 def _range_from_slice(slice_: slice, *, border: int) -> range:
-    start =  0 if slice_.start is None else slice_.start
+    start = 0 if slice_.start is None else slice_.start
     stop = 0 if slice_.stop is None else slice_.stop
     step = 1 if slice_.step is None else slice_.step
 
@@ -244,7 +243,9 @@ filled = flag_about("filled")
 empty = flag_about("empty")
 
 
-def marked_ranges_from(ranges: Iterable[range]) -> Tuple[contextual[range, filled | empty]]:
+def marked_ranges_from(
+    ranges: Iterable[range],
+) -> Tuple[contextual[range, filled | empty]]:
     ranges = tuple(ranges)
 
     marked_tail_ranges = list()
@@ -285,7 +286,9 @@ def to_interval(
 
     range_, fullness = contexted(ranges[0])
 
-    return tuple((returned if fullness == empty else action)(values[slice_from(range_)]))
+    return tuple(
+        (returned if fullness == empty else action)(values[slice_from(range_)])
+    )
 
 
 def groups_in(items: Iterable[V], id_of: action_of[V]) -> Tuple[V]:

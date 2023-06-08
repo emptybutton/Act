@@ -63,7 +63,7 @@ class ActionChain(LeftCallable, Generic[ActionT]):
 
     Iterable by its actions.
 
-    Can get chain length by `len` function and subchain by `[]` referring to 
+    Can get chain length by `len` function and subchain by `[]` referring to
     indexes of actions of a desired subchain.
 
     Each next action gets the output of the previous one.

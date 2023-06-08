@@ -91,7 +91,7 @@ def maybe(
 @discretely
 @will
 def until_error(
-    action: Callable[[A], B],
+    action: Callable[A, B],
     value: ContextRoot[A, Special[Exception | Flag[Exception] | C]],
 ) -> contextual[A | B, Flag[Exception] | C]:
     if pointed(value.context).that(isinstance |by| Exception) != nothing:
@@ -241,7 +241,7 @@ class do:
             ))))
             |then>> lines
         )
-        
+
         return atomically(
             contexted
             |then>> to_context(on(nothing, void))

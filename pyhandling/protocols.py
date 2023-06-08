@@ -61,7 +61,7 @@ class protocoled:
         value: Special[type, V],
         *,
         deep: Optional[bool] = None,
-    ) -> Unia[V, Protocolable] | Callable[Special[type, V], Unia[V, Protocolable]]:
+    ) -> Unia[V, Protocolable] | Callable[[Special[type, V]], Unia[V, Protocolable]]:
         if isinstance(value, type) and deep is None:
             return protocoled.from_type(value)
         elif deep is None:
