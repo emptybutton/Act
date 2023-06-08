@@ -153,6 +153,16 @@ class Unia:
     def __init__(self, *annotations: Special[Self]) -> None:
         self._annotations = self._annotations_from(annotations)
 
+    def __repr__(self) -> str:
+        return ' & '.join(
+            (
+                annotation.__name__
+                if isinstance(annotation, type)
+                else str(annotation)
+            )
+            for annotation in self._annotations
+        )
+
     def __class_getitem__(cls, annotation_or_annotations: Special[tuple]) -> Self:
         return cls(*(
             annotation_or_annotations
