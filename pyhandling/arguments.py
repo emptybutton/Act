@@ -200,6 +200,8 @@ class Arguments(Mapping, Generic[A]):
     def __contains__(self, value: A) -> bool:
         return value in self.args or value in self.kwargs.values()
 
+    def __or__(self, other: Self) -> Self:
+        return self.expanded_with(other)
 
     def expanded_with(self, other: Self) -> Self:
         """Method to create another pack from an input."""
