@@ -5,7 +5,7 @@ from typing import Iterable, Tuple, Generator, Optional
 from pyhandling.annotations import dirty, V
 from pyhandling.atoming import atomically
 from pyhandling.branching import binding_by, then
-from pyhandling.data_flow import eventually, by, to, shown
+from pyhandling.data_flow import eventually, by, to
 from pyhandling.error_flow import catching
 from pyhandling.partials import will
 from pyhandling.synonyms import trying_to

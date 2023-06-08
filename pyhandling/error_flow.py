@@ -5,7 +5,6 @@ from pyhandling.atoming import atomically
 from pyhandling.branching import binding_by, then
 from pyhandling.contexting import contextual
 from pyhandling.data_flow import by, to, eventually
-from pyhandling.flags import nothing
 from pyhandling.partials import partially
 from pyhandling.synonyms import trying_to, raise_
 from pyhandling.tools import documenting_by, LeftCallable

@@ -17,8 +17,7 @@ from pyhandling.signature_assignmenting import (
     Decorator, call_signature_of
 )
 from pyhandling.structure_management import (
-    without, frozendict, flat, tmap, without_duplicates,
-    reversed_table
+    without, frozendict, tmap, without_duplicates, reversed_table
 )
 from pyhandling.tools import action_repr_of
 
