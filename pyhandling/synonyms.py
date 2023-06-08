@@ -1,102 +1,218 @@
-from functools import wraps, partial
-from typing import Any, Callable, Iterable
+from contextlib import AbstractContextManager
+from functools import partial
+from typing import NoReturn, Any, Callable, Mapping, Tuple
+from inspect import Signature, Parameter
 
-from pyhandling.annotations import event, handler
+from pyannotating import Special
+
+from pyhandling.annotations import (
+    Pm, V, R, E, action_for, reformer_of, checker_of, L
+)
+from pyhandling.atoming import atomically
+from pyhandling.partials import partially
+from pyhandling.signature_assignmenting import (
+    Decorator, call_signature_of, annotation_sum
+)
+from pyhandling.tools import to_check, as_action, LeftCallable, action_repr_of
 
 
-def return_(resource: Any) -> Any:
+__all__ = (
+    "returned",
+    "raise_",
+    "assert_",
+    "on",
+    "repeating",
+    "trying_to",
+    "with_",
+    "keyword_unpackly",
+    "tuple_of",
+    "with_keyword",
+)
+
+
+def returned(value: V) -> V:
     """
-    Wrapper function for handling emulation through the functional use of the
-    return statement.
+    Function representing the absence of an action.
+    Returns the value passed to it back.
     """
 
-    return resource
+    return value
 
 
-def raise_(error: Exception) -> None:
-    """Wrapper function for functional use of raise statement."""
+def raise_(error: Exception) -> NoReturn:
+    """Function for functional use of `raise` statement."""
 
     raise error
 
 
-def assert_(resource: Any) -> None:
-    """Wrapper function for functional use of assert statement."""
+def assert_(value: Any) -> None:
+    """Function for functional use of `assert` statement."""
 
-    assert resource
-
-
-def positionally_unpack_to(func: Callable, arguments: Iterable) -> Any:
-    """Wrapper function for functional use of positional unpacking."""
-
-    return func(*arguments)
+    assert value
 
 
-def unpack_by_keys_to(func: Callable, arguments: dict) -> Any:
-    """Wrapper function for functional use of unpacking by keyword arguments."""
-
-    return func(**arguments)
-
-
-def bind(func: Callable, argument_name: str, argument_value: Any) -> Callable:
+@atomically
+class on(LeftCallable):
     """
-    Atomic partial function for a single keyword argument whose name and value
-    are separate input arguments.
+    Function that implements action choosing by condition.
+
+    Creates a action that delegates the call to one other action selected by an
+    input determinant.
+
+    With non-callable determinant, compares an input value with this
+    determinant.
+
+    With non-callable implementations, returns those non-callable values.
+
+    With default `else_` takes one value actions.
     """
 
-    return wraps(func)(partial(func, **{argument_name: argument_value}))
+    def __init__(
+        self,
+        determinant: Special[Callable[Pm, bool]],
+        right_way: Callable[Pm, R] | R,
+        /,
+        else_: Callable[Pm, L] | L = returned
+    ):
+        self._condition_checker = to_check(determinant)
+        self._right_action = as_action(right_way)
+        self._left_action = as_action(else_)
+
+        self.__signature__ = self.__get_signature()
+
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R | L:
+        return (
+            self._right_action
+            if self._condition_checker(*args, **kwargs)
+            else self._left_action
+        )(*args, **kwargs)
+
+    def __repr__(self) -> str:
+        return "({} on {} else {})".format(
+            action_repr_of(self._right_action),
+            action_repr_of(self._condition_checker),
+            action_repr_of(self._left_action),
+        )
+
+    def __get_signature(self) -> Signature:
+        return call_signature_of(self._right_action).replace(
+            return_annotation=annotation_sum(
+                call_signature_of(self._right_action).return_annotation,
+                call_signature_of(self._left_action).return_annotation,
+            )
+        )
 
 
-def call(caller: Callable, *args, **kwargs) -> Any:
-    """Function to call an input object and return the results of that call."""
-
-    return caller(*args, **kwargs)
-
-
-def getitem_of(object_: object, item_key: Any) -> Any:
-    """Function for functional use of [] getting."""
-
-    return object_[item_key]
-
-
-def setitem_of(object_: object, item_key: Any, item_value: Any) -> None:
-    """Function for functional use of [] setting."""
-
-    object_[item_key] = item_value
-
-
-def execute_operation(first_operand: Any, operator: str, second_operand: Any) -> Any:
+@partially
+class repeating(LeftCallable):
     """
-    Function to use python operators in a functional way.
+    Function to call an input action multiple times.
 
-    Since this function uses eval, do not pass operator and unchecked standard
-    type operands from the global input to it.
-    """
+    Initially calls an input action from an input value, after repeating the
+    result of an input action itself.
 
-    return eval(
-        f"first_operand {operator} second_operand",
-        dict(),
-        {'first_operand': first_operand, 'second_operand': second_operand}
-    )
+    Repeats until an input determinant returns `False`.
 
-
-def transform(operand: Any, operator: str) -> Any:
-    """
-    Function to use single operand operator in functional way.
-
-    Since this function uses eval, do not pass operator from the global input to
-    it.
-    """
-
-    return eval(f"{operator} operand", dict(), {'operand': operand})
-
-
-def handle_context_by(context_factory: event, context_handler: handler) -> Any:
-    """
-    Function for emulating the "with as" context manager.
-
-    Creates a context using the context_factory and returns the results of
-    handling this context by context_handler.
+    With non-callable determinant, compares an input value with this
+    determinant.
     """
 
-    with context_factory() as context:
-        return context_handler(context)
+    def __init__(self, action: reformer_of[V], while_: Special[checker_of[V]]):
+        self._action = action
+        self._is_valid_to_repeat = to_check(while_)
+
+        self.__signature__ = self.__get_signature()
+
+    def __call__(self, value: V) -> V:
+        while self._is_valid_to_repeat(value):
+            value = self._action(value)
+
+        return value
+
+    def __repr__(self) -> str:
+        return "({} while {})".format(
+            action_repr_of(self._action),
+            action_repr_of(self._is_valid_to_repeat),
+        )
+
+    def __get_signature(self) -> Signature:
+        return call_signature_of(self._action)
+
+
+@partially
+class trying_to(LeftCallable):
+    """
+    Decorator function providing handling of possible errors in an input action.
+
+    On error, an input rollbacker is first called with the same arguments that
+    were passed to an input action, then an occured error.
+    """
+
+    def __init__(
+        self,
+        action: Callable[Pm, R],
+        rollback: Callable[Pm, Callable[[Exception], E]],
+    ):
+        self._action = action
+        self._rollback = rollback
+        self.__signature__ = self.__get_signature()
+
+    def __call__(self, *args: Pm.args, **kwargs: Pm.args) -> R | E:
+        try:
+            return self._action(*args, **kwargs)
+        except Exception as error:
+            return self._rollback(*args, **kwargs)(error)
+
+    def __repr__(self) -> str:
+        return "(try {} except {})".format(
+            action_repr_of(self._action),
+            action_repr_of(self._rollback),
+        )
+
+    def __get_signature(self) -> Signature:
+        return call_signature_of(self._action).replace(
+            return_annotation=annotation_sum(
+                call_signature_of(self._action).return_annotation,
+                call_signature_of(self._rollback).return_annotation,
+            )
+        )
+
+
+@partially
+def with_(context_manager: AbstractContextManager, action: action_for[R]) -> R:
+    """Function emulating the `with as` context manager."""
+
+    with context_manager as context:
+        return action(context)
+
+
+@atomically
+class keyword_unpackly(Decorator, LeftCallable):
+    """
+    Decorator function to unpack the passed mapping object into the input action.
+    """
+
+    def __call__(self, arguments: Mapping[str, Any]) -> Any:
+        return self._action(**arguments)
+
+    @property
+    def _force_signature(self) -> Signature:
+        return call_signature_of(self._action).replace(parameters=[Parameter(
+            "arguments",
+            Parameter.POSITIONAL_OR_KEYWORD,
+            annotation=Mapping[str, Any],
+        )])
+
+
+def tuple_of(*args: V) -> Tuple[V, ...]:
+    """Function to create a `tuple` from unlimited input arguments."""
+
+    return args
+
+
+def with_keyword(
+    keyword: str,
+    value: Any,
+    action: action_for[R],
+) -> action_for[R]:
+    return partial(action, **{keyword: value})

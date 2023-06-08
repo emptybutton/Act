@@ -1,41 +1,33 @@
-from typing import Any, Optional, Self, Type
+from typing import Any, Optional, Type, NoReturn
+
+from pytest import fail
 
 
-class MockObject:
-    """Mock class having dynamic attributes."""
+class CustomContext:
+    """Class emulating context."""
 
-    def __init__(self, **attributes):
-        self.__dict__ = attributes
-
-    def __repr__(self) -> str:
-        return "<MockObject with {attributes}>".format(
-            attributes=str(self.__dict__)[1:-1].replace(': ', '=').replace('\'', '')
-        )
-
-
-class Box(MockObject):
-    """MockObject class emulating context."""
-    
-    def __init__(self, enter_result: Any = None, **attributes):
-        super().__init__(**attributes)
+    def __init__(self, enter_result: Any = None):
         self.enter_result = enter_result
 
     def __repr__(self) -> str:
-        return '<Box instance>'
+        return "<CustomContext instance>"
 
     def __enter__(self) -> Any:
         return self.enter_result
 
-    def __exit__(self, error_type: Optional[Type[Exception]], error: Optional[Exception], traceback: Any):
+    def __exit__(
+        self,
+        error_type: Optional[Type[Exception]],
+        error: Optional[Exception],
+        traceback: Any,
+    ):
         pass
 
 
-class MockHandler:
+class MockAction:
     """
-    Mock class creating a handling effect by returning an input resource.
-
-    Has an additional identification when specifying equality_id, allowing you
-    to compare this handlers by this very id.
+    Mock action without action. Returns input resource.
+    Optionally compared with another by input id.
     """
 
     def __init__(self, equality_id: Optional[int] = None):
@@ -50,8 +42,8 @@ class MockHandler:
     def __call__(self, resource: Any) -> Any:
         return resource
 
-    def __eq__(self, other: Self) -> bool:
-        return (
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, MockAction) and (
             self is other
             if self.equality_id is None
             else self.equality_id == other.equality_id
@@ -73,3 +65,10 @@ class Counter:
 
     def __call__(self, number_of_counts: int = 1) -> None:
         self._counted += number_of_counts
+
+
+def fail_by_error(error: Exception) -> NoReturn:
+    fail(
+        "Catching the unexpected error "
+        f"{error.__class__.__name__} \"{str(error)}\""
+    )

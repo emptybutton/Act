@@ -7,409 +7,875 @@ You can even integrate the entire program logic into one call
 ## Installation
 `pip install pyhandling`
 
-## Usage examples
-### Composition
-Merge your functions into one
+## Examples
+### Execution flow
+Connect actions in a chain
 
-```python
+```py
 from pyhandling import *
 
 
-complemented_number = str |then>> (lambda line: line + '6') |then>> int
-complemented_number(25)
+completed = str |then>> (lambda line: line + '6') |then>> int
+completed(25)
 ```
-
-to later get
-```python
+```
 256
 ```
 
-or you can do the same but call the function immediately
-```python
+with calling
+```py
 25 >= str |then>> (lambda line: line + '6') |then>> int
 ```
-
-and get the same result
-```python
+```
 256
 ```
 
-### Currying
-Add additional arguments to function input arguments
-```python
-formattly_sum = "{} {}{}".format
-
-post_partial(formattly_sum, "world", '!')("Hello") 
-```
-
-using pseudo operators
-```python
-(formattly_sum |to| "Hello")("world", '!')
-(formattly_sum |to* ("Hello", "world"))('!')
-
-(formattly_sum |by| '!')("Hello", "world")
-```
-
-or not necessarily now
-```python
-container = close(formattly_sum)
-opened_container = container("Hello")
-
-opened_container("world", '!')
-```
-
-using all possible ways
-```python
-post_container = close(formattly_sum, closer=post_partial)
-
-post_container('!')("Hello", "world")
-```
-
-Eventually, they all return
-```
-Hello world!
-```
-
-### Interface control
-Abstract the output value
-```python
-print(returnly(print)("Some input argument"))
+or via calling
+```py
+6 >= bind(lambda a: a + 10, lambda b: b / 2)
 ```
 ```
-Some input argument
-Some input argument
+8.0
 ```
 
-or input values
-```python
-from functools import partial
+or via template
+```py
+4 >= binding_by(... |then>> (lambda b: b * 10) |then>> ...)(lambda x: x + 4)
+```
+```
+84
+```
 
+or connect in width
+```py
+merged(lambda a: a - 1, lambda _: _, lambda c: c + 1)(2)
+```
+```
+(1, 2, 3)
+```
 
-eventually(partial(print, 16))(1, 2, 3)
+with result definition
+```py
+merged(print, lambda b: b + 1, return_from=1)(3)
+merged(lambda a: a - 1, lambda _: _, lambda c: c + 1, return_from=slice(0, 3, 2))(2)
+```
+```
+3
+4
+(1, 3)
+```
+
+merging the results
+```py
+mergely(
+    lambda n: lambda a, d: a + str(n) + d,
+    lambda n: str(n + 8),
+    lambda n: str(n + 2),
+)(2)
+```
+```
+1024
+```
+
+Repeat calls
+```py
+repeating(lambda line: f"{line}{line[-1]}", times(3))("What?")
+```
+```
+What????
+```
+
+Choose an action to call
+```py
+square_or_module_of = on(
+    lambda number: number >= 0,
+    lambda number: number ** 2,
+    else_=abs,
+)
+
+square_or_module_of(4)
+square_or_module_of(-4)
+```
+```
+16
+4
+```
+
+skipping input value
+```py
+incremented_or_not = on(lambda n: n % 2 == 0, lambda n: n + 1)
+
+incremented_or_not(2)
+incremented_or_not(3)
+```
+```
+3
+3
+```
+
+### Data flow
+Ignore the output value
+```py
+with_result("Forced result", print)("Input value") + " and something"
+```
+```
+Input value
+Forced result and something
+```
+
+via arguments
+```py
+returnly(print)("Input argument") + " and something"
+```
+```
+Input argument
+Input argument and something
+```
+
+or ignore input arguments
+```py
+eventually(print, 16)('Some', 'any', "arguments")
 ```
 ```
 16
 ```
 
-### Atomic functions
-Use synonyms for operators
-```python
-return_(256)
-raise_(Exception("Something is wrong"))
+to get something
+```py
+taken("Something")('Some', 'any', "arguments")
 ```
 ```
-256
-
-Traceback ...
-Exception: Something is wrong
+Something
 ```
 
-for atomic operations
-```python
-execute_operation(60, '+', 4)
-transform(str(), 'not')
-```
-```
-64
-True
-```
-
-for syntax operations
-```python
-call(range, 16)
-
-getitem_of({"some-key": "some-value"}, "some-key")
-```
-```
-range(16)
-some-value
-```
-
-### Annotating
-Use standart annotation templates from `annotations` package for routine cases
-```python
-from pyhandling.annotations import checker_of, reformer_of, merger_of
-
-from pyannotating import number
-
-
-is_number_even: checker_of[number] = lambda number: number % 2 == 0
-
-add_hundert_to: reformer_of[number] = lambda number: number + 100
-
-format_lines: merger_of[str] = "{} {}!".format
-```
-
-or annotations themselves
-```python
-from pyannotating import many_or_one
-
-from pyhandling.annotations import handler, decorator
-
-
-executing_of: Callable[[many_or_one[handler]], decorator] = ...
-```
-
-### Function building
-Create functions by describing them
-```python
-total_sum: Callable[[Iterable[many_or_one[number]]], number] = documenting_by(
-    """
-    Function of summing numbers from the input collection or the sum of its
-    subcollection.
-    """
-)(
-    close(map |then>> tuple)(
-        on_condition(isinstance |by| Iterable, sum, else_=return_)
-    )
-    |then>> sum
-)
-```
-
-in several processing processes
-```python
-ratio_of_square_to_full: reformer_of[number] = documenting_by(
-    """
-    Function of getting the ratio of the square of the input number to the
-    input number to the power of its value.
-    """
-)(
-    mergely(
-        take(execute_operation),
-        mergely(
-            take(execute_operation),
-            return_,
-            take('*'),
-            return_
-        ),
-        take('/'),
-        mergely(
-            take(execute_operation),
-            return_,
-            take('**'),
-            return_
-        )
-    )
-)
-```
-
-or in an indefinite number of iterative executions
-```python
-from pyhandling.annotations import dirty
-
-
-increase_up_to_ten: dirty[reformer_of[number]] = documenting_by(
-    """
-    Function that prints numbers between the input number and 10 inclusive and
-    returns 10.
-    """
-)(
-    recursively(
-        returnly(print) |then>> post_partial(execute_operation, '+', 1),
-        post_partial(execute_operation, '<', 10)
-    )
-    |then>> returnly(print)
-)
-
-
-increase_up_to_ten(8)
-```
-```
-8
-9
-10
-```
-
-### Chain breaking
-Forcibly break the chain of actions
-```python
-optionally_exponentiate: Callable[[number], number | BadResourceWrapper] = documenting_by(
-    """Function of exponentiation of the input number if it is > 0."""
-)(
-    maybe(
-        on_condition(
-            post_partial(execute_operation, '<', 0),
-            BadResourceWrapper,
-            else_=return_
-        )
-        |then>> post_partial(execute_operation, '**', 2)
-    )
-)
-
-
-optionally_exponentiate(-16)
-```
-```
-<Wrapper of bad -16>
-```
-
-with the possibility of returning a "bad" resource
-```python
-main: dirty[reformer_of[number]] = optionally_exponentiate |then>> optionally_get_bad_resource_from
-
-main(8)
-main(-16)
-```
-```
-64
--16
-```
-
-You can also interrupt by returning an error proxy that stores the error </br>that occurred while processing this resource and the resource itself
-```python
-from pyhandling.annotations import reformer_of
-
-
-div_by_zero: reformer_of[number] = documenting_by(
-    """Function for dividing an input number by zero."""
-)(
-    post_partial(execute_operation, '/', 0)
-)
-
-
-main: Callable[[number], number | BadResourceError] = (
-    returnly_rollbackable(div_by_zero, take(True))
-)
-
-
-main(256)
-```
-```
-BadResourceError('Resource "256" could not be handled due to ZeroDivisionError: division by zero')
-```
-
-with corresponding possibilities
-```python
-main: reformer_of[number] = (
-    partial(map |then>> maybe, returnly_rollbackable |by| take(True))(
-        post_partial(execute_operation, '*', 2)
-        |then>> div_by_zero
-    )
-    |then>> optionally_get_bad_resource_from
-)
-
-
-main(16)
-```
-```
-32
-```
-
-### Batteries
-Use out-of-the-box functions to abstract from input arguments
-```python
-take(256)(1, 2, 3)
-event_as(execute_operation, 30, '+', 2)(1, 2, 3)
-```
-```
-256
-32
-```
-
-to create a collection via call
-```python
-collection_from(1, 2, 3)
-```
-```
-(1, 2, 3)
-```
-
-to connect collections
-```python
-summed_collection_from((1, 2), (3, 4))
-```
-```
-(1, 2, 3, 4)
-```
-
-to manage collection nesting
-```python
-wrap_in_collection(8)
-open_collection_items(((1, 2), [3], 4))
-```
-```
-(8, )
-(1, 2, 3, 4)
-```
-
-to represent something as a collection
-```python
-as_collection(64)
-as_collection([1, 2, 3])
-```
-```
-(64, )
-(1, 2, 3)
-```
-
-to confirm something multiple times
-```python
-runner = times(3)
-tuple(runner() for _ in range(8))
-```
-```
-(True, True, True, False, True, True, True, False)
-```
-
-to raise only a specific error
-```python
-optional_raise = optional_raising_of(ZeroDivisionError)
-
-optional_raise(TypeError())
-optional_raise(ZeroDivisionError("can't divide by zero"))
-```
-```
-TypeError()
-
-Traceback ...
-ZeroDivisionError: can't divide by zero
-```
-
-to execute operations
-```python
-operation_by('*', 4)(64)
-callmethod(', ', 'join', ("first", "second"))
-```
-```
-256
-first, second
-```
-
-to decoratively create action chains
-```python
-next_action_decorator_of(operation_by('**', 4))(operation_by('+', 1))(3)
-previous_action_decorator_of(operation_by('+', 2))(operation_by('**', 2))(6)
-```
-```
-256
-64
-```
-
-to stop the chain when an error occurs
-```python
-breakable_chain = chain_breaking_on_error_that(isinstance |by| ZeroDivisionError)(
-    (execute_operation |by* ('+', 4)) |then>> div_by_zero
-)
-
-breakable_chain(12)
-```
-```
-BadResourceError('Resource "16" could not be handled due to ZeroDivisionError: division by zero')
-```
-
-to use shortcuts of routine options
-```python
-yes(1, 2, 3)
-no(1, 2, 3)
+or forced binary answer
+```py
+yes('Some', 'any', "arguments")
+no('Some', 'any', "arguments")
 ```
 ```
 True
 False
 ```
 
-### Immutable classes
-Create immutable classes
-```python
+Force unpack from argument
+```py
+with_positional_unpacking(print)(range(1, 4))
+with_keyword_unpacking(lambda a, b: a + b)({'a': 5, 'b': 3})
+```
+```
+1 2 3
+8
+```
+
+from all sorts of arguments
+```py
+print_from = unpackly(print)
+
+print_from(ArgumentPack(['Fish', "death"], {'sep': ' of '}))
+print_from(ArgumentPack.of("Chair", "table", sep=' of '))
+```
+```
+Fish of death
+Chair of table
+```
+
+### Partial application
+Add arguments by calling
+```py
+@fragmentarily
+def sentence_from(first: str, definition: str, second: str, sign: str = '!') -> str:
+    return f"{first} {definition} {second}{sign}"
+
+
+sentence_from("A lemon")("is not", sign='.')("an orange")
+```
+```
+A lemon is not an orange.
+```
+
+after input
+```py
+to_message_template = "{} {}{}".format
+
+post_partial(to_message_template, "world", '!')("Hello")
+```
+```
+Hello world!
+```
+
+under keyword
+```py
+with_keyword('n', 1, "{n}st {}".format)("day of spring")
+```
+```
+1st day of spring
+```
+
+using pseudo-operators
+```py
+(to_message_template |to| "Hello")("world", '...')
+(to_message_template |to* ("Hello", "world"))('?')
+
+(to_message_template |by| '!')("Hello", "world")
+```
+```
+Hello world...
+Hello world?
+Hello world!
+```
+
+or not necessarily now
+```py
+container = closed(to_message_template)
+opened_container = container("Hello")
+
+opened_container("container world", '!')
+```
+```
+Hello container world!
+```
+
+using all possible ways
+```py
+post_container = closed(to_message_template, close=post_partial)
+
+post_container('!')("Hello", "post container world")
+```
+```
+Hello post container world!
+```
+
+### Atomic operations
+Transform without transforms
+```py
+returned(256)
+```
+```
+256
+```
+
+Use synonyms to raise an error
+```py
+raise_(Exception("Something is wrong"))
+```
+```
+Traceback ...
+Exception: Something is wrong
+```
+
+to transform a context manager's context
+```py
+to_context(lambda file: file.read())(open("file.txt"))
+```
+
+to transform in a context manager's context
+```py
+with_context_by(taken(imaginary_transaction), lambda number: number / 0)(64)
+```
+```
+Traceback ...
+ImaginaryTransactionError: division by zero
+```
+
+to use syntax constructions
+```py
+execute_operation(60, '+', 4) # 64
+transform(False, 'not') # True
+
+call(print, 1, 2, 3, sep=' or ') # 1 or 2 or 3
+callmethod(dict(), 'get', None, "Default getting result") # Default getting result
+
+data = dict()
+
+setitem(data, "some-key", "some-value")
+getitem(data, "some-key") # some-value
+```
+
+by creating them
+```py
+operation = operation_by('+', 4)
+operation(60)
+```
+```
+64
+```
+
+using syntax operators
+```py
+difference_between = operation_of('-')
+difference_between(55, 39)
+```
+```
+16
+```
+
+### Annotating
+Use annotation templates to shorten annotations
+```py
+from pyhandling.annotations import *
+
+from pyannotating import number
+
+
+checker_of[number] # Callable[[int | float | complex], bool]
+
+reformer_of[str] # Callable[[str], str]
+
+handler_of[Exception] # Callable[[Exception], Any]
+
+merger_of[str] # Callable[[str, str], str]
+
+event_for[bool] # Callable[[], bool]
+
+action_for[str] # Callable[[...], str]
+
+formatter_of[object] # Callable[[object], str]
+
+transformer_to[dict] # Callable[[Any], dict]
+```
+
+or annotations themselves
+```py
+atomic_action # Callable[[Any], Any]
+
+checker # Callable[[Any], bool]
+
+decorator # Callable[[Callable], Callable]
+
+event # Callable[[], Any]
+```
+
+or comments integrated as annotations
+```py
+add_five_and_print: dirty[reformer_of[number]]
+```
+
+or prepared `TypeVars`
+```py
+from typing import Callable
+
+
+devil_function: Callable[
+    [
+        Callable[[Callable[[*ArgumentsT], ValueT]], Callable[[ValueT], ResultT]],
+        Callable[[ResultT], ActionT],
+        Callable[[ErrorT], ErrorHandlingResultT],
+        *ArgumentsT,
+    ],
+    ActionT | ErrorHandlingResultT
+]
+```
+
+all of which can be viewed [here](https://github.com/TheArtur128/Pyhandling/blob/v3.0.0/pyhandling/annotations.py)
+
+
+### Error handling
+Handle errors that occur
+```py
+divide = rollbackable(operation_of('/'), returned)
+
+divide(64, 4)
+divide(8, 0)
+```
+```
+16.0
+division by zero
+```
+
+getting by unpacking
+```py
+divide = with_error(operation_of('/'))
+
+result, error = divide(16, 0)
+
+
+print(result, error, sep=', ')
+```
+```
+nothing, division by zero
+```
+
+keeping error context
+```py
+ContextualError(
+    ZeroDivisionError("division by zero"),
+    dict(hero="Some hero", enemy="Some enemy"),
+)
+```
+```
+division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'}
+```
+
+nested way
+```py
+class DomainError(ContextualError):
+    pass
+
+
+class InfrastructureError(ContextualError):
+    pass
+
+
+root_error = InfrastructureError(
+    DomainError(
+        ZeroDivisionError("division by zero"),
+        dict(hero="Some hero", enemy="Some enemy"),
+    ),
+    ["Some hero", "Some enemy", "Someone else"],
+)
+
+print(root_error)
+```
+```
+division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'} when ['Some hero', 'Some enemy', 'Someone else']
+```
+
+with unpacking
+```py
+error, context = root_error
+
+print(error, context, sep='\n')
+```
+```
+division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'}
+['Some hero', 'Some enemy', 'Someone else']
+```
+
+and getting them all
+```py
+print(*errors_from(root_error), sep='\n')
+```
+```
+division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'} when ['Some hero', 'Some enemy', 'Someone else']
+division by zero when {'hero': 'Some hero', 'enemy': 'Some enemy'}
+division by zero
+```
+
+### Execution context
+Break the chain of actions
+```py
+incremented_or_not: reformer_of[ContextRoot[number, Special[bad]]] = documenting_by(
+    """
+    Function to increase an input number if it is > 0.
+
+    Takes as input a number wrapped in `ContextRoot`, using the `contextual`
+    function or `ContextRoot(..., nothing)` directly and applies the nodes to
+    its value inside an input `ContextRoot`.
+
+    Executing in `maybe` context with the effect of saving a value computed
+    before the returned `bad` flag.
+
+    The value obtained in this way will have a `bad` context telling the
+    contextual `maybe` execution to skip the given `root`.
+    """
+)(
+    maybe(
+        on(operation_by('<', 0), taken(bad))
+        |then>> operation_by('**', 2)
+        |then>> operation_by('*', 4)
+    )
+)
+
+
+incremented_or_not(contextual(8))
+incremented_or_not(contextual(-4))
+```
+```
+256 when nothing
+-4 when bad
+```
+
+in case of errors
+```py
+incremented: reformer_of[ContextRoot[number, Special[Exception]]]
+incremented = until_error(
+    operation_by('+', 10)
+    |then>> operation_by('*', 2)
+    |then>> (lambda number: number / (number - 28))
+    |then>> operation_by('**', 2)
+)
+
+
+incremented(contextual(6))
+incremented(contextual(4))
+```
+```
+64.0 when nothing
+28 when division by zero
+```
+
+and visualize results
+```py
+"result is {}".format(
+    0 >= showly(
+        operation_by('+', 1)
+        |then>> operation_by('+', 2)
+        |then>> operation_by('+', 3)
+    )
+)
+```
+```
+1
+3
+6
+result is 6
+```
+
+or interact with a context directly
+```py
+contextual(6) >= considering_context(
+    operation_by('+', 4)
+    |then>> contextual(in_collection |then>> taken, when=writing)
+    |then>> operation_by('*', 6)
+    |then>> operation_by('+', 4)
+    |then>> contextual(
+        closed(operation_of('/')) |then>> binding_by((getitem |by| 0) |then>> ...),
+        when=reading,
+    )
+)
+```
+```
+6.4 when (10,)
+```
+
+or don't interact
+```py
+contextual(1, when=bad) >= saving_context(
+    operation_by('+', 2)
+    |then>> operation_by('+', 3)
+    |then>> operation_by('+', 4)
+)
+```
+```
+10 when bad
+```
+
+with the ability to get values
+```py
+root = incremented(contextual(4))
+
+root.value
+root.context
+```
+```
+28
+division by zero
+```
+
+using unpacking
+```py
+value, context = incremented_or_not(contextual(-16))
+
+print(value, context, sep=', ')
+```
+```
+-16, bad
+```
+
+
+Combine execution contexts
+```py
+incremented: reformer_of[ContextRoot[number, Special[bad | Exception]]]
+incremented = documenting_by(
+    """
+    Function that increases a number using three compute contexts with one
+    `ContextRoot`.
+    """
+)(
+    maybe(
+        operation_by('+', 4)
+        |then>> on(operation_by('<=', 0), taken(bad))
+        |then>> operation_by('*', 2)
+    )
+    |then>> until_error(
+        operation_by('-', 14)
+        |then>> (lambda n: n / (n - 2))
+    )
+    |then>> saving_context(
+        operation_by('+', 0.25)
+        |then>> operation_by('*', 4)
+    )
+)
+
+
+incremented(contextual(-4))
+incremented(contextual(4))
+incremented(contextual(8))
+```
+```
+4.5 when bad
+9.0 when division by zero
+6.0 when nothing
+```
+
+indicating special behavior
+```py
+incremented(contextual(8, when=bad))
+```
+```
+4.0 when bad
+```
+
+Create an execution context
+```py
+from typing import Iterable
+
+
+saving_results: mapping_to_chain_among[Iterable] = monadically(
+    lambda node: lambda results: (*results, node(results[-1]))
+)
+
+
+(0, ) >= saving_results(
+    operation_by('+', 1)
+    |then>> operation_by('+', 2)
+    |then>> operation_by('+', 3)
+)
+```
+```
+(0, 1, 3, 6)
+```
+
+limiting the effect of execution context
+```py
+"result is {}".format(
+    4 >= showly(
+        operation_by('*', 2)
+        |then>> atomically(
+            operation_by('-', 3)
+            |then>> operation_by('*', 2)
+        )
+        |then>> atomically(
+            operation_by('*', 10)
+            |then>> str
+        )
+    )
+)
+```
+```
+8
+10
+100
+result is 100
+```
+
+using a unique flag
+```py
+super_ = Flag("super")
+not_super = Flag("not_super", sign=False)
+
+not_super and super_ # not_super
+isinstance(super_, super_ | not_super) # True
+
+ContextRoot(16, super_) # 16 when super
+```
+
+representing context as a value
+```py
+context_oriented(contextual(4))
+```
+```
+nothing when 4
+```
+
+or context types among themselves
+```py
+ContextRoot.like(ContextualError(
+    ZeroDivisionError("division by zero"),
+    dict(operand=4),
+))
+
+ContextualError.like(contextual(ZeroDivisionError("division by zero")))
+```
+```
+division by zero when {'operand': 4}
+division by zero when nothing
+```
+
+Annotate execution context
+```py
+mapping_to_chain_of[reformer_of[number]]
+# Callable[
+#     [Union[Callable[[Any], Any], Iterable[Callable[[Any], Any]]]],
+#     ActionChain[Callable[[int | float | complex], int | float | complex]]
+# ]
+
+mapping_to_chain
+# Callable[
+#     [Union[Callable[[Any], Any], Iterable[Callable[[Any], Any]]]],
+#     ActionChain[Callable[[Any], Any]]
+# ]
+
+mapping_to_chain_among[int]
+# Callable[
+#     [Union[Callable[[Any], Any], Iterable[Callable[[Any], Any]]]],
+#     ActionChain[Callable[[int], int]]
+# ]
+
+execution_context_when[str]
+# Callable[
+#     [Union[Callable[[Any], Any], Iterable[Callable[[Any], Any]]]],
+#     ActionChain[Callable[[ContextRoot[Any, str]], ContextRoot[Any, str]]]
+# ]
+```
+
+### Batteries
+Household functions
+```py
+showed(4) + 12
+inversion_of(lambda: True)()
+```
+```
+4
+16
+False
+```
+
+Collection non-generator functions
+```py
+map_(operation_by('**', 2), range(1, 11))
+filter_(operation_by('>=', 5), range(1, 11))
+zip_(range(10), 'abc')
+```
+```
+(1, 4, 9, 16, 25, 36, 49, 64, 81, 100)
+(5, 6, 7, 8, 9, 10)
+((0, 'a'), (1, 'b'), (2, 'c'))
+```
+
+Collection functions
+```py
+with_opened_items([[1, 2, 3], 4, [5, 6]]) # (1, 2, 3, 4, 5, 6)
+
+in_collection(4) # (4,)
+
+as_collection(16) # (16,)
+as_collection([1, 2, 3]) # (1, 2, 3)
+```
+
+Testing
+```py
+from unittest import main
+
+
+good_test = calling_test_case_of(
+    (lambda: 64, 64),
+    (lambda: 4, 4),
+)
+
+if __name__ == "__main__":
+    main()
+```
+```
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+```
+
+Protocols of standard functionality
+```py
+from contextlib import contextmanager
+
+
+isinstance(Iterable, ItemGetter) # True
+isinstance(Iterable, ItemSetter) # False
+isinstance(dict(), ItemKeeper) # True
+
+isinstance(type, Variable) # True
+isinstance(Flag('mega'), Variable) # True
+
+isinstance(contextmanager(lambda: None)(), ContextManager) # True
+```
+
+Documentation decorator
+```py
+mega = documenting_by("""Flag indicating something.""")(
+    Flag('mega')
+)
+```
+
+Creating arbitrary objects
+```py
+with_attributes(name="Mohammed").__dict__
+```
+```
+{'name': 'Mohammed'}
+```
+
+Structured Arguments
+```py
+ArgumentPack([1, 2, 3], dict(keyword=4))
+ArgumentPack.of(1, 2, 3, keyword=4)
+```
+```
+1, 2, 3, keyword=4
+1, 2, 3, keyword=4
+```
+
+as an intersection
+```py
+first = ArgumentPack.of('a', keyword="value")
+second = ArgumentPack.of('b', 'c')
+
+first | second # a, b, c, keyword=value
+first.merge_with(second) # a, b, c, keyword=value
+
+second.expand_with('d', keyword="value") # b, c, d, keyword=value
+
+# a, keyword=value
+first.merge_with(second).only_with(
+    ArgumentKey(0),
+    ArgumentKey("keyword", is_keyword=True)
+)
+```
+
+with structured receiving
+```py
+first[ArgumentKey(0)] # a
+first[ArgumentKey(0, default="default")] # a
+first[ArgumentKey(1, default="default")] # default
+first[ArgumentKey("keyword", is_keyword=True)] # value
+```
+
+and calling
+```py
+ArgumentPack.of(1, 2, 3, sep=' or ').call(print)
+```
+```
+1 or 2 or 3
+```
+
+Generated property
+```py
+class Room:
+    name = DelegatingProperty("_name")
+    members = DelegatingProperty(
+        "_members",
+        settable=True,
+        setting_converter=tuple |then>> (map_ |to| str)
+    )
+
+    def __init__(self, name: str, members: Iterable):
+        self._name = name
+        self._members = tuple(members)
+
+
+room = Room('42', list())
+
+room.members = range(1, 5)
+room.name
+room.members
+```
+```
+42
+('1', '2', '3', '4')
+```
+
+Immutable classes
+```py
 from typing import Iterable, Callable
 
 
@@ -438,7 +904,7 @@ original = CallingPublisher("Some publisher", [print])
 ```
 
 that can't change any public attribute
-```python
+```py
 original.some_attr = "some value"
 ```
 ```
@@ -447,7 +913,7 @@ AttributeError: Type CallingPublisher is immutable
 ```
 
 and automatically clone without manual creation
-```python
+```py
 other = original.with_follower(operation_by('**', 4) |then>> print)
 
 original.followers
@@ -459,35 +925,10 @@ other.followers
 ```
 
 what would eventually
-```python
+```py
 other(4)
 ```
 ```
 4
 256
-```
-
-### Debugging
-Display intermediate results
-```python
-showly(total_sum)([128, [100, 28]])
-```
-```
-[128, [100, 28]]
-(128, 128)
-256
-```
-
-by different ways
-```python
-logger = Logger(is_date_logging=True)
-
-showly(total_sum, writer=logger)([[2, 10], [15, 15]])
-
-print(*logger.logs, sep='\n')
-```
-```
-[2023-01-24 21:38:28.791516] [[2, 10], [15, 15]]
-[2023-01-24 21:38:28.791516] (12, 30)
-[2023-01-24 21:38:28.791516] 42
 ```
