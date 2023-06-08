@@ -84,7 +84,7 @@ iteration_over = documenting_by(
     """
 )
 @atomically(bind |by| iteration_over)
-def times(max_steps: int, /) -> Generator[int, None, None]:
+def times(max_steps: int, /) -> Generator[bool, None, None]:
     steps = max_steps
 
     while True:
