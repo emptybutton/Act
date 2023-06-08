@@ -94,7 +94,10 @@ def test_trying_to_with_error(
     input_args: Iterable,
     error_type: Type[Exception]
 ):
-    assert type(trying_to(func, lambda *_: lambda error: error)(*input_args)) is error_type
+    assert (
+        type(trying_to(func, lambda *_: lambda error: error)(*input_args))
+        is error_type
+    )
 
 
 test_keyword_unpackly = calling_test_case_of((

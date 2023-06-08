@@ -1,5 +1,3 @@
-from functools import partial
-
 from pyhandling.branching import then
 from pyhandling.contexting import contextual
 from pyhandling.monads import *
