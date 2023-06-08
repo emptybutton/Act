@@ -2,33 +2,28 @@ from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
 from typing import (
-    Self, Iterator, Any, Generic, TypeVar, Callable, Optional, Tuple,
-    Literal, Mapping
+    Self, Iterator, Any, Generic, TypeVar, Callable, Optional, Tuple, Literal
 )
 from operator import or_, sub, attrgetter, not_
 
 from pyannotating import Special
 
-from pyhandling.atoming import atomic
+from pyhandling.atoming import atomic, atomically
 from pyhandling.annotations import (
-    V, FlagT, checker_of, Pm, R, merger_of, reformer_of, A, B, P
+    V, FlagT, checker_of, merger_of, reformer_of, A, B, P
 )
 from pyhandling.data_flow import by, then
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
 from pyhandling.partials import partially
-from pyhandling.signature_assignmenting import call_signature_of
-from pyhandling.structure_management import (
-    with_opened_items, in_collection, dict_of
-)
 from pyhandling.synonyms import returned, on
-from pyhandling.tools import with_attributes
+from pyhandling.tools import documenting_by, action_repr_of
 
 
 __all__ = (
     "Flag",
     "FlagVector",
-    "flag",
+    "flag_about",
     "pointed",
     "to_points",
     "to_value_points",
@@ -143,13 +138,13 @@ class Flag(ABC, Generic[P]):
     ```
 
     Flags can be represented in vector form via unary plus or minus and added
-    via `<<` (or via call).
+    via call.
     ```
     pointed(1) != +pointed(1)
     pointed(1) != -pointed(1)
 
-    pointed(1, 2) << +pointed(3) # pointed(1, 2, 3)
-    pointed(1, 2, 3) << -pointed(3) # pointed(1, 2)
+    (+pointed(3))(pointed(1, 2)) # pointed(1, 2, 3)
+    (-pointed(3))(pointed(1, 2, 3)) # pointed(1, 2)
     (-pointed(1))(pointed(1)) # nothing
     ```
 
@@ -162,9 +157,9 @@ class Flag(ABC, Generic[P]):
     ~+pointed(1) == pointed(1)
     ~-pointed(1) is nothing
 
-    pointed(1) << +pointed(2) # pointed(1, 2)
+    (+pointed(2))(pointed(1)) # pointed(1, 2)
 
-    pointed(1, 2) << (-pointed(2) ^ +pointed(3)) # pointed(1, 3)
+    (-pointed(2) ^ +pointed(3))(pointed(1, 2)) # pointed(1, 3)
     ```
 
     Flags also use `~` to come to themselves, which can be used with a `Union`
@@ -291,7 +286,7 @@ class FlagVector(ABC):
         ...
 
     @abstractmethod
-    def __call__(self, flag: Flag) -> Flag:
+    def __call__(self, value: Special[Flag]) -> Flag:
         ...
 
     def __pos__(self) -> Self:
@@ -299,9 +294,6 @@ class FlagVector(ABC):
 
     def __invert__(self) -> Flag:
         return self(nothing)
-
-    def __lshift__(self, flag: Flag) -> Flag:
-        return self(flag)
 
 
 class _BinaryFlagVector(FlagVector):
@@ -319,11 +311,11 @@ class _BinaryFlagVector(FlagVector):
     ):
         self._flag = flag
         self._is_positive = is_positive
-        self._next = next_
+        self.__next = next_
 
     def __repr__(self) -> str:
         return f"{'+' if self._is_positive else '-'}{self._flag}{{}}".format(
-            f" ^ {self._next}" if self._next is not None else str()
+            f" ^ {self._next}" if self.__next is not None else str()
         )
 
     @to_clone
@@ -334,11 +326,16 @@ class _BinaryFlagVector(FlagVector):
     def __neg__(self) -> None:
         self._is_positive = not self._is_positive
 
-    def __call__(self, flag: Flag) -> Flag:
-        action = (or_ if self._is_positive else sub)
-        next_ = self._next if self._next is not None else returned
+    def __call__(self, value: Special[Flag]) -> Flag:
+        return self._next(self._action(pointed(value), self._flag))
 
-        return next_(action(flag, self._flag))
+    @property
+    def _next(self) -> Callable[Special[Flag], Flag]:
+        return self.__next if self.__next is not None else returned
+
+    @property
+    def _action(self) -> Callable[Flag, Flag]:
+        return or_ if self._is_positive else sub
 
 
 _FirstPointT = TypeVar("_FirstPointT")
@@ -364,21 +361,23 @@ class _DoubleFlag(Flag, ABC):
 
     @property
     def points(self) -> Tuple:
-        return with_opened_items(
-            (
+        points = list()
+
+        for flag in self:
+            points.extend(
                 flag.point
                 if isinstance(flag.point, _DoubleFlag)
-                else in_collection(flag.point)
+                else (flag.point, )
             )
-            for flag in self
-        )
+
+        return tuple(points)
 
     def __repr__(self) -> str:
         to_repr_of = on(isinstance |by| _ValueFlag, attrgetter("_value"))
 
         return f"{{}} {self._separation_sign} {{}}".format(
-            to_repr_of(self._first),
-            to_repr_of(self._second),
+            action_repr_of(to_repr_of(self._first)),
+            action_repr_of(to_repr_of(self._second)),
         )
 
     def __getatom__(self) -> Flag:
@@ -518,7 +517,7 @@ class _ValueFlag(_AtomicFlag, Generic[V]):
         return self._value
 
     def __repr__(self) -> str:
-        return f"pointed({self._value})"
+        return f"pointed({action_repr_of(self._value)})"
 
     def __hash__(self) -> int:
         return hash(self._value)
@@ -531,19 +530,18 @@ class _ValueFlag(_AtomicFlag, Generic[V]):
         return value if isinstance(value, Flag) else cls(value)
 
 
-class _NominalFlag(_AtomicFlag):
+@atomically
+class flag_about(_AtomicFlag):
     """
-    Atomic named flag class.
+    Constructor of an atomic named flag pointing to itself.
+    See `Flag` for behavior info.
 
-    Indicates an abstract phenomenon expressed by this flag itself.
-    Binary in its sign.
-
-    The public constructor of this class is the `flag` function.
+    When `negative` is `True`, casts to `False` when cast to `bool`.
     """
 
-    def __init__(self, name: str, sign: bool):
+    def __init__(self, name: str, /, *, negative: bool = False):
         self._name = name
-        self._sign = sign
+        self._sign = not negative
 
     @property
     def point(self) -> Self:
@@ -557,42 +555,6 @@ class _NominalFlag(_AtomicFlag):
 
     def __bool__(self) -> bool:
         return self._sign
-
-
-class _ActionFlag(_NominalFlag):
-    """
-    `_NominalFlag` class for also implementing delegation call to input action.
-    """
-
-    def __init__(self, name: str, sign: bool, action: Callable[Pm, R]):
-        super().__init__(name, sign)
-
-        self._action = action
-        self.__signature__ = call_signature_of(action)
-
-    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
-        return self._action(*args, **kwargs)
-
-
-def flag(
-    name: str,
-    *,
-    sign: bool = True,
-    action: Optional[Callable] = None
-) -> _NominalFlag | _ActionFlag:
-    """
-    Function constructor of an atomic named flag pointing to itself.
-    See `Flag` for behavior info.
-
-    Specifies a flag casting to `bool` given the `sign` parameter.
-    When `action` is specified, the resulting flag will be called on that action.
-    """
-
-    return (
-        _NominalFlag(name, sign)
-        if action is None
-        else _ActionFlag(name, sign, action)
-    )
 
 
 def pointed(*values: FlagT | V) -> FlagT | _ValueFlag[V]:
@@ -628,12 +590,13 @@ def to_value_points(action: Callable[[A], B], value: A | Flag[A]) -> Flag[B]:
     return to_points(on((isinstance |by| Flag) |then>> not_, action), value)
 
 
-nothing = flag("nothing", sign=False)
-nothing.__doc__ = (
+nothing = documenting_by(
     """
     Special flag identifying the absence of a flag.
     Is a neutral element in flag sum operations.
 
     See `Flag` for behavior info.
     """
+)(
+    flag_about("nothing", negative=True)
 )

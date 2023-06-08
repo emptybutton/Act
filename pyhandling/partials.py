@@ -67,7 +67,7 @@ class partially(Decorator):
     def _force_signature(self) -> Signature:
         return call_signature_of(self).replace(
             return_annotation=(
-                call_signature_of(self._action).return_annotation | Self,
+                call_signature_of(self._action).return_annotation | Self
             ),
             parameters=tuple(
                 (
@@ -102,6 +102,15 @@ class flipped(Decorator):
     @staticmethod
     def __flip_parameters(parameters: Iterable[Parameter]) -> Tuple[Parameter]:
         parameters = tuple(parameters)
+
+        if any(
+            parameter.kind is Parameter.VAR_POSITIONAL
+            for parameter in parameters
+        ):
+            return (
+                call_signature_of(lambda *args, **kwargs: ...).parameters.values()
+            )
+
         index_border_to_invert = 0
 
         for parameter_index, parameter in enumerate(parameters):
@@ -118,8 +127,8 @@ class flipped(Decorator):
 
 def mirrored_partial(action: action_for[R], *args, **kwargs) -> action_for[R]:
     """
-    Function to partially apply input action with mirrored parameters by input
-    arguments.
+    Function to partially apply an input action with mirrored parameters by
+    input arguments.
     """
 
     return flipped(partial(flipped(action), *args, **kwargs))

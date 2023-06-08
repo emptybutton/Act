@@ -2,8 +2,10 @@ __all__ = (
     "PyhandingError",
     "ArgumentError",
     "ReturningError",
+    "UniaError",
     "InvalidInitializationError",
     "AtomizationError",
+    "MatchingError",
     "TemplatedActionChainError",
     "ActionCursorError",
 )
@@ -25,6 +27,10 @@ class ReturningError(PyhandingError):
     ...
 
 
+class UniaError(PyhandingError):
+    ...
+
+
 class InvalidInitializationError(PyhandingError):
     ...
 
@@ -33,12 +39,16 @@ class AtomizationError(PyhandingError):
     ...
 
 
+class MatchingError(PyhandingError):
+    ...
+
+
 class ActionChainError(PyhandingError):
     ...
 
 
 class TemplatedActionChainError(ActionChainError):
-    __notes__ = ["Regular chain should not contain Ellipsis"]
+    __notes__ = ["Regular chain should not contain `Ellipsis`"]
 
 
 class ActionCursorError(PyhandingError):

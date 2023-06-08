@@ -1,103 +1,110 @@
-from functools import partial, reduce, cached_property, update_wrapper
+from functools import partial, reduce, update_wrapper
 from inspect import Signature, Parameter
 from operator import or_, is_not, not_
 from typing import (
     TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Type,
-    Tuple, NamedTuple, _CallableGenericAlias,
+    Tuple, NamedTuple, _CallableGenericAlias
 )
 
 from pyannotating import Special
 
-from pyhandling.annotations import R, Pm, V, A, B, C, D
+from pyhandling.annotations import ActionT, R, Pm, V, A, B, C, D
 from pyhandling.atoming import atomically
-from pyhandling.errors import TemplatedActionChainError
-from pyhandling.immutability import property_to
+from pyhandling.errors import TemplatedActionChainError, MatchingError
+from pyhandling.immutability import property_to, to_clone
+from pyhandling.objects import of
 from pyhandling.partials import rpartial, will
 from pyhandling.signature_assignmenting import call_signature_of
-from pyhandling.synonyms import returned, with_unpacking, on
-from pyhandling.tools import documenting_by, with_attributes
+from pyhandling.synonyms import returned, on
+from pyhandling.tools import documenting_by, LeftCallable, action_repr_of
 
 
 __all__ = (
     "bind",
     "ActionChain",
+    "then",
     "binding_by",
     "merged",
     "mergely",
-    "stop",
-    "branching",
-    "then",
+    "break_",
+    "matching",
     "discretely",
 )
 
 
-_NodeT = TypeVar("_NodeT", bound=Callable | Type[Ellipsis])
-
-
-@atomically
 class bind:
     """
-    Function to call two input actions sequentially as one function in the
-    form of a pipeline.
+    Function to call two input actions sequentially as one function in a
+    pipeline form.
 
     Used as an atomic binding expression as a function in higher order
-    functions (e.g. `reduce`), otherwise less preferred than `then` operator.
+    functions (e.g. `reduce`), otherwise less preferred than the `then`
+    pseudo-operator.
     """
 
-    def __init__(self, first: Callable[Pm, V], second: Callable[[V], R]):
+    def __init__(self, first: Callable[Pm, V], second: Callable[V, R]):
         self._first = first
         self._second = second
+
+        self.__signature__ = call_signature_of(self._first).replace(
+            return_annotation=(call_signature_of(self._second).return_annotation)
+        )
+
+    def __repr__(self) -> str:
+        return f"({action_repr_of(self._first)} >> {action_repr_of(self._second)})"
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._second(self._first(*args, **kwargs))
 
-    @cached_property
-    def __signature__(self) -> Signature:
-        return call_signature_of(self._first).replace(return_annotation=(
-            call_signature_of(self._second).return_annotation
-        ))
 
-
-class ActionChain(Generic[_NodeT]):
+class ActionChain(LeftCallable, Generic[ActionT]):
     """
-    Class combining calls of several functions together in sequential execution.
+    Class to create a pipeline from a collection of actions.
 
-    Iterable by its nodes.
+    Iterable by its actions.
 
-    Each next node gets the output of the previous one.
-    Value returned when called is value exited from the last node.
+    Can get chain length by `len` function and subchain by `[]` referring to 
+    indexes of actions of a desired subchain.
 
-    If there are no nodes, returns the input value back.
+    Each next action gets the output of the previous one.
+    Value returned when called is value exited from the last action.
 
-    Can be connected to another chain or action using `|` between them with
-    maintaining the position of the call.
-
-    Also can be used `>>` to expand nodes starting from the end respectively.
+    If there are no actions, returns a input value back.
 
     Has a one value call synonyms `>=` and `<=` where is the chain on the
-    right i.e. `input_value >= chain_instance` and less preferred
-    `chain_instance <= input_value`.
+    right i.e. `value >= instance` and less preferred `instance <= value`.
 
-    Directly used to create a pipeline from a collection of actions, in other
-    cases it is less preferable than the `then` operator.
+    Directly used to create from collections, in other cases it is less
+    preferable than the `then` pseudo-operator.
     """
 
     is_template = property_to("_is_template")
 
-    def __init__(self, nodes: Iterable[_NodeT] = tuple()):
-        self._nodes = tuple(nodes)
-        self._is_template = Ellipsis in self._nodes
+    def __init__(self, actions: Iterable[ActionT | Ellipsis | Self] = tuple()):
+        self._actions = self._actions_from(actions)
+        self._is_template = Ellipsis in self._actions
 
         if not self._is_template:
-            self._main_action = (
-                returned if len(self._nodes) == 0
-                else reduce(bind, self._nodes)
-            )
+            if len(self._actions) == 0:
+                self._main_action = returned
+            elif len(self._actions) == 1:
+                self._main_action = self._actions[0]
+            else:
+                self._main_action = reduce(bind, self._actions)
 
-            update_wrapper(self, self._main_action)
             self.__signature__ = call_signature_of(self._main_action)
         else:
             self._main_action = None
+
+    def __repr__(self) -> str:
+        return (
+            " |then>> ".join(
+                '...' if action is Ellipsis else action_repr_of(action)
+                for action in self._actions
+            )
+            if len(self._actions) > 1
+            else f"ActionChain({str().join(map(action_repr_of, self._actions))})"
+        )
 
     def __call__(self, *args, **kwargs) -> Any:
         if self._is_template:
@@ -107,45 +114,78 @@ class ActionChain(Generic[_NodeT]):
 
         return self._main_action(*args, **kwargs)
 
-    def __le__(self, value: Any) -> Any:
-        return self(value)
-
-    def __iter__(self) -> Iterator[_NodeT]:
-        return iter(self._nodes)
+    def __iter__(self) -> Iterator[ActionT]:
+        return iter(self._actions)
 
     def __len__(self) -> int:
-        return len(self._nodes)
+        return len(self._actions)
 
     def __bool__(self) -> bool:
-        return len(self._nodes) != 0
+        return bool(self._actions)
 
     def __getitem__(self, key: int | slice) -> Self:
-        nodes = self._nodes[key]
+        actions = self._actions[key]
 
-        return type(self)(nodes if isinstance(nodes, tuple) else (nodes, ))
+        return type(self)(actions if isinstance(actions, tuple) else (actions, ))
+
+    @staticmethod
+    def _actions_from(
+        actions: Iterable[ActionT | Ellipsis | Self],
+    ) -> Tuple[ActionT | Ellipsis]:
+        new_actions = list()
+
+        for action in actions:
+            if isinstance(action, ActionChain):
+                new_actions.extend(action)
+            else:
+                new_actions.append(action)
+
+        return tuple(new_actions)
+
+
+class _ActionChainInfix:
+    _second: Ellipsis | Callable = returned
+
+    def __init__(self, name: str, *, second: Ellipsis | Callable = returned):
+        self._name = name
+        self._second = second
 
     def __repr__(self) -> str:
-        return (
-            " |then>> ".join(
-                '...' if node is Ellipsis else str(node) for node in self._nodes
-            )
-            if len(self._nodes) > 1
-            else f"ActionChain({', '.join(map(str, self._nodes))})"
+        return f"|{self._name}>>"
+
+    def __ror__(self, first: Callable | Ellipsis) -> Self:
+        return ActionChain([first, self._second])
+
+    def __rshift__(self, second: Callable | Ellipsis) -> ActionChain:
+        return type(self)(
+            self._name,
+            second=second,
         )
 
-    def __rshift__(self, node: Self | _NodeT) -> Self:
-        return self.__with(node)
 
-    def __or__(self, node: Self | _NodeT) -> Self:
-        return self.__with(node)
+then = documenting_by(
+    """
+    `ActionChain` pseudo-operator to build an `ActionChain` and, accordingly,
+    combine calls of several actions in a pipeline.
 
-    def __ror__(self, node: Self | _NodeT) -> Self:
-        return self.__with(node, is_right=True)
+    Assumes usage like:
+    ```
+    first_action |then>> second_action
+    ```
 
-    def __with(self, node: Self | _NodeT, *, is_right: bool = False) -> Self:
-        other = node if isinstance(node, ActionChain) else ActionChain([node])
+    Additional you can add any value to the beginning of the construction
+    and >= after it to call the constructed chain with this value.
 
-        return type(self)((*self, *other) if not is_right else (*other, *self))
+    You get something like this:
+    ```
+    value >= first_action |then>> second_action
+    ```
+
+    See `ActionChain` for more info.
+    """
+)(
+    _ActionChainInfix("then")
+)
 
 
 def binding_by(
@@ -189,7 +229,7 @@ class merged:
         return tuple(action(*args, **kwargs) for action in self._actions)
 
     def __repr__(self) -> str:
-        return ' & '.join(map(str, self._actions))
+        return ' & '.join(map(action_repr_of, self._actions))
 
     def __get_signature(self) -> Signature:
         if not self._actions:
@@ -220,11 +260,11 @@ class merged:
 @atomically
 class mergely:
     """
-    Decorator that allows to initially separate several operations on
-    input arguments and then combine these results in final operation.
+    Decorator to initially separate several operations on input arguments and
+    then combine these results in final operation.
 
-    Gets the final merging action of the first input action by calling it
-    with all the input arguments of the resulting (as a result of calling this
+    Gets the final merging action of a first input action by calling it
+    with all input arguments of the resulting (as a result of calling this
     particular action) action.
 
     Passes to the final merge action the results of calls to unbounded input
@@ -294,92 +334,86 @@ class mergely:
         )
 
 
-class _Fork(NamedTuple, Generic[Pm, R]):
+class Branch(NamedTuple, Generic[Pm, R]):
     """NamedTuple to store an action to execute on a condition."""
 
     determinant: Special[Callable[Pm, bool]]
     way: Callable[Pm, R] | R
 
 
-stop = documenting_by(
+break_ = documenting_by(
     """
-    Unique object to annotate branching to an `else` branch in `branching` or
+    Unique object to annotate matching to an `else` branch in `matching` or
     similar actions.
     """
 )(
-    with_attributes()
+    of()
 )
 
 
-def branching(
-    *forks: tuple[Special[Callable[Pm, bool]], Special[Callable[Pm, R] | R]],
-    else_: Callable[Pm, R] | R = returned,
+def matching(
+    *branches: tuple[Special[Callable[Pm, bool]], Special[Callable[Pm, R] | R]],
 ) -> Callable[Pm, R]:
     """
-    Function for using action branching like `if`, `elif` and `else` statements.
+    Function for using action matching like `if`, `elif` and `else` statements.
 
-    Accepts branches as tuples, where in the first place is the action of
-    checking the condition and in the second place is the action that implements
+    Accepts branches as tuples, where in the first place is an action of
+    checking the condition and in the second place is an action that implements
     the logic of this condition.
 
-    When condition checkers are not called, compares an input value with these
+    When condition checkers are not callable, compares an input value with these
     check values.
 
     With non-callable implementations of the conditional logic, returns those
     non-callable values.
 
-    With default `else_` takes actions of one value and returns an input value
-    if none of the conditions are met.
+    When passing a branch with a checker as `...` (`Ellipsis`) initiates that
+    branch as an "else" branch, which is performed only if the others are not
+    performed.
+
+    By default "else" branch returns an input value.
+
+    There can only be one "else" branch.
+
+    When passing a unique `break_` object as an implementation action, force a
+    jump to the "else" branch.
     """
 
-    forks = tuple(map(with_unpacking(_Fork), forks))
+    branches = tuple(Branch(*branch) for branch in branches)
 
-    if len(forks) == 0:
+    else_branches = tuple(
+        branch for branch in branches if branch.determinant is Ellipsis
+    )
+
+    if len(else_branches) > 1:
+        raise MatchingError("Extra \"else\" branches")
+
+    else_ = else_branches[0].way if else_branches else returned
+
+    if else_ is break_:
+        raise MatchingError("\"else\" branch recursion")
+
+    branches = tuple(
+        branch for branch in branches if branch.determinant is not Ellipsis
+    )
+
+    if len(branches) == 0:
         return else_
 
     return on(
-        forks[0].determinant,
-        else_ if forks[0].way is stop else forks[0].way,
-        else_=else_ if len(forks) == 1 else branching(*forks[1:], else_=else_)
+        branches[0].determinant,
+        else_ if branches[0].way is break_ else branches[0].way,
+        else_=(
+            else_
+            if len(branches) == 1
+            else matching(*branches[1:], Branch(Ellipsis, else_))
+        ),
     )
 
 
-then = documenting_by(
-    """
-    Neutral instance of `ActionChain`.
-
-    Used as a pseudo-operator to build an `ActionChain` and, accordingly,
-    combine calls of several functions in a pipeline.
-
-    Assumes usage like:
-    ```
-    first_action |then>> second_action
-    ```
-
-    Additional you can add any value to the beginning of the construction
-    and >= after it to call the constructed chain with this value.
-
-    You get something like this:
-    ```
-    value >= first_action |then>> second_action
-    ```
-
-    Optionally, the sequential use of this pseudo-operator can be shortened by
-    replacing all but the first pseudo-operator with the `>>` operator:
-    ```
-    first |then>> second >> third >> fourth
-    ```
-
-    See `ActionChain` for a description of this pseudo-operator result behavior.
-    """
-)(
-    ActionChain()
-)
-
-
 discretely: Callable[
-    [Callable[[Callable[[A], B]], Callable[[C], D]]],
-    Callable[[ActionChain[Callable[[A], B]] | Callable[[A], B]], Callable[[C], D]],
+    Callable[[Callable[A, B]], Callable[C, D]],
+    LeftCallable[ActionChain[Callable[A, B]] | Callable[A, B], Callable[C, D]],
 ]
 discretely = documenting_by(
     """
@@ -388,14 +422,12 @@ discretely = documenting_by(
 
     Maps an input decorator for each action individually.
     """
-)(
-    atomically(
-        will(map)
-        |then>> binding_by(
-            on(rpartial(isinstance, ActionChain) |then>> not_, lambda v: (v, ))
-            |then>> ...
-            |then>> ActionChain
-        )
-        |then>> atomically
+)(atomically(
+    will(map)
+    |then>> binding_by(
+        on(rpartial(isinstance, ActionChain) |then>> not_, lambda v: (v, ))
+        |then>> ...
+        |then>> ActionChain
     )
-)
+    |then>> atomically
+))

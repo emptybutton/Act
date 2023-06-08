@@ -1,28 +1,34 @@
-from operator import attrgetter, call
+from operator import attrgetter, call, itemgetter, eq
 from typing import Callable, Any, Tuple, Optional
 
 from pyannotating import many_or_one, Special
 
 from pyhandling.aggregates import context_effect, as_effect
 from pyhandling.annotations import (
-    dirty, V, C, R,
-    checker_of, event_for, A, B, V, FlagT, C
+    dirty, V, C, R, checker_of, event_for, A, B, V, FlagT, C, ActionT
 )
+from pyhandling.atoming import atomically
 from pyhandling.branching import (
-    discretely, ActionChain, binding_by, branching, then
+    discretely, ActionChain, binding_by, matching, then
 )
 from pyhandling.contexting import (
-    contextual, contextually, contexted, ContextRoot, saving_context
+    contextual, contextually, contexted, ContextRoot, saving_context, to_write,
+    to_read, to_context
 )
-from pyhandling.data_flow import returnly, eventually, by, to
-from pyhandling.flags import flag, nothing, Flag, pointed
+from pyhandling.data_flow import returnly, eventually, by, to, shown
+from pyhandling.errors import MatchingError
+from pyhandling.flags import flag_about, nothing, Flag, pointed
+from pyhandling.objects import namespace_of
+from pyhandling.objects import void
+from pyhandling.operators import and_, not_
 from pyhandling.partials import will, partially
 from pyhandling.structure_management import tmap
-from pyhandling.synonyms import raise_
-from pyhandling.tools import documenting_by, to_check
+from pyhandling.synonyms import raise_, on
+from pyhandling.tools import documenting_by, to_check, as_action, LeftCallable
 
 
 __all__ = (
+    "ok",
     "bad",
     "maybe",
     "until_error",
@@ -33,25 +39,30 @@ __all__ = (
     "future",
     "in_future",
     "future_from",
+    "is_in_future",
+    "do",
 )
 
 
-bad = flag('bad', sign=False)
+ok = flag_about('ok')
+bad = flag_about('bad', negative=True)
 
 
 @documenting_by(
     """
-    Execution context that stops a thread of execution when a value is None
-    or returned in the `bad` context.
+    Effect to stop an execution when an input value is None or returned in the
+    `bad` context.
+
+    Atomically applied to actions in `ActionChain`.
     """
 )
 @context_effect
 @discretely
 @will
 def maybe(
-    action: Callable[[A], B],
-    value: contextual[Optional[V], Special[bad, FlagT]],
-) -> contextual[B | Optional[V], Special[bad, FlagT]]:
+    action: Callable[A, B],
+    value: contextual[Optional[A], Special[bad, FlagT]],
+) -> contextual[Optional[A | B], Special[bad, FlagT]]:
     stored_value, context = value
 
     return (
@@ -63,10 +74,11 @@ def maybe(
 
 @documenting_by(
     """
-    Execution context that stops the thread of execution when an error occurs.
+    Effect to stop an execution when an error occurs or the presence of an
+    error (or a flag pointing an error) as a context of an input value.
 
-    When skipping, it saves the last validly calculated value and a pointed
-    occurred error as context.
+    When an error occurs during execution, returns an input value with a flag
+    pointing its original context and an error that occurred.
     """
 )
 @context_effect
@@ -80,20 +92,21 @@ def until_error(
         return value
 
     try:
-        return saving_context(action)
+        return saving_context(action, value)
     except Exception as error:
         return contexted(value, +pointed(error))
 
 
 @dirty
+@partially
 def showly(
-    action_or_actions: many_or_one[Callable[[A], B]],
+    action_or_actions: Callable[A, B] | ActionChain[Callable[A, B]],
     *,
-    show: dirty[Callable[[B], Any]] = print,
+    show: dirty[Callable[B, Any]] = print,
 ) -> dirty[ActionChain[Callable[[A], B]]]:
     """
-    Executing context with the effect of writing results.
-    Prints results by default.
+    Effect of writing results of an input action or actions from an
+    `ActionChain` to something. Default to console.
     """
 
     return discretely(binding_by(... |then>> returnly(show)))(
@@ -101,8 +114,8 @@ def showly(
     )
 
 
-right = flag("right")
-left = flag('left', sign=False)
+right = flag_about("right")
+left = flag_about("left", negative=True)
 
 
 def either(
@@ -110,39 +123,30 @@ def either(
         Special[checker_of[C]],
         Callable[[contextual[V, C]], R] | R,
     ],
-    else_: Callable[[contextual[V, C]], R] = eventually(
-        raise_, ValueError("No condition is met")
-    ),
-) -> Callable[[contextual[V, C]], R]:
+) -> LeftCallable[V | contextual[V, C], R]:
     """
-    Function for using action branching like `if`, `elif` and `else` statements
-    over value in `ContextRoot` form.
+    `matching`-like function for `ContextRoots` with determinants applied to
+    contexts and implementers applied to values.
 
-    Accepts branches as tuples, where in the first place is the action of
-    checking by a context of an input value and in the second place is the
-    action that implements the logic of this condition over the value with its
-    context.
+    Casts an input value to `ContextRoot`.
 
-    When condition checkers are not called, compares an input context with these
-    check values.
-
-    With non-callable implementations of the conditional logic, returns those
-    non-callable values.
-
-    With default `else_` throws an error about a failed comparison if none of
-    the conditions are met.
+    For everything else see `matching`.
     """
 
-    return branching(
-        *(
-            (attrgetter("context") |then>> to_check(determinant), way)
-            for determinant, way in determinants_and_ways
-        ),
-        else_=else_
-    )
+    return atomically(contexted |then>> matching(*(
+        (
+            (
+                determinant
+                if determinant is Ellipsis
+                else attrgetter("context") |then>> to_check(determinant)
+            ),
+            saving_context(as_action(way)),
+        )
+        for determinant, way in determinants_and_ways
+    )))
 
 
-future = flag("future")
+future = flag_about("future")
 
 
 @partially
@@ -181,10 +185,133 @@ def future_from(
     Returns a tuple of the results of found actions.
     """
 
-    return tmap(
-        call,
-        pointed(value).that(lambda value: (
-            isinstance(value, contextually)
-            and value.context == future
-        )).points,
+    return tmap(call, pointed(value).that(is_in_future).points)
+
+
+is_in_future: Callable[Special[contextually[Callable, Special[future]]], bool]
+is_in_future = documenting_by(
+    """Function to check if an input value is a `in_future` deferred action."""
+)(
+    and_(
+        isinstance |by| contextually,
+        attrgetter("context") |then>> (eq |by| future),
     )
+)
+
+
+@namespace_of
+class do:
+    writing = flag_about("writing")
+    reading = flag_about("reading")
+
+    returned = flag_about("returned")
+
+    def write(action: ActionT) -> contextually[ActionT, writing]:
+        return contextually(action, do.writing)
+
+    def read(action: ActionT) -> contextually[ActionT, reading]:
+        return contextually(action, do.reading)
+
+    def return_(value: V) -> contextual[V, returned]:
+        return contextual(value, do.returned)
+
+    def __call__(*actions: ActionT) -> LeftCallable[Any, contextual]:
+        lines = ((map |by| actions) |then>> ActionChain)(
+            discretely(
+                either(
+                    (do.writing, to_write),
+                    (do.reading, to_read),
+                    (..., saving_context),
+                )
+                |then>> attrgetter("value")
+                |then>> will(on)(not_(do._is_for_returning))
+            )
+            |then>> atomically
+        )
+
+        lines = (
+            (lines[:-1] >= discretely(will(lambda action, root: (
+                contextual(root.value, action(root).context)
+            ))))
+            |then>> lines
+        )
+        
+        return atomically(
+            contexted
+            |then>> to_context(on(nothing, void))
+            |then>> (lines[:-1] >= discretely(will(lambda action, root: (
+                contextual(root.value, action(root).context)
+            ))))
+            |then>> lines[-1]
+            |then>> to_context(on(void, nothing))
+        )
+
+    _is_for_returning = (lambda root: contexted(root.value).context == do.returned)
+
+
+# (lines[:-1] >= discretely(lambda action: on(
+#     not_(do._is_for_returning),
+#     lambda root: contextual(root.value, action(root.value).context),
+# )))
+
+# contextual(root.value, action(root).context)))
+# on(
+#     lambda r: contexted(r.value).context != do.returned,
+#     attrgetter("context") |then>> (contextual |to| root.value),
+# )
+
+# print(type(lines[:-1]).__name__)
+
+# action(root) >= on(
+#     lambda r: contexted(r.value).context != do.returned,
+#     attrgetter("context") |then>> (contextual |to| root.value),
+# )
+
+# @namespace_of
+# class do:
+#     writing = flag_about("writing")
+#     reading = flag_about("reading")
+#     flags = writing | reading
+
+#     def write(action: ActionT) -> contextually[ActionT, writing]:
+#         return contextually(action, writing)
+
+#     def read(action: ActionT) -> contextually[ActionT, reading]:
+#         return contextually(action, reading)
+
+#     def __call__(
+#         *lines: Callable[A, B],
+#     ) -> LeftCallable[A | ContextRoot[A, Any], contextual[B, Any]]:
+#         return do._run(do._lines_of(lines))
+
+#     def _lines_of(
+#         actions: Iterable[Callable[A, B]]
+#     ) -> ActionChain[Callable[ContextRoot[A, Any], contextual[B, Any]]]:
+#         return ((map |by| actions) |then>> ActionChain)(discretely(
+#             either(
+#                 (do.writing, to_write),
+#                 (do.reading, to_read),
+#                 (..., saving_context),
+#             )
+#             |then>> attrgetter("value")
+#         ))
+
+#     @partially
+#     def _run(
+#         lines: ActionChain[Callable[ContextRoot[A, Any], contextual[B, C]]],
+#         value: A | ContextRoot[A, Any],
+#     ) -> contextual[B, C]:
+#         root = contexted(value)
+
+#         for line in lines[:-1]:
+#             root = contextual(root.value, line(root).context)
+
+#         return atomically(
+#             contexted
+#             |then>> to_context(on(nothing, void))
+#             |then>> (lines[:-1] >= discretely(will(lambda action, root: (
+#                 contextual(root.value, action(root).context)
+#             ))))
+#             |then>> lines[-1]
+#             |then>> to_context(on(void, nothing))
+#         )

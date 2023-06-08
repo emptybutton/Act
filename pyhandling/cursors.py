@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from functools import partial, reduce, wraps
 from itertools import count
-from inspect import Signature, Parameter, stack
+from inspect import Signature, Parameter
 from operator import (
     call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub,
     mul, floordiv, truediv, mod, or_, lshift, is_, is_not, getitem, contains,
@@ -13,21 +13,21 @@ from typing import (
 
 from pyannotating import Special
 
-from pyhandling.aggregates import Access
 from pyhandling.annotations import (
-    merger_of, event_for, R, reformer_of, Pm, V, O, W, dirty
+    merger_of, event_for, R, reformer_of, Pm, V, O, dirty
 )
 from pyhandling.arguments import Arguments
-from pyhandling.branching import ActionChain, binding_by, on, then
+from pyhandling.branching import ActionChain, binding_by, on, then, _ActionChainInfix
 from pyhandling.contexting import contextual, to_read, saving_context
-from pyhandling.data_flow import with_result, by, to, to_right
+from pyhandling.data_flow import by, to, to_left
 from pyhandling.errors import ActionCursorError
-from pyhandling.flags import nothing, flag, Flag
-from pyhandling.partials import flipped, rpartial, rwill, will
-from pyhandling.scoping import back_scope_in, value_in
+from pyhandling.flags import nothing, flag_about, Flag
+from pyhandling.immutability import to_clone, property_to
+from pyhandling.objects import namespace_of
+from pyhandling.partials import flipped, rpartial, will
+from pyhandling.scoping import value_in
 from pyhandling.structure_management import tfilter, groups_in
-from pyhandling.synonyms import with_keyword, collection_of
-from pyhandling.tools import property_to, namespace_of
+from pyhandling.synonyms import with_keyword, tuple_of
 
 
 __all__ = (
@@ -93,34 +93,25 @@ class _ActionCursorUnpacking:
 
 @namespace_of
 class _ActionCursorNature:
-    attrgetting = flag("attrgetting")
-    itemgetting = flag("itemgetting")
-    vargetting = flag("vargetting")
+    attrgetting = flag_about("attrgetting")
+    itemgetting = flag_about("itemgetting")
+    vargetting = flag_about("vargetting")
     getting = attrgetting | vargetting | itemgetting
 
-    binary_operation = flag("binary_operation")
-    single_operation = flag("single_operation")
+    binary_operation = flag_about("binary_operation")
+    single_operation = flag_about("single_operation")
     operation = binary_operation | single_operation
 
-    calling = flag("calling")
-    setting = flag("setting")
-    packing = flag("packing")
+    calling = flag_about("calling")
+    setting = flag_about("setting")
+    packing = flag_about("packing")
 
-    returning = flag("returning")
-    set_by_initialization = flag("set_by_initialization")
+    returning = flag_about("returning")
+    set_by_initialization = flag_about("set_by_initialization")
 
 
 class _ActionCursor(Mapping):
     _unpacking_key_template: str = "__ActionCursor_keyword_unpacking"
-    _overwritten_attribute_names: Tuple[str] = (
-        '_',
-        'set',
-        "keys",
-        'is_',
-        "is_not",
-        'or_',
-        'and_',
-    )
     _sign: bool = False
 
     def __init__(
@@ -166,7 +157,7 @@ class _ActionCursor(Mapping):
         return self.__get_adapted_internal_repr(single=True)
 
     def __repr__(self) -> str:
-        return f"<action({{}}): {self._internal_repr}>".format(
+        return f"<{{}}: {self._internal_repr}>".format(
             ', '.join(map(attrgetter('name'), self._parameters))
         )
 
@@ -240,16 +231,14 @@ class _ActionCursor(Mapping):
             setting = setattr
         elif nature == _ActionCursorNature.itemgetting:
             setting = setitem
-        elif nature == _ActionCursorNature.vargetting:
-            setting = lambda _, name, value: setitem(back_scope_in(3), name, value)
         else:
-            raise ActionCursorError("Setting a value when there is nowhere to set")
+            raise ActionCursorError("Setting without a place to set")
 
         return (
             self
             ._with_setting(value, in_=place, by=setting)
             ._with(internal_repr=(
-                f"({self._internal_repr} := {self._repr_of(value)})",
+                f"({self._internal_repr} <= {self._repr_of(value)})"
             ))
         )
 
@@ -280,7 +269,7 @@ class _ActionCursor(Mapping):
             self
             ._with(
                 will(getitem) |then>> binding_by(
-                    collection_of
+                    tuple_of
                     |then>> on(len |then>> (eq |by| 1), getitem |by| 0)
                     |then>> ...
                 )
@@ -312,7 +301,7 @@ class _ActionCursor(Mapping):
     def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
         return cls(
             parameters=[parameter],
-            actions=ActionChain([to_read(to_right(getitem |by| parameter.name))]),
+            actions=ActionChain([to_read(to_left(getitem |by| parameter.name))]),
             nature=contextual(_ActionCursorNature.returning),
             internal_repr=parameter.name,
         )
@@ -351,7 +340,7 @@ class _ActionCursor(Mapping):
         internal_repr: Optional[str] = None,
     ) -> Self:
         return self._of(
-            self._actions >> saving_context(action),
+            self._actions |then>> saving_context(action),
             parameters=parameters,
             previous=previous,
             nature=nature,
@@ -450,7 +439,7 @@ class _ActionCursor(Mapping):
 
         return (
             self._previous
-            ._merged_with(value, by=lambda a, b: with_result(a, set_)(a, place, b))
+            ._merged_with(value, by=lambda a, b: to_clone(set_)(a, place, b))
             ._with(nature=contextual(
                 _ActionCursorNature.setting,
                 contextual(value, place),
@@ -468,7 +457,7 @@ class _ActionCursor(Mapping):
 
         return (
             self
-            ._with(to(collection_of))
+            ._with(to(tuple_of))
             ._with_calling_by(*items)
             ._with(by, nature=contextual(
                 _ActionCursorNature.packing,
@@ -633,10 +622,10 @@ class _ActionCursor(Mapping):
     __and__ = __merging_by(and_, _OperationModel('&', 5))
     __xor__ = __merging_by(xor, _OperationModel('^', 6))
 
-    def __or__(self, value: Special[ActionChain | Self]) -> Self:
+    def __or__(self, value: Special[ActionChain | Self]) -> Self | ActionChain:
         return (
-            ActionChain([self, *value])
-            if isinstance(value, ActionChain)
+            value.__ror__(self)
+            if isinstance(value, _ActionChainInfix)
             else self.__merging_by(or_, _OperationModel('|', 7))(self, value)
         )
 

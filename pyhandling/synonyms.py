@@ -1,6 +1,6 @@
 from contextlib import AbstractContextManager
 from functools import partial
-from typing import NoReturn, Any, Iterable, Callable, Mapping, Tuple
+from typing import NoReturn, Any, Callable, Mapping, Tuple
 from inspect import Signature, Parameter
 
 from pyannotating import Special
@@ -13,7 +13,7 @@ from pyhandling.partials import partially
 from pyhandling.signature_assignmenting import (
     Decorator, call_signature_of, annotation_sum
 )
-from pyhandling.tools import to_check, as_action
+from pyhandling.tools import to_check, as_action, LeftCallable, action_repr_of
 
 
 __all__ = (
@@ -24,9 +24,8 @@ __all__ = (
     "repeating",
     "trying_to",
     "with_",
-    "with_unpacking",
-    "with_keyword_unpacking",
-    "collection_of",
+    "keyword_unpackly",
+    "tuple_of",
     "with_keyword",
 )
 
@@ -53,15 +52,17 @@ def assert_(value: Any) -> None:
 
 
 @atomically
-class on:
+class on(LeftCallable):
     """
     Function that implements action choosing by condition.
 
-    Creates a action that delegates the call to one other action selected by
-    the results of `condition_checker`.
+    Creates a action that delegates the call to one other action selected by an
+    input determinant.
 
-    If the condition is positive, selects `positive_condition_action`, if it is
-    negative, selects `else_`.
+    With non-callable determinant, compares an input value with this
+    determinant.
+
+    With non-callable implementations, returns those non-callable values.
 
     With default `else_` takes one value actions.
     """
@@ -71,7 +72,6 @@ class on:
         determinant: Special[Callable[Pm, bool]],
         right_way: Callable[Pm, R] | R,
         /,
-        *,
         else_: Callable[Pm, L] | L = returned
     ):
         self._condition_checker = to_check(determinant)
@@ -88,9 +88,10 @@ class on:
         )(*args, **kwargs)
 
     def __repr__(self) -> str:
-        return (
-            f"({self._right_action} on {self._condition_checker} "
-            f"else {self._left_action})"
+        return "({} on {} else {})".format(
+            action_repr_of(self._right_action),
+            action_repr_of(self._condition_checker),
+            action_repr_of(self._left_action),
         )
 
     def __get_signature(self) -> Signature:
@@ -102,18 +103,23 @@ class on:
         )
 
 
-@atomically
-class repeating:
+@partially
+class repeating(LeftCallable):
     """
     Function to call an input action multiple times.
 
     Initially calls an input action from an input value, after repeating the
     result of an input action itself.
+
+    Repeats until an input determinant returns `False`.
+
+    With non-callable determinant, compares an input value with this
+    determinant.
     """
 
-    def __init__(self, action: reformer_of[V], while_: checker_of[V]):
+    def __init__(self, action: reformer_of[V], while_: Special[checker_of[V]]):
         self._action = action
-        self._is_valid_to_repeat = while_
+        self._is_valid_to_repeat = to_check(while_)
 
         self.__signature__ = self.__get_signature()
 
@@ -124,22 +130,28 @@ class repeating:
         return value
 
     def __repr__(self) -> str:
-        return f"({self._action} while {self._is_valid_to_repeat})"
+        return "({} while {})".format(
+            action_repr_of(self._action),
+            action_repr_of(self._is_valid_to_repeat),
+        )
 
     def __get_signature(self) -> Signature:
         return call_signature_of(self._action)
 
 
 @partially
-class trying_to:
+class trying_to(LeftCallable):
     """
     Decorator function providing handling of possible errors in an input action.
+
+    On error, an input rollbacker is first called with the same arguments that
+    were passed to an input action, then an occured error.
     """
 
     def __init__(
         self,
         action: Callable[Pm, R],
-        rollback: Callable[[Exception], E],
+        rollback: Callable[Pm, Callable[[Exception], E]],
     ):
         self._action = action
         self._rollback = rollback
@@ -149,10 +161,13 @@ class trying_to:
         try:
             return self._action(*args, **kwargs)
         except Exception as error:
-            return self._rollback(error)
+            return self._rollback(*args, **kwargs)(error)
 
     def __repr__(self) -> str:
-        return f"trying_to({self._action}, rollback={self._rollback})"
+        return "(try {} except {})".format(
+            action_repr_of(self._action),
+            action_repr_of(self._rollback),
+        )
 
     def __get_signature(self) -> Signature:
         return call_signature_of(self._action).replace(
@@ -172,23 +187,7 @@ def with_(context_manager: AbstractContextManager, action: action_for[R]) -> R:
 
 
 @atomically
-class with_unpacking(Decorator):
-    """
-    Decorator function to unpack the passed collection into the input action.
-    """
-
-    def __call__(self, arguments: Iterable) -> Any:
-        return self._action(*arguments)
-
-    @property
-    def _force_signature(self) -> Signature:
-        return call_signature_of(self._action).replace(parameters=[Parameter(
-            "arguments", Parameter.POSITIONAL_OR_KEYWORD, annotation=Iterable
-        )])
-
-
-@atomically
-class with_keyword_unpacking(Decorator):
+class keyword_unpackly(Decorator, LeftCallable):
     """
     Decorator function to unpack the passed mapping object into the input action.
     """
@@ -205,7 +204,7 @@ class with_keyword_unpacking(Decorator):
         )])
 
 
-def collection_of(*args: V) -> Tuple[V, ...]:
+def tuple_of(*args: V) -> Tuple[V, ...]:
     """Function to create a `tuple` from unlimited input arguments."""
 
     return args

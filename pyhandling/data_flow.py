@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
-from functools import cached_property, partial, wraps
+from functools import cached_property, partial
 from inspect import Signature, Parameter, signature
+from operator import not_
 from typing import (
     Callable, Any, _CallableGenericAlias, Optional, Tuple, Self, Iterable
 )
-from operator import is_
 
 from pyhandling.annotations import (
-    Pm, V, R, action_for, one_value_action, dirty, ArgumentsT
+    Pm, V, R, action_for, dirty, ArgumentsT, reformer_of
 )
 from pyhandling.atoming import atomically
 from pyhandling.branching import mergely, bind, then
@@ -15,15 +15,15 @@ from pyhandling.errors import ReturningError
 from pyhandling.partials import will, rpartial, flipped
 from pyhandling.signature_assignmenting import Decorator, call_signature_of
 from pyhandling.synonyms import returned, on
-from pyhandling.tools import documenting_by
+from pyhandling.tools import documenting_by, LeftCallable, action_repr_of
 
 
 __all__ = (
     "returnly",
     "eventually",
     "with_result",
-    "to_right",
     "to_left",
+    "to_right",
     "dynamically",
     "double",
     "once",
@@ -31,6 +31,9 @@ __all__ = (
     "PartialApplicationInfix",
     "to",
     "by",
+    "shown",
+    "yes",
+    "no",
     "anything",
 )
 
@@ -38,8 +41,8 @@ __all__ = (
 @atomically
 class returnly(Decorator):
     """
-    Decorator that causes an input action to return not the result of its
-    execution, but a first argument that is incoming to it.
+    Decorator that causes an input action to return first argument that is
+    incoming to it.
     """
 
     def __call__(self, value: V, *args, **kwargs) -> V:
@@ -80,14 +83,14 @@ class eventually(Decorator):
 
     def __repr__(self) -> str:
         formatted_kwargs = ', '.join(map(
-            lambda item: str(item[0]) + '=' + str(item[1]),
+            lambda item: action_repr_of(item[0]) + '=' + action_repr_of(item[1]),
             self._kwargs.items()
         ))
 
         return (
             f"{type(self).__name__}({self._action}"
             f"{', ' if self._args or self._kwargs else str()}"
-            f"{', '.join(map(str, self._args))}"
+            f"{', '.join(map(action_repr_of, self._args))}"
             f"{', ' if self._args and self._kwargs else str()}"
             f"{formatted_kwargs})"
         )
@@ -107,11 +110,11 @@ def with_result(result: R, action: Callable[Pm, Any]) -> Callable[Pm, R]:
 
 
 @atomically
-class to_right(Decorator):
+class to_left(Decorator):
     """Decorator to ignore all arguments except the first."""
 
-    def __call__(self, right: V, *_, **__) -> R:
-        return self._action(right)
+    def __call__(self, left_: V, *_, **__) -> R:
+        return self._action(left_)
 
     @property
     def _force_signature(self) -> Signature:
@@ -123,35 +126,36 @@ class to_right(Decorator):
         ])
 
 
-to_left: Callable[Callable[V, R], Callable[[..., V], R]]
-to_left = documenting_by(
+to_right: LeftCallable[Callable[V, R], Callable[[..., V], R]]
+to_right = documenting_by(
     """Decorator to ignore all arguments except the last."""
 )(
-    atomically(to_right |then>> flipped)
+    atomically(to_left |then>> flipped)
 )
 
 
 def dynamically(
-    action: action_for[R],
-    *argument_placeholders: one_value_action | Ellipsis,
-    **keyword_argument_placeholders: one_value_action | Ellipsis,
+    action: Callable[Pm, R],
+    *argument_placeholders: Callable[Pm, Any],
+    **keyword_argument_placeholders: Callable[Pm, Any],
 ) -> action_for[R]:
     """
     Function to dynamically determine arguments for an input action.
 
-    The resulting function takes one argument.
+    Evaluates arguments from old arguments to places equal to the places of
+    actions by which they are evaluated (including keywords).
 
-    When arguments are specified as ... (Ellipsis) replaces them with an input
-    argument.
+    When passing values as argument evaluators, final computed values of such
+    evaluators will be these values.
     """
 
-    maybe_replaced = on(is_ |by| Ellipsis, to(returned))
+    replaced = on(bind(callable, not_), to)
 
     return mergely(
         to(action),
-        *map(maybe_replaced, argument_placeholders),
+        *map(replaced, argument_placeholders),
         **{
-            _: maybe_replaced(value)
+            _: replaced(value)
             for _, value in keyword_argument_placeholders.items()
         },
     )
@@ -204,8 +208,10 @@ class once:
         self.__signature__ = call_signature_of(self._action)
 
     def __repr__(self) -> str:
-        return f"once({{}}{self._action})".format(
-            f"{self._result} from " if self._was_called else str()
+        return f"once({{}}{action_repr_of(self._action)})".format(
+            f"{action_repr_of(self._result)} from "
+            if self._was_called
+            else str()
         )
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
@@ -236,7 +242,10 @@ class via_items:
         self._action = action
 
     def __repr__(self) -> str:
-        return f"({self._action})[{str(call_signature_of(self._action))[1:-1]}]"
+        return "({})[{}]".format(
+            action_repr_of(self._action),
+            str(call_signature_of(self._action))[1:-1],
+        )
 
     def __getitem__(self, key: V | Tuple[*ArgumentsT]) -> R:
         arguments = key if isinstance(key, tuple) else (key, )
@@ -357,6 +366,16 @@ by = documenting_by(
 )(
     _CustomPartialApplicationInfix(rpartial, name='by')
 )
+
+
+shown: dirty[reformer_of[V]]
+shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
+    returnly(print)
+)
+
+
+yes: action_for[bool] = documenting_by("""Shortcut for `to(True)`.""")(to(True))
+no: action_for[bool] = documenting_by("""Shortcut for `to(False)`.""")(to(False))
 
 
 class _ForceComparable:

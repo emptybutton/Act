@@ -15,18 +15,18 @@ __all__ = ("to_clone", "publicly_immutable", "property_to")
 def to_clone(
     method: Callable[Concatenate[V, Pm], Any],
     *,
-    deeply: bool = True,
+    deep: bool = False,
 ) -> Callable[Concatenate[V, Pm], V]:
     """
     Decorator function to spawn new objects by cloning and applying an input
     method to them.
 
-    Specifies the use of `copy` or `deepcopy` by `deeply` parameter.
+    Specifies the use of `copy` or `deepcopy` by `deep` parameter.
     """
 
     @wraps(method)
     def wrapper(instance: V, *args: Pm.args, **kwargs: Pm.kwargs) -> V:
-        clone = (deepcopy if deeply else copy)(instance)
+        clone = (deepcopy if deep else copy)(instance)
         method(clone, *args, **kwargs)
 
         return clone
@@ -39,7 +39,10 @@ def to_clone(
 
 
 def publicly_immutable(class_: TypeT) -> TypeT:
-    """Decorator for an input class that forbids it change its public fields."""
+    """
+    Decorator for an input class that forbids it change its public attributes.
+    Public attributes are those whose names do not start with `_`.
+    """
 
     old_setattr = class_.__setattr__
 
@@ -68,7 +71,9 @@ class property_to:
     Descriptor that takes data from an attribute that already exists in an
     object.
 
-    Has the ability to set a delegating attribute (Does not set by default).
+    Has the ability to set a delegating attribute (Does not set by default) and
+    additional layers of transformation that data passes through when it is
+    received or set.
     """
 
     def __init__(

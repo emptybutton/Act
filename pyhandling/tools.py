@@ -1,156 +1,35 @@
-from datetime import datetime
+from abc import ABC, abstractmethod
 from functools import partial
-from math import inf
+from inspect import isbuiltin, isfunction, ismethod
 from operator import eq
-from typing import Iterable, Tuple, NoReturn, Type
+from typing import Generic, Callable
 
 from pyhandling.annotations import (
-    event_for, V, dirty, reformer_of, checker_of, ActionT, action_for
+    V, dirty, reformer_of, checker_of, ActionT, action_for, Pm, R
 )
-from pyhandling.errors import InvalidInitializationError
-from pyhandling.immutability import property_to
 
 
 __all__ = (
-    "Clock",
-    "Logger",
-    "NotInitializable",
-    "namespace_of",
-    "with_attributes",
+    "LeftCallable",
     "documenting_by",
     "to_check",
     "as_action",
+    "action_repr_of",
 )
 
 
-class Clock:
+class LeftCallable(ABC, Generic[Pm, R]):
     """
-    Atomic class for saving state.
-
-    Has a number of ticks that determines its state.
-    When ticks expire, it becomes `False` and may leave negative ticks.
-
-    Keeps the original input ticks.
+    Mixin class to add a one value call synonyms `>=` and `<=` where is it on
+    the right i.e. `value >= instance` and less preferred `instance <= value`.
     """
 
-    initial_ticks_to_disability = property_to("_initial_ticks_to_disability")
+    @abstractmethod
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
+        ...
 
-    def __init__(self, ticks_to_disability: int):
-        self.ticks_to_disability = ticks_to_disability
-        self._initial_ticks_to_disability = ticks_to_disability
-
-    def __repr__(self) -> str:
-        return (
-            f"{'in' if not self else str()}valid {self.__class__.__name__}"
-            f"({self.ticks_to_disability})"
-        )
-
-    def __bool__(self) -> bool:
-        return self.ticks_to_disability > 0
-
-
-class Logger:
-    """
-    Class for logging any messages.
-
-    Stores messages via the input value of its call.
-
-    Has the ability to clear logs when their limit is reached, controlled by the
-    `maximum_log_count` attribute and the keyword argument.
-
-    Able to save the date of logging in the logs. Controlled by `is_date_logging`
-    attribute and keyword argument.
-    """
-
-    def __init__(
-        self,
-        logs: Iterable[str] = tuple(),
-        *,
-        maximum_log_count: int | float = inf,
-        is_date_logging: bool = False
-    ):
-        self._logs = list()
-        self.maximum_log_count = maximum_log_count
-        self.is_date_logging = is_date_logging
-
-        for log in logs:
-            self(log)
-
-    @property
-    def logs(self) -> Tuple[str, ...]:
-        return tuple(self._logs)
-
-    def __call__(self, message: str) -> None:
-        self._logs.append(
-            message
-            if not self.is_date_logging
-            else f"[{datetime.now()}] {message}"
-        )
-
-        if len(self._logs) > self.maximum_log_count:
-            self._logs = self._logs[self.maximum_log_count:]
-
-
-class NotInitializable:
-    def __init__(self, *args, **kwargs) -> NoReturn:
-        raise InvalidInitializationError(
-            f"\"{type(self).__name__}\" type object cannot be initialized"
-        )
-
-
-def namespace_of(
-    type_: type = type("namespace", tuple(), dict()),
-) -> Type[NotInitializable]:
-    """
-    Decorator for creating a namespace based on an input type.
-
-    Creates an inheritor of an input type with `staticmethod` methods that
-    cannot be initialized.
-
-    Already `staticmethod` methods are not re-decorated.
-    """
-
-    return type(
-        type_.__name__,
-        (NotInitializable, type_),
-        {
-            _: (
-                staticmethod(attribute)
-                if callable(attribute) and not isinstance(attribute, staticmethod)
-                else attribute
-            )
-            for _, attribute in type_.__dict__.items()
-        }
-    )
-
-
-def with_attributes(
-    get_object: event_for[V] = type(
-        "_AttributeStorage",
-        tuple(),
-        {
-            '__doc__': (
-                """
-                Class used as a standard object factory for subsequent stuffing
-                with attributes in `with_attributes`
-                """
-            ),
-            '__repr__': lambda object_: "<{}>".format(', '.join(
-                f"{name}={value}" for name, value in object_.__dict__.items()
-            )),
-        }
-    ),
-    **attributes,
-) -> V:
-    """
-    Function to create an object with attributes from keyword arguments.
-    Sets attributes manually.
-    """
-
-    attribute_keeper = get_object()
-    attribute_keeper.__dict__ = attributes
-
-    return attribute_keeper
+    def __le__(self, value: Pm) -> R:
+        return self(value)
 
 
 def documenting_by(documentation: str) -> dirty[reformer_of[V]]:
@@ -177,3 +56,23 @@ def to_check(determinant: checker_of[V] | V) -> checker_of[V]:
 
 def as_action(value: ActionT | V) -> ActionT | action_for[V]:
     return value if callable(value) else lambda *_, **__: value
+
+
+def action_repr_of(action: Callable) -> str:
+    if ismethod(action):
+        repr_ = f"({action_repr_of(action.__self__)}).{action.__name__}"
+    elif isbuiltin(action):
+        repr_ = action.__name__
+    elif isfunction(action) or isinstance(action, type):
+        repr_ = action.__qualname__
+    else:
+        return str(action)
+
+    return repr_
+
+
+def _module_prefix_of(action: Callable) -> str:
+    prefix = str() if action.__module__ is None else action.__module__
+
+    return str() if prefix in ("__main__", "builtins") else prefix + '.'
+

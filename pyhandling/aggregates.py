@@ -7,11 +7,11 @@ from pyannotating import Special
 from pyhandling.annotations import V, R, C, M, reformer_of
 from pyhandling.branching import then
 from pyhandling.contexting import contexted, contextual
-from pyhandling.data_flow import by
+from pyhandling.data_flow import by, yes
 from pyhandling.immutability import property_to
-from pyhandling.tools import documenting_by
+from pyhandling.operators import not_
 from pyhandling.synonyms import on, returned
-from pyhandling.utils import isnt, yes
+from pyhandling.tools import documenting_by, action_repr_of
 
 
 __all__ = (
@@ -88,7 +88,7 @@ class Effect(Generic[V, R, C]):
         self._is_lifted = is_lifted
 
     def __repr__(self) -> str:
-        return f"Effect({self._decorator})"
+        return f"Effect({action_repr_of(self._decorator)})"
 
     def __call__(
         self,
@@ -133,7 +133,7 @@ as_effect = documenting_by(
     When an input decorator is already in the `Effect` form returns the form.
     """
 )(
-    on(isnt(isinstance |by| Effect), Effect(lift=returned, is_lifted=yes))
+    on(not_(isinstance |by| Effect), Effect(lift=returned, is_lifted=yes))
 )
 
 

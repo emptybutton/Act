@@ -1,6 +1,5 @@
-from abc import ABC, abstractmethod
-from functools import update_wrapper
-from inspect import Signature
+from abc import ABC
+from operator import not_
 from typing import (
     Generic, Any, Iterator, Callable, Iterable, GenericAlias, Optional, Self
 )
@@ -8,15 +7,17 @@ from typing import (
 from pyannotating import Special
 
 from pyhandling.annotations import (
-    ActionT, ErrorT, P, Pm, checker_of, FlagT, A, B, C, V, R, E
+    ActionT, ErrorT, P, Pm, checker_of, A, B, C, V, R, W, D, S
 )
-from pyhandling.atoming import atomic
-from pyhandling.flags import nothing, Flag, pointed, FlagVector
+from pyhandling.atoming import atomically
+from pyhandling.branching import then
+from pyhandling.flags import nothing, Flag, pointed
 from pyhandling.immutability import property_to
-from pyhandling.partials import partially
+from pyhandling.objects import NotInitializable
+from pyhandling.partials import partially, will, rpartial
 from pyhandling.signature_assignmenting import call_signature_of
-from pyhandling.synonyms import repeating
-from pyhandling.tools import documenting_by, NotInitializable
+from pyhandling.synonyms import repeating, returned, on
+from pyhandling.tools import documenting_by, LeftCallable, action_repr_of
 
 
 __all__ = (
@@ -32,6 +33,7 @@ __all__ = (
     "to_write",
     "to_read",
     "with_context_that",
+    "to_metacontextual",
     "is_metacontextual",
     "with_reduced_metacontext",
     "without_metacontext",
@@ -42,12 +44,16 @@ class contextual_like(NotInitializable):
     """
     Annotation class of objects that can be cast to `ContextRoot`.
 
-    Such objects are iterable objects consisting the main value and the context
-    describing the main value.
+    Such objects are iterable objects consisting a main value as first item and
+    a context describing the main value as second item.
 
     Checks using the `isinstance` function.
 
-    The `[]` callback can be used to create an appropriate annotation.
+    The `[]` callback can be used to create an appropriate annotation with a
+    description of values in the corresponding places.
+
+    When passing an annotation of only a main value, a context will be of `Any`
+    type.
     """
 
     def __class_getitem__(
@@ -101,49 +107,45 @@ class ContextRoot(ABC, Generic[V, C]):
 
     def _repr_of(self, value: Special["contextual"]) -> str:
         return (
-            f"({value})"
+            f"({action_repr_of(value)})"
             if (
                 type(value) in (contextual, ContextualError)
                 and type(self) is type(value)
             )
-            else str(value)
+            else action_repr_of(value)
         )
 
 
-class _BinaryForm(ABC, Generic[V, C]):
+class _BinaryContextRoot(ContextRoot, Generic[V, C]):
+    """`ContextRoot` class with nested creation."""
+
     def __init__(self, value: V | Self, *contexts: C):
         if len(contexts) > 1:
             value = type(self)(value, *contexts[:-1])
 
         self._reset(value, nothing if len(contexts) == 0 else contexts[-1])
 
-    @abstractmethod
-    def _reset(self, value: V, context: C) -> None:
-        ...
-
-
-class contextual(ContextRoot, _BinaryForm, Generic[V, C]):
-    """Basic `ContextRoot` form representing values with no additional effect."""
-
-    value = property_to("_value")
-    context = property_to("_context")
-
     def _reset(self, value: V, context: C) -> None:
         self._value = value
         self._context = context
 
 
-class contextually(ContextRoot, _BinaryForm, Generic[ActionT, C]):
+class contextual(_BinaryContextRoot, Generic[V, C]):
+    """Basic `ContextRoot` form representing values with no additional effect."""
+
+    value = property_to("_value")
+    context = property_to("_context")
+
+
+class contextually(_BinaryContextRoot, Generic[ActionT, C]):
     """`ContextRoot` form for annotating actions with saving their call."""
 
     action = property_to("_value")
     context = property_to("_context")
 
-    def __init__(self, action: Callable[Pm, R], contexts: C = nothing):
-        _BinaryForm.__init__(self, action, *contexts)
-
-        update_wrapper(self, self._value)
-        self.__signature__ = self._get_signature()
+    def __init__(self, action: Callable[Pm, R], *contexts: C):
+        super().__init__(action, *contexts)
+        self.__signature__ = call_signature_of(self._value)
 
     def __repr__(self) -> str:
         return f"contextually({super().__repr__()})"
@@ -151,15 +153,8 @@ class contextually(ContextRoot, _BinaryForm, Generic[ActionT, C]):
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._value(*args, **kwargs)
 
-    def _reset(self, value: Callable[Pm, R], context: C) -> None:
-        self._action = value
-        self._context = context
 
-    def _get_signature(self) -> Signature:
-        return call_signature_of(self._value)
-
-
-class ContextualError(Exception, ContextRoot, _BinaryForm, Generic[ErrorT, C]):
+class ContextualError(Exception, _BinaryContextRoot, Generic[ErrorT, C]):
     """
     `ContextRoot` form for annotating an error with a context while retaining
     the ability to `raise` the call.
@@ -168,43 +163,41 @@ class ContextualError(Exception, ContextRoot, _BinaryForm, Generic[ErrorT, C]):
     error = property_to("_value")
     context = property_to("_context")
 
-    def __init__(self, error: ErrorT, context: C):
-        _BinaryForm.__init__(self, error, context)
+    def __init__(self, error: ErrorT, *contexts: C):
+        _BinaryContextRoot.__init__(self, error, *contexts)
         super().__init__(repr(self))
 
     def __repr__(self) -> str:
         return f"ContextualError({ContextRoot.__repr__(self)})"
 
-    def _reset(self, value: ErrorT, context: C) -> None:
-        self._value = value
-        self._context = context
 
-
+def context_oriented(root_values: contextual_like[V, C]) -> contextual[C, V]:
     """
-    newly converted context (flag) atomic version.
+    Function to replace the main value of a `contextual_like` object with its
+    context, and its context with its main value.
     """
 
     return contextual(*reversed(tuple(root_values)))
 
 
 def contexted(
-    value: V | ContextRoot[V, E],
-    when: Optional[Special[FlagVector, C]] = None,
-) -> ContextRoot[V, E | Flag | C]:
+    value: V | ContextRoot[V, D],
+    when: Optional[C | Callable[D, C]] = None,
+) -> ContextRoot[V, D | C]:
     """
     Function to represent an input value in `contextual` form if it is not
     already present.
 
-    When passing a forced context in the form of `FlagVector`, add an additional
-    flag to the context by this vector, otherwise sets a forced context.
+    Forces a context, when passed, as the result of caaling the forced context
+    if it is a callable, or as the forced context itself if not a callable.
     """
 
     value, context = (
         value if isinstance(value, ContextRoot) else contextual(value)
     )
 
-    if isinstance(when, FlagVector):
-        context = when(pointed(context))
+    if callable(when):
+        context = when(context)
     elif when is not None:
         context = when
 
@@ -213,26 +206,32 @@ def contexted(
 
 @partially
 def saving_context(
-    action: Callable[[A], B],
-    value_and_context: contextual_like[A, C],
-) -> ContextRoot[B, C]:
-    """Execution context without effect."""
+    action: Callable[A, B],
+    value_and_context: contextual_like[A, C] | A,
+) -> contextual[B, C]:
+    """
+    Function to perform an input action on a `contextual_like` value while
+    saving its context.
+    """
 
-    value, context = value_and_context
+    value, context = contexted(value_and_context)
 
     return contextual(action(value), context)
 
 
 @partially
 def to_context(
-    action: Callable[[A], B],
+    action: Callable[A, B],
     value_and_context: contextual_like[V, A],
-) -> ContextRoot[V, B]:
-    """Execution context for context value context calculations."""
+) -> contextual[V, B]:
+    """
+    Function to perform an input action on a context of `contextual_like` value
+    while saving its value.
+    """
 
     return context_oriented(saving_context(
         action,
-        context_oriented(value_and_context),
+        context_oriented(contexted(value_and_context)),
     ))
 
 
@@ -241,6 +240,11 @@ def to_write(
     action: Callable[[V, C], R],
     value: contextual_like[V, C],
 ) -> contextual[V, R]:
+    """
+    Function to perform an input action on a `contextual_like` context, with
+    passing its main value.
+    """
+
     stored_value, context = value
 
     return contextual(stored_value, action(stored_value, context))
@@ -251,6 +255,11 @@ def to_read(
     action: Callable[[V, C], R],
     value: contextual_like[V, C],
 ) -> contextual[R, V]:
+    """
+    Function to perform an input action on a `contextual_like` main value, with
+    passing its context.
+    """
+
     return context_oriented(to_write(action, context_oriented(value)))
 
 
@@ -258,9 +267,7 @@ def to_read(
 def with_context_that(
     that: checker_of[P],
     value: V | ContextRoot[V, P | Flag[P]],
-    *,
-    and_nothing: bool = False,
-) -> contextual[V, nothing | P]:
+) -> contextual[V, P | nothing]:
     """
     Function for transform `ContextRoot` with context filtered by input
     checker.
@@ -268,16 +275,46 @@ def with_context_that(
     When a context is `Flag`, the resulting context will be filtered by any of
     its values.
 
-    Returns `nothing` if a context is invalid for an input checker or throws an
-    error when `and_nothing=True`.
+    Returns `nothing` if a context is invalid for an input checker`.
     """
 
-    root = atomic(context_pointed(contexted(value), that=that))
+    return pointed(contexted(value).context).that(that).point
 
-    if root.context == nothing and not and_nothing:
-        raise ValueError(f"Missing context with condition of \"{that}\"")
 
-    return root
+def to_metacontextual(
+    value_action: Callable[V, W] = returned,
+    context_action: Callable[C, D] = returned,
+    /,
+    *,
+    summed: Callable[contextual[W, D] | S, S] = returned,
+) -> LeftCallable[contextual_like[V, C] | V, S]:
+    """
+    Reduce function for values of nested `ContextRoots`.
+
+    Calculates from `value_action` and `context_action` corresponding leaf
+    values.
+
+    Calculates a form with calculated values by `summed`.
+    """
+
+    value_action, context_action = tuple(map(
+        will(on)(
+            rpartial(isinstance, ContextRoot) |then>> not_,
+            else_=lambda v: to_metacontextual(
+                value_action,
+                context_action,
+                summed=summed,
+            )(v),
+        ),
+        (value_action, context_action),
+    ))
+
+    return atomically(
+        contexted
+        |then>> saving_context(value_action)
+        |then>> to_context(context_action)
+        |then>> summed
+    )
 
 
 def is_metacontextual(value: Special[ContextRoot[ContextRoot, Any], Any]) -> bool:

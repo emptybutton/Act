@@ -17,9 +17,10 @@ from pyhandling.signature_assignmenting import (
     Decorator, call_signature_of
 )
 from pyhandling.structure_management import (
-    without, frozendict, with_opened_items, tmap, without_duplicates,
+    without, frozendict, flat, tmap, without_duplicates,
     reversed_table
 )
+from pyhandling.tools import action_repr_of
 
 
 __all__ = ("ArgumentKey", "Arguments", "as_arguments", "unpackly")
@@ -56,11 +57,15 @@ class ArgumentKey(Generic[_ArgumentKeyT, D]):
 
     def __str__(self, *, with_position: bool = True) -> str:
         formatted_key = (
-            str(self.value) if with_position or self.is_keyword else '...'
+            action_repr_of(self.value)
+            if with_position or self.is_keyword
+            else '...'
         )
 
         formatted_value = (
-            '...' if self.default is _EMPTY_DEFAULT_VALUE else str(self.default)
+            '...'
+            if self.default is _EMPTY_DEFAULT_VALUE
+            else action_repr_of(self.default)
         )
 
         return (
@@ -71,6 +76,17 @@ class ArgumentKey(Generic[_ArgumentKeyT, D]):
 
 
 class ArgumentKeys:
+    """
+    Iterable descriptor class storing and sorting `ArgumentKey`s.
+
+    Sorts keys by their keyword in `positional` and `keywords` accordingly.
+
+    Can be used as a `keys` method in `Mapping` objects.
+    To do this, it returns the values of its keys when called.
+
+    In cases of use other than as a descriptor, the call is less justified.
+    """
+
     def __init__(self, keys: Iterable[ArgumentKey]):
         self._keys = tuple(keys)
 
@@ -105,8 +121,14 @@ class Arguments(Mapping, Generic[A]):
     """
     Data class for structuring the storage of any arguments.
 
-    Has the ability to get an attribute when passed to `[]` `ArgumentKey`
-    instance.
+    Sorts arguments into `args` and `kwargs` properties.
+
+    With `*` unpacking, unpacks only positional arguments, with `**` only
+    keywords.
+
+    By `in` checks for argument values.
+
+    Searches for an argument value by an `ArgumentKey` passed via `[]`.
     """
 
     def __init__(
@@ -170,18 +192,18 @@ class Arguments(Mapping, Generic[A]):
         )
 
     def __iter__(self) -> Iterator[A]:
-        return iter((*self.args, *self.kwargs.keys()))
+        return iter(self.args)
 
     def __len__(self) -> int:
         return len(self.keys)
 
     def __contains__(self, value: A) -> bool:
-        return value in tuple(self)
+        return value in self.args or value in self.kwargs.values()
 
     def expanded_with(self, *args: Special[Self], **kwargs: Any) -> Self:
         """Method to create another pack with input arguments."""
 
-        args = with_opened_items(
+        args = flat(
             arg.args if isinstance(arg, Arguments) else (arg, ) for arg in args
         )
 
@@ -238,7 +260,7 @@ class Arguments(Mapping, Generic[A]):
 def as_arguments(*args, **kwargs) -> Arguments:
     """
     Function to optionally convert input arguments into `Arguments`.
-    When passed a single positional `Arguments` to the function, it returns it.
+    When passed a single positional `Arguments`, it returns it.
     """
 
     if len(args) == 1 and isinstance(args[0], Arguments) and not kwargs:
@@ -249,10 +271,14 @@ def as_arguments(*args, **kwargs) -> Arguments:
 
 @atomically
 class unpackly(Decorator):
-    """Decorator to unpack the input `Arguments` into an input action."""
+    """Decorator to unpack input arguments into an input action."""
 
-    def __call__(self, arguments: Arguments) -> Any:
-        return arguments.call(self._action)
+    def __call__(self, arguments: Special[Arguments, Iterable]) -> Any:
+        return (
+            arguments.call(self._action)
+            if isinstance(arguments, Arguments)
+            else self._action(*arguments)
+        )
 
     @cached_property
     def _force_signature(self) -> Signature:

@@ -1,8 +1,9 @@
 from functools import update_wrapper
-from typing import runtime_checkable, Protocol, Self
+from typing import runtime_checkable, Protocol, Self, Generic, Callable
 
-from pyhandling.annotations import AtomizableT, action_for, R
+from pyhandling.annotations import AtomizableT, action_for, Pm, R
 from pyhandling.errors import AtomizationError
+from pyhandling.tools import LeftCallable, action_repr_of
 
 
 __all__ = ("Atomizable", "atomic", "atomically")
@@ -33,18 +34,21 @@ def atomic(value: AtomizableT) -> AtomizableT:
     return value.__getatom__()
 
 
-class atomically:
+class atomically(LeftCallable):
     """
     Decorator that removes the behavior of an input action, leaving only
     calling.
+
+    Has a one value call synonyms `>=` and `<=` where is it on the right i.e.
+    `value >= instance` and less preferred `instance <= value`.
     """
 
-    def __init__(self, action: action_for[R]):
+    def __init__(self, action: Callable[Pm, R]):
         self._action = action
         update_wrapper(self, self._action)
 
     def __repr__(self) -> str:
-        return f"atomically({self._action})"
+        return f"atomically({action_repr_of(self._action)})"
 
-    def __call__(self, *args, **kwargs) -> R:
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._action(*args, **kwargs)
