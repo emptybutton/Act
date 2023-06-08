@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from functools import partial
-from operator import ge, le, sub, getitem, itemgetter, neg
+from math import copysign
+from operator import ge, le, itemgetter, neg
 from types import MappingProxyType
 from typing import (
     Iterable, Tuple, Callable, Mapping, TypeAlias, Any, Optional, Self, Iterator
@@ -10,13 +11,13 @@ from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import V, M, K, action_of, checker_of, I
 from pyhandling.atoming import atomically
-from pyhandling.branching import then, binding_by, mergely
-from pyhandling.contexting import ContextRoot, contextual
+from pyhandling.branching import then, binding_by
+from pyhandling.contexting import ContextRoot, contextual, contexted
 from pyhandling.data_flow import to, shown
 from pyhandling.flags import flag_about
 from pyhandling.operators import and_
-from pyhandling.partials import rpartial, partially, rwill, will
-from pyhandling.synonyms import on, tuple_of, repeating
+from pyhandling.partials import rpartial, partially, rwill
+from pyhandling.synonyms import on, tuple_of, repeating, returned
 from pyhandling.tools import documenting_by, LeftCallable
 
 

@@ -1,11 +1,11 @@
-from operator import attrgetter, call, itemgetter, eq
+from operator import attrgetter, call, eq
 from typing import Callable, Any, Tuple, Optional
 
-from pyannotating import many_or_one, Special
+from pyannotating import Special
 
-from pyhandling.aggregates import context_effect, as_effect
+from pyhandling.aggregates import context_effect
 from pyhandling.annotations import (
-    dirty, V, C, R, checker_of, event_for, A, B, V, FlagT, C, ActionT
+    dirty, R, checker_of, event_for, A, B, V, FlagT, C, ActionT
 )
 from pyhandling.atoming import atomically
 from pyhandling.branching import (
@@ -13,17 +13,16 @@ from pyhandling.branching import (
 )
 from pyhandling.contexting import (
     contextual, contextually, contexted, ContextRoot, saving_context, to_write,
-    to_read, to_context
+    to_read, to_context, with_reduced_metacontext
 )
-from pyhandling.data_flow import returnly, eventually, by, to, shown
-from pyhandling.errors import MatchingError
+from pyhandling.data_flow import returnly, by, to
 from pyhandling.flags import flag_about, nothing, Flag, pointed
 from pyhandling.objects import namespace_of
 from pyhandling.objects import void
 from pyhandling.operators import and_, not_
 from pyhandling.partials import will, partially
 from pyhandling.structure_management import tmap
-from pyhandling.synonyms import raise_, on
+from pyhandling.synonyms import on
 from pyhandling.tools import documenting_by, to_check, as_action, LeftCallable
 
 

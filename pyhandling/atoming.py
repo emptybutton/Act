@@ -1,7 +1,7 @@
 from functools import update_wrapper
-from typing import runtime_checkable, Protocol, Self, Generic, Callable
+from typing import runtime_checkable, Protocol, Self, Callable
 
-from pyhandling.annotations import AtomizableT, action_for, Pm, R
+from pyhandling.annotations import AtomizableT, Pm, R
 from pyhandling.errors import AtomizationError
 from pyhandling.tools import LeftCallable, action_repr_of
 

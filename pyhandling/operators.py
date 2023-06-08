@@ -1,11 +1,10 @@
 from typing import Iterable, Callable, Generator, Any
 import operator
 
-from pyhandling.annotations import Pm, V
+from pyhandling.annotations import V
 from pyhandling.atoming import atomically
-from pyhandling.branching import then
-from pyhandling.data_flow import dynamically, by
-from pyhandling.partials import partial, rpartial
+from pyhandling.data_flow import by
+from pyhandling.partials import partial
 from pyhandling.tools import (
     documenting_by, to_check, LeftCallable, action_repr_of
 )

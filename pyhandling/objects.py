@@ -1,17 +1,14 @@
-from functools import reduce, partial
-from operator import or_, attrgetter
+from functools import partial
+from operator import attrgetter
 from typing import (
-    NoReturn, Mapping, Callable, Self, Generic, Concatenate, Optional, Protocol,
-    runtime_checkable
+    NoReturn, Mapping, Callable, Self, Generic, Concatenate, Any, Tuple
 )
 
 from pyannotating import Special
 
-from pyhandling.annotations import K, V, I, event_for, Pm, R, P, TypeT
-from pyhandling.errors import InvalidInitializationError
-from pyhandling.immutability import to_clone
+from pyhandling.annotations import K, V, event_for, Pm, R
+from pyhandling.errors import InvalidInitializationError, UniaError
 from pyhandling.partials import partially
-from pyhandling.synonyms import returned
 from pyhandling.tools import action_repr_of
 
 

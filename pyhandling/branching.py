@@ -1,9 +1,9 @@
-from functools import partial, reduce, update_wrapper
+from functools import partial, reduce
 from inspect import Signature, Parameter
 from operator import or_, is_not, not_
 from typing import (
-    TypeVar, Callable, Generic, Iterable, Iterator, Self, Any, Type,
-    Tuple, NamedTuple, _CallableGenericAlias
+    Callable, Generic, Iterable, Iterator, Self, Any, Tuple, NamedTuple,
+    _CallableGenericAlias
 )
 
 from pyannotating import Special
@@ -11,7 +11,7 @@ from pyannotating import Special
 from pyhandling.annotations import ActionT, R, Pm, V, A, B, C, D
 from pyhandling.atoming import atomically
 from pyhandling.errors import TemplatedActionChainError, MatchingError
-from pyhandling.immutability import property_to, to_clone
+from pyhandling.immutability import property_to
 from pyhandling.objects import of
 from pyhandling.partials import rpartial, will
 from pyhandling.signature_assignmenting import call_signature_of
