@@ -154,11 +154,11 @@ class Unia:
         self._annotations = self._annotations_from(annotations)
 
     def __class_getitem__(cls, annotation_or_annotations: Special[tuple]) -> Self:
-        return cls(
+        return cls(*(
             annotation_or_annotations
             if isinstance(annotation_or_annotations, tuple)
             else (annotation_or_annotations, )
-        )
+        ))
 
     def __instancecheck__(self, instance: Any) -> bool:
         return all(
