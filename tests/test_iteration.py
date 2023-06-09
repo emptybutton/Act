@@ -3,6 +3,29 @@ from typing import Any, Iterable, Type, Callable, Optional
 from pytest import mark
 
 from pyhandling.iteration import *
+from pyhandling.testing import calling_test_case_of
+
+
+@mark.parametrize("items", [(1, 2, 3), range(10), "Hello world!", tuple(), str()])
+def test_iteration_over(items: Iterable[Any]):
+    iterate = iteration_over(items)
+
+    for item in items:
+        assert iterate() == item
+
+
+@mark.parametrize("items", [(1, 2, 3), range(10), "Hello world!", tuple(), str()])
+def test_iteration_over_by_generator(items: Iterable):
+    iterate = iteration_over(item for item in items)
+
+    for item in items:
+        assert iterate() == item
+
+
+test_infinite = calling_test_case_of(
+    (lambda: infinite(lambda _: StopIteration())(...), None),
+    (lambda: infinite(lambda _: 8)(...), 8),
+)
 
 
 @mark.parametrize(
