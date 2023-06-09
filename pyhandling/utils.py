@@ -99,6 +99,7 @@ infinite = documenting_by(
     Return function ignores its input arguments.
     """
 )
+@atomically
 @binding_by(... |then>> iteration_over)
 def times(max_steps: int, /) -> Generator[bool, None, None]:
     steps = max_steps
