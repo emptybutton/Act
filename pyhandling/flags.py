@@ -73,7 +73,7 @@ class Flag(ABC, Generic[P]):
     len(instance) == 1
 
     tuple(nothing) == tuple()
-    len(nothing) = 0
+    len(nothing) == 0
     ```
 
     Flags indicate something. It can be any value or abstract phenomenon
@@ -122,7 +122,7 @@ class Flag(ABC, Generic[P]):
     pointed(*range(11)).that(lambda n: n >= 20) == nothing
 
     super_.that(lambda f: f == super_) == super_
-    super_.that(lambda n: n > 0) == nothing
+    super_.that(lambda f: f == 0) == nothing
     ```
 
     Flag sums can be represented in atomic form. In this case, the atomic
