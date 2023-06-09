@@ -316,6 +316,13 @@ class _BinaryFlagVector(FlagVector):
             f" ^ {self._next}" if self.__next is not None else str()
         )
 
+    def __eq__(self, other: Special[Self]) -> bool:
+        return (
+            isinstance(other, _BinaryFlagVector)
+            and self._is_positive is other._is_positive
+            and self._flag.points == other._flag.points
+        )
+
     @to_clone
     def __xor__(self, other: Self) -> None:
         self._next = other
