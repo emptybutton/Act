@@ -80,10 +80,8 @@ class Flag(ABC, Generic[P]):
     expressed only by this flag.
 
     Flags indicating a value can be obtained via the `pointed` function. Flags
-    for abstract phenomena (or named flags) via the `flag` function.
+    for abstract phenomena (or named flags) via the `flag_about` function.
     ```
-    pointed(4) == 4
-    pointed(4) is not 4
     pointed(4) | instance == pointed(4)
 
     pointed(1, 2, 3) == pointed(1) | pointed(2) | pointed(3)
@@ -93,7 +91,7 @@ class Flag(ABC, Generic[P]):
     pointed(4).point == 4
     pointed(4).points == (4, )
 
-    super_ = flag("super")
+    super_ = flag_about("super")
     super_.point is super_
     super_.points == (super_, )
 
@@ -106,7 +104,7 @@ class Flag(ABC, Generic[P]):
 
     Flags indicating a value are binary by value. Nominal by their signs.
     ```
-    not_super = flag("not_super", sign=False)
+    not_super = flag_about("not_super", sign=False)
 
     bool(super_) is True
     bool(not_super) is False
