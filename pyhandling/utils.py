@@ -1,14 +1,15 @@
 from datetime import datetime
 from math import inf
-from typing import Iterable, Tuple, Generator, Optional
+from typing import Iterable, Tuple, Generator, Optional, Callable, Type
 
-from pyhandling.annotations import dirty, V
+from pyannotating import Special
+
+from pyhandling.annotations import dirty, V, R
 from pyhandling.atoming import atomically
-from pyhandling.branching import binding_by, then
+from pyhandling.branching import binding_by, then, on
 from pyhandling.data_flow import eventually, by, to
 from pyhandling.error_flow import catching
-from pyhandling.partials import will
-from pyhandling.synonyms import trying_to
+from pyhandling.synonyms import trying_to, returned
 from pyhandling.tools import documenting_by, LeftCallable
 
 
@@ -68,9 +69,11 @@ iteration_over = documenting_by(
     When `StopIteration` occurs, returns it.
     """
 )(
-    atomically(iter |then>> will(eventually)(
-        next |then>> (trying_to |by| to(catching(StopIteration, to(None))))
-    ))
+    atomically(
+        iter
+        |then>> (eventually |to| next)
+        |then>> (trying_to |by| to(catching(StopIteration, returned)))
+    )
 )
 
 
