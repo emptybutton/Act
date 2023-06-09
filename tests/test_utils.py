@@ -1,5 +1,3 @@
-from typing import Any, Iterable, Type, Callable, Optional
-
 from pytest import mark
 
 from pyhandling.utils import *

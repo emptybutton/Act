@@ -1,4 +1,4 @@
-from typing import Any, Iterable, Type, Callable, Optional
+from typing import Iterable
 
 from pytest import mark
 
@@ -7,7 +7,7 @@ from pyhandling.testing import calling_test_case_of
 
 
 @mark.parametrize("items", [(1, 2, 3), range(10), "Hello world!", tuple(), str()])
-def test_iteration_over(items: Iterable[Any]):
+def test_iteration_over(items: Iterable):
     iterate = iteration_over(items)
 
     for item in items:
