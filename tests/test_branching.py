@@ -71,7 +71,7 @@ def test_mergely_by_formula_function(
     )
 
 
-def test_action_chain_one_resource_call_operator(input_resource: int | float = 30):
+def test_action_chain_one_value_call_operator(input_resource: int | float = 30):
     chain = ActionChain((lambda x: x * x + 12, lambda x: x ** x))
 
     result_of_chain_normal_call = chain(input_resource)
@@ -87,7 +87,7 @@ test_action_inserting_in = calling_test_case_of(
 )
 
 
-test_test_bind = calling_test_case_of(
+test_bind = calling_test_case_of(
     (lambda: bind(lambda a: a / 2, lambda a: a + 6)(4), 8),
 )
 
