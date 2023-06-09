@@ -1,6 +1,6 @@
 from pytest import mark
 
-from pyhandling.utils import *
+from pyhandling.logging import *
 
 
 @mark.parametrize(
