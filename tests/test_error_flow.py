@@ -25,8 +25,8 @@ test_catching = calling_test_case_of(
 
 test_with_error = calling_test_case_of(
     (
-        lambda: (lambda v_and_e: (v_and_e[0], type(v_and_e[1])))(
-            with_error(raising(TypeError())(...))
+        lambda: (lambda result: (result.value, type(result.context)))(
+            with_error(raising(TypeError()))(...)
         ),
         (None, TypeError),
     ),
