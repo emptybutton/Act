@@ -73,17 +73,15 @@ class Flag(ABC, Generic[P]):
     len(instance) == 1
 
     tuple(nothing) == tuple()
-    len(nothing) = 0
+    len(nothing) == 0
     ```
 
     Flags indicate something. It can be any value or abstract phenomenon
     expressed only by this flag.
 
     Flags indicating a value can be obtained via the `pointed` function. Flags
-    for abstract phenomena (or named flags) via the `flag` function.
+    for abstract phenomena (or named flags) via the `flag_about` function.
     ```
-    pointed(4) == 4
-    pointed(4) is not 4
     pointed(4) | instance == pointed(4)
 
     pointed(1, 2, 3) == pointed(1) | pointed(2) | pointed(3)
@@ -93,7 +91,7 @@ class Flag(ABC, Generic[P]):
     pointed(4).point == 4
     pointed(4).points == (4, )
 
-    super_ = flag("super")
+    super_ = flag_about("super")
     super_.point is super_
     super_.points == (super_, )
 
@@ -106,7 +104,7 @@ class Flag(ABC, Generic[P]):
 
     Flags indicating a value are binary by value. Nominal by their signs.
     ```
-    not_super = flag("not_super", sign=False)
+    not_super = flag_about("not_super", sign=False)
 
     bool(super_) is True
     bool(not_super) is False
@@ -124,7 +122,7 @@ class Flag(ABC, Generic[P]):
     pointed(*range(11)).that(lambda n: n >= 20) == nothing
 
     super_.that(lambda f: f == super_) == super_
-    super_.that(lambda n: n > 0) == nothing
+    super_.that(lambda f: f == 0) == nothing
     ```
 
     Flag sums can be represented in atomic form. In this case, the atomic
@@ -316,6 +314,13 @@ class _BinaryFlagVector(FlagVector):
     def __repr__(self) -> str:
         return f"{'+' if self._is_positive else '-'}{self._flag}{{}}".format(
             f" ^ {self._next}" if self.__next is not None else str()
+        )
+
+    def __eq__(self, other: Special[Self]) -> bool:
+        return (
+            isinstance(other, _BinaryFlagVector)
+            and self._is_positive is other._is_positive
+            and self._flag.points == other._flag.points
         )
 
     @to_clone

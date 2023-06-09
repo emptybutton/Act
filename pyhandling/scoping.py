@@ -2,8 +2,8 @@ from inspect import stack
 from operator import attrgetter
 from typing import Any
 
+from pyhandling.iteration import times
 from pyhandling.synonyms import repeating
-from pyhandling.utils import times
 
 
 __all__ = ("back_scope_in", "value_in")

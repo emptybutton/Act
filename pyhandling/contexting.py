@@ -1,5 +1,5 @@
 from abc import ABC
-from operator import not_
+from operator import not_, methodcaller, attrgetter
 from typing import (
     Generic, Any, Iterator, Callable, Iterable, GenericAlias, Optional, Self
 )
@@ -278,7 +278,9 @@ def with_context_that(
     Returns `nothing` if a context is invalid for an input checker`.
     """
 
-    return pointed(contexted(value).context).that(that).point
+    return to_context(
+        pointed |then>> (methodcaller("that", that) |then>> attrgetter("point"))
+    )(value)
 
 
 def to_metacontextual(

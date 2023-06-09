@@ -1,6 +1,7 @@
+from operator import truediv, add, sub
 from typing import Any, Iterable
 
-from pytest import mark
+from pytest import mark, raises
 
 from pyhandling.data_flow import *
 from pyhandling.testing import calling_test_case_of
@@ -63,3 +64,65 @@ def test_single_application_infix(infix: PartialApplicationInfix, result: Any):
 )
 def test_keyword_application_infix(infix: PartialApplicationInfix, result: Any):
     assert ((lambda a, b, c: (a + b) * c) |infix* (5, 8))(3) == result
+
+
+test_with_result = calling_test_case_of(
+    (lambda: with_result(8, lambda a, b, c: 42)(1, 2, 3), 8),
+)
+
+
+test_to_left = calling_test_case_of(
+    (lambda: to_left(lambda v: v + 3)(5, ...), 8),
+)
+
+
+test_to_right = calling_test_case_of(
+    (lambda: to_right(lambda v: v + 3)(..., 5), 8),
+)
+
+
+test_dynamically = calling_test_case_of(
+    (lambda: dynamically(truediv, add, sub)(5, 3), 4),
+)
+
+
+test_double = calling_test_case_of(
+    (lambda: double(lambda a: lambda b, c, d=0: a/b + c/d)(10, 2, 6, d=2), 8),
+)
+
+
+def test_once():
+    def raise_zero_division_error():
+        raise ZeroDivisionError()
+
+    action = once(raise_zero_division_error)
+
+    with raises(ZeroDivisionError):
+        assert action() is None
+
+    assert action() is None
+
+
+test_via_items = calling_test_case_of(
+    (lambda: via_items(lambda v: v + 3)[5], 8),
+    (lambda: via_items(truediv)[8, 2], 4),
+)
+
+
+test_yes = calling_test_case_of(
+    (lambda: yes(1, 2, 3), True),
+    (lambda: yes(), True),
+)
+
+
+test_no = calling_test_case_of(
+    (lambda: no(1, 2, 3), False),
+    (lambda: no(), False),
+)
+
+
+test_anything = calling_test_case_of(
+    (lambda: anything == anything),
+    (lambda: anything == 4),
+    (lambda: anything is None),
+)
