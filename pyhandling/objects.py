@@ -75,11 +75,12 @@ def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
     `__dict__` of an input object.
     """
 
-    return (
-        dict(**value)
-        if isinstance(value, Mapping) and not hasattr(value, "__dict__")
-        else value.__dict__
-    )
+    if hasattr(value, "__dict__"):
+        return value.__dict__
+    elif isinstance(value, Mapping):
+        return dict(**value)
+    else:
+        return dict()
 
 
 def of(get_object: event_for[V] = Arbitrary, /, **attributes) -> V:
