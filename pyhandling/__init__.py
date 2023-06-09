@@ -10,6 +10,7 @@ from pyhandling.error_flow import *
 from pyhandling.error_storing import *
 from pyhandling.flags import *
 from pyhandling.immutability import *
+from pyhandling.iteration import *
 from pyhandling.monads import *
 from pyhandling.objects import *
 from pyhandling.operators import *

@@ -3,7 +3,7 @@ from operator import attrgetter
 from typing import Any
 
 from pyhandling.synonyms import repeating
-from pyhandling.utils import times
+from pyhandling.iteration import times
 
 
 __all__ = ("back_scope_in", "value_in")
