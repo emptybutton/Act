@@ -16,6 +16,7 @@ from pyhandling.tools import documenting_by, LeftCallable
 __all__ = (
     "Logger",
     "iteration_over",
+    "infinite",
     "times",
 )
 
@@ -74,6 +75,18 @@ iteration_over = documenting_by(
         |then>> (eventually |to| next)
         |then>> (trying_to |by| to(catching(StopIteration, returned)))
     )
+)
+
+
+infinite: LeftCallable[
+    Callable[V, Special[Type[StopIteration], R]],
+    Callable[V, Optional[R]],
+]
+infinite = documenting_by(
+    """Decorator function to return `None` instead of `StopIteration`."""
+)(
+    binding_by(... |then>> on(isinstance |by| StopIteration, None))
+    |then>> atomically
 )
 
 
