@@ -1,10 +1,8 @@
-from typing import runtime_checkable, Protocol, Optional, Callable
+from typing import runtime_checkable, Protocol
 
-from pyannotating import Special
-
-from pyhandling.annotations import P, V, TypeT
+from pyhandling.annotations import P, V
 from pyhandling.immutability import to_clone
-from pyhandling.objects import Unia, namespace_of, dict_of
+from pyhandling.objects import Unia, dict_of
 from pyhandling.partials import partially
 
 

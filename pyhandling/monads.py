@@ -127,7 +127,7 @@ left = flag_about("left", negative=True)
 def either(
     *determinants_and_ways: tuple[
         Special[checker_of[C]],
-        Special[break_, Callable[V, R] | R`],
+        Special[break_, Callable[V, R] | R],
     ],
 ) -> LeftCallable[V | ContextRoot[V, C], contextual[R, C]]:
     """

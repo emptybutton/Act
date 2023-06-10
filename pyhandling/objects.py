@@ -46,10 +46,10 @@ class Arbitrary(Generic[Pm, R]):
         ))
 
     def __and__(self, other: Special[Mapping]) -> Self:
-        return of(**self.__dict__ | dict_of(other))
+        return obj(**self.__dict__ | dict_of(other))
 
     def __rand__(self, other: Special[Mapping]) -> Self:
-        return of(**dict_of(other) | self.__dict__)
+        return obj(**dict_of(other) | self.__dict__)
 
     def __eq__(self, other: Special[Mapping]) -> bool:
         return self.__dict__ == dict_of(other)
