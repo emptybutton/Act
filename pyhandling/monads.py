@@ -72,7 +72,7 @@ def maybe(
         return value >= (
             saving_context(action)
             |then>> on(
-                lambda result: contexted(result).context == bad,
+                lambda result: contexted(result.value).context == bad,
                 with_reduced_metacontext,
             )
         )
