@@ -1,6 +1,6 @@
 from pytest import mark
 
-from pyhandling.objects import of
+from pyhandling.objects import obj
 from pyhandling.tools import *
 
 
@@ -12,7 +12,7 @@ from pyhandling.tools import *
     )
 )
 def test_documenting_by(documentation: str):
-    mock = of()
+    mock = obj()
 
     documenting_by(documentation)(mock)
 

@@ -1,8 +1,8 @@
 from typing import Callable, Any
 
 from pyhandling.annotations import action_of, notes_of, pure, dirty
-from pyhandling.objects import of
 from pyhandling.testing import calling_test_case_of
+from pyhandling.objects import obj
 
 
 test_action_of = calling_test_case_of(
@@ -28,5 +28,5 @@ test_action_of = calling_test_case_of(
 test_noting = calling_test_case_of(
     (lambda: notes_of(None), tuple()),
     (lambda: notes_of(list()), tuple()),
-    (lambda: notes_of(pure(dirty(of()))), (dirty, pure)),
+    (lambda: notes_of(pure(dirty(obj()))), (dirty, pure)),
 )

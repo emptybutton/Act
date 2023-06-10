@@ -16,7 +16,7 @@ __all__ = (
     "NotInitializable",
     "Arbitrary",
     "dict_of",
-    "of",
+    "obj",
     "from_",
     "namespace_of",
     "void",
@@ -36,7 +36,7 @@ class NotInitializable:
 class Arbitrary(Generic[Pm, R]):
     """
     Class for objects that do not have a common structure.
-    To create with data use `of` constructor.
+    To create with data use `obj` constructor.
     """
 
     def __repr__(self) -> str:
@@ -83,7 +83,7 @@ def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
         return dict()
 
 
-def of(get_object: event_for[V] = Arbitrary, /, **attributes) -> V:
+def obj(get_object: event_for[V] = Arbitrary, /, **attributes) -> V:
     """
     Function to create an object with attributes from keyword arguments.
     Get object to modify from `get_object` parameter.
@@ -98,7 +98,7 @@ def of(get_object: event_for[V] = Arbitrary, /, **attributes) -> V:
         new_attributes = dict(attributes)
         del new_attributes["__call__"]
 
-        return of(
+        return obj(
             partial(_CallableArbitrary, attributes["__call__"]),
             **new_attributes
         )
@@ -119,7 +119,7 @@ def from_(parent: Special[Mapping], child: Special[Mapping]) -> Arbitrary:
     Child data is preferred over parent data.
     """
 
-    return of(**dict_of(parent) | dict_of(child))
+    return obj(**dict_of(parent) | dict_of(child))
 
 
 def namespace_of(object_: Special[Mapping]) -> Arbitrary:
@@ -130,7 +130,7 @@ def namespace_of(object_: Special[Mapping]) -> Arbitrary:
     Already `staticmethod` methods are not re-decorated.
     """
 
-    return of(**{
+    return obj(**{
         _: (
             staticmethod(value)
             if callable(value) and not isinstance(value, staticmethod)
