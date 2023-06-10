@@ -325,7 +325,7 @@ class _BinaryFlagVector(FlagVector):
 
     @to_clone
     def __xor__(self, other: Self) -> None:
-        self._next = other
+        self.__next = other
 
     @to_clone
     def __neg__(self) -> None:
