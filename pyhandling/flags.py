@@ -446,7 +446,10 @@ class _FlagSum(_DoubleFlag):
     _separation_sign = '|'
 
     def __instancecheck__(self, instance: Any) -> bool:
-        return isinstance(self._first) or isinstance(self._second)
+        return (
+            isinstance(instance, self._first)
+            or isinstance(instance, self._second)
+        )
 
     def __bool__(self) -> bool:
         return bool(self._first or self._second)
