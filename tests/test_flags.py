@@ -106,7 +106,7 @@ def test_flag_instance_check():
 
 test_to_points = case_of((
     lambda: to_points(lambda p: (p, 4))(instance | pointed(1, 2)).points,
-    ((instance, 4), (1, 4), (1, 4)),
+    ((instance, 4), (1, 4), (2, 4)),
 ))
 
 
