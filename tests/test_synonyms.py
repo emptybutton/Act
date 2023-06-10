@@ -1,33 +1,33 @@
 from typing import Callable, Iterable, Type
 
 from pyhandling.synonyms import *
-from pyhandling.testing import calling_test_case_of
+from pyhandling.testing import case_of
 from tests.mocks import CustomContext, fail_by_error, Counter
 
 from pytest import mark, raises
 
 
-test_returned = calling_test_case_of((lambda: returned(None), None))
+test_returned = case_of((lambda: returned(None), None))
 
 
-test_raise_ = calling_test_case_of(lambda: (
+test_raise_ = case_of(lambda: (
     with_(raises(TypeError), lambda _: raise_(TypeError())),
 ))
 
 
-test_assert_ = calling_test_case_of(
+test_assert_ = case_of(
     lambda: assert_(16),
     lambda: with_(raises(AssertionError), lambda _: assert_(None)),
 )
 
 
-test_tuple_of = calling_test_case_of(
+test_tuple_of = case_of(
     (lambda: tuple_of(1, 2, 3), (1, 2, 3)),
     (lambda: tuple_of(), tuple()),
 )
 
 
-test_on = calling_test_case_of(
+test_on = case_of(
     (lambda: on(lambda x: x > 0, lambda x: x ** x)(4), 256),
     (lambda: on(lambda x: x > 0, lambda x: x ** x)(-4), -4),
     (lambda: on(lambda x: x > 0, lambda x: x ** x)(-4), -4),
@@ -39,7 +39,7 @@ test_on = calling_test_case_of(
 )
 
 
-test_repeating = calling_test_case_of(
+test_repeating = case_of(
     (lambda: repeating(lambda x: x + 1, lambda x: x < 10)(0), 10),
     (lambda: repeating(lambda x: x - 1, lambda x: x > 0)(0), 0),
 )
@@ -68,7 +68,7 @@ def test_repeating_execution_sequences(
     assert number_of_checker_calls == checking_counter.counted
 
 
-test_trying_to_without_error = calling_test_case_of(
+test_trying_to_without_error = case_of(
     (lambda: trying_to(lambda a: 1 / a, lambda _: fail_by_error)(10), 0.1),
     (lambda: trying_to(lambda a, b: a + b, lambda _: fail_by_error)(5, 3), 8),
     (lambda: trying_to(lambda a, b: a + b, lambda _: fail_by_error)(5, b=3), 8),
@@ -100,13 +100,13 @@ def test_trying_to_with_error(
     )
 
 
-test_keyword_unpackly = calling_test_case_of((
+test_keyword_unpackly = case_of((
     lambda: keyword_unpackly(lambda a, b, c: (c, b, a))(dict(a=1, b=2, c=3)),
     (3, 2, 1),
 ))
 
 
-test_with_ = calling_test_case_of(
+test_with_ = case_of(
     (lambda: with_(CustomContext(256), lambda v: v), 256),
     (lambda: with_(CustomContext(16))(lambda v: v), 16),
 )

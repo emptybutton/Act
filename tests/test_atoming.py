@@ -2,7 +2,7 @@ from typing import Self
 
 from pyhandling.atoming import *
 from pyhandling.branching import ActionChain
-from pyhandling.testing import calling_test_case_of
+from pyhandling.testing import case_of
 
 
 class AtomizableMock:
@@ -16,12 +16,12 @@ class AtomizableMock:
         return type(self)(is_atom=True)
 
 
-test_atomic = calling_test_case_of(
+test_atomic = case_of(
     (lambda: atomic(AtomizableMock()), AtomizableMock(is_atom=True))
 )
 
 
-test_atomically = calling_test_case_of(
+test_atomically = case_of(
     (lambda: isinstance(atomically(ActionChain([int, str])), ActionChain), False),
     (
         lambda: len(ActionChain([atomically(ActionChain([int, str])), print])),

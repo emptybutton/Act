@@ -2,13 +2,13 @@ from typing import Iterable, Callable
 
 from pyhandling.annotations import one_value_action
 from pyhandling.branching import *
-from pyhandling.testing import calling_test_case_of
+from pyhandling.testing import case_of
 from tests.mocks import MockAction
 
 from pytest import mark
 
 
-test_action_chain_calling = calling_test_case_of(
+test_action_chain_calling = case_of(
     (lambda: ActionChain([lambda x: x + 2, lambda x: x ** x])(2), 256),
     (lambda: ActionChain([lambda _: None])(256), None),
     (lambda: ActionChain()(None), None),
@@ -37,7 +37,7 @@ def test_action_chain_iteration(
     )
 
 
-test_merged = calling_test_case_of(
+test_merged = case_of(
     (
         lambda: merged(lambda a: a - 1, lambda _: _, lambda a: a + 1)(2),
         (1, 2, 3),
@@ -80,19 +80,19 @@ def test_action_chain_one_value_call_operator(input_resource: int | float = 30):
     assert (chain <= input_resource) == result_of_chain_normal_call
 
 
-test_action_inserting_in = calling_test_case_of(
+test_action_inserting_in = case_of(
     (lambda: binding_by([..., (lambda b: b / 2)])(lambda a: a + 3)(13), 8),
     (lambda: binding_by([(lambda a: a + 3), ...])(lambda b: b / 2)(13), 8),
     (lambda: binding_by([..., ...])(lambda a: a + 2)(12), 16)
 )
 
 
-test_bind = calling_test_case_of(
+test_bind = case_of(
     (lambda: bind(lambda a: a / 2, lambda a: a + 6)(4), 8),
 )
 
 
-test_discretely = calling_test_case_of(
+test_discretely = case_of(
     (lambda: tuple(discretely(lambda _: _)(print)), (print, )),
     (lambda: tuple(discretely(lambda _: _)(print |then>> sum)), (print, sum)),
     (

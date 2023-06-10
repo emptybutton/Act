@@ -2,7 +2,7 @@ from random import choice
 
 from pyhandling.atoming import atomic
 from pyhandling.flags import *
-from pyhandling.testing import calling_test_case_of
+from pyhandling.testing import case_of
 
 
 instance = flag_about("instance")
@@ -104,13 +104,13 @@ def test_flag_instance_check():
     assert isinstance(instance, instance | int)
 
 
-test_to_points = calling_test_case_of((
+test_to_points = case_of((
     lambda: to_points(lambda p: (p, 4))(instance | pointed(1, 2)).points,
     ((instance, 4), (1, 4), (1, 4)),
 ))
 
 
-test_to_value_points = calling_test_case_of((
+test_to_value_points = case_of((
     lambda: to_value_points(lambda p: p * 2)(instance | pointed(1, 2)).points,
     (instance, 2, 4),
 ))

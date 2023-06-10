@@ -3,7 +3,7 @@ from typing import Iterable, Callable, Any
 from pytest import mark
 
 from pyhandling.arguments import *
-from pyhandling.testing import calling_test_case_of
+from pyhandling.testing import case_of
 
 
 @mark.parametrize(
@@ -95,7 +95,7 @@ def test_argument_pack_getting_argument_by_key(
     assert argument_pack[argument_key] == result
 
 
-test_argument_pack_only_with = calling_test_case_of(
+test_argument_pack_only_with = case_of(
     (
         lambda: Arguments((1, 2, 3), dict(a=4)).only_with(ArgumentKey(0)),
         Arguments((1, )),
@@ -144,7 +144,7 @@ def test_as_arguments(
     assert as_arguments(*args, **kwargs) == result_argument_pack
 
 
-test_unpackly = calling_test_case_of(
+test_unpackly = case_of(
     (lambda: unpackly(lambda a, b, c: a / b + c)(Arguments.of(8, 4, 6)), 8),
     (lambda: unpackly(lambda a, b, c: a / b + c)([8, 4, 6]), 8),
 )

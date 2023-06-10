@@ -1,9 +1,9 @@
 from pyhandling.error_storing import *
-from pyhandling.testing import calling_test_case_of
 from pyhandling.objects import obj
+from pyhandling.testing import case_of
 
 
-test_errors_from = calling_test_case_of(
+test_errors_from = case_of(
     (lambda: type(errors_from(Exception())[0]), Exception),
     (
         lambda: type(errors_from(obj(error=ZeroDivisionError()))[0]),

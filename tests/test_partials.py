@@ -1,8 +1,8 @@
 from pyhandling.partials import *
-from pyhandling.testing import calling_test_case_of
+from pyhandling.testing import case_of
 
 
-test_rpartial = calling_test_case_of(
+test_rpartial = case_of(
     (lambda: rpartial(lambda r: r, 0)(), 0),
     (lambda: rpartial(lambda a, b: a / b, 10)(1), 0.1),
     (lambda: rpartial(lambda a, b, *, c: a / b + c, 10, c=1)(1), 1.1),
@@ -15,7 +15,7 @@ test_rpartial = calling_test_case_of(
 )
 
 
-test_mirrored_partial = calling_test_case_of(
+test_mirrored_partial = case_of(
     (lambda: mirrored_partial(lambda a, b, c: a / b + c, 2, 3, 6)(), 4),
     (lambda: mirrored_partial(lambda a, b, c: a / b + c, 2, 3)(6), 4),
     (lambda: mirrored_partial(lambda a, b, *, c=0: a / b + c, 3, 6, c=2)(), 4),
@@ -24,17 +24,17 @@ test_mirrored_partial = calling_test_case_of(
 )
 
 
-test_will = calling_test_case_of((
+test_will = case_of((
     lambda: will(lambda a, b: a / b)(1)(10), 0.1
 ))
 
 
-test_rwill = calling_test_case_of((
+test_rwill = case_of((
     lambda: rwill(lambda a, b: a / b)(10)(1), 0.1
 ))
 
 
-test_partially = calling_test_case_of(
+test_partially = case_of(
     (lambda: partially(lambda a, b, c: a / b + c)(10, 2, 3), 8),
     (lambda: partially(lambda a, b, c: a / b + c)(10, 2)(3), 8),
     (lambda: partially(lambda a, b, c: a / b + c)(10)(2, 3), 8),

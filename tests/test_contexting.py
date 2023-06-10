@@ -3,15 +3,15 @@ from operator import attrgetter
 from pyhandling.branching import then
 from pyhandling.contexting import *
 from pyhandling.flags import pointed
-from pyhandling.testing import calling_test_case_of
+from pyhandling.testing import case_of
 
 
-test_context_oriented = calling_test_case_of(
+test_context_oriented = case_of(
     (lambda: context_oriented(['val', 'con']), contextual('con', 'val')),
 )
 
 
-test_saving_context = calling_test_case_of(
+test_saving_context = case_of(
     (
         lambda: saving_context(lambda a: a + 10)(contextual(6, None)),
         contextual(16, None),
@@ -25,20 +25,20 @@ test_saving_context = calling_test_case_of(
 )
 
 
-test_to_context = calling_test_case_of((
+test_to_context = case_of((
     lambda: to_context(lambda c: c * 2)(contextual("value", 4)),
     contextual("value", 8),
 ))
 
 
-test_contexted = calling_test_case_of(
+test_contexted = case_of(
     (lambda: contexted(4), contextual(4)),
     (lambda: contexted(contextual(4)), contextual(4)),
     (lambda: contexted(contextually(print)), contextual(print)),
 )
 
 
-test_contextually = calling_test_case_of(
+test_contextually = case_of(
     (lambda: contextually(lambda v: v + 3)(5), 8)
 )
 
@@ -53,19 +53,19 @@ def test_contextual_error():
         assert err == error_root
 
 
-test_to_write = calling_test_case_of((
+test_to_write = case_of((
     lambda: to_write(lambda v, c: v + c)(contextual(5, 3)),
     contextual(5, 8)
 ))
 
 
-test_to_read = calling_test_case_of((
+test_to_read = case_of((
     lambda: to_read(lambda v, c: v + c)(contextual(5, 3)),
     contextual(8, 3)
 ))
 
 
-test_with_context_that = calling_test_case_of(
+test_with_context_that = case_of(
     (
         lambda: with_context_that(lambda c: c > 0, contextual('val', 8)),
         contextual('val', 8),
@@ -83,7 +83,7 @@ test_with_context_that = calling_test_case_of(
 )
 
 
-test_to_metacontextual = calling_test_case_of(
+test_to_metacontextual = case_of(
     (
         lambda: to_metacontextual(lambda v: v * 2, lambda c: c / 2)(
             contextual(1, 2)
@@ -101,14 +101,14 @@ test_to_metacontextual = calling_test_case_of(
 )
 
 
-test_is_metacontextual = calling_test_case_of(
+test_is_metacontextual = case_of(
     (lambda: is_metacontextual(4), False),
     (lambda: is_metacontextual(contextual(4)), False),
     (lambda: is_metacontextual(contextual(4, ..., ...)), True),
 )
 
 
-test_with_reduced_metacontext = calling_test_case_of((
+test_with_reduced_metacontext = case_of((
     lambda: to_context(attrgetter("points"))(with_reduced_metacontext(
         contextual('val', 'con', 'metacon')
     )),
@@ -116,7 +116,7 @@ test_with_reduced_metacontext = calling_test_case_of((
 ))
 
 
-test_without_metacontext = calling_test_case_of((
+test_without_metacontext = case_of((
     lambda: to_context(attrgetter("points"))(
         without_metacontext(contextual('val', 1, 2, 3, 4))
     ),

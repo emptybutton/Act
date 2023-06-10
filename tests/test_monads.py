@@ -1,10 +1,10 @@
 from pyhandling.branching import then
 from pyhandling.contexting import contextual
 from pyhandling.monads import *
-from pyhandling.testing import calling_test_case_of
+from pyhandling.testing import case_of
 
 
-test_maybe = calling_test_case_of(
+test_maybe = case_of(
     (
         lambda: contextual(14, "input context") >= maybe(
             (lambda a: a + 2)
@@ -24,7 +24,7 @@ test_maybe = calling_test_case_of(
 )
 
 
-test_until_error = calling_test_case_of(
+test_until_error = case_of(
     (
         lambda: until_error(lambda a: a + 3)(contextual(1, "input context")),
         contextual(4, "input context"),

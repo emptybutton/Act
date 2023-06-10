@@ -8,7 +8,7 @@ from pyhandling.annotations import event
 from pyhandling.data_flow import anything
 
 
-__all__ = ("calling_test_case_of", "test_case_pack")
+__all__ = ("case_of", "test_case_pack")
 
 
 test_case_pack: TypeAlias = tuple[event, Any]
@@ -43,7 +43,7 @@ def _calling_test_method_of(
     return testing_method
 
 
-def calling_test_case_of(*test_packs: test_case_pack | event) -> Type[TestCase]:
+def case_of(*test_packs: test_case_pack | event) -> Type[TestCase]:
     """Function to create a `TestCase` type with input tests."""
 
     return type(
@@ -62,7 +62,7 @@ def calling_test_case_of(*test_packs: test_case_pack | event) -> Type[TestCase]:
             "__doc__": (
                 """
                 `TestCase` class generated from
-                `pyhandling.testing.calling_test_case_of` for some actions
+                `pyhandling.testing.test_case_of` for some actions
                 """
             )
         }
