@@ -12,7 +12,6 @@ from pyhandling.annotations import ActionT, R, Pm, V, A, B, C, D
 from pyhandling.atoming import atomically
 from pyhandling.errors import TemplatedActionChainError, MatchingError
 from pyhandling.immutability import property_to
-from pyhandling.objects import of
 from pyhandling.partials import rpartial, will
 from pyhandling.signature_assignmenting import call_signature_of
 from pyhandling.synonyms import returned, on
@@ -341,14 +340,9 @@ class Branch(NamedTuple, Generic[Pm, R]):
     way: Callable[Pm, R] | R
 
 
-break_ = documenting_by(
-    """
-    Unique object to annotate matching to an `else` branch in `matching` or
-    similar actions.
-    """
-)(
-    of()
-)
+# Unique object to annotate matching to an `else` branch in `matching` or
+# similar actions.
+break_ = object()
 
 
 def matching(
