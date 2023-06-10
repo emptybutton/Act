@@ -76,7 +76,7 @@ def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
     """
 
     if hasattr(value, "__dict__"):
-        return value.__dict__
+        return dict(value.__dict__)
     elif isinstance(value, Mapping):
         return dict(**value)
     else:
