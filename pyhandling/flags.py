@@ -471,9 +471,6 @@ class _AtomicFlag(Flag, ABC):
     def __getatom__(self) -> Self:
         return self
 
-    def __instancecheck__(self, instance: Any) -> bool:
-        return isinstance(instance, self.point)
-
     def __pos__(self) -> FlagVector:
         return _BinaryFlagVector(self)
 
@@ -533,6 +530,9 @@ class _ValueFlag(_AtomicFlag, Generic[V]):
     def __bool__(self) -> bool:
         return bool(self._value)
 
+    def __instancecheck__(self, instance: Any) -> bool:
+        return isinstance(instance, self.point)
+
     @classmethod
     def as_flag(cls, value: FlagT | V) -> FlagT | Flag[V]:
         return value if isinstance(value, Flag) else cls(value)
@@ -563,6 +563,9 @@ class flag_about(_AtomicFlag):
 
     def __bool__(self) -> bool:
         return self._sign
+
+    def __instancecheck__(self, instance: Any) -> bool:
+        return self == instance
 
 
 def pointed(*values: FlagT | V) -> FlagT | _ValueFlag[V]:
