@@ -1,3 +1,4 @@
+from operator import setitem
 from typing import Any
 
 from pytest import mark, raises
@@ -14,6 +15,19 @@ def test_to_clone():
     assert object_ is not cloned_object
     assert object_.mock_attribute == 42
     assert cloned_object.mock_attribute == 4
+
+
+def test_deep_to_clone():
+    object_ = [[1, 2], 3, 4]
+
+    cloned_object = to_clone(setitem, deep=True)(object_, 1, 16)
+
+    assert object_ is not cloned_object
+
+    assert object_ == [[1, 2], 3, 4]
+    assert cloned_object == [[1, 2], 16, 4]
+
+    assert object_[0] is not cloned_object[0]
 
 
 def test_publicly_immutable():
