@@ -9,7 +9,7 @@ from pyhandling.annotations import (
 )
 from pyhandling.atoming import atomically
 from pyhandling.branching import (
-    discretely, ActionChain, binding_by, matching, then
+    discretely, ActionChain, binding_by, matching, then, break_
 )
 from pyhandling.contexting import (
     contextual, contextually, contexted, ContextRoot, saving_context, to_write,
@@ -127,9 +127,9 @@ left = flag_about("left", negative=True)
 def either(
     *determinants_and_ways: tuple[
         Special[checker_of[C]],
-        Callable[[contextual[V, C]], R] | R,
+        Special[break_, Callable[V, R] | R`],
     ],
-) -> LeftCallable[V | contextual[V, C], R]:
+) -> LeftCallable[V | ContextRoot[V, C], contextual[R, C]]:
     """
     `matching`-like function for `ContextRoots` with determinants applied to
     contexts and implementers applied to values.
