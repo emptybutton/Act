@@ -46,7 +46,7 @@ def test_flag_algebra():
     assert instance.points == (instance, )
 
     assert nothing.point is nothing
-    assert nothing.points == (nothing, )
+    assert nothing.points == tuple()
 
     assert (first | second).point == first.point
     assert (first | second).points == (first.point, second.point)

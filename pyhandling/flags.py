@@ -96,7 +96,7 @@ class Flag(ABC, Generic[P]):
     super_.points == (super_, )
 
     nothing.point is nothing
-    nothing.points == (nothing, )
+    nothing.points == tuple()
 
     (first | second).point == first.point
     (first | second).points == (first.point, second.point)
@@ -466,7 +466,7 @@ class _AtomicFlag(Flag, ABC):
 
     @property
     def points(self) -> Tuple:
-        return (self.point, )
+        return tuple() if self is nothing else (self.point, )
 
     def __getatom__(self) -> Self:
         return self
