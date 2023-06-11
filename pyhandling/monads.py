@@ -22,7 +22,7 @@ from pyhandling.objects import void
 from pyhandling.operators import and_, not_
 from pyhandling.partials import will, partially
 from pyhandling.structure_management import tmap
-from pyhandling.synonyms import on
+from pyhandling.synonyms import on, returned
 from pyhandling.tools import documenting_by, to_check, as_action, LeftCallable
 
 
@@ -210,16 +210,23 @@ is_in_future = documenting_by(
 
 @namespace_of
 class do:
-    writing = flag_about("writing")
-    reading = flag_about("reading")
+    _high = flag_about("high")
 
     returned = flag_about("returned")
+    def up(action: ActionT) -> contextually[ActionT, _high]:
+        return contextually(action, do._high)
 
-    def write(action: ActionT) -> contextually[ActionT, writing]:
-        return contextually(action, do.writing)
+    def write(action: Callable[[V, C], R]) -> contextually[
+        Callable[ContextRoot[V, C], contextual[V, R]],
+        _high
+    ]:
+        return do.up(to_write(action))
 
-    def read(action: ActionT) -> contextually[ActionT, reading]:
-        return contextually(action, do.reading)
+    def read(action: Callable[[V, C], R]) -> contextually[
+        Callable[ContextRoot[V, C], contextual[R, C]],
+        _high
+    ]:
+        return do.up(to_read(action))
 
     def return_(value: V) -> contextual[V, returned]:
         return contextual(value, do.returned)
@@ -227,11 +234,7 @@ class do:
     def __call__(*actions: ActionT) -> LeftCallable[Any, contextual]:
         lines = ((map |by| actions) |then>> ActionChain)(
             discretely(
-                either(
-                    (do.writing, to_write),
-                    (do.reading, to_read),
-                    (..., saving_context),
-                )
+                either((do._high, returned), (..., saving_context))
                 |then>> attrgetter("value")
                 |then>> will(on)(not_(do._is_for_returning))
             )
