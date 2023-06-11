@@ -21,7 +21,7 @@ __all__ = (
 iteration_over: LeftCallable[Iterable[V], LeftCallable[..., Optional[V]]]
 iteration_over = documenting_by(
     """
-    Decorator to atomically iterate over input generator via call.
+    Decorator to atomically iterate over an input iterable object via call.
     When `StopIteration` occurs, returns it.
     """
 )(
