@@ -206,6 +206,9 @@ class Unia:
             else (annotation_or_annotations, )
         ))
 
+    def __eq__(self, other: Special[Self]) -> bool:
+        return isinstance(other, Unia) and other.annotations == self.annotations
+
     def __instancecheck__(self, instance: Any) -> bool:
         return all(
             isinstance(instance, annotation) for annotation in self._annotations
