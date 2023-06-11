@@ -258,7 +258,6 @@ class do:
             |then>> to_context(on(void, nothing))
         )
 
-
     def _is_for_returning(
         root: Special[ContextRoot[ContextRoot[Any, _returned], Any]],
     ) -> bool:

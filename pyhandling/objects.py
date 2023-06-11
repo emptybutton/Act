@@ -2,17 +2,17 @@ from functools import partial, reduce
 from operator import attrgetter, or_
 from types import MethodType
 from typing import (
-    NoReturn, Mapping, Callable, Self, Generic, Concatenate, Any, Tuple,
-    Optional, ClassVar
+    Mapping, Callable, Self, Generic, Concatenate, Any, Tuple, Optional,
+    ClassVar
 )
 from sys import getrecursionlimit, setrecursionlimit
 
 from pyannotating import Special
 
-from pyhandling.annotations import K, V, event_for, Pm, R, O
+from pyhandling.annotations import K, V, Pm, R, O
 from pyhandling.contexting import contextually, contexted, ContextRoot
 from pyhandling.flags import flag_about, Flag
-from pyhandling.errors import InvalidInitializationError, UniaError
+from pyhandling.errors import UniaError
 from pyhandling.immutability import to_clone
 from pyhandling.partials import partially, flipped
 from pyhandling.tools import action_repr_of

@@ -47,7 +47,6 @@ def test_protocoled_dataclass():
         a: int
         b: int = field(default_factory=lambda: 4)
 
-
     instance = Structure(a=1, b=2)
 
     assert instance.a == 1

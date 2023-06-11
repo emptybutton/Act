@@ -1,6 +1,6 @@
 from functools import partial
 from dataclasses import dataclass
-from typing import TypeVar, Callable, Generic, Optional, Self, Final, Any, ClassVar
+from typing import TypeVar, Callable, Generic, Optional, Self, Final, Any
 
 from pyannotating import Special
 
@@ -54,7 +54,7 @@ class Effect(Generic[V, R, C]):
     arguments, it is equivalent to `partial(Effect, **keywords)`.
     """
 
-    _NO_VALUE: ClassVar[Final[object]] = object()
+    _NO_VALUE: Final[object] = object()
 
     lift = property_to("lift")
     is_lifted = property_to("is_lifted")

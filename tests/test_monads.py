@@ -171,4 +171,3 @@ test_future_from = case_of(
         (4, 8, 16),
     ),
 )
-

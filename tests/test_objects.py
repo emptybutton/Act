@@ -1,10 +1,10 @@
 from functools import partial
 from operator import not_, add
-from typing import Any, Iterable, Container, Literal, Iterator
+from typing import Any, Iterable, Container
 
 from pytest import raises, mark
 
-from pyhandling.errors import InvalidInitializationError, UniaError
+from pyhandling.errors import UniaError
 from pyhandling.objects import *
 from pyhandling.testing import case_of
 from tests.mocks import MockAction, CustomContext
