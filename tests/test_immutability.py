@@ -1,10 +1,19 @@
 from operator import setitem
 from typing import Any
 
-from pytest import mark, raises
+from pytest import raises, mark
 
+from pyhandling.errors import InvalidInitializationError
 from pyhandling.immutability import *
 from pyhandling.objects import obj
+
+
+def test_not_initializable():
+    class Some(NotInitializable):
+        ...
+
+    with raises(InvalidInitializationError):
+        Some()
 
 
 def test_to_clone():
