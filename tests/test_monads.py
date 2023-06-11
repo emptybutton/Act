@@ -1,9 +1,9 @@
 from functools import partial
-from operator import add, mul
+from operator import add, mul, truediv
 
 from pyhandling.branching import then, break_
 from pyhandling.contexting import contextual, contextually
-from pyhandling.flags import nothing
+from pyhandling.flags import nothing, pointed, flag_about
 from pyhandling.monads import *
 from pyhandling.testing import case_of
 
@@ -128,3 +128,47 @@ test_either = case_of(
         contextual(8, 2),
     ),
 )
+
+
+def test_in_future():
+    some = flag_about("some")
+
+    value, context = in_future(partial(add, 3))(contextual(5, some))
+
+    assert value == 5
+    assert context.points[0] is some
+
+    future_actoin, flag = context.points[1]
+
+    assert flag is future
+    assert future_actoin() == 8
+
+
+def test_in_future_with_noncontextual():
+    value, context = in_future(partial(truediv, 64))(4)
+
+    assert value == 4
+
+    assert len(context.points) == 1
+    assert context.point.context is future
+    assert context.point.action() == 16
+
+
+test_future_from = case_of(
+    (lambda: future_from(4), tuple()),
+    (lambda: future_from(contextual(4, future)), tuple()),
+    (lambda: future_from(contextually(lambda: 4)), tuple()),
+    (lambda: future_from(contextually(lambda: 4, future)), (4, )),
+    (lambda: future_from(pointed(contextually(lambda: 4, future))), (4, )),
+    (lambda: future_from(pointed(1, 2, 3)), tuple()),
+    (
+        lambda: future_from(pointed(
+            contextually(lambda: 4, future),
+            contextually(lambda: 8, future),
+            contextually(lambda: 16, future),
+            "garbage",
+        )),
+        (4, 8, 16),
+    ),
+)
+
