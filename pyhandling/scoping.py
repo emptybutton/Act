@@ -14,7 +14,7 @@ def back_scope_in(number_of_backs: int, /) -> dict[str, Any]:
 
     scope = repeating(
         attrgetter("f_back"),
-        times(number_of_backs + 1),
+        times(number_of_backs),
     )(stack()[1][0])
 
     return dict() if scope is None else scope.f_locals
