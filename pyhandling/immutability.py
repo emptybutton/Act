@@ -1,14 +1,24 @@
 from copy import deepcopy, copy
 from functools import wraps
-from typing import Callable, Any, Concatenate, Self
+from typing import NoReturn, Callable, Any, Concatenate, Self
 
 from pyhandling.annotations import V, Pm, one_value_action, TypeT
 from pyhandling.atoming import atomically
+from pyhandling.errors import InvalidInitializationError
 from pyhandling.partials import partially
 from pyhandling.signature_assignmenting import call_signature_of
 
 
-__all__ = ("to_clone", "publicly_immutable", "property_to")
+__all__ = ("NotInitializable", "to_clone", "publicly_immutable", "property_to")
+
+
+class NotInitializable:
+    """Mixin class preventing instantiation."""
+
+    def __init__(self, *args, **kwargs) -> NoReturn:
+        raise InvalidInitializationError(
+            f"\"{type(self).__name__}\" type object cannot be initialized"
+        )
 
 
 @partially

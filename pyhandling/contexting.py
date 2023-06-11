@@ -12,8 +12,7 @@ from pyhandling.annotations import (
 from pyhandling.atoming import atomically
 from pyhandling.branching import then
 from pyhandling.flags import nothing, Flag, pointed
-from pyhandling.immutability import property_to
-from pyhandling.objects import NotInitializable
+from pyhandling.immutability import property_to, NotInitializable
 from pyhandling.partials import partially, will, rpartial
 from pyhandling.signature_assignmenting import call_signature_of
 from pyhandling.synonyms import repeating, returned, on

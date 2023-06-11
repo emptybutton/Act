@@ -13,7 +13,6 @@ from pyhandling.tools import action_repr_of
 
 
 __all__ = (
-    "NotInitializable",
     "Arbitrary",
     "dict_of",
     "obj",
@@ -24,13 +23,7 @@ __all__ = (
 )
 
 
-class NotInitializable:
-    """Mixin class preventing instantiation."""
 
-    def __init__(self, *args, **kwargs) -> NoReturn:
-        raise InvalidInitializationError(
-            f"\"{type(self).__name__}\" type object cannot be initialized"
-        )
 
 
 class Arbitrary(Generic[Pm, R]):
