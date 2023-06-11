@@ -173,7 +173,10 @@ def in_future(
     For safe calling of such "future" actions from context see `future_from`.
     """
 
-    return contexted(value, +pointed(contextually(action |to| value, when=future)))
+    return contexted(
+        value,
+        +pointed(contextually(action |to| contexted(value).value, future)),
+    )
 
 
 def future_from(
