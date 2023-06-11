@@ -211,8 +211,8 @@ is_in_future = documenting_by(
 @namespace_of
 class do:
     _high = flag_about("high")
+    _returned = flag_about("returned")
 
-    returned = flag_about("returned")
     def up(action: ActionT) -> contextually[ActionT, _high]:
         return contextually(action, do._high)
 
@@ -228,8 +228,8 @@ class do:
     ]:
         return do.up(to_read(action))
 
-    def return_(value: V) -> contextual[V, returned]:
-        return contextual(value, do.returned)
+    def return_(value: V) -> contextual[V, _returned]:
+        return contextual(value, do._returned)
 
     def __call__(*actions: ActionT) -> LeftCallable[Any, contextual]:
         lines = ((map |by| actions) |then>> ActionChain)(
