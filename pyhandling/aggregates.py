@@ -1,6 +1,6 @@
 from functools import partial
 from dataclasses import dataclass
-from typing import TypeVar, Callable, Generic, Optional, Self, Final, Any
+from typing import TypeVar, Callable, Generic, Optional, Self, Final, Any, ClassVar
 
 from pyannotating import Special
 
@@ -34,9 +34,6 @@ class Access(Generic[_GetterT, _SetterT]):
     set: _SetterT
 
 
-_NO_EFFECT_VALUE: Final[object] = object()
-
-
 class Effect(Generic[V, R, C]):
     """
     Aggregating decorator class for executing in a specific container type and
@@ -56,6 +53,8 @@ class Effect(Generic[V, R, C]):
     Partially applicable to keyword arguments, i.e. when passing only keyword
     arguments, it is equivalent to `partial(Effect, **keywords)`.
     """
+
+    _NO_VALUE: ClassVar[Final[object]] = object()
 
     lift = property_to("lift")
     is_lifted = property_to("is_lifted")
@@ -93,7 +92,7 @@ class Effect(Generic[V, R, C]):
     def __call__(
         self,
         action: Callable[V, R | C],
-        value: Special[V | C] = _NO_EFFECT_VALUE,
+        value: Special[V | C] = _NO_VALUE,
     ) -> Callable[V | C, C] | C:
         lifted_action = (
             self.lifted |then>> self._decorator(action) |then>> self.lifted
@@ -101,7 +100,7 @@ class Effect(Generic[V, R, C]):
 
         return (
             lifted_action
-            if value is _NO_EFFECT_VALUE
+            if value is Effect._NO_VALUE
             else lifted_action(value)
         )
 
