@@ -258,9 +258,8 @@ class do:
             |then>> to_context(on(void, nothing))
         )
 
-    _is_for_returning: Callable[
-        Special[ContextRoot[ContextRoot[Any, _returned], Any]],
-        bool,
-    ]
-    _is_for_returning = lambda root: contexted(root.value).context == do._returned
 
+    def _is_for_returning(
+        root: Special[ContextRoot[ContextRoot[Any, _returned], Any]],
+    ) -> bool:
+        return contexted(root.value).context == do._returned
