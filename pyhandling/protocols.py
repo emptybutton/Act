@@ -3,7 +3,6 @@ from typing import runtime_checkable, Protocol
 from pyhandling.annotations import P, V
 from pyhandling.immutability import to_clone
 from pyhandling.objects import Unia, dict_of
-from pyhandling.partials import partially
 
 
 __all__ = (
@@ -37,7 +36,7 @@ class Protocolable(Protocol[P]):
     __protocol__: P
 
 
-def protocol_of(value: V, *, deep: bool = False) -> Protocol:
+def protocol_of(value: V) -> Protocol:
     """Function to create a protocol based on an input value."""
 
     return runtime_checkable(type(
@@ -47,13 +46,12 @@ def protocol_of(value: V, *, deep: bool = False) -> Protocol:
             else f"{type(value).__name__}Object"
         ),
         (Protocol, ),
-        dict.fromkeys(dir(value), key=None) if deep else dict_of(value),
+        dict_of(value),
     ))
 
 
-@partially
 @to_clone
-def protocoled(value: V, *, deep: bool = False) -> Unia[V, Protocolable]:
+def protocoled(value: V) -> Unia[V, Protocolable]:
     """
     Function to create a protocol based on an input value and immutably add that
     protocol to an input value.
@@ -62,4 +60,4 @@ def protocoled(value: V, *, deep: bool = False) -> Unia[V, Protocolable]:
     value `Protocolable`.
     """
 
-    value.__protocol__ = protocol_of(value, deep=deep)
+    value.__protocol__ = protocol_of(value)
