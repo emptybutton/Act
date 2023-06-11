@@ -23,7 +23,7 @@ from pyhandling.data_flow import by, to, to_left
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import nothing, flag_about, Flag
 from pyhandling.immutability import to_clone, property_to
-from pyhandling.objects import namespace_of
+from pyhandling.objects import obj
 from pyhandling.partials import flipped, rpartial, will
 from pyhandling.scoping import value_in
 from pyhandling.structure_management import tfilter, groups_in
@@ -91,7 +91,7 @@ class _ActionCursorUnpacking:
         return self
 
 
-@namespace_of
+@obj.of
 class _ActionCursorNature:
     attrgetting = flag_about("attrgetting")
     itemgetting = flag_about("itemgetting")

@@ -1,45 +1,100 @@
-from functools import partial
-from operator import attrgetter
+from functools import partial, reduce
+from operator import attrgetter, or_
+from types import MethodType
 from typing import (
-    NoReturn, Mapping, Callable, Self, Generic, Concatenate, Any, Tuple
+    NoReturn, Mapping, Callable, Self, Generic, Concatenate, Any, Tuple,
+    Optional, ClassVar
 )
+from sys import getrecursionlimit, setrecursionlimit
 
 from pyannotating import Special
 
-from pyhandling.annotations import K, V, event_for, Pm, R
+from pyhandling.annotations import K, V, event_for, Pm, R, O
+from pyhandling.contexting import contextually, contexted, ContextRoot
+from pyhandling.flags import flag_about, Flag
 from pyhandling.errors import InvalidInitializationError, UniaError
-from pyhandling.partials import partially
+from pyhandling.immutability import to_clone
+from pyhandling.partials import partially, flipped
 from pyhandling.tools import action_repr_of
 
 
 __all__ = (
-    "Arbitrary",
-    "dict_of",
     "obj",
-    "from_",
-    "namespace_of",
+    "dict_of",
+    "of",
     "void",
     "Unia",
 )
 
 
+def _with_recurion_limit(
+    limit: int,
+    action: Callable[Pm, R],
+    *args: Pm.args,
+    **kwargs: Pm.kwargs,
+) -> R:
+    old_limit = getrecursionlimit()
+
+    setrecursionlimit(limit)
+    result = action(*args, **kwargs)
+    setrecursionlimit(old_limit)
+
+    return result
 
 
-
-class Arbitrary(Generic[Pm, R]):
+class obj:
     """
-    Class for objects that do not have a common structure.
-    To create with data use `obj` constructor.
+    Constructor for objects that do not have a common structure.
+
+    Creates an object with attributes from keyword arguments.
+
+    When called with a `__call__` attribute, makes an output object callable on
+    that attribute as a method.
+
+    Can be obtained union of an instance with any other object via `&`.
     """
+
+    plugin: ClassVar[Flag] = flag_about("flag_about")
+
+    def __new__(
+        cls,
+        __call__: Optional[Callable[Concatenate[Self, Pm], R]] = None,
+        **attributes: Special[ContextRoot[Callable[[Self, Any], Any], plugin]],
+    ) -> "Special[_callable_obj[Pm, R], Self]":
+        return (
+            _callable_obj(__call__=__call__, **attributes)
+            if __call__ is not None
+            else super().__new__(cls)
+        )
+
+    def __init__(
+        self,
+        **attributes: Special[ContextRoot[Callable[[Self, str], Any], plugin]],
+    ):
+        self.__dict__ = {
+            key: (
+                contextually(*attr)(self, key)
+                if contexted(attr).context == obj.plugin
+                else attr
+            )
+            for key, attr in attributes.items()
+        }
 
     def __repr__(self) -> str:
         return "<{}>".format(', '.join(
-            f"{name}={action_repr_of(value)}"
+            f"{name}={self.__repr_of(value)}"
             for name, value in self.__dict__.items()
         ))
 
+    @staticmethod
+    def __repr_of(value: Any) -> str:
+        try:
+            return _with_recurion_limit(20, action_repr_of, value)
+        except RecursionError:
+            return '...'
+
     def __and__(self, other: Special[Mapping]) -> Self:
-        return obj(**self.__dict__ | dict_of(other))
+        return obj.of(self, other)
 
     def __rand__(self, other: Special[Mapping]) -> Self:
         return obj(**dict_of(other) | self.__dict__)
@@ -47,16 +102,35 @@ class Arbitrary(Generic[Pm, R]):
     def __eq__(self, other: Special[Mapping]) -> bool:
         return self.__dict__ == dict_of(other)
 
+    @classmethod
+    def of(cls, *objects: Special[Mapping]) -> Self:
+        """
+        Constructor for data from other objects.
 
-class _CallableArbitrary(Arbitrary):
-    def __init__(self, action: Callable[Concatenate[Self, Pm] | Pm, R]):
-        self.__action = action
+        When passing a dictionary without `__dict__`, gets data from that
+        dictionary.
+
+        Data of subsequent objects have higher priority than previous ones.
+        """
+
+        return obj(**reduce(or_, map(dict_of, objects)))
+
+
+class _callable_obj(obj, Generic[Pm, R]):
+    """Variation of `obj` for callability."""
+
+    def __new__(cls, *args, **kwargs) -> Self:
+        return object.__new__(cls)
+
+    def __init__(self, __call__: Callable[Concatenate[Self, Pm], R], **attributes):
+        super().__init__(**attributes)
+        self.__call__ = __call__
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return (
-            self.__action
-            if isinstance(self.__action, staticmethod)
-            else partial(self.__action, self)
+            self.__call__
+            if isinstance(self.__call__, staticmethod)
+            else partial(self.__call__, self)
         )(*args, **kwargs)
 
 
@@ -76,64 +150,19 @@ def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
         return dict()
 
 
-def obj(get_object: event_for[V] = Arbitrary, /, **attributes) -> V:
-    """
-    Function to create an object with attributes from keyword arguments.
-    Get object to modify from `get_object` parameter.
-
-    When called on an `Arbitrary` object with a `__call__` attribute, makes it
-    callable on that attribute as a method.
-    """
-
-    object_ = get_object()
-
-    if isinstance(object_, Arbitrary) and "__call__" in attributes.keys():
-        new_attributes = dict(attributes)
-        del new_attributes["__call__"]
-
-        return obj(
-            partial(_CallableArbitrary, attributes["__call__"]),
-            **new_attributes
-        )
-
-    object_.__dict__ = dict_of(object_) | attributes
-
-    return object_
-
-
 @partially
-def from_(parent: Special[Mapping], child: Special[Mapping]) -> Arbitrary:
+@flipped
+@to_clone
+def of(object_: O, data: Special[Mapping], /) -> O:
     """
-    Function for object-level inheritance.
-
-    Summarizes data of input objects into an `Arbitrary` object. When passing a
-    dictionary without `__dict__`, gets data from that dictionary.
-
-    Child data is preferred over parent data.
+    Function to set all attributes of a first input object to a clone of a
+    second input object.
     """
 
-    return obj(**dict_of(parent) | dict_of(child))
+    object_.__dict__ = dict_of(object_) | dict_of(data)
 
 
-def namespace_of(object_: Special[Mapping]) -> Arbitrary:
-    """
-    Decorator for creating a namespace based on an input object.
-
-    Creates an arbitrary object of an input object with `staticmethod` methods.
-    Already `staticmethod` methods are not re-decorated.
-    """
-
-    return obj(**{
-        _: (
-            staticmethod(value)
-            if callable(value) and not isinstance(value, staticmethod)
-            else value
-        )
-        for _, value in dict_of(object_).items()
-    })
-
-
-void = Arbitrary()  # Arbitrary object without data
+void = obj()  # Object without data
 
 
 class Unia:

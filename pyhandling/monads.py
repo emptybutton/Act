@@ -17,7 +17,7 @@ from pyhandling.contexting import (
 )
 from pyhandling.data_flow import returnly, by, to
 from pyhandling.flags import flag_about, nothing, Flag, pointed
-from pyhandling.objects import namespace_of
+from pyhandling.objects import obj
 from pyhandling.objects import void
 from pyhandling.operators import and_, not_
 from pyhandling.partials import will, partially
@@ -157,7 +157,7 @@ future = flag_about("future")
 
 @partially
 def in_future(
-    action: Callable[[V], R],
+    action: Callable[V, R],
     value: V | ContextRoot[V, Flag[C] | C],
 ) -> contextual[V, Flag[C | contextually[event_for[R], future]]]:
     """
@@ -208,7 +208,7 @@ is_in_future = documenting_by(
 )
 
 
-@namespace_of
+@obj.of
 class do:
     _high = flag_about("high")
     _returned = flag_about("returned")
