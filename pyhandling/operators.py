@@ -86,7 +86,7 @@ def inclusive_all(values: Iterable) -> bool:
 def not_inclusive_any(values: Iterable) -> bool:
     """`any` with `True` when called from an empty collection."""
 
-    return len(tuple(values)) == 0 or all(values)
+    return len(tuple(values)) == 0 or any(values)
 
 
 not_ = partial(_DynamicDeterminant, 'not', lambda args: operator.not_(*args))
