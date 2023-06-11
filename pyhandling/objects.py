@@ -20,6 +20,7 @@ from pyhandling.tools import action_repr_of
 
 __all__ = (
     "obj",
+    "method_of",
     "dict_of",
     "of",
     "void",
@@ -132,6 +133,15 @@ class _callable_obj(obj, Generic[Pm, R]):
             if isinstance(self.__call__, staticmethod)
             else partial(self.__call__, self)
         )(*args, **kwargs)
+
+
+def method_of(method: Callable[[obj, ...], Any]) -> contextually[
+    Callable[[Any, Any], MethodType],
+    obj.plugin,
+]:
+    """Constructor for `obj` plugin that adds an input method to it."""
+
+    return contextually(lambda object_, _: MethodType(method, object_), obj.plugin)
 
 
 def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
