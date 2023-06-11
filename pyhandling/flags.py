@@ -525,7 +525,7 @@ class _ValueFlag(_AtomicFlag, Generic[V]):
         return f"pointed({action_repr_of(self._value)})"
 
     def __hash__(self) -> int:
-        return hash(self._value)
+        return hash(self._value) + 10*19
 
     def __bool__(self) -> bool:
         return bool(self._value)
@@ -559,7 +559,7 @@ class flag_about(_AtomicFlag):
         return self._name
 
     def __hash__(self) -> int:
-        return hash(self._name + str(int(self._sign)))
+        return hash(self._name) + hash(self._sign)
 
     def __bool__(self) -> bool:
         return self._sign
