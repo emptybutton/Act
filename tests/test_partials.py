@@ -1,3 +1,5 @@
+from operator import truediv
+
 from pyhandling.partials import *
 from pyhandling.testing import case_of
 
@@ -52,4 +54,15 @@ test_partially = case_of(
         ),
         16,
     )
+)
+
+
+test_flipped = case_of(
+    (lambda: flipped(truediv)(10, 1), 0.1),
+    (
+        lambda: flipped(lambda a, b, c, *d, **e: (a / b + c, *d, e))(
+            3, 2, 1, 60, 2, 80, first=1, second=2
+        ),
+        (100, 1, 2, 3, dict(first=1, second=2)),
+    ),
 )
