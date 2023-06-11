@@ -80,7 +80,7 @@ def are_linear(
 def inclusive_all(values: Iterable) -> bool:
     """`all` with `False` when called from an empty collection."""
 
-    return len(tuple(values)) == 0 and all(values)
+    return len(tuple(values)) > 0 and all(values)
 
 
 def not_inclusive_any(values: Iterable) -> bool:
