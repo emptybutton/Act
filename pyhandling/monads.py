@@ -146,7 +146,7 @@ def either(
                 if determinant is Ellipsis
                 else attrgetter("context") |then>> to_check(determinant)
             ),
-            saving_context(as_action(way)),
+            way if way is break_ else saving_context(as_action(way)),
         )
         for determinant, way in determinants_and_ways
     )))
