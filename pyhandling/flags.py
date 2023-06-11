@@ -493,9 +493,6 @@ class _AtomicFlag(Flag, ABC):
             else nothing
         )
 
-    def _atomically_equal_to(self, other: Any) -> bool:
-        return type(self) is type(other) and hash(self) == hash(other)
-
 
 class _ValueFlag(_AtomicFlag, Generic[V]):
     """
@@ -537,6 +534,9 @@ class _ValueFlag(_AtomicFlag, Generic[V]):
     def as_flag(cls, value: FlagT | V) -> FlagT | Flag[V]:
         return value if isinstance(value, Flag) else cls(value)
 
+    def _atomically_equal_to(self, other: Special[Self]) -> bool:
+        return type(self) is type(other) and self._value == other._value
+
 
 @atomically
 class flag_about(_AtomicFlag):
@@ -566,6 +566,13 @@ class flag_about(_AtomicFlag):
 
     def __instancecheck__(self, instance: Any) -> bool:
         return self == instance
+
+    def _atomically_equal_to(self, other: Special[Self]) -> bool:
+        return (
+            type(self) is type(other)
+            and self._name == other._name
+            and self._sign is other._sign
+        )
 
 
 def pointed(*values: FlagT | V) -> FlagT | _ValueFlag[V]:
