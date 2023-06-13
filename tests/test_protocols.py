@@ -40,6 +40,12 @@ test_protocolable = case_of(
 )
 
 
+def test_proto():
+    object_ = protocoled(obj(a=1, b=2))
+
+    assert Proto[object_] == object_.__protocol__
+
+
 def test_protocoled_dataclass():
     @dataclass(frozen=True)
     @protocoled
