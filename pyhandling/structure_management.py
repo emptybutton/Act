@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from functools import partial
 from math import copysign
-from operator import ge, le, itemgetter, neg
+from operator import ge, le, methodcaller, contains, gt, lt
 from types import MappingProxyType
 from typing import (
     Iterable, Tuple, Callable, Mapping, TypeAlias, Any, Optional, Self, Iterator
@@ -11,9 +11,9 @@ from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import V, M, K, action_of, checker_of, I
 from pyhandling.atoming import atomically
-from pyhandling.branching import then, binding_by
+from pyhandling.branching import then, binding_by, ActionChain
 from pyhandling.contexting import ContextRoot, contextual, contexted
-from pyhandling.data_flow import to, shown
+from pyhandling.data_flow import to, returnly, by
 from pyhandling.flags import flag_about
 from pyhandling.operators import and_
 from pyhandling.partials import rpartial, partially, rwill
@@ -30,6 +30,7 @@ __all__ = (
     "flat",
     "deep_flat",
     "append",
+    "remove",
     "slice_from",
     "interval",
     "Interval",
@@ -117,6 +118,18 @@ append = atomically(
 )
 
 
+def remove(*items: I) -> Callable[I | Iterable[I], Tuple[I]]:
+    """
+    Function for an action that represents an input value as a `tuple` with no
+    items passed to this function.
+    """
+
+    removing = ActionChain(
+        returnly(on(contains |by| item, methodcaller("remove", item)))
+        for item in items
+    )
+
+    return atomically(as_collection |then>> list |then>> removing |then>> tuple)
 
 
 def slice_from(range_: range) -> slice:
