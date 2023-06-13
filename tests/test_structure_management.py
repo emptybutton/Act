@@ -1,40 +1,16 @@
-from typing import Iterable, Any
-
-from pytest import mark
-
 from pyhandling.testing import case_of
 from pyhandling.structure_management import *
 
 
-@mark.parametrize(
-    'input_collection, result_collection',
-    [
-        ([1, 2, 3], (1, 2, 3)),
-        ([1, 2, (3, 4)], (1, 2, 3, 4)),
-        ([1, 2, (3, (4, 5))], (1, 2, 3, (4, 5))),
-        (tuple(), tuple()),
-        (str(), tuple()),
-    ]
+test_as_collection = case_of(
+    (lambda: as_collection(42), (42, )),
+    (lambda: as_collection(None), (None, )),
+    (lambda: as_collection([1, 2, 3]), (1, 2, 3)),
+    (lambda: as_collection(map(lambda x: x ** 2, [4, 8, 16])), (16, 64, 256)),
+    (lambda: as_collection((3, 9, 12)), (3, 9, 12)),
+    (lambda: as_collection(tuple()), tuple()),
+    (lambda: as_collection('Hello'), ('H', 'e', 'l', 'l', 'o')),
 )
-def test_flat(input_collection: Iterable, result_collection: tuple):
-    assert flat(input_collection) == result_collection
-
-
-@mark.parametrize(
-    "input_value, result",
-    [
-        (42, (42, )),
-        (None, (None, )),
-        ([1, 2, 3], (1, 2, 3)),
-        (map(lambda x: x ** 2, [4, 8, 16]), (16, 64, 256)),
-        ((3, 9, 12), (3, 9, 12)),
-        (tuple(), tuple()),
-        (list(), tuple()),
-        ('Hello', ('H', 'e', 'l', 'l', 'o'))
-    ]
-)
-def test_as_collection(input_value: Any, result: tuple):
-    assert as_collection(input_value) == result
 
 
 test_tmap = case_of((
@@ -49,3 +25,12 @@ test_tfilter = case_of((
 test_tzip = case_of((
     lambda: tzip(['a', 'b'], range(10)), (('a', 0), ('b', 1))
 ))
+
+
+test_flat = case_of(
+    (lambda: flat([1, 2, 3]), (1, 2, 3)),
+    (lambda: flat([1, 2, (3, 4)]), (1, 2, 3, 4)),
+    (lambda: flat([1, 2, (3, (4, 5))]), (1, 2, 3, (4, 5))),
+    (lambda: flat(tuple()), tuple()),
+    (lambda: flat(str()), tuple()),
+)
