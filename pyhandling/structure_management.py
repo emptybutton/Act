@@ -30,7 +30,6 @@ __all__ = (
     "flat",
     "deep_flat",
     "append",
-    "shorten_by",
     "slice_from",
     "interval",
     "Interval",
@@ -118,14 +117,6 @@ append = atomically(
 )
 
 
-shorten_by: Callable[int, Callable[Iterable[V], Tuple[V]]]
-shorten_by = atomically(
-    neg
-    |then>> (slice |to| None)
-    |then>> itemgetter
-    |then>> binding_by(tuple |then>> ...)
-    |then>> atomically
-)
 
 
 def slice_from(range_: range) -> slice:
