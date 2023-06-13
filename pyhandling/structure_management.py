@@ -14,6 +14,7 @@ from pyhandling.atoming import atomically
 from pyhandling.branching import then, binding_by, ActionChain
 from pyhandling.contexting import ContextRoot, contextual, contexted
 from pyhandling.data_flow import to, returnly, by
+from pyhandling.errors import RangeConstructionError
 from pyhandling.flags import flag_about
 from pyhandling.operators import and_
 from pyhandling.partials import rpartial, partially, rwill
@@ -173,7 +174,7 @@ Interval: TypeAlias = (
 )
 
 
-def ranges_from(interval: Interval, *, border: Optional[int] = None) -> Tuple[range]:
+def ranges_from(interval: Interval, *, limit: Optional[int] = None) -> Tuple[range]:
     intervals = (
         (interval, )
         if (
@@ -183,46 +184,55 @@ def ranges_from(interval: Interval, *, border: Optional[int] = None) -> Tuple[ra
         else tuple(interval)
     )
 
-    return tmap(partial(range_from, border=border), intervals)
+    return tmap(partial(range_from, limit=limit), intervals)
 
 
 def range_from(
     interval: int | range | slice,
     *,
-    border: Optional[int] = None,
+    limit: Optional[int] = None,
 ) -> range:
-    if isinstance(interval, slice):
-        if border is None:
-            raise ValueError(
-                "`border` is required to create a `range` from a `slice`"
-            )
+    if limit is not None and limit < 0:
+        raise RangeConstructionError("`limit` must be greater than zero")
 
-        return _range_from_slice(interval, border=border)
+    if isinstance(interval, slice):
+        return _range_from_slice(interval, limit=limit)
     elif isinstance(interval, range):
         range_ = interval
     else:
         range_ = range(interval)
 
-    return shown(
+    if limit is None:
+        return range_
+
+    crosses = gt if range_.step > 0 else lt
+    border = int(copysign(limit, range_.step))
+
+    return (
         range(range_.start, border, range_.step)
-        if range_.stop > border
+        if crosses(range_.stop, border)
         else range_
     )
 
 
-def _range_from_slice(slice_: slice, *, border: int) -> range:
+def _range_from_slice(slice_: slice, *, limit: Optional[int]) -> range:
     start = 0 if slice_.start is None else slice_.start
     stop = 0 if slice_.stop is None else slice_.stop
     step = 1 if slice_.step is None else slice_.step
 
     if slice_.start is None and copysign(1, stop) != copysign(1, step):
-        raise ValueError()
+        raise RangeConstructionError("Unable to determine start of range")
 
     if slice_.stop is None:
-        stop = copysign(border, step)
+        if limit is None:
+            raise RangeConstructionError(
+                "Unable to determine end of range. Set it or `limit`"
+            )
+
+        stop = int(copysign(limit, step))
 
     if slice_.step is None:
-        step = copysign(1, stop - start)
+        step = int(copysign(1, stop - start))
 
     return range(start, stop, step)
 
@@ -282,7 +292,7 @@ def to_interval(
     values = tuple(values)
     ranges = marked_ranges_from(disjoint_ranges_from(filter(
         and_(ge |to| 0, le |to| len(values)),
-        ranges_from(interval, border=len(values)),
+        ranges_from(interval, limit=len(values)),
     )))
 
     if len(ranges) > 1 or len(ranges) == 0:
