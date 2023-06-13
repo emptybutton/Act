@@ -44,5 +44,53 @@ test_deep_flat = case_of(
     (lambda: deep_flat([(1, [2, 3]), 4, 5]), (1, 2, 3, 4, 5)),
     (lambda: deep_flat(item for item in [1, 2, 3]), (1, 2, 3)),
 )
+
+
+test_append = case_of(
+    (lambda: append(2)(1), (1, 2)),
+    (lambda: append(3)([1, 2]), (1, 2, 3)),
+    (lambda: append(3)(item for item in [1, 2]), (1, 2, 3)),
+    (lambda: append(3)('ab'), ('a', 'b', 3)),
+    (lambda: append([2, 3])(1), (1, [2, 3])),
+    (lambda: append(None)(1), (1, None)),
+    (lambda: append(2)(None), (None, 2)),
+    (lambda: append(2, 3)(1), (1, 2, 3)),
 )
+
+
+test_remove = case_of(
+    (lambda: remove(1)(1), tuple()),
+    (lambda: remove(1)((1, 2)), (2, )),
+    (lambda: remove(3)((1, 2)), (1, 2)),
+    (lambda: remove(1, 2)([1, 2]), tuple()),
+    (lambda: remove(1, 2)(item for item in [1, 2, 3]), (3, )),
+    (lambda: remove(1, 1, 1, 10)((1, 2, 1, 3, 1, 4, 1)), (2, 3, 4, 1)),
+)
+
+
+test_slice_from = case_of(
+    (lambda: slice_from(range(10)), slice(0, 10, 1)),
+    (lambda: slice_from(range(2, 10)), slice(2, 10, 1)),
+    (lambda: slice_from(range(2, 10, 2)), slice(2, 10, 2)),
+)
+
+
+test_interval = case_of(
+    (lambda: tuple(interval[:10]), (slice(None, 10, None), )),
+    (lambda: tuple(interval[2:10:2]), (slice(2, 10, 2), )),
+    (lambda: tuple(interval[:]), (slice(None, None, None), )),
+    (
+        lambda: tuple(interval[2:6][-10:-2][20:15:-1]),
+        (slice(2, 6, None), slice(-10, -2, None), slice(20, 15, -1)),
+    ),
+)
+
+
+test_range_from = case_of(
+    (lambda: range_from(10), range(10)),
+    (lambda: range_from(10, limit=3), range(3)),
+    (lambda: range_from(10, limit=11), range(10)),
+    (lambda: range_from(range(-1, -11, -1)), range(-1, -11, -1)),
+    (lambda: range_from(range(-1, -11, -1), limit=20), range(-1, -11, -1)),
+    (lambda: range_from(range(-1, -11, -1), limit=1), range(-1, -1, -1)),
 )
