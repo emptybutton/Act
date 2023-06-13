@@ -52,7 +52,7 @@ def protocol_of(value: V) -> Protocol:
         "{}Protocol".format(
             value.__name__
             if isinstance(value, type)
-            else f"{type(value).__name__}Object"
+            else f"{type(value).__name__}Instance"
         ),
         (Protocol, ),
         dict_of(value),
