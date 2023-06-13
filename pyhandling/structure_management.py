@@ -109,7 +109,7 @@ deep_flat = documenting_by(
 )
 
 
-append: Callable[..., Callable[Iterable[V] | V, Tuple[V | I]]]
+append: Callable[..., Callable[Iterable[V] | V, tuple]]
 append = atomically(
     tuple_of
     |then>> rwill(tuple_of)
