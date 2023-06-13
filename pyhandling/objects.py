@@ -101,7 +101,7 @@ class obj:
         return obj.of(self, other)
 
     def __rand__(self, other: Special[Mapping]) -> Self:
-        return obj(**dict_of(other) | self.__dict__)
+        return obj.of(other, self)
 
 
     @classmethod
