@@ -8,6 +8,8 @@ __all__ = (
     "MatchingError",
     "TemplatedActionChainError",
     "ActionCursorError",
+    "StructureError",
+    "RangeConstructionError"
 )
 
 
@@ -52,4 +54,12 @@ class TemplatedActionChainError(ActionChainError):
 
 
 class ActionCursorError(PyhandingError):
+    ...
+
+
+class StructureError(PyhandingError):
+    ...
+
+
+class RangeConstructionError(StructureError, ValueError):
     ...
