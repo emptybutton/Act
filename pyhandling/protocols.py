@@ -29,8 +29,6 @@ class Protocolable(Protocol[P]):
     """
     Protocol for objects that have a reference to a protocol previously based
     on this object.
-
-    Exists to describe results of `protocoled` functions.
     """
 
     __protocol__: P
