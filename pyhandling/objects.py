@@ -146,10 +146,10 @@ def method_of(method: Callable[[obj, ...], Any]) -> contextually[
 
 def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
     """
-    Function converting an input value to `dict`.
+    Function to safely read from `__dict__` attribute.
 
-    When passing a `Mapping` object, cast it to a `dict`, otherwise return
-    `__dict__` of an input object.
+    Returns an empty `dict` when an input value has no a `__dict__` attribute
+    or casts it to a `dict`, when passing a `Mapping` object.
     """
 
     if hasattr(value, "__dict__"):
