@@ -103,6 +103,15 @@ class obj:
     def __rand__(self, other: Special[Mapping]) -> Self:
         return obj.of(other, self)
 
+    @to_clone
+    def __add__(self, attr_name: str) -> Self:
+        if not hasattr(self, attr_name):
+            setattr(self, attr_name, None)
+
+    @to_clone
+    def __sub__(self, attr_name: str) -> Self:
+        if hasattr(self, attr_name):
+            delattr(self, attr_name)
 
     @classmethod
     def of(cls, *objects: Special[Mapping]) -> Self:
