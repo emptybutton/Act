@@ -52,6 +52,17 @@ test_obj_creation = case_of(
 )
 
 
+test_obj_reconstruction = case_of(
+    (lambda: obj(a=1) + 'b', obj(a=1, b=None)),
+    (lambda: obj(a=1) + 'a', obj(a=1)),
+    (lambda: obj() + 'a', obj(a=None)),
+    (lambda: obj(a=1, b=2) - 'a', obj(b=2)),
+    (lambda: obj(b=2) - 'a', obj(b=2)),
+    (lambda: obj(b=2) - 'b', obj()),
+    (lambda: obj() - 'b', obj()),
+)
+
+
 test_obj_sum = case_of(
     (
         lambda: obj.of(MockAction(0), CustomContext(1)),
