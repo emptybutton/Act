@@ -1,13 +1,14 @@
 from typing import runtime_checkable, Protocol
 
 from pyhandling.annotations import P, V
-from pyhandling.immutability import to_clone
+from pyhandling.immutability import to_clone, NotInitializable
 from pyhandling.objects import Unia, dict_of
 
 
 __all__ = (
     "Variable",
     "Protocolable",
+    "Proto",
     "protocol_of",
     "protocoled",
 )
@@ -32,6 +33,16 @@ class Protocolable(Protocol[P]):
     """
 
     __protocol__: P
+
+
+class Proto(NotInitializable):
+    """
+    Annotation of input value protocol or annotation-like access to
+    `__protocol__` attribute.
+    """
+
+    def __class_getitem__(self, value: Protocolable[P]) -> P:
+        return value.__protocol__
 
 
 def protocol_of(value: V) -> Protocol:
