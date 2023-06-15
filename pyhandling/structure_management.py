@@ -84,12 +84,12 @@ tfilter = documenting_by("""`filter` function returning `tuple`""")(
 )
 
 
-def flat(collection: Iterable[Special[Iterable, V]]) -> Tuple[V]:
+def flat(value: V | Iterable[Special[Iterable, V]]) -> Tuple[V]:
     """Function to expand input collection's subcollections to it."""
 
     collection_with_opened_items = list()
 
-    for item in collection:
+    for item in as_collection(value):
         if not isinstance(item, Iterable):
             collection_with_opened_items.append(item)
             continue
@@ -99,14 +99,20 @@ def flat(collection: Iterable[Special[Iterable, V]]) -> Tuple[V]:
     return tuple(collection_with_opened_items)
 
 
-deep_flat: Callable[Special[Iterable, V], Tuple[V]]
+deep_flat: Callable[V | Special[Iterable, V], Tuple[V]]
 deep_flat = documenting_by(
     """
     Function to expand all subcollections within an input collection while they
     exist.
     """
 )(
-    repeating(flat, while_=rpartial(tfilter, rpartial(isinstance, Iterable)))
+    atomically(
+        as_collection
+        |then>> repeating(
+            flat,
+            while_=partial(tfilter, rpartial(isinstance, Iterable)),
+        )
+    )
 )
 
 
