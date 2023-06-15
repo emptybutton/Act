@@ -214,7 +214,7 @@ class Arguments(Mapping, Generic[A]):
         keyword_keys = ArgumentKeys(keys).keywords
 
         return type(self)(
-            tuple(self[key] for key in without(keys, keyword_keys)),
+            tuple(self[key] for key in without(*keyword_keys)(keys)),
             {keyword_key.value: self[keyword_key] for keyword_key in keyword_keys},
         )
 
@@ -224,7 +224,7 @@ class Arguments(Mapping, Generic[A]):
         this method.
         """
 
-        return self.only_with(*without(self.keys, arguments_or_keys))
+        return self.only_with(*without(*arguments_or_keys)(self.keys))
 
     def call(self, caller: Callable) -> Any:
         """
