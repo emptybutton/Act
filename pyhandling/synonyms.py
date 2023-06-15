@@ -26,6 +26,7 @@ __all__ = (
     "with_",
     "keyword_unpackly",
     "tuple_of",
+    "in_tuple",
     "with_keyword",
 )
 
@@ -208,6 +209,12 @@ def tuple_of(*args: V) -> Tuple[V, ...]:
     """Function to create a `tuple` from unlimited input arguments."""
 
     return args
+
+
+def in_tuple(value: V) -> Tuple[V]:
+    """Function to create a `tuple` with an input value."""
+
+    return (value, )
 
 
 def with_keyword(
