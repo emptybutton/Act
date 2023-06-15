@@ -28,6 +28,7 @@ test_tzip = case_of((
 
 
 test_flat = case_of(
+    (lambda: flat(1), (1, )),
     (lambda: flat([1, 2, 3]), (1, 2, 3)),
     (lambda: flat([1, 2, (3, 4)]), (1, 2, 3, 4)),
     (lambda: flat([1, 2, (3, (4, 5))]), (1, 2, 3, (4, 5))),
@@ -38,6 +39,7 @@ test_flat = case_of(
 
 
 test_deep_flat = case_of(
+    (lambda: deep_flat(1), (1, )),
     (lambda: deep_flat([1, 2, 3]), (1, 2, 3)),
     (lambda: deep_flat([(1, 2), 3, 4]), (1, 2, 3, 4)),
     (lambda: deep_flat([(1, [2, 3]), 4, 5]), (1, 2, 3, 4, 5)),
