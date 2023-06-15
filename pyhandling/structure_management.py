@@ -32,6 +32,7 @@ __all__ = (
     "deep_flat",
     "append",
     "without",
+    "without_duplicates",
     "slice_from",
     "interval",
     "Interval",
@@ -43,7 +44,6 @@ __all__ = (
     "marked_ranges_from",
     "to_interval",
     "groups_in",
-    "without_duplicates",
     "map_table",
     "filter_table",
     "from_keys",
@@ -136,6 +136,18 @@ def without(*items: I) -> Callable[I | Iterable[I], Tuple[I]]:
     )
 
     return atomically(as_collection |then>> list |then>> removing |then>> tuple)
+
+
+def without_duplicates(items: Iterable[V]) -> Tuple[V]:
+    """Function to get collection without duplicates."""
+
+    items_without_duplicates = list()
+
+    for item in items:
+        if item not in items_without_duplicates:
+            items_without_duplicates.append(item)
+
+    return tuple(items_without_duplicates)
 
 
 def slice_from(range_: range) -> slice:
@@ -329,10 +341,7 @@ def groups_in(items: Iterable[V], id_of: action_of[V]) -> Tuple[V]:
 
 
 
-def without_duplicates(items: Iterable[V]) -> Tuple[V]:
-    """Function to get collection without duplicates."""
 
-    return tuple(OrderedDict.fromkeys(items).keys())
 
 
 def map_table(mapped: Callable[[V], M], table: Mapping[K, V]) -> OrderedDict[K, M]:
