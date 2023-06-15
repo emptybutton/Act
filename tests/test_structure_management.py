@@ -1,3 +1,4 @@
+from pyhandling.contexting import contextual
 from pyhandling.testing import case_of
 from pyhandling.structure_management import *
 
@@ -95,4 +96,19 @@ test_range_from = case_of(
     (lambda: range_from(range(-1, -11, -1)), range(-1, -11, -1)),
     (lambda: range_from(range(-1, -11, -1), limit=20), range(-1, -11, -1)),
     (lambda: range_from(range(-1, -11, -1), limit=1), range(-1, -1, -1)),
+)
+
+
+test_marked_ranges_from = case_of(
+    (lambda: marked_ranges_from([4]), (contextual(range(4, 5), filled), )),
+    (lambda: marked_ranges_from((1, 2)), (contextual(range(1, 3), filled), )),
+    (lambda: marked_ranges_from((1, 3)), (contextual(range(1, 4), empty), )),
+    (lambda: marked_ranges_from((1, 3, 4)), (
+        contextual(range(1, 4), empty), contextual(range(3, 5), filled),
+    )),
+    (lambda: marked_ranges_from((1, 3, 4, 9, 10, 11)), (
+        contextual(range(1, 4), empty), contextual(range(3, 5), filled),
+        contextual(range(4, 10), empty), contextual(range(9, 12), filled),
+    )),
+    (lambda: marked_ranges_from(range(600)), (contextual(range(600), filled), )),
 )
