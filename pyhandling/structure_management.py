@@ -275,28 +275,29 @@ empty = flag_about("empty")
 
 
 def marked_ranges_from(
-    ranges: Iterable[range],
+    points: Iterable[int],
 ) -> Tuple[contextual[range, filled | empty]]:
-    ranges = tuple(ranges)
+    if len(points) == 0:
+        return tuple()
+    elif len(points) == 1:
+        return (contextual(range(points[0], points[0] + 1), filled), )
+    elif len(points) == 2:
+        marked_ranges = tuple()
+        next_range = contextual(range(points[1], points[1] + 1), filled)
+    else:
+        marked_ranges = marked_ranges_from(points[1:])
+        next_range = marked_ranges[0]
 
-    marked_tail_ranges = list()
-
-    for index in range(1, len(ranges)):
-        current = ranges[index]
-        previous = ranges[index - 1]
-
-        marked_tail_ranges.append(contextual(current, filled))
-
-        if previous.stop - 1 != current.start:
-            marked_tail_ranges.append(contextual(
-                range(previous.stop - 1, current.start),
-                empty,
-            ))
+    fullness = filled if points[0] + 1 == points[1] else empty
+    is_interval_linear = next_range.context is fullness
 
     return (
-        (contextual(ranges[0], filled), *marked_tail_ranges)
-        if ranges
-        else tuple()
+        (
+            contextual(range(points[0], next_range.value.stop), fullness),
+            *marked_ranges[1:],
+        )
+        if is_interval_linear
+        else (contextual(range(points[0], points[1] + 1), fullness), *marked_ranges)
     )
 
 
