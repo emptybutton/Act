@@ -58,13 +58,13 @@ test_append = case_of(
 )
 
 
-test_remove = case_of(
-    (lambda: remove(1)(1), tuple()),
-    (lambda: remove(1)((1, 2)), (2, )),
-    (lambda: remove(3)((1, 2)), (1, 2)),
-    (lambda: remove(1, 2)([1, 2]), tuple()),
-    (lambda: remove(1, 2)(item for item in [1, 2, 3]), (3, )),
-    (lambda: remove(1, 1, 1, 10)((1, 2, 1, 3, 1, 4, 1)), (2, 3, 4, 1)),
+test_without = case_of(
+    (lambda: without(1)(1), tuple()),
+    (lambda: without(1)((1, 2)), (2, )),
+    (lambda: without(3)((1, 2)), (1, 2)),
+    (lambda: without(1, 2)([1, 2]), tuple()),
+    (lambda: without(1, 2)(item for item in [1, 2, 3]), (3, )),
+    (lambda: without(1, 1, 1, 10)((1, 2, 1, 3, 1, 4, 1)), (2, 3, 4, 1)),
 )
 
 

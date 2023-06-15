@@ -31,7 +31,7 @@ __all__ = (
     "flat",
     "deep_flat",
     "append",
-    "remove",
+    "without",
     "slice_from",
     "interval",
     "Interval",
@@ -124,7 +124,7 @@ append = atomically(
 )
 
 
-def remove(*items: I) -> Callable[I | Iterable[I], Tuple[I]]:
+def without(*items: I) -> Callable[I | Iterable[I], Tuple[I]]:
     """
     Function for an action that represents an input value as a `tuple` with no
     items passed to this function.
