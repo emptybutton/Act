@@ -43,7 +43,6 @@ __all__ = (
     "marked_ranges_from",
     "to_interval",
     "groups_in",
-    "without",
     "without_duplicates",
     "map_table",
     "filter_table",
@@ -326,28 +325,8 @@ def groups_in(items: Iterable[V], id_of: action_of[V]) -> Tuple[V]:
     return tuple(group_by_id.values())
 
 
-def without(
-    collection: Iterable[V],
-    items_or_item: many_or_one[Special[V]],
-) -> Tuple[V]:
-    """
-    Function to get collection difference.
 
-    The second operand can be item of a subtract collection or a subtract
-    collection itself.
-    """
 
-    reduced_items = (
-        tuple(items_or_item)
-        if isinstance(items_or_item, Iterable)
-        else (items_or_item, )
-    )
-
-    return tuple(
-        item
-        for item in collection
-        if item not in reduced_items
-    )
 
 
 def without_duplicates(items: Iterable[V]) -> Tuple[V]:
