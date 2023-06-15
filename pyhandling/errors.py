@@ -63,3 +63,7 @@ class StructureError(PyhandingError):
 
 class RangeConstructionError(StructureError, ValueError):
     ...
+
+
+class IndexingError(StructureError, IndexError):
+    ...
