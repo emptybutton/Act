@@ -4,7 +4,8 @@ from math import copysign
 from operator import ge, le, methodcaller, contains, gt, lt
 from types import MappingProxyType
 from typing import (
-    Iterable, Tuple, Callable, Mapping, TypeAlias, Any, Optional, Self, Iterator
+    Iterable, Tuple, Callable, Mapping, TypeAlias, Any, Optional, Self, Iterator,
+    Generator
 )
 
 from pyannotating import many_or_one, Special
@@ -14,7 +15,7 @@ from pyhandling.atoming import atomically
 from pyhandling.branching import then, binding_by, ActionChain
 from pyhandling.contexting import ContextRoot, contextual, contexted
 from pyhandling.data_flow import to, returnly, by
-from pyhandling.errors import RangeConstructionError
+from pyhandling.errors import RangeConstructionError, IndexingError
 from pyhandling.flags import flag_about
 from pyhandling.operators import and_
 from pyhandling.partials import rpartial, partially, rwill
@@ -44,6 +45,7 @@ __all__ = (
     "marked_ranges_from",
     "to_interval",
     "groups_in",
+    "indexed",
     "map_table",
     "filter_table",
     "from_keys",
@@ -338,11 +340,23 @@ def groups_in(items: Iterable[V], id_of: action_of[V]) -> Tuple[V]:
     return tuple(group_by_id.values())
 
 
+def indexed(items: Iterable[V], *indexes: int) -> Generator[V, None, None]:
+    """Function to get ordered items under input indexes."""
 
+    items = tuple(items)
 
+    if any(index < 0 for index in indexes):
+        raise IndexingError("indexes must be positive")
 
+    if len(items) - max(indexes) < 0:
+        raise IndexingError(
+            f"there must be {max(indexes)} or more items to index",
+        )
 
+    index_border = len(items) - max(indexes)
 
+    for current_index in range(index_border):
+        yield tuple(items[current_index + index] for index in indexes)
 
 
 def map_table(mapped: Callable[[V], M], table: Mapping[K, V]) -> OrderedDict[K, M]:
