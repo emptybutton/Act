@@ -51,7 +51,6 @@ class Proto(NotInitializable):
 def protocol_of(value: V) -> Protocol:
     """Function to create a protocol based on an input value."""
 
-
     return (
         runtime_checkable(type(
             f"{value.__name__}Protocol",
