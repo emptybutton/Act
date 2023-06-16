@@ -46,20 +46,43 @@ def test_proto():
     assert Proto[object_] == object_.__protocol__
 
 
-def test_protocoled_dataclass():
-    @dataclass(frozen=True)
-    @protocoled
-    class Structure:
-        a: int
-        b: int = field(default_factory=lambda: 4)
+def test_protocoled_classes():
+    class A:
+        a = 1
 
-    instance = Structure(a=1, b=2)
+    @protocoled
+    class B(A):
+        b = 2
+
+    instance = B()
 
     assert instance.a == 1
     assert instance.b == 2
 
-    assert isinstance(Structure, Protocolable)
+    assert isinstance(B, Protocolable)
 
-    assert not isinstance(obj(a=1), Structure.__protocol__)
-    assert isinstance(obj(a=1, b=2), Structure.__protocol__)
-    assert isinstance(obj(a=1, b=2, c=3), Structure.__protocol__)
+    assert not isinstance(obj(a=1), B.__protocol__)
+    assert isinstance(obj(a=1, b=2), B.__protocol__)
+    assert isinstance(obj(a=1, b=2, c=3), B.__protocol__)
+
+
+def test_protocoled_dataclasses():
+    @dataclass(frozen=True)
+    class A:
+        a: int
+
+    @protocoled
+    @dataclass(frozen=True)
+    class B(A):
+        b: int = field(default_factory=lambda: 4)
+
+    instance = B(a=1, b=2)
+
+    assert instance.a == 1
+    assert instance.b == 2
+
+    assert isinstance(B, Protocolable)
+
+    assert not isinstance(obj(a=1), B.__protocol__)
+    assert isinstance(obj(a=1, b=2), B.__protocol__)
+    assert isinstance(obj(a=1, b=2, c=3), B.__protocol__)

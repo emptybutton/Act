@@ -1,3 +1,6 @@
+from functools import reduce, partial
+from operator import or_, attrgetter
+
 from typing import runtime_checkable, Protocol
 
 from pyhandling.annotations import P, V, Unia
@@ -48,15 +51,30 @@ class Proto(NotInitializable):
 def protocol_of(value: V) -> Protocol:
     """Function to create a protocol based on an input value."""
 
-    return runtime_checkable(type(
-        "{}Protocol".format(
-            value.__name__
-            if isinstance(value, type)
-            else f"{type(value).__name__}Instance"
-        ),
-        (Protocol, ),
-        dict_of(value),
-    ))
+
+    return (
+        runtime_checkable(type(
+            f"{value.__name__}Protocol",
+            (Protocol, ),
+            (
+                dict.fromkeys(
+                    partial(reduce, or_)(reversed(tuple(map(
+                        attrgetter("__annotations__"),
+                        value.__mro__[:-1],
+                    )))).keys(),
+                    Ellipsis,
+                )
+                if "__dataclass_params__" in dict_of(value).keys()
+                else reduce(or_, reversed(tuple(map(dict_of, value.__mro__[:-1]))))
+            )
+        ))
+        if isinstance(value, type)
+        else runtime_checkable(type(
+            f"{type(value).__name__}InstanceProtocol",
+            (Protocol, ),
+            dict_of(value),
+        ))
+    )
 
 
 @to_clone
