@@ -9,12 +9,12 @@ from pyannotating import Special
 from pyhandling.annotations import (
     ActionT, ErrorT, P, Pm, checker_of, A, B, C, V, R, W, D, S
 )
-from pyhandling.atoming import atomically
-from pyhandling.branching import then
+from pyhandling.atomization import atomically
 from pyhandling.flags import nothing, Flag, pointed
 from pyhandling.immutability import property_to, NotInitializable
-from pyhandling.partials import partially, will, rpartial
-from pyhandling.signature_assignmenting import call_signature_of
+from pyhandling.partiality import partially, will, rpartial
+from pyhandling.pipeline import then
+from pyhandling.signatures import call_signature_of
 from pyhandling.synonyms import repeating, returned, on
 from pyhandling.tools import documenting_by, LeftCallable, action_repr_of
 

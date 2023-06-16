@@ -17,16 +17,16 @@ from pyhandling.annotations import (
     merger_of, event_for, R, reformer_of, Pm, V, O, dirty
 )
 from pyhandling.arguments import Arguments
-from pyhandling.branching import ActionChain, binding_by, on, then, _ActionChainInfix
 from pyhandling.contexting import contextual, to_read, saving_context
 from pyhandling.data_flow import by, to, to_left
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import nothing, flag_about, Flag
 from pyhandling.immutability import to_clone, property_to
 from pyhandling.objects import obj
-from pyhandling.partials import flipped, rpartial, will
+from pyhandling.partiality import flipped, rpartial, will
+from pyhandling.pipeline import ActionChain, binding_by, on, then, _ActionChainInfix
 from pyhandling.scoping import value_in
-from pyhandling.structure_management import tfilter, groups_in
+from pyhandling.structures import tfilter, groups_in
 from pyhandling.synonyms import with_keyword, tuple_of
 
 

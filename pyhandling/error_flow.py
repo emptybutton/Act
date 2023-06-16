@@ -1,11 +1,11 @@
 from typing import Callable, Optional, Type, NoReturn
 
 from pyhandling.annotations import Pm, R, ErrorT
-from pyhandling.atoming import atomically
-from pyhandling.branching import binding_by, then
+from pyhandling.atomization import atomically
 from pyhandling.contexting import contextual
 from pyhandling.data_flow import by, to, eventually
-from pyhandling.partials import partially
+from pyhandling.partiality import partially
+from pyhandling.pipeline import binding_by, then
 from pyhandling.synonyms import trying_to, raise_
 from pyhandling.tools import documenting_by, LeftCallable
 

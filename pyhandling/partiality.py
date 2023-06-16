@@ -4,8 +4,8 @@ from inspect import Parameter, Signature, _empty
 from typing import Any, Self, Iterable, Tuple, Optional
 
 from pyhandling.annotations import action_for, R
-from pyhandling.atoming import atomically
-from pyhandling.signature_assignmenting import Decorator, call_signature_of
+from pyhandling.atomization import atomically
+from pyhandling.signatures import Decorator, call_signature_of
 
 
 __all__ = (

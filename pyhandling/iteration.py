@@ -3,10 +3,10 @@ from typing import Iterable, Generator, Optional, Callable, Type
 from pyannotating import Special
 
 from pyhandling.annotations import dirty, V, R
-from pyhandling.atoming import atomically
-from pyhandling.branching import binding_by, then, on
+from pyhandling.atomization import atomically
 from pyhandling.data_flow import eventually, by, to
 from pyhandling.error_flow import catching
+from pyhandling.pipeline import binding_by, then, on
 from pyhandling.synonyms import trying_to, returned
 from pyhandling.tools import documenting_by, LeftCallable
 

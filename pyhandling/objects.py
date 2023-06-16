@@ -1,9 +1,8 @@
 from functools import partial, reduce
-from operator import attrgetter, or_
+from operator import or_
 from types import MethodType
 from typing import (
-    Mapping, Callable, Self, Generic, Concatenate, Any, Tuple, Optional,
-    ClassVar
+    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, ClassVar
 )
 from sys import getrecursionlimit, setrecursionlimit
 
@@ -12,9 +11,8 @@ from pyannotating import Special
 from pyhandling.annotations import K, V, Pm, R, O
 from pyhandling.contexting import contextually, contexted, ContextRoot
 from pyhandling.flags import flag_about, Flag
-from pyhandling.errors import UniaError
 from pyhandling.immutability import to_clone
-from pyhandling.partials import partially, flipped
+from pyhandling.partiality import partially, flipped
 from pyhandling.tools import action_repr_of
 
 
@@ -24,7 +22,6 @@ __all__ = (
     "dict_of",
     "of",
     "void",
-    "Unia",
 )
 
 
@@ -183,55 +180,3 @@ def of(object_: O, data: Special[Mapping], /) -> O:
 
 
 void = obj()  # Object without data
-
-
-class Unia:
-    annotations = property(attrgetter("_annotations"))
-
-    def __new__(cls, *annotations: Special[Self], **kwargs) -> Self:
-        if len(annotations) == 1:
-            return annotations[0]
-        elif len(annotations) == 0:
-            raise UniaError("Unia without annotations")
-        else:
-            return super().__new__(cls)
-
-    def __init__(self, *annotations: Special[Self]) -> None:
-        self._annotations = self._annotations_from(annotations)
-
-    def __repr__(self) -> str:
-        return ' & '.join(
-            (
-                annotation.__name__
-                if isinstance(annotation, type)
-                else str(annotation)
-            )
-            for annotation in self._annotations
-        )
-
-    def __class_getitem__(cls, annotation_or_annotations: Special[tuple]) -> Self:
-        return cls(*(
-            annotation_or_annotations
-            if isinstance(annotation_or_annotations, tuple)
-            else (annotation_or_annotations, )
-        ))
-
-    def __eq__(self, other: Special[Self]) -> bool:
-        return isinstance(other, Unia) and other.annotations == self.annotations
-
-    def __instancecheck__(self, instance: Any) -> bool:
-        return all(
-            isinstance(instance, annotation) for annotation in self._annotations
-        )
-
-    @staticmethod
-    def _annotations_from(annotations: Tuple[Special[Self]]) -> tuple:
-        result_annotations = list()
-
-        for annotation in annotations:
-            if isinstance(annotation, Unia):
-                result_annotations.extend(annotation.annotations)
-            else:
-                result_annotations.append(annotation)
-
-        return tuple(result_annotations)

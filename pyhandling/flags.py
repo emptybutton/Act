@@ -8,14 +8,14 @@ from operator import or_, sub, attrgetter, not_
 
 from pyannotating import Special
 
-from pyhandling.atoming import atomic, atomically
+from pyhandling.atomization import atomic, atomically
 from pyhandling.annotations import (
     V, FlagT, checker_of, merger_of, reformer_of, A, B, P
 )
 from pyhandling.data_flow import by, then
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
-from pyhandling.partials import partially
+from pyhandling.partiality import partially
 from pyhandling.synonyms import returned, on
 from pyhandling.tools import documenting_by, action_repr_of
 

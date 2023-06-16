@@ -1,19 +1,22 @@
 from abc import ABC, abstractmethod
-from functools import cached_property, partial
+from functools import cached_property, partial, reduce
 from inspect import Signature, Parameter, signature
-from operator import not_
+from operator import not_, is_not, or_
 from typing import (
-    Callable, Any, _CallableGenericAlias, Optional, Tuple, Self, Iterable
+    Callable, Any, _CallableGenericAlias, Optional, Tuple, Self, Iterable,
+    NamedTuple, Generic
 )
+
+from pyannotating import Special
 
 from pyhandling.annotations import (
     Pm, V, R, action_for, dirty, ArgumentsT, reformer_of
 )
-from pyhandling.atoming import atomically
-from pyhandling.branching import mergely, bind, then
-from pyhandling.errors import ReturningError
-from pyhandling.partials import will, rpartial, flipped
-from pyhandling.signature_assignmenting import Decorator, call_signature_of
+from pyhandling.atomization import atomically
+from pyhandling.errors import ReturningError, MatchingError
+from pyhandling.partiality import will, rpartial, flipped
+from pyhandling.pipeline import bind, then
+from pyhandling.signatures import Decorator, call_signature_of
 from pyhandling.synonyms import returned, on
 from pyhandling.tools import documenting_by, LeftCallable, action_repr_of
 
@@ -35,6 +38,11 @@ __all__ = (
     "yes",
     "no",
     "anything",
+    "merged",
+    "mergely",
+    "Branch",
+    "break_",
+    "matching",
 )
 
 
@@ -397,3 +405,197 @@ anything = documenting_by(
 )(
     _ForceComparable("anything", forced_sign=True)
 )
+
+
+@atomically
+class merged:
+    """
+    Function to merge multiple actions with the same input interface into one.
+
+    Merged actions are called in parallel, after which a tuple of their results
+    is returned, in the order in which the actions were passed.
+    """
+
+    def __init__(self, *actions: Callable[Pm, Any]):
+        self._actions = actions
+        self.__signature__ = self.__get_signature()
+
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> Tuple:
+        return tuple(action(*args, **kwargs) for action in self._actions)
+
+    def __repr__(self) -> str:
+        return ' & '.join(map(action_repr_of, self._actions))
+
+    def __get_signature(self) -> Signature:
+        if not self._actions:
+            return call_signature_of(lambda *args, **kwargs: ...).replace(
+                input_annotation=Tuple
+            )
+
+        argument_signature = call_signature_of(
+            self._actions[0] if self._actions else lambda *_, **__: ...
+        )
+
+        return_annotations = tuple(
+            partial(filter, rpartial(is_not, Parameter.empty))(map(
+                lambda act: call_signature_of(act).return_annotation,
+                self._actions
+            ))
+        )
+
+        return_annotation = (
+            reduce(or_, return_annotations)
+            if return_annotations
+            else Parameter.empty
+        )
+
+        return argument_signature.replace(return_annotation=return_annotation)
+
+
+@atomically
+class mergely:
+    """
+    Decorator to initially separate several operations on input arguments and
+    then combine these results in final operation.
+
+    Gets the final merging action of a first input action by calling it
+    with all input arguments of the resulting (as a result of calling this
+    particular action) action.
+
+    Passes to the final merge action the results of calls to unbounded input
+    actions (with the same arguments that were passed to the factory of this
+    final merge action).
+
+    When specifying parallel actions using keyword arguments, sets them to the
+    final merging action through the same argument name through which they
+    were specified.
+    """
+
+    def __init__(
+        self,
+        merging_of: Callable[Pm, Callable[..., R]],
+        *parallel_actions: Callable[Pm, Any],
+        **keyword_parallel_actions: Callable[Pm, Any],
+    ):
+        self._merging_of = merging_of
+        self._parallel_actions = parallel_actions
+        self._keyword_parallel_actions = keyword_parallel_actions
+
+        self.__signature__ = self.__get_signature()
+
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
+        return self._merging_of(*args, **kwargs)(
+            *(
+                parallel_action(*args, **kwargs)
+                for parallel_action in self._parallel_actions
+            ),
+            **{
+                _: keyword_parallel_action(*args, **kwargs)
+                for _, keyword_parallel_action in (
+                    self._keyword_parallel_actions.items()
+                )
+            }
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"mergely("
+            f"{self._merging_of} -> ("
+            f"{', '.join(map(str, self._parallel_actions))}"
+            "{part_between_positions_and_keywords}"
+            "{keyword_part}"
+            f'))'
+        ).format(
+            part_between_positions_and_keywords=(
+                ', '
+                if self._parallel_actions and self._keyword_parallel_actions
+                else str()
+            ),
+            keyword_part='='.join(
+                f"{keyword}={action}"
+                for keyword, action in self._keyword_parallel_actions.items()
+            )
+        )
+
+    def __get_signature(self) -> Signature:
+        return_annotation = call_signature_of(self._merging_of).return_annotation
+
+        return call_signature_of(self._merging_of).replace(
+            return_annotation=(
+                return_annotation.__args__[-1]
+                if isinstance(return_annotation, _CallableGenericAlias)
+                else Parameter.empty
+            )
+        )
+
+
+class Branch(NamedTuple, Generic[Pm, R]):
+    """NamedTuple to store an action to execute on a condition."""
+
+    determinant: Special[Callable[Pm, bool]]
+    way: Callable[Pm, R] | R
+
+
+# Unique object to annotate matching to an `else` branch in `matching` or
+# similar actions.
+break_ = object()
+
+
+def matching(
+    *branches: tuple[Special[Callable[Pm, bool]], Special[Callable[Pm, R] | R]],
+) -> Callable[Pm, R]:
+    """
+    Function for using action matching like `if`, `elif` and `else` statements.
+
+    Accepts branches as tuples, where in the first place is an action of
+    checking the condition and in the second place is an action that implements
+    the logic of this condition.
+
+    When condition checkers are not callable, compares an input value with these
+    check values.
+
+    With non-callable implementations of the conditional logic, returns those
+    non-callable values.
+
+    When passing a branch with a checker as `...` (`Ellipsis`) initiates that
+    branch as an "else" branch, which is performed only if the others are not
+    performed.
+
+    By default "else" branch returns an input value.
+
+    There can only be one "else" branch.
+
+    When passing a unique `break_` object as an implementation action, force a
+    jump to the "else" branch.
+    """
+
+    branches = tuple(Branch(*branch) for branch in branches)
+
+    else_branches = tuple(
+        branch for branch in branches if branch.determinant is Ellipsis
+    )
+
+    if len(else_branches) > 1:
+        raise MatchingError("Extra \"else\" branches")
+
+    else_ = else_branches[0].way if else_branches else returned
+
+    if else_ is break_:
+        raise MatchingError("\"else\" branch recursion")
+
+    branches = tuple(
+        branch for branch in branches if branch.determinant is not Ellipsis
+    )
+
+    if len(branches) == 0:
+        return else_
+
+    return on(
+        branches[0].determinant,
+        else_ if branches[0].way is break_ else branches[0].way,
+        else_=(
+            else_
+            if len(branches) == 1
+            else matching(*branches[1:], Branch(Ellipsis, else_))
+        ),
+    )

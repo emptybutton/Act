@@ -1,6 +1,6 @@
 from random import choice
 
-from pyhandling.atoming import atomic
+from pyhandling.atomization import atomic
 from pyhandling.flags import *
 from pyhandling.testing import case_of
 

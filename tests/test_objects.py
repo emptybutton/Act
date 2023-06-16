@@ -1,10 +1,6 @@
 from functools import partial
-from operator import not_, add
-from typing import Any, Iterable, Container
+from operator import add
 
-from pytest import raises, mark
-
-from pyhandling.errors import UniaError
 from pyhandling.objects import *
 from pyhandling.testing import case_of
 from tests.mocks import MockAction, CustomContext
@@ -15,33 +11,6 @@ test_dict_of = case_of(
     (lambda: dict_of(print), dict()),
     (lambda: dict_of(MockAction(4)), dict(equality_id=4)),
 )
-
-
-test_unia_creation_with_annotations = case_of(
-    (lambda: Unia(int), int),
-    (lambda: type(Unia(int, float)), Unia),
-    (lambda: Unia[int], Unia(int)),
-    (lambda: Unia[int, float], Unia(int, float)),
-)
-
-
-def test_unia_creation_without_annotations():
-    with raises(UniaError):
-        Unia()
-
-
-@mark.parametrize(
-    "value, unia, is_correct",
-    (
-        (list(), Unia[Iterable], True),
-        (list(), Unia[Iterable, Container], True),
-        (list(), Unia[Iterable, Container, int], False),
-    ),
-)
-def test_unia(value: Any, unia: Unia, is_correct: bool):
-    mode = (lambda r: r) if is_correct else not_
-
-    assert mode(isinstance(value, unia))
 
 
 test_obj_creation = case_of(

@@ -3,10 +3,10 @@ from functools import wraps
 from typing import NoReturn, Callable, Any, Concatenate, Self
 
 from pyhandling.annotations import V, Pm, one_value_action, TypeT
-from pyhandling.atoming import atomically
+from pyhandling.atomization import atomically
 from pyhandling.errors import InvalidInitializationError
-from pyhandling.partials import partially
-from pyhandling.signature_assignmenting import call_signature_of
+from pyhandling.partiality import partially
+from pyhandling.signatures import call_signature_of
 
 
 __all__ = ("NotInitializable", "to_clone", "publicly_immutable", "property_to")

@@ -1,6 +1,6 @@
 from operator import truediv
 
-from pyhandling.partials import *
+from pyhandling.partiality import *
 from pyhandling.testing import case_of
 
 

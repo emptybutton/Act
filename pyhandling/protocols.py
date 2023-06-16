@@ -1,8 +1,8 @@
 from typing import runtime_checkable, Protocol
 
-from pyhandling.annotations import P, V
+from pyhandling.annotations import P, V, Unia
 from pyhandling.immutability import to_clone, NotInitializable
-from pyhandling.objects import Unia, dict_of
+from pyhandling.objects import dict_of
 
 
 __all__ = (

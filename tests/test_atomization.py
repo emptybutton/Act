@@ -1,7 +1,7 @@
 from typing import Self
 
-from pyhandling.atoming import *
-from pyhandling.branching import ActionChain
+from pyhandling.atomization import *
+from pyhandling.pipeline import ActionChain
 from pyhandling.testing import case_of
 
 

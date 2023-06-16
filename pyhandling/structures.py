@@ -11,14 +11,14 @@ from typing import (
 from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import V, M, K, action_of, checker_of, I
-from pyhandling.atoming import atomically
-from pyhandling.branching import then, binding_by, ActionChain
+from pyhandling.atomization import atomically
 from pyhandling.contexting import ContextRoot, contextual, contexted
 from pyhandling.data_flow import to, returnly, by
 from pyhandling.errors import RangeConstructionError, IndexingError
 from pyhandling.flags import flag_about
 from pyhandling.operators import and_
-from pyhandling.partials import rpartial, partially, rwill
+from pyhandling.partiality import rpartial, partially, rwill
+from pyhandling.pipeline import then, binding_by, ActionChain
 from pyhandling.synonyms import on, tuple_of, repeating, returned
 from pyhandling.tools import documenting_by, LeftCallable
 

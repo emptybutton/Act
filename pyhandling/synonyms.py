@@ -8,11 +8,9 @@ from pyannotating import Special
 from pyhandling.annotations import (
     Pm, V, R, E, action_for, reformer_of, checker_of, L
 )
-from pyhandling.atoming import atomically
-from pyhandling.partials import partially
-from pyhandling.signature_assignmenting import (
-    Decorator, call_signature_of, annotation_sum
-)
+from pyhandling.atomization import atomically
+from pyhandling.partiality import partially
+from pyhandling.signatures import Decorator, call_signature_of, annotation_sum
 from pyhandling.tools import to_check, as_action, LeftCallable, action_repr_of
 
 

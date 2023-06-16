@@ -7,21 +7,19 @@ from pyhandling.aggregates import context_effect
 from pyhandling.annotations import (
     dirty, R, checker_of, event_for, A, B, V, FlagT, C, ActionT
 )
-from pyhandling.atoming import atomically
-from pyhandling.branching import (
-    discretely, ActionChain, binding_by, matching, then, break_
-)
+from pyhandling.atomization import atomically
 from pyhandling.contexting import (
     contextual, contextually, contexted, ContextRoot, saving_context, to_write,
     to_read, to_context, with_reduced_metacontext
 )
-from pyhandling.data_flow import returnly, by, to
+from pyhandling.data_flow import returnly, by, to, matching, break_
 from pyhandling.flags import flag_about, nothing, Flag, pointed
 from pyhandling.objects import obj
 from pyhandling.objects import void
 from pyhandling.operators import and_, not_
-from pyhandling.partials import will, partially
-from pyhandling.structure_management import tmap
+from pyhandling.partiality import will, partially
+from pyhandling.pipeline import discretely, ActionChain, binding_by, then
+from pyhandling.structures import tmap
 from pyhandling.synonyms import on, returned
 from pyhandling.tools import documenting_by, to_check, as_action, LeftCallable
 

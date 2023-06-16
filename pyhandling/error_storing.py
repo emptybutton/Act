@@ -4,7 +4,7 @@ from pyannotating import AnnotationTemplate, input_annotation
 
 from pyhandling.annotations import ErrorT
 from pyhandling.errors import PyhandingError
-from pyhandling.structure_management import flat
+from pyhandling.structures import flat
 
 
 __all__ = (

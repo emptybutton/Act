@@ -1,6 +1,10 @@
-from typing import Callable, Any
+from operator import not_
+from typing import Callable, Any, Iterable, Container
 
-from pyhandling.annotations import action_of, notes_of, pure, dirty
+from pytest import mark, raises
+
+from pyhandling.annotations import *
+from pyhandling.errors import UniaError
 from pyhandling.objects import obj
 from pyhandling.testing import case_of
 
@@ -30,3 +34,30 @@ test_noting = case_of(
     (lambda: notes_of(list()), tuple()),
     (lambda: notes_of(pure(dirty(obj()))), (dirty, pure)),
 )
+
+
+test_unia_creation_with_annotations = case_of(
+    (lambda: Unia(int), int),
+    (lambda: type(Unia(int, float)), Unia),
+    (lambda: Unia[int], Unia(int)),
+    (lambda: Unia[int, float], Unia(int, float)),
+)
+
+
+def test_unia_creation_without_annotations():
+    with raises(UniaError):
+        Unia()
+
+
+@mark.parametrize(
+    "value, unia, is_correct",
+    (
+        (list(), Unia[Iterable], True),
+        (list(), Unia[Iterable, Container], True),
+        (list(), Unia[Iterable, Container, int], False),
+    ),
+)
+def test_unia(value: Any, unia: Unia, is_correct: bool):
+    mode = (lambda r: r) if is_correct else not_
+
+    assert mode(isinstance(value, unia))

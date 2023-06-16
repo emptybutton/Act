@@ -1,6 +1,6 @@
-from pyhandling.contexting import contextual
 from pyhandling.testing import case_of
-from pyhandling.structure_management import *
+from pyhandling.structures import *
+from pyhandling.contexting import contextual
 
 
 test_as_collection = case_of(

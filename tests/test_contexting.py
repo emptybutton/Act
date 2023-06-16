@@ -1,8 +1,8 @@
 from operator import attrgetter
 
-from pyhandling.branching import then
 from pyhandling.contexting import *
 from pyhandling.flags import pointed
+from pyhandling.pipeline import then
 from pyhandling.testing import case_of
 
 

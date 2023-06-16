@@ -1,7 +1,7 @@
 from typing import Iterable, Callable
 
 from pyhandling.annotations import one_value_action
-from pyhandling.branching import *
+from pyhandling.pipeline import *
 from pyhandling.testing import case_of
 from tests.mocks import MockAction
 
@@ -34,40 +34,6 @@ def test_action_chain_iteration(
     assert (
         tuple(ActionChain((*first_nodes, *second_nodes)))
         == (*first_nodes, *second_nodes)
-    )
-
-
-test_merged = case_of(
-    (
-        lambda: merged(lambda a: a - 1, lambda _: _, lambda a: a + 1)(2),
-        (1, 2, 3),
-    ),
-)
-
-
-@mark.parametrize(
-    "factor, original_x, original_y, original_z",
-    [
-        (1, 2, 4, 4), (0.5, 4, 4, 12), (2, 8, 1, -78), (10, 12, 3, 12),
-        (0, 1000, 2000, 3000), (100, 10, 10, 0), (-3, 2, -3, 14), (-1, -2, -3, -4)
-    ]
-)
-def test_mergely_by_formula_function(
-    factor: int | float,
-    original_x: int | float,
-    original_y: int | float,
-    original_z: int | float,
-):
-    assert (
-        mergely(
-            lambda factor: (lambda x, y, z: factor * (x ** y + z)),
-            lambda factor: factor * original_x,
-            lambda factor: factor * original_y,
-            lambda factor: factor * original_z,
-        )(factor)
-        == factor * (
-            (factor * original_x) ** (factor * original_y) + (factor * original_z)
-        )
     )
 
 

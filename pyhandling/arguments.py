@@ -11,12 +11,12 @@ from typing import (
 from pyannotating import Special
 
 from pyhandling.annotations import A, D
-from pyhandling.atoming import atomically
+from pyhandling.atomization import atomically
 from pyhandling.errors import ArgumentError
-from pyhandling.signature_assignmenting import (
+from pyhandling.signatures import (
     Decorator, call_signature_of
 )
-from pyhandling.structure_management import (
+from pyhandling.structures import (
     without, frozendict, tmap, without_duplicates, reversed_table
 )
 from pyhandling.tools import action_repr_of

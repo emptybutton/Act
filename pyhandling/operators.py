@@ -2,9 +2,9 @@ from typing import Iterable, Callable, Generator, Any
 import operator
 
 from pyhandling.annotations import V
-from pyhandling.atoming import atomically
+from pyhandling.atomization import atomically
 from pyhandling.data_flow import by
-from pyhandling.partials import partial
+from pyhandling.partiality import partial
 from pyhandling.tools import (
     documenting_by, to_check, LeftCallable, action_repr_of
 )

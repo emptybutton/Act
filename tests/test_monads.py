@@ -1,10 +1,11 @@
 from functools import partial
 from operator import add, mul, truediv
 
-from pyhandling.branching import then, break_
 from pyhandling.contexting import contextual, contextually
+from pyhandling.data_flow import break_
 from pyhandling.flags import nothing, pointed, flag_about
 from pyhandling.monads import *
+from pyhandling.pipeline import then
 from pyhandling.testing import case_of
 
 

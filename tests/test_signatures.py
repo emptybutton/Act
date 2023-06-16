@@ -1,6 +1,6 @@
 from inspect import Parameter
 
-from pyhandling.signature_assignmenting import *
+from pyhandling.signatures import *
 from pyhandling.testing import case_of
 
 
