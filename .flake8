@@ -6,7 +6,7 @@ per-file-ignores =
     cursors.py: E741
     annotations.py: F821, E741
     tests\*.py: F403, F405
-    tests\test_annotations.py: F821
+    tests\test_annotations.py: F821, F403, F405
     tests\test_scoping.py: F841, F403, F405
 
 extend-ignore = E225
