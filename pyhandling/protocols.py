@@ -10,6 +10,7 @@ from pyhandling.objects import dict_of
 
 __all__ = (
     "Variable",
+    "Hashable",
     "Protocolable",
     "Proto",
     "protocol_of",
@@ -25,6 +26,14 @@ class Variable(Protocol):
     """
 
     def __instancecheck__(self, instance: object) -> bool:
+        ...
+
+
+@runtime_checkable
+class Hashable(Protocol):
+    """Protocol for objects from which to get their hash."""
+
+    def __hash__(self) -> int:
         ...
 
 
