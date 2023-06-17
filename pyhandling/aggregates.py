@@ -56,8 +56,8 @@ class Effect(Generic[V, R, C]):
 
     _NO_VALUE: Final[object] = object()
 
-    lift = property_to("lift")
-    is_lifted = property_to("is_lifted")
+    lift = property_to("_lift")
+    is_lifted = property_to("_is_lifted")
 
     def __new__(
         cls,
