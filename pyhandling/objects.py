@@ -1,8 +1,10 @@
+from copy import copy
 from functools import partial, reduce
 from operator import or_
 from types import MethodType
 from typing import (
-    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, ClassVar
+    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, ClassVar,
+    Tuple
 )
 from sys import getrecursionlimit, setrecursionlimit
 
@@ -10,9 +12,12 @@ from pyannotating import Special
 
 from pyhandling.annotations import K, V, Pm, R, O
 from pyhandling.contexting import contextually, contexted, ContextRoot
+from pyhandling.data_flow import mergely, by, returnly
 from pyhandling.flags import flag_about, Flag
 from pyhandling.immutability import to_clone
 from pyhandling.partiality import partially, flipped
+from pyhandling.pipeline import then
+from pyhandling.synonyms import on, returned
 from pyhandling.tools import action_repr_of
 
 
@@ -23,6 +28,7 @@ __all__ = (
     "of",
     "void",
     "like",
+    "to_attribute",
 )
 
 
@@ -215,4 +221,31 @@ def like(
             )
             for attr_name, original_attr_value in dict_of(original).items()
         )
+    )
+
+
+@partially
+def to_attribute(
+    attr_name: str,
+    action: Callable[Optional[V], R],
+    *,
+    mutably: bool = False,
+) -> Callable[O, O]:
+    """
+    Function to calculate an attribute of an input object.
+
+    Passes an input action a present attribute value (or `None` if it has no
+    such attribute), sets the result to a clone (or the object itself depending
+    on the `mutably` argument), and returns that object.
+    """
+
+    return mergely(
+        (
+            on(hasattr |by| attr_name, getattr |by| attr_name, else_=None)
+            |then>> action
+            |then>> (lambda value: returnly(lambda obj_: setattr(
+                obj_, attr_name, value
+            )))
+        ),
+        returned if mutably else copy,
     )
