@@ -136,7 +136,7 @@ class _ActionCursor(Mapping):
 
         groups_with_same_priority = tfilter(
             lambda group: len(group) > 1,
-            groups_in(self._parameters, attrgetter("priority")),
+            tuple(groups_in(self._parameters, by=attrgetter("priority")).values()),
         )
 
         if len(groups_with_same_priority) != 0:

@@ -1,25 +1,25 @@
 from collections import OrderedDict
 from functools import partial
 from math import copysign
-from operator import ge, le, methodcaller, contains, gt, lt
+from operator import methodcaller, contains, gt, lt
 from types import MappingProxyType
 from typing import (
-    Iterable, Tuple, Callable, Mapping, TypeAlias, Any, Optional, Self, Iterator,
+    Iterable, Tuple, Callable, Mapping, TypeAlias, Optional, Self, Iterator,
     Generator
 )
 
 from pyannotating import many_or_one, Special
 
-from pyhandling.annotations import V, M, K, action_of, checker_of, I
+from pyhandling.annotations import V, M, K, checker_of, I, Unia
 from pyhandling.atomization import atomically
 from pyhandling.contexting import ContextRoot, contextual, contexted
-from pyhandling.data_flow import to, returnly, by
+from pyhandling.data_flow import returnly, by, shown
 from pyhandling.errors import RangeConstructionError, IndexingError
 from pyhandling.flags import flag_about
-from pyhandling.operators import and_
 from pyhandling.partiality import rpartial, partially, rwill
 from pyhandling.pipeline import then, binding_by, ActionChain
-from pyhandling.synonyms import on, tuple_of, repeating, returned
+from pyhandling.protocols import Hashable
+from pyhandling.synonyms import on, tuple_of, repeating
 from pyhandling.tools import documenting_by, LeftCallable
 
 
@@ -325,19 +325,22 @@ def to_interval(
     )
 
 
-def groups_in(items: Iterable[V], id_of: action_of[V]) -> Tuple[V]:
+def groups_in(
+    items: Iterable[V],
+    by: Callable[V, Unia[I, Hashable]],
+) -> OrderedDict[Unia[I, Hashable], V]:
     """
     Function of selecting groups among the elements of an input collection.
-    Segregates elements by id resulting from calling the `id_of` argument.
+    Segregates elements by id resulting from calling the `by` argument.
     """
 
-    id_by_item = from_keys(items, id_of)
-    group_by_id = dict.fromkeys(id_by_item.values(), tuple())
+    id_by_item = from_keys(items, by)
+    group_by_id = OrderedDict.fromkeys(id_by_item.values(), tuple())
 
     for item in items:
         group_by_id[id_by_item[item]] = (*group_by_id[id_by_item[item]], item)
 
-    return tuple(group_by_id.values())
+    return group_by_id
 
 
 def indexed(items: Iterable[V], *indexes: int) -> Generator[V, None, None]:
