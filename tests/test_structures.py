@@ -96,6 +96,11 @@ test_range_from = case_of(
     (lambda: range_from(range(-1, -11, -1)), range(-1, -11, -1)),
     (lambda: range_from(range(-1, -11, -1), limit=20), range(-1, -11, -1)),
     (lambda: range_from(range(-1, -11, -1), limit=1), range(-1, -1, -1)),
+    (lambda: range_from(slice(0, 10, 1)), range(10)),
+    (lambda: range_from(slice(None, 10, None)), range(10)),
+    (lambda: range_from(slice(None, 10, 2)), range(0, 10, 2)),
+    (lambda: range_from(slice(5, 10, None)), range(5, 10)),
+    (lambda: range_from(slice(5, -10, None)), range(5, -10, -1)),
 )
 
 
