@@ -91,8 +91,8 @@ class obj:
         except RecursionError:
             return '...'
 
-    def __eq__(self, other: Special[Mapping]) -> bool:
-        return dict_of(self) == dict_of(other)
+    def __eq__(self, other: Special[Self]) -> bool:
+        return isinstance(other, obj) and dict_of(self) == dict_of(other)
 
     def __and__(self, other: Special[Mapping]) -> Self:
         return obj.of(self, other)
