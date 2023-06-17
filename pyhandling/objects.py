@@ -22,6 +22,7 @@ __all__ = (
     "dict_of",
     "of",
     "void",
+    "like",
 )
 
 
@@ -180,3 +181,38 @@ def of(object_: O, data: Special[Mapping], /) -> O:
 
 
 void = obj()  # Object without data
+
+
+@partially
+def like(
+    imitating: Any,
+    original: Any,
+    *,
+    _ids_of_found_values: Tuple[int] = tuple(),
+) -> bool:
+    """
+    Predicate to compare two objects by value.
+    An `imitating` object type must be covariant with an `original` object type.
+    """
+
+    return (
+        imitating == original
+        or hasattr(original, "__dict__")
+        and isinstance(imitating, type(original))
+        and id(imitating) not in _ids_of_found_values
+        and id(original) not in _ids_of_found_values
+        and (
+            dict_of(original) == dict()
+            or not set(dict_of(original).keys()) - set(dict_of(imitating).keys())
+        )
+        and all(
+            like(
+                dict_of(imitating)[attr_name],
+                original_attr_value,
+                _ids_of_found_values=(
+                    *_ids_of_found_values, id(imitating), id(original)
+                ),
+            )
+            for attr_name, original_attr_value in dict_of(original).items()
+        )
+    )
