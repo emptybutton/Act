@@ -93,3 +93,11 @@ def fail_by_error(error: Exception) -> NoReturn:
         "Catching the unexpected error "
         f"{error.__class__.__name__} \"{str(error)}\""
     )
+
+
+def nested(value: _A | _B, *, by: Callable[_A | _B, _B], times: int) -> _B:
+    return (
+        value
+        if times == 0
+        else reduce(lambda v, _: by(v), [value, range(times)])
+    )
