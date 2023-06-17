@@ -274,6 +274,8 @@ empty = flag_about("empty")
 def marked_ranges_from(
     points: Iterable[int],
 ) -> Tuple[contextual[range, filled | empty]]:
+    points = tuple(points)
+
     if len(points) == 0:
         return tuple()
     elif len(points) == 1:
