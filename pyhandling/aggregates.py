@@ -5,13 +5,14 @@ from typing import TypeVar, Callable, Generic, Optional, Self, Final, Any
 from pyannotating import Special
 
 from pyhandling.annotations import V, R, C, M, reformer_of
+from pyhandling.atomization import atomically
 from pyhandling.pipeline import then
 from pyhandling.contexting import contexted, contextual
 from pyhandling.data_flow import by, yes
 from pyhandling.immutability import property_to
 from pyhandling.operators import not_
 from pyhandling.synonyms import on, returned
-from pyhandling.tools import documenting_by, action_repr_of
+from pyhandling.tools import documenting_by, action_repr_of, LeftCallable
 
 
 __all__ = (
@@ -93,8 +94,8 @@ class Effect(Generic[V, R, C]):
         self,
         action: Callable[V, R | C],
         value: Special[V | C] = _NO_VALUE,
-    ) -> Callable[V | C, C] | C:
-        lifted_action = (
+    ) -> LeftCallable[V | C, C] | C:
+        lifted_action = atomically(
             self.lifted |then>> self._decorator(action) |then>> self.lifted
         )
 
