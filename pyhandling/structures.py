@@ -194,10 +194,7 @@ Interval: TypeAlias = IntervalSegment | Iterable[IntervalSegment]
 def ranges_from(interval: Interval, *, limit: Optional[int] = None) -> Tuple[range]:
     intervals = (
         (interval, )
-        if (
-            isinstance(interval, range | slice)
-            or not isinstance(interval, Iterable)
-        )
+        if isinstance(interval, IntervalSegment)
         else tuple(interval)
     )
 
