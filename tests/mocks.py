@@ -1,6 +1,27 @@
-from typing import Any, Optional, Type, NoReturn
+from functools import reduce
+from typing import Any, Optional, Type, NoReturn, TypeVar, Generic, Callable
 
 from pytest import fail
+
+
+_A = TypeVar("_A")
+_B = TypeVar("_B")
+
+
+class MockA(Generic[_A]):
+    def __init__(self, a: _A):
+        self.a = a
+
+    def get_a(self) -> _A:
+        return self.a
+
+
+class MockB:
+    def __init__(self, b: Any):
+        self.b = b
+
+    def get_b(self) -> _B:
+        return self.b
 
 
 class CustomContext:
