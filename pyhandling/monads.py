@@ -5,22 +5,20 @@ from pyannotating import Special
 
 from pyhandling.aggregates import context_effect
 from pyhandling.annotations import (
-    dirty, R, checker_of, event_for, A, B, V, FlagT, C, ActionT
+    dirty, R, checker_of, event_for, A, B, V, FlagT, C
 )
 from pyhandling.atomization import atomically
 from pyhandling.contexting import (
-    contextual, contextually, contexted, ContextRoot, saving_context, to_write,
-    to_read, to_context, with_reduced_metacontext
+    contextual, contextually, contexted, ContextRoot, saving_context,
+    with_reduced_metacontext
 )
 from pyhandling.data_flow import returnly, by, to, matching, break_
 from pyhandling.flags import flag_about, nothing, Flag, pointed
-from pyhandling.objects import obj
-from pyhandling.objects import void
-from pyhandling.operators import and_, not_
+from pyhandling.operators import and_
 from pyhandling.partiality import will, partially
 from pyhandling.pipeline import discretely, ActionChain, binding_by, then
 from pyhandling.structures import tmap
-from pyhandling.synonyms import on, returned
+from pyhandling.synonyms import on
 from pyhandling.tools import documenting_by, to_check, as_action, LeftCallable
 
 
@@ -37,7 +35,6 @@ __all__ = (
     "in_future",
     "future_from",
     "is_in_future",
-    "do",
 )
 
 
@@ -204,59 +201,3 @@ is_in_future = documenting_by(
         attrgetter("context") |then>> (eq |by| future),
     )
 )
-
-
-@obj.of
-class do:
-    _high = flag_about("high")
-    _returned = flag_about("returned")
-
-    def up(action: ActionT) -> contextually[ActionT, _high]:
-        return contextually(action, do._high)
-
-    def write(action: Callable[[V, C], R]) -> contextually[
-        Callable[ContextRoot[V, C], contextual[V, R]],
-        _high
-    ]:
-        return do.up(to_write(action))
-
-    def read(action: Callable[[V, C], R]) -> contextually[
-        Callable[ContextRoot[V, C], contextual[R, C]],
-        _high
-    ]:
-        return do.up(to_read(action))
-
-    def return_(value: V) -> contextual[V, _returned]:
-        return contextual(value, do._returned)
-
-    def __call__(*actions: ActionT) -> LeftCallable[Any, contextual]:
-        lines = ((map |by| actions) |then>> ActionChain)(
-            discretely(
-                either((do._high, returned), (..., saving_context))
-                |then>> attrgetter("value")
-                |then>> will(on)(not_(do._is_for_returning))
-            )
-            |then>> atomically
-        )
-
-        lines = (
-            (lines[:-1] >= discretely(will(lambda action, root: (
-                contextual(root.value, action(root).context)
-            ))))
-            |then>> lines
-        )
-
-        return atomically(
-            contexted
-            |then>> to_context(on(nothing, void))
-            |then>> (lines[:-1] >= discretely(will(lambda action, root: (
-                contextual(root.value, action(root).context)
-            ))))
-            |then>> lines[-1]
-            |then>> to_context(on(void, nothing))
-        )
-
-    def _is_for_returning(
-        root: Special[ContextRoot[ContextRoot[Any, _returned], Any]],
-    ) -> bool:
-        return contexted(root.value).context == do._returned
