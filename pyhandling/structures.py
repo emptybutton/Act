@@ -187,10 +187,8 @@ class _SliceGenerator:
 interval = _SliceGenerator("interval")
 
 
-Interval: TypeAlias = (
-    int | slice | range | ContextRoot[range, Any]
-    | Iterable[slice | range | ContextRoot[range, Any]]
-)
+IntervalSegment: TypeAlias = int | range | slice
+Interval: TypeAlias = IntervalSegment | Iterable[IntervalSegment]
 
 
 def ranges_from(interval: Interval, *, limit: Optional[int] = None) -> Tuple[range]:
@@ -207,19 +205,19 @@ def ranges_from(interval: Interval, *, limit: Optional[int] = None) -> Tuple[ran
 
 
 def range_from(
-    interval: int | range | slice,
+    interval_segment: IntervalSegment,
     *,
     limit: Optional[int] = None,
 ) -> range:
     if limit is not None and limit < 0:
         raise RangeConstructionError("`limit` must be greater than zero")
 
-    if isinstance(interval, slice):
-        return _range_from_slice(interval, limit=limit)
-    elif isinstance(interval, range):
-        range_ = interval
+    if isinstance(interval_segment, slice):
+        return _range_from_slice(interval_segment, limit=limit)
+    elif isinstance(interval_segment, range):
+        range_ = interval_segment
     else:
-        range_ = range(interval)
+        range_ = range(interval_segment)
 
     if limit is None:
         return range_
