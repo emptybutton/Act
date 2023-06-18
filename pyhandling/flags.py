@@ -592,6 +592,17 @@ class _CallableNamedFlag(_BaseNamedFlag, Generic[Pm, R]):
     def __getitem__(self, annotation: Special[tuple]) -> CommentAnnotation:
         return self._annotation[annotation]
 
+    def to(
+        self,
+        action: Callable[_FirstPm, Pm],
+    ) -> "_CallableNamedFlag[_FirstPm, R]":
+        return _CallableNamedFlag(
+            self._name,
+            negative=not self._sign,
+            action=action |then>> self._action
+        )
+
+
 class _NamedFlag(_BaseNamedFlag):
     """
     _BaseNamedFlag class that can become callable when calling the `to` method
