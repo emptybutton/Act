@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 from functools import reduce
 from itertools import chain
 from typing import (
-    Self, Iterator, Any, Generic, TypeVar, Callable, Optional, Tuple, Literal
+    Self, Iterator, Any, Generic, TypeVar, Callable, Optional, Tuple, Literal,
+    ParamSpec
 )
 from operator import or_, sub, attrgetter, not_
 
@@ -10,7 +11,7 @@ from pyannotating import Special
 
 from pyhandling.atomization import atomic, atomically
 from pyhandling.annotations import (
-    V, FlagT, checker_of, merger_of, reformer_of, A, B, P
+    V, FlagT, checker_of, merger_of, reformer_of, A, B, P, Pm, R, CommentAnnotation
 )
 from pyhandling.data_flow import by, then
 from pyhandling.errors import FlagError
@@ -569,11 +570,42 @@ class _BaseNamedFlag(_AtomicFlag):
         )
 
 
+_FirstPm = ParamSpec("_FirstPm")
+
+
+class _CallableNamedFlag(_BaseNamedFlag, Generic[Pm, R]):
+    def __init__(
+        self,
+        name: str,
+        /,
+        *,
+        negative: bool = False,
+        action: Callable[Pm, R],
+    ):
+        super().__init__(name, negative=negative)
+        self._action = action
+        self._annotation = CommentAnnotation(self._name)
+
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
+        return self._action(*args, **kwargs)
+
+    def __getitem__(self, annotation: Special[tuple]) -> CommentAnnotation:
+        return self._annotation[annotation]
+
 class _NamedFlag(_BaseNamedFlag):
     """
     _BaseNamedFlag class that can become callable when calling the `to` method
     with an action.
     """
+
+    def to(self, action: Callable[Pm, R]) -> _CallableNamedFlag[Pm, R]:
+        """Method to get an callable version of a flag by an input action."""
+
+        return _CallableNamedFlag(
+            self._name,
+            negative=not self._sign,
+            action=action,
+        )
 
 
 def flag_about(name: str, /, *, negative: bool = False) -> _NamedFlag:
