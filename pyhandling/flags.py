@@ -538,14 +538,8 @@ class _ValueFlag(_AtomicFlag, Generic[V]):
         return type(self) is type(other) and self._value == other._value
 
 
-@atomically
-class flag_about(_AtomicFlag):
-    """
-    Constructor of an atomic named flag pointing to itself.
-    See `Flag` for behavior info.
-
-    When `negative` is `True`, casts to `False` when cast to `bool`.
-    """
+class _BaseNamedFlag(_AtomicFlag):
+    """Self-pointing atomic flag class."""
 
     def __init__(self, name: str, /, *, negative: bool = False):
         self._name = name
@@ -573,6 +567,24 @@ class flag_about(_AtomicFlag):
             and self._name == other._name
             and self._sign is other._sign
         )
+
+
+class _NamedFlag(_BaseNamedFlag):
+    """
+    _BaseNamedFlag class that can become callable when calling the `to` method
+    with an action.
+    """
+
+
+def flag_about(name: str, /, *, negative: bool = False) -> _NamedFlag:
+    """
+    Constructor of an atomic named flag pointing to itself.
+    See `Flag` for behavior info.
+
+    When `negative` is `True`, casts to `False` when cast to `bool`.
+    """
+
+    return _NamedFlag(name, negative=negative)
 
 
 def pointed(*values: FlagT | V) -> FlagT | _ValueFlag[V]:
