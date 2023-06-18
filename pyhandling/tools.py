@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from functools import partial
-from inspect import isbuiltin, isfunction, ismethod
 from operator import eq
 from typing import Generic, Callable
 

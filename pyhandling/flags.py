@@ -9,7 +9,7 @@ from operator import or_, sub, attrgetter, not_
 
 from pyannotating import Special
 
-from pyhandling.atomization import atomic, atomically
+from pyhandling.atomization import atomic
 from pyhandling.annotations import (
     V, FlagT, checker_of, merger_of, reformer_of, A, B, P, Pm, R, CommentAnnotation
 )

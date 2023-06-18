@@ -9,6 +9,7 @@ from pyannotating import (
 )
 
 from pyhandling.errors import UniaError
+from pyhandling.representations import action_repr_of
 
 
 __all__ = (
