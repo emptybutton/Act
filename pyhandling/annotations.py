@@ -1,7 +1,7 @@
 from operator import attrgetter
 from typing import (
     Callable, Any, TypeAlias, TypeVar, ParamSpec, TypeVarTuple, Iterable,
-    Tuple, Self, _CallableGenericAlias, _CallableType,
+    Tuple, Self, Union, _CallableGenericAlias, _CallableType
 )
 
 from pyannotating import (
@@ -56,6 +56,7 @@ __all__ = (
     "X",
     "Y",
     "Z",
+    "CommentAnnotation",
     "CallableFormalAnnotation",
     "notes_of",
     "dirty",
@@ -134,6 +135,38 @@ W = TypeVar('W')
 X = TypeVar('X')
 Y = TypeVar('Y')
 Z = TypeVar('Z')
+
+
+class CommentAnnotation:
+    def __init__(self, name: str, *, args: Iterable = tuple()):
+        self._name = name
+        self._args = tuple(args)
+
+    def __repr__(self) -> str:
+        return f"~{self._name}{{}}".format(
+            "[{}]".format(', '.join(map(action_repr_of, self._args)))
+            if len(self._args) > 0
+            else str()
+        )
+
+    def __getitem__(self, value_or_values: Special[tuple]) -> Self:
+        return type(self)(
+            self._name,
+            args=(
+                *self._args,
+                *(
+                    value_or_values
+                    if isinstance(value_or_values, tuple)
+                    else (value_or_values, )
+                ),
+            ),
+        )
+
+    def __or__(self, other: Any):
+        return Union[self, other]
+
+    def __ror__(self, other: Any):
+        return Union[other, self]
 
 
 class CallableFormalAnnotation(FormalAnnotation):
