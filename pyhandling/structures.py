@@ -12,8 +12,10 @@ from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import V, M, K, checker_of, I, Unia
 from pyhandling.atomization import atomically
-from pyhandling.contexting import ContextRoot, contextual, contexted
 from pyhandling.data_flow import returnly, by
+from pyhandling.contexting import (
+    ContextRoot, contextual, contexted, contextualizing
+)
 from pyhandling.errors import RangeConstructionError, IndexingError
 from pyhandling.flags import flag_about
 from pyhandling.partiality import rpartial, partially, rwill
@@ -267,37 +269,27 @@ def disjoint_ranges_from(numbers: Iterable[int]) -> Tuple[range]:
     return tuple(ranges)
 
 
-filled = flag_about("filled")
-empty = flag_about("empty")
+filled = contextualizing(flag_about("filled"))
+empty = contextualizing(flag_about("empty"))
 
 
-def marked_ranges_from(
-    points: Iterable[int],
-) -> Tuple[contextual[range, filled | empty]]:
-    points = tuple(points)
+def marked_ranges_from(points: Iterable[int]) -> Tuple[range]:
+    points = sorted(set(points))
 
-    if len(points) == 0:
-        return tuple()
-    elif len(points) == 1:
-        return (contextual(range(points[0], points[0] + 1), filled), )
-    elif len(points) == 2:
-        marked_ranges = tuple()
-        next_range = contextual(range(points[1], points[1] + 1), filled)
-    else:
-        marked_ranges = marked_ranges_from(points[1:])
-        next_range = marked_ranges[0]
+    marked_ranges = list()
+    last_range_start = points[0]
 
-    fullness = filled if points[0] + 1 == points[1] else empty
-    is_interval_linear = next_range.context is fullness
+    for current, next_ in indexed(points, 0, 1):
+        if current + 1 == next_:
+            continue
+        
+        marked_ranges.append(filled(range(last_range_start, current + 1)))
+        marked_ranges.append(empty(range(current + 1, next_)))
+        last_range_start = next_
 
-    return (
-        (
-            contextual(range(points[0], next_range.value.stop), fullness),
-            *marked_ranges[1:],
-        )
-        if is_interval_linear
-        else (contextual(range(points[0], points[1] + 1), fullness), *marked_ranges)
-    )
+    marked_ranges.append(filled(range(last_range_start, points[-1] + 1)))
+
+    return tuple(marked_ranges)
 
 
 @partially
