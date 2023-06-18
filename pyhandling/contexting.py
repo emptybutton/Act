@@ -1,7 +1,8 @@
 from abc import ABC
 from operator import not_, methodcaller, attrgetter
 from typing import (
-    Generic, Any, Iterator, Callable, Iterable, GenericAlias, Optional, Self
+    Generic, Any, Iterator, Callable, Iterable, GenericAlias, Optional, Self,
+    TypeVar
 )
 
 from pyannotating import Special
@@ -10,7 +11,7 @@ from pyhandling.annotations import (
     ActionT, ErrorT, P, Pm, checker_of, A, B, C, V, R, W, D, S
 )
 from pyhandling.atomization import atomically
-from pyhandling.flags import nothing, Flag, pointed
+from pyhandling.flags import nothing, Flag, pointed, _NamedFlag, _CallableNamedFlag
 from pyhandling.immutability import property_to, NotInitializable
 from pyhandling.partiality import partially, will, rpartial
 from pyhandling.pipeline import then
@@ -28,6 +29,7 @@ __all__ = (
     "ContextualError",
     "context_oriented",
     "contexted",
+    "contextualizing",
     "saving_context",
     "to_context",
     "to_write",
@@ -202,6 +204,17 @@ def contexted(
         context = when
 
     return contextual(value, context)
+
+
+_NamedFlagT = TypeVar("_NamedFlagT", bound=_NamedFlag)
+
+
+def contextualizing(
+    flag: _NamedFlagT,
+    *,
+    to: Callable[[V, _NamedFlagT], R] = contextual,
+) -> _CallableNamedFlag[V, R]:
+    return flag.to(rpartial(to, flag))
 
 
 @partially

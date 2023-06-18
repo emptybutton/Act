@@ -10,7 +10,7 @@ from pyhandling.annotations import (
 from pyhandling.atomization import atomically
 from pyhandling.contexting import (
     contextual, contextually, contexted, ContextRoot, saving_context,
-    with_reduced_metacontext
+    with_reduced_metacontext, contextualizing
 )
 from pyhandling.data_flow import returnly, by, to, matching, break_
 from pyhandling.flags import flag_about, nothing, Flag, pointed
@@ -38,8 +38,8 @@ __all__ = (
 )
 
 
-ok = flag_about('ok')
-bad = flag_about('bad', negative=True)
+ok = contextualizing(flag_about('ok'))
+bad = contextualizing(flag_about('bad', negative=True))
 
 
 @documenting_by(
@@ -115,8 +115,8 @@ def showly(
     )
 
 
-right = flag_about("right")
-left = flag_about("left", negative=True)
+right = contextualizing(flag_about("right"))
+left = contextualizing(flag_about("left", negative=True))
 
 
 def either(
@@ -147,7 +147,7 @@ def either(
     )))
 
 
-future = flag_about("future")
+future = contextualizing(flag_about("future"), to=contextually)
 
 
 @partially
