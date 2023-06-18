@@ -135,15 +135,17 @@ test_range_from = case_of(
 
 
 test_marked_ranges_from = case_of(
-    (lambda: marked_ranges_from([4]), (contextual(range(4, 5), filled), )),
-    (lambda: marked_ranges_from((1, 2)), (contextual(range(1, 3), filled), )),
-    (lambda: marked_ranges_from((1, 3)), (contextual(range(1, 4), empty), )),
+    (lambda: marked_ranges_from([4]), (filled(range(4, 5)), )),
+    (lambda: marked_ranges_from((1, 2)), (filled(range(1, 3)), )),
+    (lambda: marked_ranges_from((1, 3)), (
+        filled(range(1, 2)), empty(range(2, 3)), filled(range(3, 4)))
+    ),
     (lambda: marked_ranges_from((1, 3, 4)), (
-        contextual(range(1, 4), empty), contextual(range(3, 5), filled),
+        filled(range(1, 2)), empty(range(2, 3)), filled(range(3, 5))
     )),
     (lambda: marked_ranges_from((1, 3, 4, 9, 10, 11)), (
-        contextual(range(1, 4), empty), contextual(range(3, 5), filled),
-        contextual(range(4, 10), empty), contextual(range(9, 12), filled),
+        filled(range(1, 2)), empty(range(2, 3)), filled(range(3, 5)),
+        empty(range(5, 9)), filled(range(9, 12))
     )),
-    (lambda: marked_ranges_from(range(600)), (contextual(range(600), filled), )),
+    (lambda: marked_ranges_from(range(600)), (filled(range(600)), )),
 )
