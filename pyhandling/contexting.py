@@ -196,7 +196,7 @@ def contexted(
         value if isinstance(value, ContextRoot) else contextual(value)
     )
 
-    if callable(when):
+    if callable(when) and not isinstance(when, Flag):
         context = when(context)
     elif when is not None:
         context = when
