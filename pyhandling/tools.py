@@ -14,7 +14,6 @@ __all__ = (
     "documenting_by",
     "to_check",
     "as_action",
-    "action_repr_of",
 )
 
 
@@ -56,19 +55,6 @@ def to_check(determinant: checker_of[V] | V) -> checker_of[V]:
 
 def as_action(value: ActionT | V) -> ActionT | action_for[V]:
     return value if callable(value) else lambda *_, **__: value
-
-
-def action_repr_of(action: Callable) -> str:
-    if ismethod(action):
-        repr_ = f"({action_repr_of(action.__self__)}).{action.__name__}"
-    elif isbuiltin(action):
-        repr_ = action.__name__
-    elif isfunction(action) or isinstance(action, type):
-        repr_ = action.__qualname__
-    else:
-        return str(action)
-
-    return repr_
 
 
 def _module_prefix_of(action: Callable) -> str:

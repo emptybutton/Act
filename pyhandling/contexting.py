@@ -14,9 +14,10 @@ from pyhandling.flags import nothing, Flag, pointed
 from pyhandling.immutability import property_to, NotInitializable
 from pyhandling.partiality import partially, will, rpartial
 from pyhandling.pipeline import then
+from pyhandling.representations import action_repr_of
 from pyhandling.signatures import call_signature_of
 from pyhandling.synonyms import repeating, returned, on
-from pyhandling.tools import documenting_by, LeftCallable, action_repr_of
+from pyhandling.tools import documenting_by, LeftCallable
 
 
 __all__ = (

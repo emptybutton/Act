@@ -16,9 +16,10 @@ from pyhandling.atomization import atomically
 from pyhandling.errors import ReturningError, MatchingError
 from pyhandling.partiality import will, rpartial, flipped
 from pyhandling.pipeline import bind, then
+from pyhandling.representations import action_repr_of
 from pyhandling.signatures import Decorator, call_signature_of
 from pyhandling.synonyms import returned, on
-from pyhandling.tools import documenting_by, LeftCallable, action_repr_of
+from pyhandling.tools import documenting_by, LeftCallable
 
 
 __all__ = (

@@ -5,9 +5,8 @@ from pyhandling.annotations import V
 from pyhandling.atomization import atomically
 from pyhandling.data_flow import by
 from pyhandling.partiality import partial
-from pyhandling.tools import (
-    documenting_by, to_check, LeftCallable, action_repr_of
-)
+from pyhandling.representations import action_repr_of
+from pyhandling.tools import documenting_by, to_check, LeftCallable
 
 
 __all__ = (

@@ -3,7 +3,8 @@ from typing import runtime_checkable, Protocol, Self, Callable
 
 from pyhandling.annotations import AtomizableT, Pm, R
 from pyhandling.errors import AtomizationError
-from pyhandling.tools import LeftCallable, action_repr_of
+from pyhandling.representations import action_repr_of
+from pyhandling.tools import LeftCallable
 
 
 __all__ = ("Atomizable", "atomic", "atomically")

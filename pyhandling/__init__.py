@@ -17,6 +17,7 @@ from pyhandling.operators import *
 from pyhandling.partiality import *
 from pyhandling.pipeline import *
 from pyhandling.protocols import *
+from pyhandling.representations import *
 from pyhandling.scoping import *
 from pyhandling.signatures import *
 from pyhandling.structures import *

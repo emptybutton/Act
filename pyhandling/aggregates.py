@@ -11,9 +11,9 @@ from pyhandling.contexting import contexted, contextual
 from pyhandling.data_flow import by, yes
 from pyhandling.immutability import property_to
 from pyhandling.operators import not_
+from pyhandling.representations import action_repr_of
 from pyhandling.synonyms import on, returned
-from pyhandling.tools import documenting_by, action_repr_of, LeftCallable
-
+from pyhandling.tools import documenting_by, LeftCallable
 
 __all__ = (
     "Access",

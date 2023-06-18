@@ -5,7 +5,7 @@ from typing import Generic, Callable, Any, Union
 from pyannotating import Special
 
 from pyhandling.annotations import ActionT
-from pyhandling.tools import action_repr_of
+from pyhandling.representations import action_repr_of
 
 
 __all__ = ("Decorator", "call_signature_of", "annotation_sum")

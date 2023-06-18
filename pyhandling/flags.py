@@ -16,9 +16,9 @@ from pyhandling.data_flow import by, then
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
 from pyhandling.partiality import partially
+from pyhandling.representations import action_repr_of
 from pyhandling.synonyms import returned, on
-from pyhandling.tools import documenting_by, action_repr_of
-
+from pyhandling.tools import documenting_by
 
 __all__ = (
     "Flag",

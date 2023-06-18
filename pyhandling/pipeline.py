@@ -7,9 +7,10 @@ from pyhandling.atomization import atomically
 from pyhandling.errors import TemplatedActionChainError
 from pyhandling.immutability import property_to
 from pyhandling.partiality import rpartial, will
+from pyhandling.representations import action_repr_of
 from pyhandling.signatures import call_signature_of
 from pyhandling.synonyms import returned, on
-from pyhandling.tools import documenting_by, LeftCallable, action_repr_of
+from pyhandling.tools import documenting_by, LeftCallable
 
 
 __all__ = (

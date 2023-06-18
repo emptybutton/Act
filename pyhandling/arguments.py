@@ -13,13 +13,13 @@ from pyannotating import Special
 from pyhandling.annotations import A, D
 from pyhandling.atomization import atomically
 from pyhandling.errors import ArgumentError
+from pyhandling.representations import action_repr_of
 from pyhandling.signatures import (
     Decorator, call_signature_of
 )
 from pyhandling.structures import (
     without, frozendict, tmap, without_duplicates, reversed_table
 )
-from pyhandling.tools import action_repr_of
 
 
 __all__ = ("ArgumentKey", "Arguments", "as_arguments", "unpackly")

@@ -10,9 +10,9 @@ from pyhandling.annotations import (
 )
 from pyhandling.atomization import atomically
 from pyhandling.partiality import partially
+from pyhandling.representations import action_repr_of
 from pyhandling.signatures import Decorator, call_signature_of, annotation_sum
-from pyhandling.tools import to_check, as_action, LeftCallable, action_repr_of
-
+from pyhandling.tools import to_check, as_action, LeftCallable
 
 __all__ = (
     "returned",

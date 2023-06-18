@@ -17,8 +17,8 @@ from pyhandling.flags import flag_about, Flag
 from pyhandling.immutability import to_clone
 from pyhandling.partiality import partially, flipped
 from pyhandling.pipeline import then
+from pyhandling.representations import action_repr_of
 from pyhandling.synonyms import on, returned
-from pyhandling.tools import action_repr_of
 
 
 __all__ = (
