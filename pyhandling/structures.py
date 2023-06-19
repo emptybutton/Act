@@ -350,7 +350,7 @@ def groups_in(
     return group_by_id
 
 
-def indexed(items: Iterable[V], *indexes: int) -> Generator[V, None, None]:
+def indexed(items: Iterable[V], *indexes: int) -> Generator[Tuple[V], None, None]:
     """Function to get ordered items under input indexes."""
 
     items = tuple(items)
