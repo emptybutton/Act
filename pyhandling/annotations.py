@@ -139,6 +139,8 @@ Z = TypeVar('Z')
 
 
 class CommentAnnotation:
+    """Class for annotation as comments."""
+
     def __init__(self, name: str, *, args: Iterable = tuple()):
         self._name = name
         self._args = tuple(args)
