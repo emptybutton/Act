@@ -21,12 +21,6 @@ test_assert_ = case_of(
 )
 
 
-test_tuple_of = case_of(
-    (lambda: tuple_of(1, 2, 3), (1, 2, 3)),
-    (lambda: tuple_of(), tuple()),
-)
-
-
 test_on = case_of(
     (lambda: on(lambda x: x > 0, lambda x: x ** x)(4), 256),
     (lambda: on(lambda x: x > 0, lambda x: x ** x)(-4), -4),
@@ -100,13 +94,19 @@ def test_trying_to_with_error(
     )
 
 
+test_with_ = case_of(
+    (lambda: with_(CustomContext(256), lambda v: v), 256),
+    (lambda: with_(CustomContext(16))(lambda v: v), 16),
+)
+
+
 test_keyword_unpackly = case_of((
     lambda: keyword_unpackly(lambda a, b, c: (c, b, a))(dict(a=1, b=2, c=3)),
     (3, 2, 1),
 ))
 
 
-test_with_ = case_of(
-    (lambda: with_(CustomContext(256), lambda v: v), 256),
-    (lambda: with_(CustomContext(16))(lambda v: v), 16),
+test_tuple_of = case_of(
+    (lambda: tuple_of(1, 2, 3), (1, 2, 3)),
+    (lambda: tuple_of(), tuple()),
 )
