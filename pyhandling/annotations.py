@@ -152,6 +152,13 @@ class CommentAnnotation:
             else str()
         )
 
+    def __eq__(self, other: Special[Self]) -> bool:
+        return (
+            isinstance(other, CommentAnnotation)
+            and self._name == other._name
+            and self._args == other._args
+        )
+
     def __getitem__(self, value_or_values: Special[tuple]) -> Self:
         return type(self)(
             self._name,
