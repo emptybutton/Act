@@ -21,6 +21,7 @@ from pyhandling.representations import action_repr_of
 from pyhandling.synonyms import returned, on
 from pyhandling.tools import documenting_by
 
+
 __all__ = (
     "Flag",
     "FlagVector",

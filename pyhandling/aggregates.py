@@ -15,6 +15,7 @@ from pyhandling.representations import action_repr_of
 from pyhandling.synonyms import on, returned
 from pyhandling.tools import documenting_by, LeftCallable
 
+
 __all__ = (
     "Access",
     "Effect",
