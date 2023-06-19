@@ -1,3 +1,5 @@
+from functools import partial
+
 from pyhandling.testing import case_of
 from pyhandling.structures import *
 
@@ -148,3 +150,88 @@ test_marked_ranges_from = case_of(
     )),
     (lambda: marked_ranges_from(range(600)), (filled(range(600)), )),
 )
+
+
+test_to_interval = case_of(
+    (lambda: to_interval(2, partial(map, lambda v: v * 5), [1, 2, 3]), (5, 10, 3)),
+    (
+        lambda: to_interval(range(2), partial(map, lambda v: v * 5), [1, 2, 3]),
+        (5, 10, 3),
+    ),
+    (
+        lambda: to_interval(slice(2), partial(map, lambda v: v * 5), [1, 2, 3]),
+        (5, 10, 3),
+    ),
+    (
+        lambda: to_interval(
+            range(2, 4),
+            partial(map, lambda v: v * 5),
+            [1, 2, 3, 4],
+        ),
+        (1, 2, 15, 20),
+    ),
+    (
+        lambda: to_interval(
+            [range(1), range(3, 5), range(6, 8)],
+            partial(map, lambda v: v * 5),
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        ),
+        (0, 1, 2, 15, 20, 5, 30, 35, 8, 9),
+    ),
+    (
+        lambda: to_interval(
+            [range(1), range(3, 5), range(6, 8)],
+            partial(map, lambda v: v * 5),
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        ),
+        (0, 1, 2, 15, 20, 5, 30, 35, 8, 9),
+    ),
+    (
+        lambda: to_interval(
+            [slice(1), slice(3, 5), slice(6, 8)],
+            partial(map, lambda v: v * 5),
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        ),
+        (0, 1, 2, 15, 20, 5, 30, 35, 8, 9),
+    ),
+    (
+        lambda: to_interval(
+            range(6),
+            partial(filter, lambda v: v % 2 == 0),
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        ),
+        (0, 2, 4, 6, 7, 8, 9, 10),
+    ),
+)
+
+
+test_groups_in = case_of((
+    lambda: groups_in(range(-2, 2), by=lambda v: v >= 0),
+    {False: (-2, -1), True: (0, 1)},
+))
+
+
+test_indexed = case_of(
+    (lambda: tuple(indexed([1, 2, 3], 0, 1)), ((1, 2), (2, 3))),
+    (lambda: tuple(indexed([1, 2, 3, 4], 0, 1)), ((1, 2), (2, 3), (3, 4))),
+)
+
+
+test_map_table = case_of((
+    lambda: map_table(lambda v: v * 2, dict(a=1, b=2, c=3)), dict(a=2, b=4, c=6)
+))
+
+
+test_filter_table = case_of((
+    lambda: filter_table(lambda v: v >= 0, dict(a=-1, b=0, c=1)), dict(b=0, c=1)
+))
+
+
+test_from_keys = case_of((
+    lambda: from_keys([1, 2, 3], str), {1: '1', 2: '2', 3: '3'}
+))
+
+
+test_reversed_table = case_of((
+    lambda: reversed_table(dict(a=1, b=2)), {1: 'a', 2: 'b'}
+))
