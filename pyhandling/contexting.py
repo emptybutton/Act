@@ -212,9 +212,11 @@ _NamedFlagT = TypeVar("_NamedFlagT", bound=_NamedFlag)
 def contextualizing(
     flag: _NamedFlagT,
     *,
-    to: Callable[[V, _NamedFlagT], R] = contextual,
+    to: Callable[[V, _CallableNamedFlag[V, R]], R] = contextual,
 ) -> _CallableNamedFlag[V, R]:
-    return flag.to(rpartial(to, flag))
+    contextualizing_flag = flag.to(lambda value: to(value, contextualizing_flag))
+
+    return contextualizing_flag
 
 
 @partially
