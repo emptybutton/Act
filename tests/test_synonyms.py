@@ -110,3 +110,13 @@ test_tuple_of = case_of(
     (lambda: tuple_of(1, 2, 3), (1, 2, 3)),
     (lambda: tuple_of(), tuple()),
 )
+
+
+test_in_tuple = case_of((
+    lambda: in_tuple(8), (8, )
+))
+
+
+test_with_keyword = case_of((
+    with_keyword('a', 3, lambda a, b=5: a + b), 8
+))
