@@ -2,14 +2,10 @@ from dataclasses import dataclass
 from functools import partial, reduce, wraps
 from itertools import count
 from inspect import Signature, Parameter
-from operator import (
-    call, not_, add, attrgetter, pos, neg, invert, gt, ge, lt, le, eq, ne, sub,
-    mul, floordiv, truediv, mod, or_, lshift, is_, is_not, getitem, contains,
-    xor, rshift, matmul, setitem
-)
 from typing import (
     Iterable, Callable, Any, Mapping, Self, Tuple, Optional, Literal
 )
+import operator
 
 from pyannotating import Special
 
@@ -127,7 +123,7 @@ class _ActionCursor(Mapping):
     ):
         self._parameters = tuple(reversed(sorted(
             set(parameters),
-            key=attrgetter("priority"),
+            key=operator.attrgetter("priority"),
         )))
         self._actions = actions
         self._previous = previous
@@ -136,7 +132,9 @@ class _ActionCursor(Mapping):
 
         groups_with_same_priority = tfilter(
             lambda group: len(group) > 1,
-            tuple(groups_in(self._parameters, by=attrgetter("priority")).values()),
+            tuple(groups_in(
+                self._parameters, by=operator.attrgetter("priority")
+            ).values()),
         )
 
         if len(groups_with_same_priority) != 0:
@@ -158,7 +156,7 @@ class _ActionCursor(Mapping):
 
     def __repr__(self) -> str:
         return f"<{{}}: {self._internal_repr}>".format(
-            ', '.join(map(attrgetter('name'), self._parameters))
+            ', '.join(map(operator.attrgetter('name'), self._parameters))
         )
 
     def __bool__(self) -> bool:
@@ -196,7 +194,7 @@ class _ActionCursor(Mapping):
         elif len(args) == len(self._parameters):
             return self._run(contextual(
                 nothing,
-                dict(zip(map(attrgetter('name'), self._parameters), args)),
+                dict(zip(map(operator.attrgetter('name'), self._parameters), args)),
             )).value
 
         elif len(args) < len(self._parameters):
@@ -230,7 +228,7 @@ class _ActionCursor(Mapping):
         if nature == _ActionCursorNature.attrgetting:
             setting = setattr
         elif nature == _ActionCursorNature.itemgetting:
-            setting = setitem
+            setting = operator.setitem
         else:
             raise ActionCursorError("Setting without a place to set")
 
@@ -268,9 +266,12 @@ class _ActionCursor(Mapping):
         return (
             self
             ._with(
-                will(getitem) |then>> binding_by(
+                will(operator.getitem) |then>> binding_by(
                     tuple_of
-                    |then>> on(len |then>> (eq |by| 1), getitem |by| 0)
+                    |then>> on(
+                        len |then>> (operator.eq |by| 1),
+                        operator.getitem |by| 0,
+                    )
                     |then>> ...
                 )
             )
@@ -301,7 +302,9 @@ class _ActionCursor(Mapping):
     def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
         return cls(
             parameters=[parameter],
-            actions=ActionChain([to_read(to_left(getitem |by| parameter.name))]),
+            actions=ActionChain([
+                to_read(to_left(operator.getitem |by| parameter.name))
+            ]),
             nature=contextual(_ActionCursorNature.returning),
             internal_repr=parameter.name,
         )
@@ -378,7 +381,7 @@ class _ActionCursor(Mapping):
             self
             ._with_partial_application_from(args)
             ._with_keyword_partial_application_by(kwargs)
-            ._with(call, nature=contextual(
+            ._with(operator.call, nature=contextual(
                 _ActionCursorNature.calling,
                 Arguments(args, kwargs),
             ))
@@ -475,7 +478,7 @@ class _ActionCursor(Mapping):
         for attribute_name in dir(self):
             if (
                 name.startswith(attribute_name)
-                and all(map(eq |by| '_', name[len(attribute_name) + 1:]))
+                and all(map(operator.eq |by| '_', name[len(attribute_name) + 1:]))
             ):
                 return name[:-1]
 
@@ -498,7 +501,7 @@ class _ActionCursor(Mapping):
             if (
                 self._nature.value == _ActionCursorNature.operation
                 and isinstance(self._nature.context, _OperationModel)
-                and (gt if on_left_side else ge)(
+                and (operator.gt if on_left_side else operator.ge)(
                     self._nature.context.priority,
                     model.priority,
                 )
@@ -598,57 +601,90 @@ class _ActionCursor(Mapping):
 
         return decorator
 
-    is_ = __merging_by(is_, _OperationModel('is', 8))
-    is_not = __merging_by(is_not, _OperationModel("is not", 8))
-    in_ = __merging_by(contains, _OperationModel('in', 8))
-    not_in = __merging_by(contains |then>> not_, _OperationModel('not in', 8))
+    is_ = __merging_by(operator.is_, _OperationModel('is', 8))
+    is_not = __merging_by(operator.is_not, _OperationModel("is not", 8))
+    in_ = __merging_by(operator.contains, _OperationModel('in', 8))
+    not_in = __merging_by(
+        operator.contains |then>> operator.not_,
+        _OperationModel('not in', 8),
+    )
     and_ = __merging_by(lambda a, b: a and b, _OperationModel('and', 9))
     or_ = __merging_by(lambda a, b: a or b, _OperationModel('or', 10))
 
-    __pos__ = __transformation_by(pos, _OperationModel('+', 1))
-    __neg__ = __transformation_by(neg, _OperationModel('-', 1))
-    __invert__ = __transformation_by(invert, _OperationModel('~', 1))
+    __pos__ = __transformation_by(operator.pos, _OperationModel('+', 1))
+    __neg__ = __transformation_by(operator.neg, _OperationModel('-', 1))
+    __invert__ = __transformation_by(operator.invert, _OperationModel('~', 1))
 
-    __pow__ = __merging_by(pow, _OperationModel('**', 0))
-    __mul__ = __merging_by(mul, _OperationModel('*', 2))
-    __floordiv__ = __merging_by(floordiv, _OperationModel('//', 2))
-    __truediv__ = __merging_by(truediv, _OperationModel('/', 2))
-    __matmul__ = __merging_by(matmul, _OperationModel('@', 2))
-    __mod__ = __merging_by(mod, _OperationModel('%', 2))
-    __add__ = __merging_by(add, _OperationModel('+', 3))
-    __sub__ = __merging_by(sub, _OperationModel('-', 3))
-    __lshift__ = __merging_by(lshift, _OperationModel('<<', 4))
-    __rshift__ = __merging_by(rshift, _OperationModel('>>', 4))
-    __and__ = __merging_by(and_, _OperationModel('&', 5))
-    __xor__ = __merging_by(xor, _OperationModel('^', 6))
+    __pow__ = __merging_by(operator.pow, _OperationModel('**', 0))
+    __mul__ = __merging_by(operator.mul, _OperationModel('*', 2))
+    __floordiv__ = __merging_by(operator.floordiv, _OperationModel('//', 2))
+    __truediv__ = __merging_by(operator.truediv, _OperationModel('/', 2))
+    __matmul__ = __merging_by(operator.matmul, _OperationModel('@', 2))
+    __mod__ = __merging_by(operator.mod, _OperationModel('%', 2))
+    __add__ = __merging_by(operator.add, _OperationModel('+', 3))
+    __sub__ = __merging_by(operator.sub, _OperationModel('-', 3))
+    __lshift__ = __merging_by(operator.lshift, _OperationModel('<<', 4))
+    __rshift__ = __merging_by(operator.rshift, _OperationModel('>>', 4))
+    __and__ = __merging_by(operator.and_, _OperationModel('&', 5))
+    __xor__ = __merging_by(operator.xor, _OperationModel('^', 6))
 
     def __or__(self, value: Special[ActionChain | Self]) -> Self | ActionChain:
         return (
             value.__ror__(self)
             if isinstance(value, _ActionChainInfix)
-            else self.__merging_by(or_, _OperationModel('|', 7))(self, value)
+            else self.__merging_by(
+                operator.or_,
+                _OperationModel('|', 7),
+            )(self, value)
         )
 
-    __rpow__ = __merging_by(pow, _OperationModel('**', 0), is_right=True)
-    __rmul__ = __merging_by(mul, _OperationModel('*', 2), is_right=True)
-    __rfloordiv__ = __merging_by(floordiv, _OperationModel('//', 2), is_right=True)
-    __rtruediv__ = __merging_by(truediv, _OperationModel('/', 2), is_right=True)
-    __rmatmul__ = __merging_by(matmul, _OperationModel('@', 2), is_right=True)
-    __rmod__ = __merging_by(mod, _OperationModel('%', 2), is_right=True)
-    __radd__ = __merging_by(add, _OperationModel('+', 3), is_right=True)
-    __rsub__ = __merging_by(sub, _OperationModel('-', 3), is_right=True)
-    __rlshift__ = __merging_by(lshift, _OperationModel('<<', 4), is_right=True)
-    __rrshift__ = __merging_by(rshift, _OperationModel('>>', 4), is_right=True)
-    __rand__ = __merging_by(and_, _OperationModel('&', 5), is_right=True)
-    __rxor__ = __merging_by(xor, _OperationModel('^', 6), is_right=True)
-    __ror__ = __merging_by(or_, _OperationModel('|', 7), is_right=True)
+    __rpow__ = __merging_by(operator.pow, _OperationModel('**', 0), is_right=True)
+    __rmul__ = __merging_by(operator.mul, _OperationModel('*', 2), is_right=True)
+    __rfloordiv__ = __merging_by(
+        operator.floordiv,
+        _OperationModel('//', 2), is_right=True,
+    )
+    __rtruediv__ = __merging_by(
+        operator.truediv,
+        _OperationModel('/', 2), is_right=True,
+    )
+    __rmatmul__ = __merging_by(
+        operator.matmul,
+        _OperationModel('@', 2), is_right=True,
+    )
+    __rmod__ = __merging_by(operator.mod, _OperationModel('%', 2), is_right=True)
+    __radd__ = __merging_by(operator.add, _OperationModel('+', 3), is_right=True)
+    __rsub__ = __merging_by(operator.sub, _OperationModel('-', 3), is_right=True)
+    __rlshift__ = __merging_by(
+        operator.lshift,
+        _OperationModel('<<', 4), is_right=True,
+    )
+    __rrshift__ = __merging_by(
+        operator.rshift,
+        _OperationModel('>>', 4), is_right=True,
+    )
+    __rand__ = __merging_by(operator.and_, _OperationModel('&', 5), is_right=True)
+    __rxor__ = __merging_by(operator.xor, _OperationModel('^', 6), is_right=True)
+    __ror__ = __merging_by(operator.or_, _OperationModel('|', 7), is_right=True)
 
-    __gt__ = __with_forced_sign(False)(__merging_by(gt, _OperationModel('>', 8)))
-    __lt__ = __with_forced_sign(False)(__merging_by(lt, _OperationModel('<', 8)))
-    __ge__ = __with_forced_sign(False)(__merging_by(ge, _OperationModel('>=', 8)))
-    __le__ = __with_forced_sign(False)(__merging_by(le, _OperationModel('>=', 8)))
-    __ne__ = __with_forced_sign(True)(__merging_by(ne, _OperationModel('!=', 8)))
-    __eq__ = __with_forced_sign(False)(__merging_by(eq, _OperationModel('==', 8)))
+    __gt__ = __with_forced_sign(False)(
+        __merging_by(operator.gt, _OperationModel('>', 8))
+    )
+    __lt__ = __with_forced_sign(False)(
+        __merging_by(operator.lt, _OperationModel('<', 8))
+    )
+    __ge__ = __with_forced_sign(False)(
+        __merging_by(operator.ge, _OperationModel('>=', 8))
+    )
+    __le__ = __with_forced_sign(False)(
+        __merging_by(operator.le, _OperationModel('>=', 8))
+    )
+    __ne__ = __with_forced_sign(True)(
+        __merging_by(operator.ne, _OperationModel('!=', 8))
+    )
+    __eq__ = __with_forced_sign(False)(
+        __merging_by(operator.eq, _OperationModel('==', 8))
+    )
 
 
 @dirty
