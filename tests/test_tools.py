@@ -1,7 +1,7 @@
 from pytest import mark
 
-from pyhandling.objects import obj
 from pyhandling.tools import *
+from tests.mocks import MockA
 
 
 @mark.parametrize(
@@ -12,7 +12,7 @@ from pyhandling.tools import *
     )
 )
 def test_documenting_by(documentation: str):
-    mock = obj()
+    mock = MockA(None)
 
     documenting_by(documentation)(mock)
 
