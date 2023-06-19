@@ -21,6 +21,7 @@ from pyhandling.immutability import to_clone, property_to
 from pyhandling.objects import obj
 from pyhandling.partiality import flipped, rpartial, will
 from pyhandling.pipeline import ActionChain, binding_by, on, then, _ActionChainInfix
+from pyhandling.representations import action_repr_of
 from pyhandling.scoping import value_in
 from pyhandling.structures import tfilter, groups_in
 from pyhandling.synonyms import with_keyword, tuple_of
@@ -518,7 +519,7 @@ class _ActionCursor(Mapping):
             return f"*{value.cursor._single_adapted_internal_repr}"
 
         else:
-            return str(value)
+            return action_repr_of(value)
 
     def __get_adapted_internal_repr(self, *, single: bool = False) -> str:
         return (
@@ -565,7 +566,7 @@ class _ActionCursor(Mapping):
                         ).format(
                             value._internal_repr_by(model, on_left_side=is_right)
                             if isinstance(value, _ActionCursor)
-                            else value
+                            else _ActionCursor._repr_of(value)
                         )
                     )
                 )
