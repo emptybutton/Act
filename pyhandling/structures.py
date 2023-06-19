@@ -12,8 +12,10 @@ from pyannotating import many_or_one, Special
 
 from pyhandling.annotations import V, M, K, checker_of, I, Unia
 from pyhandling.atomization import atomically
-from pyhandling.contexting import ContextRoot, contexted, contextualizing
-from pyhandling.data_flow import returnly, by, shown
+from pyhandling.contexting import (
+    ContextRoot, contexted, contextualizing, saving_context
+)
+from pyhandling.data_flow import returnly, by
 from pyhandling.errors import RangeConstructionError, IndexingError
 from pyhandling.flags import flag_about
 from pyhandling.partiality import rpartial, partially, rwill
@@ -301,10 +303,10 @@ def to_interval(
     if contexted(interval).context == empty:
         return values
 
-    points = shown(tfilter(
+    points = tfilter(
         lambda point: 0 <= point < len(values),
         flat(ranges_from(contexted(interval).value, limit=len(values))),
-    ))
+    )
 
     if len(points) == 0:
         return values
@@ -312,13 +314,21 @@ def to_interval(
     if set(points) == set(range(len(values))):
         return tuple(action(values))
 
-    return (
-        *values[:min(points)],
-        *flat(
-            to_interval(marked_range, action, values[slice_from(marked_range.value)])
-            for marked_range in marked_ranges_from(points)
-        ),
-        *values[max(points) + 1:],
+    marked_ranges = marked_ranges_from(points)
+
+    if min(points) > 0:
+        marked_ranges = (empty(range(0, min(points))), *marked_ranges)
+
+    if max(points) != len(values) - 1:
+        marked_ranges = (*marked_ranges, empty(range(max(points) + 1, len(values))))
+
+    return flat(
+        to_interval(
+            saving_context(len |then>> range)(marked_range),
+            action,
+            values[slice_from(marked_range.value)],
+        )
+        for marked_range in marked_ranges
     )
 
 
