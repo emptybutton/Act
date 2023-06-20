@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
 from functools import partial
 from operator import eq
-from typing import Generic, Callable
+from typing import Generic, Callable, Any
 
 from pyhandling.annotations import (
     V, dirty, reformer_of, checker_of, ActionT, action_for, Pm, R
@@ -13,6 +14,7 @@ __all__ = (
     "documenting_by",
     "to_check",
     "as_action",
+    "time_of",
 )
 
 
@@ -54,6 +56,15 @@ def to_check(determinant: checker_of[V] | V) -> checker_of[V]:
 
 def as_action(value: ActionT | V) -> ActionT | action_for[V]:
     return value if callable(value) else lambda *_, **__: value
+
+
+def time_of(action: Callable[[], Any]) -> timedelta:
+    """Function to get run time measurement of an input action."""
+
+    start = datetime.now()
+    action()
+
+    return datetime.now() - start
 
 
 def _module_prefix_of(action: Callable) -> str:
