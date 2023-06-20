@@ -547,6 +547,9 @@ class _ActionCursor(Mapping):
         is_right: bool = False,
     ) -> Callable[[Self, Special[Self]], Self]:
         def cursor_merger(cursor: Self, value: Special[Self]) -> Self:
+            if len(cursor._actions) == 0:
+                raise ActionCursorError("interaction with external cursor")
+
             internal_repr = cursor._internal_repr_by(
                 model,
                 on_left_side=not is_right
