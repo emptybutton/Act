@@ -281,8 +281,11 @@ class _ActionCursor(Mapping):
             )
             ._with_calling_by(*keys)
             ._with(
-                nature=contextual(_ActionCursorNature.itemgetting, key),
                 internal_repr=f"{self._adapted_internal_repr}{formatted_keys}",
+                nature=contextual(
+                    self._next_nature_as(_ActionCursorNature.itemgetting),
+                    key,
+                ),
             )
         )
 
@@ -294,7 +297,7 @@ class _ActionCursor(Mapping):
             nature = _ActionCursorNature.vargetting
             cursor = self._with(to(value_in(name, scope_in=2)), internal_repr=name)
         else:
-            nature = _ActionCursorNature.attrgetting
+            nature = self._next_nature_as(_ActionCursorNature.attrgetting)
             cursor = self._with(
                 getattr |by| name,
                 internal_repr=f"{self._adapted_internal_repr}.{name}",
@@ -315,6 +318,13 @@ class _ActionCursor(Mapping):
 
     def _run(self, root: contextual[Any, Mapping[str, Any]]) -> contextual:
         return self._actions(root)
+    def _next_nature_as(self, nature: contextual) -> Any:
+        return (
+            self._nature.value
+            if self._nature.value == _ActionCursorNature.vargetting
+            else nature
+        )
+
 
     def _of(
         self,
