@@ -93,7 +93,6 @@ class _ActionCursorNature:
     attrgetting = flag_about("attrgetting")
     itemgetting = flag_about("itemgetting")
     vargetting = flag_about("vargetting")
-    getting = attrgetting | vargetting | itemgetting
 
     binary_operation = flag_about("binary_operation")
     single_operation = flag_about("single_operation")
