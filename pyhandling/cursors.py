@@ -1,6 +1,6 @@
 from dataclasses import dataclass
+from enum import Enum, auto
 from functools import partial, reduce, wraps
-from itertools import count
 from inspect import Signature, Parameter
 from typing import (
     Iterable, Callable, Any, Mapping, Self, Tuple, Optional, Literal
@@ -9,15 +9,14 @@ import operator
 
 from pyannotating import Special
 
-from pyhandling.annotations import (
-    merger_of, event_for, R, reformer_of, Pm, V, O, dirty
-)
+from pyhandling.annotations import merger_of, R, reformer_of, Pm, V, O
 from pyhandling.arguments import Arguments
 from pyhandling.contexting import contextual, to_read, saving_context
 from pyhandling.data_flow import by, to, to_left
 from pyhandling.errors import ActionCursorError
-from pyhandling.flags import nothing, flag_about, Flag
+from pyhandling.flags import flag_about, Flag
 from pyhandling.immutability import to_clone, property_to
+from pyhandling.monads import maybe
 from pyhandling.objects import obj
 from pyhandling.partiality import flipped, rpartial, will
 from pyhandling.pipeline import ActionChain, binding_by, on, then, _ActionChainInfix
@@ -28,6 +27,8 @@ from pyhandling.synonyms import with_keyword, tuple_of
 
 
 __all__ = (
+    "kwargs",
+    "args",
     "act",
     '_',
     'a',
@@ -65,10 +66,24 @@ class _OperationModel:
     priority: int | float
 
 
-@dataclass(frozen=True)
+class _ActionCursorParameterUnionType(Enum):
+    POSITIONAL = auto()
+    KEYWORD = auto()
+
+
+@dataclass(frozen=True, repr=False)
 class _ActionCursorParameter:
     name: str
     priority: int | float
+    union_type: Optional[_ActionCursorParameterUnionType] = None
+
+    def __repr__(self) -> str:
+        if self.union_type is _ActionCursorParameterUnionType.POSITIONAL:
+            return f"*{self.name}"
+        elif self.union_type is _ActionCursorParameterUnionType.KEYWORD:
+            return f"**{self.name}"
+        else:
+            return self.name
 
 
 class _ActionCursorUnpacking:
@@ -133,6 +148,7 @@ class _ActionCursor(Mapping):
 
     def _validate_parameters(self) -> None:
         self._validate_priority_of_parameters()
+        self._validate_uniqueness_of_parameters()
 
     def _validate_priority_of_parameters(self) -> None:
         groups_with_same_priority = tfilter(
@@ -149,6 +165,20 @@ class _ActionCursor(Mapping):
                 )
             )
 
+    def _validate_uniqueness_of_parameters(self) -> None:
+        if 1 < len(tfilter(
+            lambda p: p.union_type is _ActionCursorParameterUnionType.POSITIONAL,
+            self._parameters,
+        )):
+            raise ActionCursorError(
+                "multiple parameters for residual positional arguments"
+            )
+
+        if 1 < len(tfilter(
+            lambda p: p.union_type is _ActionCursorParameterUnionType.KEYWORD,
+            self._parameters,
+        )):
+            raise ActionCursorError("multiple parameters for keyword arguments")
 
     @property
     def _adapted_internal_repr(self) -> str:
@@ -158,9 +188,33 @@ class _ActionCursor(Mapping):
     def _single_adapted_internal_repr(self) -> str:
         return self.__get_adapted_internal_repr(single=True)
 
+    def _get_positional_union_parameter(self) -> Optional[_ActionCursorParameter]:
+        positional_union_parameters = tfilter(
+            lambda p: p.union_type is _ActionCursorParameterUnionType.POSITIONAL,
+            self._parameters,
+        )
+
+        return (
+            None
+            if len(positional_union_parameters) == 0
+            else positional_union_parameters[0]
+        )
+
+    def _get_keyword_union_parameter(self) -> Optional[_ActionCursorParameter]:
+        keyword_union_parameters = tfilter(
+            lambda p: p.union_type is _ActionCursorParameterUnionType.KEYWORD,
+            self._parameters,
+        )
+
+        return (
+            None
+            if len(keyword_union_parameters) == 0
+            else keyword_union_parameters[0]
+        )
+
     def __repr__(self) -> str:
         return f"<{{}}: {self._internal_repr}>".format(
-            ', '.join(map(operator.attrgetter('name'), self._parameters))
+            ', '.join(map(str, self._parameters))
         )
 
     def __bool__(self) -> bool:
@@ -172,8 +226,13 @@ class _ActionCursor(Mapping):
     def __len__(self) -> Literal[1]:
         return 1
 
-    def __call__(self, *args) -> Any:
+    def __call__(self, *args, **kwargs) -> Any:
+        keyword_union_parameter = self._get_keyword_union_parameter()
+
         if len(self._actions) == 0:
+            if kwargs:
+                raise ActionCursorError("extra keyword arguments")
+
             return (
                 self
                 ._with_packing_of(args, by=tuple)
@@ -183,26 +242,14 @@ class _ActionCursor(Mapping):
                 ))
             )
 
-        elif self._nature.value == (
-            _ActionCursorNature.vargetting
-            | _ActionCursorNature.set_by_initialization
-        ):
-            return self._(*args)
+        elif self._nature.value == _ActionCursorNature.vargetting:
+            return self._(*args, **kwargs)
 
-        if len(args) > len(self._parameters):
-            raise ActionCursorError(
-                f"Extra arguments: "
-                f"{', '.join(map(str, args[len(self._parameters):]))}"
-            )
-
-        elif len(args) == len(self._parameters):
-            return self._run(contextual(
-                nothing,
-                dict(zip(map(operator.attrgetter('name'), self._parameters), args)),
-            )).value
-
-        elif len(args) < len(self._parameters):
-            return partial(self, *args)
+        return self._run(
+            args,
+            kwargs,
+            keyword_union_parameter=keyword_union_parameter,
+        )
 
     @staticmethod
     def _generation_transaction(
@@ -316,8 +363,6 @@ class _ActionCursor(Mapping):
             internal_repr=parameter.name,
         )
 
-    def _run(self, root: contextual[Any, Mapping[str, Any]]) -> contextual:
-        return self._actions(root)
     def _next_nature_as(self, nature: contextual) -> Any:
         return (
             self._nature.value
@@ -325,6 +370,36 @@ class _ActionCursor(Mapping):
             else nature
         )
 
+    def _run(
+        self,
+        args: tuple,
+        kwargs: Mapping[str, Any],
+        keyword_union_parameter: _ActionCursorParameter,
+    ) -> Any:
+        parameters = tfilter(lambda p: p.union_type is None, self._parameters)
+        positional_union_parameter = self._get_positional_union_parameter()
+
+        if len(args) > len(parameters) and positional_union_parameter is None:
+            raise ActionCursorError(
+                f"{len(args)} arguments instead of maximum {len(parameters)}"
+            )
+
+        elif len(args) < len(parameters):
+            return partial(self, *args, **kwargs)
+
+        env = dict(
+            zip(map(operator.attrgetter('name'), parameters), args),
+            args=args[len(parameters):],
+            kwargs=kwargs,
+        )
+
+        if positional_union_parameter is not None:
+            env = {**env, positional_union_parameter.name: args[len(parameters):]}
+
+        if keyword_union_parameter is not None:
+            env = {**env, keyword_union_parameter.name: kwargs}
+
+        return self._actions(contextual(None, env)).value
 
     def _of(
         self,
@@ -371,7 +446,7 @@ class _ActionCursor(Mapping):
         cursor = (
             self._of(
                 ActionChain([lambda root: contextual(
-                    operation(self._run(root).value, other._run(root).value),
+                    operation(self._actions(root).value, other._actions(root).value),
                     root.context,
                 )]),
                 parameters=self._parameters + other._parameters,
@@ -499,9 +574,25 @@ class _ActionCursor(Mapping):
         return name
 
     def _update_signature(self) -> None:
+        union_parameters = list()
+
+        self._get_positional_union_parameter() >= maybe(
+            (lambda p: Parameter(p.name, Parameter.VAR_POSITIONAL))
+            |then>> union_parameters.append
+        )
+
+        self._get_keyword_union_parameter() >= maybe(
+            (lambda p: Parameter(p.name, Parameter.VAR_KEYWORD))
+            |then>> union_parameters.append
+        )
+
         self.__signature__ = Signature(
-            Parameter(cursor_parameter.name, Parameter.POSITIONAL_ONLY)
-            for cursor_parameter in self._parameters
+            [
+                Parameter(cursor_parameter.name, Parameter.POSITIONAL_ONLY)
+                for cursor_parameter in self._parameters
+                if cursor_parameter.union_type is None
+            ]
+            + union_parameters
         )
 
     def _internal_repr_by(
@@ -620,9 +711,9 @@ class _ActionCursor(Mapping):
 
     is_ = __merging_by(operator.is_, _OperationModel('is', 8))
     is_not = __merging_by(operator.is_not, _OperationModel("is not", 8))
-    in_ = __merging_by(operator.contains, _OperationModel('in', 8))
+    in_ = __merging_by(flipped(operator.contains), _OperationModel('in', 8))
     not_in = __merging_by(
-        operator.contains |then>> operator.not_,
+        flipped(operator.contains) |then>> operator.not_,
         _OperationModel('not in', 8),
     )
     and_ = __merging_by(lambda a, b: a and b, _OperationModel('and', 9))
@@ -733,3 +824,15 @@ w = _ActionCursor._operated_by(_ActionCursorParameter('w', 5))
 x = _ActionCursor._operated_by(_ActionCursorParameter('x', 4))
 y = _ActionCursor._operated_by(_ActionCursorParameter('y', 3))
 z = _ActionCursor._operated_by(_ActionCursorParameter('z', 2))
+
+args = _ActionCursor._operated_by(_ActionCursorParameter(
+    "args",
+    1,
+    union_type=_ActionCursorParameterUnionType.POSITIONAL,
+))
+
+kwargs = _ActionCursor._operated_by(_ActionCursorParameter(
+    "kwargs",
+    0,
+    union_type=_ActionCursorParameterUnionType.KEYWORD,
+))
