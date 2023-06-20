@@ -9,7 +9,7 @@ from pyhandling.synonyms import repeating
 __all__ = ("back_scope_in", "value_in")
 
 
-def back_scope_in(number_of_backs: int, /) -> dict[str, Any]:
+def back_scope_in(number_of_backs: int, /):
     """Function to get scope up the call stack starting from the called scope."""
 
     scope = repeating(
@@ -17,7 +17,7 @@ def back_scope_in(number_of_backs: int, /) -> dict[str, Any]:
         times(number_of_backs),
     )(stack()[1][0])
 
-    return dict() if scope is None else scope.f_locals
+    return scope
 
 
 def value_in(name: str, /, *, scope_in: int = 0) -> Any:
@@ -25,4 +25,8 @@ def value_in(name: str, /, *, scope_in: int = 0) -> Any:
 
     scope = back_scope_in(scope_in + 1)
 
-    return scope[name] if name in scope.keys() else eval(name)
+    if scope is not None:
+        if name in scope.f_locals.keys():
+            return scope.f_locals[name]
+
+    return eval(name)
