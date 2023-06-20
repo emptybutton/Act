@@ -130,6 +130,13 @@ class _ActionCursor(Mapping):
         self._nature = nature
         self._internal_repr = internal_repr
 
+        self._validate_parameters()
+        self._update_signature()
+
+    def _validate_parameters(self) -> None:
+        self._validate_priority_of_parameters()
+
+    def _validate_priority_of_parameters(self) -> None:
         groups_with_same_priority = tfilter(
             lambda group: len(group) > 1,
             tuple(groups_in(
@@ -144,7 +151,6 @@ class _ActionCursor(Mapping):
                 )
             )
 
-        self._update_signature()
 
     @property
     def _adapted_internal_repr(self) -> str:
