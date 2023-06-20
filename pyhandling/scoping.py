@@ -28,5 +28,7 @@ def value_in(name: str, /, *, scope_in: int = 0) -> Any:
     if scope is not None:
         if name in scope.f_locals.keys():
             return scope.f_locals[name]
+        elif name in scope.f_globals.keys():
+            return scope.f_globals[name]
 
     return eval(name)
