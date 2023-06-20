@@ -246,7 +246,7 @@ class _ActionCursor(Mapping):
             ))
         )
 
-    def keys(self):
+    def keys(self) -> tuple[str]:
         return (f"{self._unpacking_key_template}_of_{id(self)}", )
 
     @_generation_transaction
