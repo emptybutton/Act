@@ -1,6 +1,11 @@
+from functools import reduce
+import operator
+
 from pyhandling.cursors import *
 from pyhandling.testing import case_of
-from tests.mocks import MockA
+from tests.mocks import MockA, MockB
+
+from pytest import mark
 
 
 test_single_cursor = case_of((
@@ -46,6 +51,18 @@ test_cursors_with_operators = case_of(
 )
 
 
+test_cursor_order = case_of((
+    lambda: (
+        a + b + c + d + e + f + g + h + i + j + k + l + m + n + o + p + q + r
+        + s + t + u + v + w + x + y + z
+    )(
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+        'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+    ),
+    "abcdefghijklmnopqrstuvwxyz",
+))
+
+
 test_cursors_with_accessing = case_of(
     (lambda: v._(5)(lambda a: a + 3), 8),
     (lambda: v._(2, 6)(pow), 64),
@@ -69,4 +86,132 @@ test_cursors_with_accessing = case_of(
     (lambda: (v.a.set(w))(MockA(6), 16).a, 16),
     (lambda: ((v.a.set(10)).a + w)(MockA(None), 6), 16),
     (lambda: (v.a.set(v.a + 10))(MockA(6)).a, 16),
+    (lambda: (v[1].set(v[1] + 10))([1, 2, 3]), [1, 12, 3]),
+)
+
+
+def test_cursor_attr_setting_immutability():
+    object_ = MockA(None)
+
+    new_object_ = (v.a.set(4))(object_)
+
+    assert object_ is not new_object_
+    assert object_.a is None
+    assert new_object_.a == 4
+
+
+def test_cursor_item_setting_immutability():
+    object_ = [1, 2, 3]
+
+    new_object_ = (v[1].set(-2))(object_)
+
+    assert object_ is not new_object_
+    assert object_ == [1, 2, 3]
+    assert new_object_ == [1, -2, 3]
+
+
+test_external_cursors = case_of(
+    (lambda: _()(), tuple()),
+    (lambda: _(1)(), (1, )),
+    (lambda: _(1, 2, 3)(), (1, 2, 3)),
+    (lambda: _(6, v + 2, v + 3)(5), (6, 7, 8)),
+    (lambda: _(6, v + w, v + x)(5, 2, 3), (6, 7, 8)),
+    (lambda: _[1](), [1]),
+    (lambda: _[1, 2, 3](), [1, 2, 3]),
+    (lambda: _[6, v + 2, v + 3](5), [6, 7, 8]),
+    (lambda: _[6, v + w, v + x](5, 2, 3), [6, 7, 8]),
+    (lambda: _.pow(v, w + 1)(2, 2), 8),
+    (lambda: _.operator.eq(v, w + 1)(1, 0), True),
+    (lambda: act()(), tuple()),
+    (lambda: act(1)(), (1, )),
+    (lambda: act(1, 2, 3)(), (1, 2, 3)),
+    (lambda: act(6, v + 2, v + 3)(5), (6, 7, 8)),
+    (lambda: act(6, v + w, v + x)(5, 2, 3), (6, 7, 8)),
+    (lambda: act[1](), [1]),
+    (lambda: act[1, 2, 3](), [1, 2, 3]),
+    (lambda: act[6, v + 2, v + 3](5), [6, 7, 8]),
+    (lambda: act[6, v + w, v + x](5, 2, 3), [6, 7, 8]),
+    (lambda: act.pow(v, w + 1)(2, 2), 8),
+    (lambda: act.operator.eq(v, w + 1)(1, 0), True),
+)
+
+
+@mark.parametrize("cursor", [_, act])
+def test_external_cursor_vargetting(cursor):
+    value = 5
+
+    assert (cursor.value + 3)() == 8
+    assert (cursor.value + v)(3) == 8
+
+    actions = [operator.eq, operator.add]
+    actions.append(actions)
+
+    assert cursor.actions[0](1, 1)()
+    assert not cursor.actions[0](1, 2)()
+
+    assert cursor.actions[0](v + w, v - w)(4, 0)
+    assert not cursor.actions[0](v + w, v - w)(4, 1)
+
+    assert (-(w*cursor.actions[2][2][2][1](v + w, v - w)) - v)(4, 2) == -20
+
+    action_boxes = [MockA(lambda a_: a_ + 5), MockB([1, lambda b_: b_ + 3])]
+
+    assert (cursor.action_boxes[0].a(v * 2) + w)(5, 1) == 16
+    assert (cursor.action_boxes[1].b[1](w * 2) + v)(3, 5) == 16
+
+
+test_cursor_comparison_operators = case_of(
+    (lambda: (v == w)(1, 1), True),
+    (lambda: (v == w)(1, 2), False),
+    (lambda: _[v == w, v, w](1, 2), [False, 1, 2]),
+    (lambda: (v != w)(1, 2), True),
+    (lambda: (v != w)(1, 1), False),
+    (lambda: (v - 1 > w + 1)(4, 1), True),
+    (lambda: (v - 1 > w + 1)(3, 1), False),
+    (lambda: (v - 1 >= w + 1)(3, 1), True),
+    (lambda: (v - 1 >= w + 1)(4, 1), True),
+    (lambda: (w + 1 < v - 1)(4, 1), True),
+    (lambda: (w + 1 < v - 1)(3, 1), False),
+    (lambda: (w + 1 <= v - 1)(3, 1), True),
+    (lambda: (w + 1 <= v - 1)(4, 1), True),
+)
+
+
+test_cursor_comparison_methods = case_of(
+    (lambda: v.is_(w)(None, None), True),
+    (lambda: v.is_(w)(True, False), False),
+    (lambda: v.is_not(w)(True, False), True),
+    (lambda: v.is_not(w)(None, None), False),
+    (lambda: v.in_(w)(1, [1, 2]), True),
+    (lambda: w.in_(v)([1, 2], 1), True),
+    (lambda: v.in_(w)(1, [2, 3]), False),
+    (lambda: w.in_(v)([2, 3], 1), False),
+    (lambda: v.not_in(w)(1, [2, 3]), True),
+    (lambda: w.not_in(v)([2, 3], 1), True),
+    (lambda: v.not_in(w)(1, [1, 2]), False),
+    (lambda: w.not_in(v)([1, 2], 1), False),
+    (lambda: v.and_(w)(1, 2), 2),
+    (lambda: v.and_(w)(1, 0), 0),
+    (lambda: v.and_(w)(0, 1), 0),
+    (lambda: v.or_(w)(1, 2), 1),
+    (lambda: v.or_(w)(1, 0), 1),
+    (lambda: v.or_(w)(0, 1), 1),
+    (
+        lambda: _[v.is_(w), w.is_not(v), v.and_(w), w.or_(v)](0, 1),
+        [False, True, 0, 1],
+    ),
+    (lambda: v.is_(w).or_(w.in_(v))([0, 1], 1), True),
+)
+
+
+test_cursor_unpacking = case_of(
+    (
+        lambda: _(0, v, *w, 4, *x, y, 8)(1, [2, 3], [5, 6], 7),
+        (0, 1, 2, 3, 4, 5, 6, 7, 8),
+    ),
+    (
+        lambda: _[0, v, *w, 4, *x, y, 8](1, [2, 3], [5, 6], 7),
+        [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    ),
+    (lambda: _.reduce(v, _(1, *w))(operator.add, [2, 3, 4])),
 )
