@@ -28,8 +28,6 @@ from pyhandling.synonyms import with_keyword, tuple_of
 
 
 __all__ = (
-    "action_cursor_by",
-    "priority_of",
     "act",
     '_',
     'a',
@@ -305,7 +303,7 @@ class _ActionCursor(Mapping):
         return cursor._with(nature=contextual(nature, name))
 
     @classmethod
-    def operated_by(cls, parameter: _ActionCursorParameter) -> Self:
+    def _operated_by(cls, parameter: _ActionCursorParameter) -> Self:
         return cls(
             parameters=[parameter],
             actions=ActionChain([
@@ -696,54 +694,32 @@ class _ActionCursor(Mapping):
     )
 
 
-@dirty
-def action_cursor_by(
-    name: str,
-    *,
-    priority: int | float | event_for[int | float] = next |to| count(26, -1)
-) -> _ActionCursor:
-    if callable(priority):
-        priority = priority()
-
-    return _ActionCursor.operated_by(_ActionCursorParameter(name, priority))
-
-
-def priority_of(cursor: _ActionCursor) -> int | float:
-    if len(cursor._parameters) > 1:
-        raise ActionCursorError("Getting multicursor priority")
-
-    elif len(cursor._parameters) == 0:
-        raise ActionCursorError("Getting constant cursor priority")
-
-    return cursor._parameters[0].priority
-
-
 act = _ActionCursor()
 _ = _ActionCursor()
 
-a = action_cursor_by('a')
-b = action_cursor_by('b')
-c = action_cursor_by('c')
-d = action_cursor_by('d')
-e = action_cursor_by('e')
-f = action_cursor_by('f')
-g = action_cursor_by('g')
-h = action_cursor_by('h')
-i = action_cursor_by('i')
-j = action_cursor_by('j')
-k = action_cursor_by('k')
-l = action_cursor_by('l')
-m = action_cursor_by('m')
-n = action_cursor_by('n')
-o = action_cursor_by('o')
-p = action_cursor_by('p')
-q = action_cursor_by('q')
-r = action_cursor_by('r')
-s = action_cursor_by('s')
-t = action_cursor_by('t')
-u = action_cursor_by('u')
-v = action_cursor_by('v')
-w = action_cursor_by('w')
-x = action_cursor_by('x')
-y = action_cursor_by('y')
-z = action_cursor_by('z')
+a = _ActionCursor._operated_by(_ActionCursorParameter('a', 27))
+b = _ActionCursor._operated_by(_ActionCursorParameter('b', 26))
+c = _ActionCursor._operated_by(_ActionCursorParameter('c', 25))
+d = _ActionCursor._operated_by(_ActionCursorParameter('d', 24))
+e = _ActionCursor._operated_by(_ActionCursorParameter('e', 23))
+f = _ActionCursor._operated_by(_ActionCursorParameter('f', 22))
+g = _ActionCursor._operated_by(_ActionCursorParameter('g', 21))
+h = _ActionCursor._operated_by(_ActionCursorParameter('h', 20))
+i = _ActionCursor._operated_by(_ActionCursorParameter('i', 19))
+j = _ActionCursor._operated_by(_ActionCursorParameter('j', 18))
+k = _ActionCursor._operated_by(_ActionCursorParameter('k', 17))
+l = _ActionCursor._operated_by(_ActionCursorParameter('l', 16))
+m = _ActionCursor._operated_by(_ActionCursorParameter('m', 15))
+n = _ActionCursor._operated_by(_ActionCursorParameter('n', 14))
+o = _ActionCursor._operated_by(_ActionCursorParameter('o', 13))
+p = _ActionCursor._operated_by(_ActionCursorParameter('p', 12))
+q = _ActionCursor._operated_by(_ActionCursorParameter('q', 11))
+r = _ActionCursor._operated_by(_ActionCursorParameter('r', 10))
+s = _ActionCursor._operated_by(_ActionCursorParameter('s', 9))
+t = _ActionCursor._operated_by(_ActionCursorParameter('t', 8))
+u = _ActionCursor._operated_by(_ActionCursorParameter('u', 7))
+v = _ActionCursor._operated_by(_ActionCursorParameter('v', 6))
+w = _ActionCursor._operated_by(_ActionCursorParameter('w', 5))
+x = _ActionCursor._operated_by(_ActionCursorParameter('x', 4))
+y = _ActionCursor._operated_by(_ActionCursorParameter('y', 3))
+z = _ActionCursor._operated_by(_ActionCursorParameter('z', 2))
