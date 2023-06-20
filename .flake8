@@ -8,6 +8,7 @@ per-file-ignores =
     tests\*.py: F403, F405
     tests\test_annotations.py: F821, F403, F405
     tests\test_scoping.py: F841, F403, F405
+    tests\test_cursors.py: F403, F405, F401, F841
 
 extend-ignore = E225
 max-line-length = 85
