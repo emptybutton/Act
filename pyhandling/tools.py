@@ -51,7 +51,13 @@ def documenting_by(documentation: str) -> dirty[reformer_of[V]]:
 
 
 def to_check(determinant: checker_of[V] | V) -> checker_of[V]:
-    return determinant if callable(determinant) else partial(eq, determinant)
+    from pyhandling.flags import _CallableNamedFlag
+
+    return (
+        determinant
+        if callable(determinant) and not isinstance(determinant, _CallableNamedFlag)
+        else partial(eq, determinant)
+    )
 
 
 def as_action(value: ActionT | V) -> ActionT | action_for[V]:
