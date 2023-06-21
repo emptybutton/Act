@@ -512,7 +512,7 @@ class _ActionCursor(Mapping):
                 by=(
                     lambda a, b: partial(a, **b)
                     if self._is_keyword_for_unpacking(key_and_argument[0])
-                    else flipped(with_keyword |to| key_and_argument[0]),
+                    else flipped(with_keyword |to| key_and_argument[0])
                 ),
             )),
             (self, *argument_by_key.items()),
