@@ -27,8 +27,6 @@ from pyhandling.synonyms import with_keyword, tuple_of
 
 
 __all__ = (
-    "kwargs",
-    "args",
     "act",
     '_',
     'a',
@@ -57,6 +55,8 @@ __all__ = (
     'x',
     'y',
     'z',
+    "args",
+    "kwargs",
 )
 
 
