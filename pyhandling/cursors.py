@@ -424,7 +424,7 @@ class _ActionCursor(Mapping):
 
     def _with(
         self,
-        action: Callable = ActionChain(),
+        action: Optional[Callable] = None,
         *,
         parameters: Optional[tuple[_ActionCursorParameter]] = None,
         previous: Optional[Self] = None,
@@ -432,7 +432,9 @@ class _ActionCursor(Mapping):
         internal_repr: Optional[str] = None,
     ) -> Self:
         return self._of(
-            self._actions |then>> saving_context(action),
+            self._actions |then>> (
+                ActionChain() if action is None else saving_context(action)
+            ),
             parameters=parameters,
             previous=previous,
             nature=nature,
