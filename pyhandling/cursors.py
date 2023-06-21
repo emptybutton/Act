@@ -266,7 +266,11 @@ class _ActionCursor(Mapping):
                 ', '.join(map(self._repr_of, args))
                 + (', ' if args and kwargs else str())
                 + ', '.join(
-                    f"{key}={self._repr_of(arg)}"
+                    (
+                        self._repr_of(arg)
+                        if self._is_keyword_for_unpacking(key)
+                        else f"{key}={self._repr_of(arg)}"
+                    )
                     for key, arg in kwargs.items()
                 )
             )
