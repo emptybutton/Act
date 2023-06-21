@@ -19,6 +19,7 @@ from pyhandling.partiality import partially, flipped
 from pyhandling.pipeline import then
 from pyhandling.representations import action_repr_of
 from pyhandling.synonyms import on, returned
+from pyhandling.signatures import call_signature_of
 
 
 __all__ = (
@@ -140,6 +141,7 @@ class _callable_obj(obj, Generic[Pm, R]):
     def __init__(self, __call__: Callable[Concatenate[Self, Pm], R], **attributes):
         super().__init__(**attributes)
         self.__call__ = __call__
+        self.__signature__ = call_signature_of(__call__)
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return (
