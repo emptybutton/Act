@@ -172,3 +172,85 @@ test_future_from = case_of(
         (4, 8, 16),
     ),
 )
+
+
+test_do_without_actions = case_of(
+    (lambda: do()(4), 4),
+    (lambda: do()(do.return_(4)), 4),
+    (lambda: do()(contextual(4, do.return_ | ok)), contextual(4, ok)),
+    (lambda: do.in_form()(4), contextual(4)),
+    (lambda: do.in_form()(do.return_(4)), contextual(4)),
+    (lambda: do.in_form()(contextual(4, do.return_ | ok)), contextual(4, ok)),
+)
+
+
+test_do_with_one_action = case_of(
+    (lambda: do(lambda v: v + 5)(3), 8),
+    (lambda: do.in_form(lambda v: v + 5)(3), contextual(8)),
+)
+
+
+def test_do_with_logs():
+    logs = list()
+
+    action = do(
+        (lambda v: v + 1),
+        (lambda v: v - 1) |then>> logs.append,
+        logs.append |then>> logs.append,
+        (lambda v: v * 10) |then>> (lambda v: v + 4),
+    )
+
+    result = action(8)
+
+    assert result == 84
+    assert logs == [7, 8, None]
+
+
+def test_do_return__with_logs():
+    logs = list()
+
+    action = do(
+        (lambda v: v + 1),
+        (lambda v: v - 1) |then>> logs.append,
+        (lambda v: v / 2) |then>> do.return_ |then>> (lambda v: -v),
+        logs.append |then>> logs.append,
+        (lambda v: v * 10) |then>> (lambda v: v + 4),
+    )
+
+    result = action(8)
+
+    assert result == 4
+    assert logs == [7]
+
+
+def test_do_in_form_with_logs():
+    logs = list()
+
+    action = do.in_form(
+        (lambda v: v + 1),
+        (lambda v: v - 1) |then>> logs.append,
+        logs.append |then>> logs.append,
+        (lambda v: v * 10) |then>> (lambda v: v + 4),
+    )
+
+    result = action(8)
+
+    assert result == contextual(84)
+    assert logs == [7, 8, None]
+
+
+def test_do_in_form_return__with_logs():
+    logs = list()
+
+    action = do.in_form(
+        (lambda v: v + 1),
+        (lambda v: v - 1) |then>> logs.append,
+        (lambda v: v / 2) |then>> do.return_ |then>> (lambda v: -v),
+        logs.append |then>> logs.append,
+        (lambda v: v * 10) |then>> (lambda v: v + 4),
+    )
+
+    result = action(8)
+
+    assert result == contextual(4)
+    assert logs == [7]
