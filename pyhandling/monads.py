@@ -14,11 +14,12 @@ from pyhandling.contexting import (
 )
 from pyhandling.data_flow import returnly, by, to, matching, break_
 from pyhandling.flags import flag_about, nothing, Flag, pointed
+from pyhandling.objects import obj
 from pyhandling.operators import and_
 from pyhandling.partiality import will, partially
 from pyhandling.pipeline import discretely, ActionChain, binding_by, then
 from pyhandling.structures import tmap
-from pyhandling.synonyms import on
+from pyhandling.synonyms import on, returned
 from pyhandling.tools import documenting_by, to_check, as_action, LeftCallable
 
 
@@ -35,6 +36,7 @@ __all__ = (
     "in_future",
     "future_from",
     "is_in_future",
+    "do",
 )
 
 
@@ -201,3 +203,51 @@ is_in_future = documenting_by(
         attrgetter("context") |then>> (eq |by| future),
     )
 )
+
+
+@obj.of
+class do:
+    """
+    Execution context for multiple actions on the same value.
+
+    To stop execution (including within one non-atomic action), the value must
+    be contextualized by `do.return_`.
+
+    Stopping is local to a single `do` action and the executed value is
+    returned without the `do.return_` flag.
+
+    With a normal `do`, unflagged `ContextRoot` value is unpacked.
+    Use `do.in_form` to save the form.
+    """
+
+    return_ = contextualizing(flag_about("return_"))
+
+    @staticmethod
+    def __call__(*lines: Special[ActionChain, Callable]) -> LeftCallable:
+        return do._action_from(*lines)
+
+    def in_form(*lines: Special[ActionChain, Callable]) -> LeftCallable:
+        return do._action_from(*lines, in_form=True)
+
+    def _action_from(
+        *lines: Special[ActionChain, Callable],
+        in_form: bool = False,
+    ) -> LeftCallable:
+        lines = ActionChain((map |by| lines)(
+            discretely((on |to| (lambda v: contexted(v).context != do.return_)))
+            |then>> atomically
+        ))
+
+        return atomically(
+            (lines[:-1] >= discretely((lambda line: lambda value: (
+                result
+                if contexted(result := line(value)).context == do.return_
+                else value
+            ))))
+            |then>> (returned if len(lines) == 0 else lines[-1])
+            |then>> (contexted |by| -do.return_)
+            |then>> on(
+                lambda v: not in_form and v.context == nothing,
+                lambda v: v.value,
+            )
+        )
