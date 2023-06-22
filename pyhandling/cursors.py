@@ -213,7 +213,7 @@ class _ActionCursor(Mapping):
         )
 
     def __repr__(self) -> str:
-        return f"<{{}}: {self._internal_repr}>".format(
+        return f"({{}}: {self._internal_repr})".format(
             ', '.join(map(str, self._parameters))
         )
 
