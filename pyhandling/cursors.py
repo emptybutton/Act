@@ -16,7 +16,6 @@ from pyhandling.contexting import contextual, to_read, saving_context
 from pyhandling.data_flow import by, to, to_left, returnly
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import flag_about, Flag
-from pyhandling.immutability import to_clone, property_to
 from pyhandling.monads import maybe
 from pyhandling.objects import obj
 from pyhandling.partiality import flipped, rpartial, will
@@ -88,7 +87,7 @@ class _ActionCursorParameter:
 
 
 class _ActionCursorUnpacking:
-    cursor = property_to("_cursor")
+    cursor = property(operator.attrgetter("_cursor"))
 
     def __init__(self, cursor: "_ActionCursor", *, was_unpacked: bool = False):
         self._cursor = cursor
