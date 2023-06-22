@@ -285,6 +285,8 @@ class _ActionCursor(Mapping):
             setting = returnly(setattr)
         elif nature == _ActionCursorNature.itemgetting:
             setting = lambda obj_, name, value: (
+                tuple(returnly(operator.setitem)(list(obj_), name, value))
+                if isinstance(obj_, tuple)
                 else returnly(operator.setitem)(obj_, name, value)
             )
         else:
