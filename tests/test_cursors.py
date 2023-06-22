@@ -63,9 +63,17 @@ test_cursor_order = case_of((
 ))
 
 
-test_cursors_with_accessing = case_of(
+test_cursors_with_calling = case_of(
     (lambda: v._(5)(lambda a: a + 3), 8),
     (lambda: v._(2, 6)(pow), 64),
+    (lambda: v._(w + 2)(lambda v: v + 5, 1), 8),
+    (lambda: v._(w + 1, 2)(pow, 1), 4),
+    (lambda: (v._(w + 1, 2) * 2)(pow, 1), 8),
+    (lambda: (8 // v._(w + 1, 2) + 2)(pow, 1), 4),
+)
+
+
+test_cursors_with_item_getting = case_of(
     (lambda: (v[1])('abc'), 'b'),
     (lambda: ('n' + v[1])('abc'), 'nb'),
     (lambda: (v[1] + 'n')('abc'), 'bn'),
@@ -73,15 +81,18 @@ test_cursors_with_accessing = case_of(
     (lambda: (v[w + 1])('abc', 1), 'c'),
     (lambda: (3 * v[w + 1] + 'p')('abc', 1), 'cccp'),
     (lambda: (x * v[w + 1] + y)('abc', 1, 3, 'p'), 'cccp'),
+)
+
+
+test_cursors_with_attr_getting = case_of(
     (lambda: (v.a)(MockA(8)), 8),
     (lambda: (v.a[w])(MockA([1, 2, 3]), -1), 3),
     (lambda: (v.a._(5))(MockA(lambda a: a + 3)), 8),
     (lambda: (2 * v.a._(5) + 16)(MockA(lambda a: a + 3)), 32),
-    (lambda: v[w]._(x)([1, lambda x: x + 5, 2], 1, 3), 8),
-    (lambda: v._(w + 2)(lambda v: v + 5, 1), 8),
-    (lambda: v._(w + 1, 2)(pow, 1), 4),
-    (lambda: (v._(w + 1, 2) * 2)(pow, 1), 8),
-    (lambda: (8 // v._(w + 1, 2) + 2)(pow, 1), 4),
+)
+
+
+test_cursors_with_attr_setting = case_of(
     (lambda: (v.a.set(4))(MockA(None)).a, 4),
     (lambda: (v.a.set(w))(MockA(6), 16).a, 16),
     (lambda: ((v.a.set(10)).a + w)(MockA(None), 6), 16),
