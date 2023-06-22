@@ -3,7 +3,7 @@ exclude = test.py
 
 per-file-ignores =
     __init__.py: F401, F403, F405
-    cursors.py: E741
+    cursors.py: E741, E731
     annotations.py: F821, E741
     tests\*.py: F403, F405
     tests\test_annotations.py: F821, F403, F405
