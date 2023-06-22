@@ -302,6 +302,11 @@ class _ActionCursor(Mapping):
             )))
         )
 
+    def as_(self, action: Special[Self, Callable], *, mutably: bool = False) -> Self:
+        return partial(self.set, mutably=mutably)(partial(self._with, action)(
+            internal_repr=f"{action_repr_of(action)}({self._internal_repr})"
+        ))
+
     def keys(self) -> tuple[str]:
         return (f"{self._unpacking_key_template}_of_{id(self)}", )
 
