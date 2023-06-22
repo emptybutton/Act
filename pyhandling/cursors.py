@@ -1,3 +1,4 @@
+from copy import copy
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import partial, reduce, wraps
@@ -12,7 +13,7 @@ from pyannotating import Special
 from pyhandling.annotations import merger_of, R, reformer_of, Pm, V, O
 from pyhandling.arguments import Arguments
 from pyhandling.contexting import contextual, to_read, saving_context
-from pyhandling.data_flow import by, to, to_left
+from pyhandling.data_flow import by, to, to_left, returnly
 from pyhandling.errors import ActionCursorError
 from pyhandling.flags import flag_about, Flag
 from pyhandling.immutability import to_clone, property_to
@@ -277,22 +278,26 @@ class _ActionCursor(Mapping):
         )
 
     @_generation_transaction
-    def set(self, value: Special[Self]) -> Self:
+    def set(self, value: Special[Self], *, mutably: bool = False) -> Self:
         nature, place = self._nature
 
         if nature == _ActionCursorNature.attrgetting:
-            setting = setattr
+            setting = returnly(setattr)
         elif nature == _ActionCursorNature.itemgetting:
-            setting = operator.setitem
+            setting = lambda obj_, name, value: (
+                else returnly(operator.setitem)(obj_, name, value)
+            )
         else:
             raise ActionCursorError("Setting without a place to set")
 
         return (
             self
-            ._with_setting(value, in_=place, by=setting)
-            ._with(internal_repr=(
-                f"({self._internal_repr} <= {self._repr_of(value)})"
-            ))
+            ._with_setting(value, in_=place, by=setting, mutably=mutably)
+            ._with(internal_repr=("{}({} <- {})".format(
+                '!' if mutably else str(),
+                self._internal_repr,
+                self._repr_of(value),
+            )))
         )
 
     def keys(self) -> tuple[str]:
@@ -530,14 +535,17 @@ class _ActionCursor(Mapping):
         value: V | Self,
         *,
         in_: str,
-        by: Callable[[O, str, V], Any],
+        by: Callable[[O, str, V], R],
+        mutably: bool = False
     ) -> Self:
         place = in_
         set_ = by
 
         return (
             self._previous
-            ._merged_with(value, by=lambda a, b: to_clone(set_)(a, place, b))
+            ._merged_with(value, by=lambda a, b: (
+                set_(a if mutably else copy(a), place, b)
+            ))
             ._with(nature=contextual(
                 _ActionCursorNature.setting,
                 contextual(value, place),
