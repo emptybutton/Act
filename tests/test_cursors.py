@@ -51,16 +51,28 @@ test_cursors_with_operators = case_of(
 )
 
 
-test_cursor_order = case_of((
-    lambda: (
-        a + b + c + d + e + f + g + h + i + j + k + l + m + n + o + p + q + r
-        + s + t + u + v + w + x + y + z
-    )(
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-        'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+test_cursor_order = case_of(
+    (
+        lambda: (
+            a + b + c + d + e + f + g + h + i + j + k + l + m + n + o + p + q
+            + r + s + t + u + v + w + x + y + z
+        )(
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+        ),
+        "abcdefghijklmnopqrstuvwxyz",
     ),
-    "abcdefghijklmnopqrstuvwxyz",
-))
+    (
+        lambda: (
+            z + y + x + w + v + u + t + s + r + q + p + o + n + m + l + k + j
+            + i + h + g + f + e + d + c + b + a
+        )(
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+        ),
+        "zyxwvutsrqponmlkjihgfedcba",
+    ),
+)
 
 
 test_cursors_with_calling = case_of(
@@ -81,7 +93,35 @@ test_cursors_with_item_getting = case_of(
     (lambda: (v[w + 1])('abc', 1), 'c'),
     (lambda: (3 * v[w + 1] + 'p')('abc', 1), 'cccp'),
     (lambda: (x * v[w + 1] + y)('abc', 1, 3, 'p'), 'cccp'),
+    (lambda: v[w]._(x)([1, lambda x: x + 5, 2], 1, 3), 8),
 )
+
+
+test_cursors_with_item_setting = case_of(
+    (lambda: l[1].set(l[1] + 10)([1, 2, 3]), [1, 12, 3]),
+    (lambda: t[1].set(t[1] + 10)((1, 2, 3)), (1, 12, 3)),
+    (lambda: l[1].as_(i + 10)([1, 2, 3]), [1, 12, 3]),
+    (lambda: t[1].as_(i + 10)((1, 2, 3)), (1, 12, 3)),
+)
+
+
+def test_cursor_item_setting_immutability():
+    object_ = [1, 2, 3]
+
+    new_object_ = (v[1].set(-2))(object_)
+
+    assert object_ is not new_object_
+    assert object_ == [1, 2, 3]
+    assert new_object_ == [1, -2, 3]
+
+
+def test_cursor_item_setting_mutability():
+    object_ = [1, 2, 3]
+
+    new_object_ = (v[1].set(-v[1], mutably=True))(object_)
+
+    assert object_ is new_object_
+    assert object_ == new_object_ == [1, -2, 3]
 
 
 test_cursors_with_attr_getting = case_of(
@@ -97,7 +137,8 @@ test_cursors_with_attr_setting = case_of(
     (lambda: (v.a.set(w))(MockA(6), 16).a, 16),
     (lambda: ((v.a.set(10)).a + w)(MockA(None), 6), 16),
     (lambda: (v.a.set(v.a + 10))(MockA(6)).a, 16),
-    (lambda: (v[1].set(v[1] + 10))([1, 2, 3]), [1, 12, 3]),
+    (lambda: o.a.as_(abs)(MockA(a=-8)).a, 8),
+    (lambda: o.a.as_(a**2)(MockA(a=4)).a, 16),
 )
 
 
@@ -111,14 +152,13 @@ def test_cursor_attr_setting_immutability():
     assert new_object_.a == 4
 
 
-def test_cursor_item_setting_immutability():
-    object_ = [1, 2, 3]
+def test_cursor_mutable_attr_setting():
+    object_ = MockA(None)
 
-    new_object_ = (v[1].set(-2))(object_)
+    new_object_ = (v.a.set(4, mutably=True))(object_)
 
-    assert object_ is not new_object_
-    assert object_ == [1, 2, 3]
-    assert new_object_ == [1, -2, 3]
+    assert object_ is new_object_
+    assert object_.a == new_object_.a == 4
 
 
 test_external_cursors = case_of(
@@ -238,4 +278,13 @@ test_unlimited_argument_cursors = case_of(
     (lambda: (args + _(v,  w))(2, 3, 0, 1), (0, 1, 2, 3)),
     (lambda: (v | kwargs)(dict(a=1, b=1), b=2), dict(a=1, b=2)),
     (lambda: (v | kwargs)(dict(a=1, b=2)), dict(a=1, b=2)),
+)
+
+
+test_cursot_partiality = case_of(
+    (lambda: (v)()()()(8), 8),
+    (lambda: (v + w)()()()(5)()()()(3), 8),
+    (lambda: (v / w + x)(10)(2)(3), 8),
+    (lambda: (v / w + x)(10, 2)(3), 8),
+    (lambda: (v / w + x)(10)(2, 3), 8),
 )
