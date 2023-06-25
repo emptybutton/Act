@@ -56,6 +56,9 @@ class ActionChain(LeftCallable, Generic[ActionT]):
     """
     Class to create a pipeline from a collection of actions.
 
+    Directly used to create from collections, in other cases it is less
+    preferable than the `then` pseudo-operator.
+
     Iterable by its actions.
 
     Can get chain length by `len` function and subchain by `[]` referring to
@@ -68,9 +71,6 @@ class ActionChain(LeftCallable, Generic[ActionT]):
 
     Has a one value call synonyms `>=` and `<=` where is the chain on the
     right i.e. `value >= instance` and less preferred `instance <= value`.
-
-    Directly used to create from collections, in other cases it is less
-    preferable than the `then` pseudo-operator.
     """
 
     is_template = property(attrgetter("_is_template"))
@@ -185,7 +185,7 @@ then = documenting_by(
 
 @documenting_by(
     """
-    Function to create a function by insertion its input function in the input
+    Function to create a function by insertion its input action in the input
     template.
 
     The created function replaces `...` with an input action.
