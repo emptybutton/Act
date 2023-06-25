@@ -1,7 +1,7 @@
 from copy import copy
 from dataclasses import dataclass
 from enum import Enum, auto
-from functools import partial, reduce, wraps
+from functools import reduce, wraps
 from inspect import Signature, Parameter
 from typing import (
     Iterable, Callable, Any, Mapping, Self, Tuple, Optional, Literal
@@ -18,7 +18,7 @@ from pyhandling.errors import ActionCursorError
 from pyhandling.flags import flag_about, Flag
 from pyhandling.monads import maybe
 from pyhandling.objects import obj
-from pyhandling.partiality import flipped, rpartial, will
+from pyhandling.partiality import flipped, rpartial, will, partial
 from pyhandling.pipeline import ActionChain, binding_by, on, then, _ActionChainInfix
 from pyhandling.representations import code_like_repr_of
 from pyhandling.scoping import value_in

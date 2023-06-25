@@ -1,9 +1,9 @@
-from functools import partial
 from typing import Mapping, Any
 
 from pytest import mark
 
 from pyhandling.aggregates import *
+from pyhandling.partiality import partial
 from pyhandling.testing import case_of
 
 

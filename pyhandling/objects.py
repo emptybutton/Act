@@ -1,5 +1,5 @@
 from copy import copy
-from functools import partial, reduce
+from functools import reduce
 from operator import or_
 from types import MethodType
 from typing import (
@@ -15,7 +15,7 @@ from pyhandling.contexting import contextually, contexted, ContextRoot
 from pyhandling.data_flow import mergely, by, returnly
 from pyhandling.flags import flag_about, Flag
 from pyhandling.immutability import to_clone
-from pyhandling.partiality import partially, flipped
+from pyhandling.partiality import partially, flipped, partial
 from pyhandling.pipeline import then
 from pyhandling.representations import code_like_repr_of
 from pyhandling.synonyms import on, returned

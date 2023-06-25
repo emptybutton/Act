@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from functools import cached_property, partial, reduce
+from functools import cached_property, reduce
 from inspect import Signature, Parameter, signature
 from operator import not_, is_not, or_
 from typing import (
@@ -14,7 +14,7 @@ from pyhandling.annotations import (
 )
 from pyhandling.atomization import atomically
 from pyhandling.errors import ReturningError, MatchingError
-from pyhandling.partiality import will, rpartial, flipped
+from pyhandling.partiality import will, rpartial, flipped, partial
 from pyhandling.pipeline import bind, then
 from pyhandling.representations import code_like_repr_of
 from pyhandling.signatures import Decorator, call_signature_of

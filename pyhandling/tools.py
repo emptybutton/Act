@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from functools import partial
 from operator import eq
 from typing import Generic, Callable, Any
 

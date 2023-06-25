@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from functools import cached_property, partial
+from functools import cached_property
 from dataclasses import dataclass, field
 from inspect import Signature
 from operator import attrgetter
@@ -13,6 +13,7 @@ from pyannotating import Special
 from pyhandling.annotations import A, D
 from pyhandling.atomization import atomically
 from pyhandling.errors import ArgumentError
+from pyhandling.partiality import partial
 from pyhandling.representations import code_like_repr_of
 from pyhandling.signatures import (
     Decorator, call_signature_of

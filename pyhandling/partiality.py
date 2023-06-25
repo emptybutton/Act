@@ -1,14 +1,18 @@
 from collections import OrderedDict
-from functools import cached_property, partial
 from inspect import Parameter, Signature, _empty
-from typing import Any, Self, Iterable, Tuple, Optional
+from operator import attrgetter
+from typing import Any, Self, Iterable, Tuple, Optional, Callable
+import functools
 
 from pyhandling.annotations import action_for, R
 from pyhandling.atomization import atomically
+from pyhandling.representations import code_like_repr_of
 from pyhandling.signatures import Decorator, call_signature_of
+from pyhandling.tools import documenting_by, LeftCallable
 
 
 __all__ = (
+    "partial",
     "partially",
     "flipped",
     "mirrored_partial",
@@ -16,6 +20,50 @@ __all__ = (
     "will",
     "rwill",
 )
+
+
+class partial(LeftCallable):
+    """Decorator to partially apply an input action on input arguments."""
+
+    func = property(attrgetter("_action"))
+    args = property(attrgetter("_args"))
+    keywords = property(attrgetter("_kwargs"))
+
+    def __init__(self, action: Callable[..., R], *args, **kwargs):
+        self._action = (
+            action.func
+            if isinstance(action, partial | functools.partial)
+            else action
+        )
+
+        self._args = (
+            (*action.args, *args)
+            if isinstance(action, partial | functools.partial)
+            else args
+        )
+
+        self._kwargs = (
+            action.keywords | kwargs
+            if isinstance(action, partial | functools.partial)
+            else kwargs
+        )
+
+        self.__signature__ = call_signature_of(
+            functools.partial(action, *args, **kwargs)
+        )
+
+    def __repr__(self) -> str:
+        return f"{code_like_repr_of(self._action)}({{}}{{}}{{}})".format(
+            f"{', '.join(map(code_like_repr_of, self._args))}",
+            ', ' if self._args and self._kwargs else str(),
+            ', '.join(
+                f"{key}={code_like_repr_of(arg)}"
+                for key, arg in self._kwargs.items()
+            )
+        )
+
+    def __call__(self, *args, **kwargs) -> R:
+        return self._action(*self._args, *args, **self._kwargs | kwargs)
 
 
 @documenting_by(
@@ -56,7 +104,7 @@ class partially(Decorator):
             else partially(augmented_action)
         )
 
-    @cached_property
+    @functools.cached_property
     def _parameters_to_call(self) -> OrderedDict[str, Parameter]:
         return OrderedDict(
             (_, parameter)
@@ -66,7 +114,7 @@ class partially(Decorator):
             if _is_parameter_settable(parameter)
         )
 
-    @cached_property
+    @functools.cached_property
     def _force_signature(self) -> Signature:
         return call_signature_of(self).replace(
             return_annotation=(
@@ -97,7 +145,7 @@ class flipped(Decorator):
     def __call__(self, *args, **kwargs) -> R:
         return self._action(*args[::-1], **kwargs)
 
-    @cached_property
+    @functools.cached_property
     def _force_signature(self) -> Signature:
         return call_signature_of(self._action).replace(
             parameters=self.__flip_parameters(

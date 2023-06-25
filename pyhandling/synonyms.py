@@ -1,5 +1,4 @@
 from contextlib import AbstractContextManager
-from functools import partial
 from typing import NoReturn, Any, Callable, Mapping, Tuple
 from inspect import Signature, Parameter
 
@@ -9,7 +8,7 @@ from pyhandling.annotations import (
     Pm, V, R, E, action_for, reformer_of, checker_of, L
 )
 from pyhandling.atomization import atomically
-from pyhandling.partiality import partially
+from pyhandling.partiality import partial, partially
 from pyhandling.representations import code_like_repr_of
 from pyhandling.signatures import Decorator, call_signature_of, annotation_sum
 from pyhandling.tools import to_check, as_action, LeftCallable, documenting_by

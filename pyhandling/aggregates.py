@@ -1,4 +1,3 @@
-from functools import partial
 from dataclasses import dataclass
 from typing import TypeVar, Callable, Generic, Optional, Self, Final, Any
 from operator import attrgetter
@@ -11,6 +10,7 @@ from pyhandling.pipeline import then
 from pyhandling.contexting import contexted, contextual
 from pyhandling.data_flow import by, yes
 from pyhandling.operators import not_
+from pyhandling.partiality import partial
 from pyhandling.representations import code_like_repr_of
 from pyhandling.synonyms import on, returned
 from pyhandling.tools import documenting_by, LeftCallable

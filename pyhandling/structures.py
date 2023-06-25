@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from functools import partial
 from math import copysign
 from operator import methodcaller, contains, gt, lt
 from types import MappingProxyType
@@ -18,7 +17,7 @@ from pyhandling.contexting import (
 from pyhandling.data_flow import returnly, by
 from pyhandling.errors import RangeConstructionError, IndexingError
 from pyhandling.flags import flag_about
-from pyhandling.partiality import rpartial, partially, rwill
+from pyhandling.partiality import partial, rpartial, partially, rwill
 from pyhandling.pipeline import then, binding_by, ActionChain
 from pyhandling.protocols import Hashable
 from pyhandling.synonyms import on, tuple_of, repeating
