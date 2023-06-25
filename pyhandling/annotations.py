@@ -152,6 +152,9 @@ class CommentAnnotation:
             else str()
         )
 
+    def __hash__(self) -> int:
+        return hash(self._name) + hash(self._args)
+
     def __eq__(self, other: Special[Self]) -> bool:
         return (
             isinstance(other, CommentAnnotation)
