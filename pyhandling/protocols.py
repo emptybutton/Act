@@ -1,7 +1,7 @@
 from functools import reduce, partial
 from operator import or_, attrgetter
 
-from typing import runtime_checkable, Protocol
+from typing import runtime_checkable, Protocol, Self, Callable
 
 from pyhandling.annotations import P, V, Unia
 from pyhandling.immutability import to_clone, NotInitializable
@@ -11,6 +11,7 @@ from pyhandling.objects import dict_of
 __all__ = (
     "Variable",
     "Hashable",
+    "Decorateable",
     "Protocolable",
     "Proto",
     "protocol_of",
@@ -34,6 +35,14 @@ class Hashable(Protocol):
     """Protocol for objects from which to get their hash."""
 
     def __hash__(self) -> int:
+        ...
+
+
+@runtime_checkable
+class Decorateable(Protocol):
+    """Protocol for objects that can become callable."""
+
+    def to(self) -> Unia[Self, Callable]:
         ...
 
 
