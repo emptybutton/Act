@@ -221,4 +221,6 @@ def with_keyword(
     value: Any,
     action: action_for[R],
 ) -> action_for[R]:
+    """Function for atomic partial application with keyword argument."""
+
     return partial(action, **{keyword: value})

@@ -214,6 +214,10 @@ def contextualizing(
     *,
     to: Callable[[V, _CallableNamedFlag[V, R]], R] = contextual,
 ) -> _CallableNamedFlag[V, R]:
+    """
+    Function to add to a flag the ability to contextualize values with this flag.
+    """
+
     contextualizing_flag = flag.to(lambda value: to(value, contextualizing_flag))
 
     return contextualizing_flag

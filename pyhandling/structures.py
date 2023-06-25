@@ -117,13 +117,20 @@ deep_flat = documenting_by(
 )
 
 
-append: Callable[..., Callable[Iterable[V] | V, tuple]]
-append = atomically(
+append: LeftCallable[..., LeftCallable[Iterable[V] | V, tuple]]
+append = documenting_by(
+    """
+    Function for a function that adds input arguments of the first function to
+    an input collection of the returned function, or forms a collection with
+    all of these elements in case a non-collection was passed to the returned
+    function.
+    """
+)(atomically(
     tuple_of
     |then>> rwill(tuple_of)
     |then>> binding_by(as_collection |then>> ... |then>> flat)
     |then>> atomically
-)
+))
 
 
 def without(*items: I) -> Callable[I | Iterable[I], Tuple[I]]:
@@ -153,6 +160,8 @@ def without_duplicates(items: Iterable[V]) -> Tuple[V]:
 
 
 def slice_from(range_: range) -> slice:
+    """Function to cast an input `range` to a `slice`."""
+
     return slice(range_.start, range_.stop, range_.step)
 
 
@@ -184,7 +193,14 @@ class _SliceGenerator:
         ))
 
 
-interval = _SliceGenerator("interval")
+interval = documenting_by(
+    """
+    Object to generate `slices` via indexer (`[]`).
+    Iterable over generated `slices`.
+    """
+)(
+    _SliceGenerator("interval")
+)
 
 
 IntervalSegment: TypeAlias = int | range | slice
@@ -192,6 +208,10 @@ Interval: TypeAlias = IntervalSegment | Iterable[IntervalSegment]
 
 
 def ranges_from(interval: Interval, *, limit: Optional[int] = None) -> Tuple[range]:
+    """
+    Function to get `ranges` from unstructured value or a collection of them.
+    """
+
     intervals = (
         (interval, )
         if isinstance(interval, IntervalSegment)
@@ -206,6 +226,8 @@ def range_from(
     *,
     limit: Optional[int] = None,
 ) -> range:
+    """Function to get `ranges` from unstructured value"""
+
     if limit is not None and limit < 0:
         raise RangeConstructionError("`limit` must be greater than zero")
 
@@ -256,6 +278,10 @@ empty = contextualizing(flag_about("empty"))
 
 
 def marked_ranges_from(points: Iterable[int]) -> Tuple[range]:
+    """
+    Function to create `ranges` from input numbers and `ranges` between them.
+    """
+
     points = sorted(set(points))
 
     marked_ranges = list()
@@ -280,6 +306,13 @@ def to_interval(
     action: Callable[Tuple[V], Iterable[V]],
     values: Iterable[V],
 ) -> Tuple[V]:
+    """
+    Function to apply an action from collection to a part of an input collection.
+
+    Specifies a part of an input collection that will be affected by an
+    unstructured range.
+    """
+
     values = tuple(values)
 
     if contexted(interval).context == empty:

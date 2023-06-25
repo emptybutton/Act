@@ -50,6 +50,8 @@ def documenting_by(documentation: str) -> dirty[reformer_of[V]]:
 
 
 def to_check(determinant: checker_of[V] | V) -> checker_of[V]:
+    """Function representing an input value to a validation action."""
+
     from pyhandling.flags import _CallableNamedFlag
 
     return (
@@ -60,6 +62,8 @@ def to_check(determinant: checker_of[V] | V) -> checker_of[V]:
 
 
 def as_action(value: ActionT | V) -> ActionT | action_for[V]:
+    """Function representing an input value to aт action."""
+
     return value if callable(value) else lambda *_, **__: value
 
 

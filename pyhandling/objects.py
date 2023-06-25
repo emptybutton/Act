@@ -39,6 +39,8 @@ def _with_recurion_limit(
     *args: Pm.args,
     **kwargs: Pm.kwargs,
 ) -> R:
+    """Decorator function to set a local recursion limit to a single action."""
+
     old_limit = getrecursionlimit()
 
     setrecursionlimit(limit)

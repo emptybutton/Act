@@ -293,6 +293,13 @@ action_of = _CallableConstructor()
 
 
 class Unia:
+    """
+    Union type with `and` nature i.e a value being checked must be a descendant
+    of all types passed to an Unia.
+
+    To create using indexer (`[]`).
+    """
+
     annotations = property(attrgetter("_annotations"))
 
     def __new__(cls, *annotations: Special[Self], **kwargs) -> Self:
