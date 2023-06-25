@@ -158,6 +158,12 @@ class Arguments(Mapping, Generic[A]):
             ),
         ))
 
+    def values(self) -> Tuple[A]:
+        return (*self._args, *self._kwargs.values())
+
+    def items(self) -> Tuple[tuple[int | str, A]]:
+        return self.__items
+
     def __repr__(self) -> str:
         return f"{type(self).__name__}{str(self)}"
 
@@ -250,6 +256,10 @@ class Arguments(Mapping, Generic[A]):
             key_of = partial(ArgumentKey, reversed_table(self.kwargs)[value])
 
         return key_of(default=value)
+
+    @cached_property
+    def __items(self) -> Tuple[tuple[int | str, A]]:
+        return (*zip(range(len(self._args)), self._args), *self._kwargs.items())
 
 
 def as_arguments(*args, **kwargs) -> Arguments:

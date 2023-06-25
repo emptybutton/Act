@@ -111,6 +111,35 @@ test_argument_pack_only_with = case_of(
 )
 
 
+test_arguments_unpacking = case_of(
+    (lambda: (lambda a, b, c=0: a / b + c)(*Arguments([16, 2])), 8),
+    (lambda: (lambda a, b, c=0: a / b + c)(*Arguments([16, 2], dict(d=8))), 8),
+    (lambda: (lambda a, b, c=0: a / b + c)(*Arguments([16, 2], dict(c=-8))), 8),
+    (lambda: (lambda a, b, c=0: a / b + c)(**Arguments.of(a=16, b=2)), 8),
+    (lambda: (lambda a, b, c=0: a / b + c)(**Arguments.of(4, 2, a=16, b=2)), 8),
+    (lambda: (lambda a, b, c=0: a / b + c)(**Arguments.of(4, 2, a=16, b=2)), 8),
+)
+
+
+test_arguments_values = case_of(
+    (lambda: Arguments.of('x', 'y', a=1, b=2).values(), ('x', 'y', 1, 2)),
+    (lambda: Arguments.of(a=1, b=2).values(), (1, 2)),
+    (lambda: Arguments.of('x', 'y').values(), ('x', 'y')),
+    (lambda: Arguments().values(), tuple()),
+)
+
+
+test_arguments_items = case_of(
+    (
+        lambda: Arguments.of('x', 'y', a=1, b=2).items(),
+        ((0, 'x'), (1, 'y'), ('a', 1), ('b', 2)),
+    ),
+    (lambda: Arguments.of(a=1, b=2).items(), (('a', 1), ('b', 2))),
+    (lambda: Arguments.of('x', 'y').items(), ((0, 'x'), (1, 'y'))),
+    (lambda: Arguments().items(), tuple()),
+)
+
+
 @mark.parametrize(
     'args, kwargs, result_argument_pack',
     [
