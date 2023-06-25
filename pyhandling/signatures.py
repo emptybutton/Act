@@ -11,13 +11,17 @@ from pyhandling.representations import code_like_repr_of
 __all__ = ("Decorator", "call_signature_of", "annotation_sum")
 
 
-class Decorator(ABC, Generic[ActionT]):
+class Decorator(LeftCallable, ABC, Generic[ActionT]):
     """
     Abstract class for decorating an input action and creating a signature
     based on it.
 
     Set signature from `_force_signature` attribute.
+
+    When `_doc_parser = True` assigns itself an input action documentation.
     """
+
+    _doc_parser: bool = False
 
     def __init__(self, action: ActionT):
         self._action = action
@@ -35,6 +39,10 @@ class Decorator(ABC, Generic[ActionT]):
         """Method editing an instance for a decorated action."""
 
         self.__signature__ = self._force_signature
+
+        if self._doc_parser:
+            doc = getdoc(self._action)
+            self.__doc__ = str() if doc is None else doc
 
 
 def call_signature_of(action: Callable) -> Signature:

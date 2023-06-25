@@ -92,6 +92,7 @@ class partially(Decorator):
 )
 @atomically
 class flipped(Decorator):
+    _doc_parser = True
 
     def __call__(self, *args, **kwargs) -> R:
         return self._action(*args[::-1], **kwargs)
