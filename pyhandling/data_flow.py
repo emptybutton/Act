@@ -94,8 +94,10 @@ class eventually(Decorator):
 
     def __repr__(self) -> str:
         formatted_kwargs = ', '.join(map(
-            lambda item: action_repr_of(item[0]) + '=' + action_repr_of(item[1]),
-            self._kwargs.items()
+            lambda item: (
+                f"{code_like_repr_of(item[0])}={code_like_repr_of(item[1])}"
+            ),
+            self._kwargs.items(),
         ))
 
         return (

@@ -43,7 +43,10 @@ class bind:
         )
 
     def __repr__(self) -> str:
-        return f"({action_repr_of(self._first)} >> {action_repr_of(self._second)})"
+        return "({} >> {})".format(
+            code_like_repr_of(self._first),
+            code_like_repr_of(self._second),
+        )
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._second(self._first(*args, **kwargs))
