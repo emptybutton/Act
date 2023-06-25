@@ -1,11 +1,10 @@
 from functools import reduce
-from operator import not_
+from operator import attrgetter, not_
 from typing import Callable, Generic, Iterable, Iterator, Self, Any, Tuple
 
 from pyhandling.annotations import ActionT, R, Pm, V, A, B, C, D
 from pyhandling.atomization import atomically
 from pyhandling.errors import TemplatedActionChainError
-from pyhandling.immutability import property_to
 from pyhandling.partiality import rpartial, will
 from pyhandling.representations import action_repr_of
 from pyhandling.signatures import call_signature_of
@@ -68,7 +67,7 @@ class ActionChain(LeftCallable, Generic[ActionT]):
     preferable than the `then` pseudo-operator.
     """
 
-    is_template = property_to("_is_template")
+    is_template = property(attrgetter("_is_template"))
 
     def __init__(self, actions: Iterable[ActionT | Ellipsis | Self] = tuple()):
         self._actions = self._actions_from(actions)

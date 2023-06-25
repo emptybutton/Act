@@ -2,14 +2,13 @@ from copy import deepcopy, copy
 from functools import wraps
 from typing import NoReturn, Callable, Any, Concatenate, Self
 
-from pyhandling.annotations import V, Pm, one_value_action, TypeT
-from pyhandling.atomization import atomically
+from pyhandling.annotations import V, Pm, TypeT
 from pyhandling.errors import InvalidInitializationError
 from pyhandling.partiality import partially
 from pyhandling.signatures import call_signature_of
 
 
-__all__ = ("NotInitializable", "to_clone", "publicly_immutable", "property_to")
+__all__ = ("NotInitializable", "to_clone", "publicly_immutable")
 
 
 class NotInitializable:
@@ -73,47 +72,3 @@ def publicly_immutable(class_: TypeT) -> TypeT:
     class_.__setattr__ = new_setattr
 
     return class_
-
-
-@atomically
-class property_to:
-    """
-    Descriptor that takes data from an attribute that already exists in an
-    object.
-
-    Has the ability to set a delegating attribute (Does not set by default) and
-    additional layers of transformation that data passes through when it is
-    received or set.
-    """
-
-    def __init__(
-        self,
-        delegated_attribute_name: str,
-        *,
-        settable: bool = False,
-        getting_converter: one_value_action = lambda value: value,
-        setting_converter: one_value_action = lambda value: value
-    ):
-        self.delegated_attribute_name = delegated_attribute_name
-        self.settable = settable
-        self.getting_converter = getting_converter
-        self.setting_converter = setting_converter
-
-    def __get__(self, instance: object, owner: type) -> Any:
-        return self.getting_converter(getattr(
-            instance,
-            self.delegated_attribute_name,
-        ))
-
-    def __set__(self, instance: object, value: Any) -> None:
-        if not self.settable:
-            raise AttributeError(
-                f"delegating property of '{self.delegated_attribute_name}' for"
-                f" '{type(instance).__name__}' object is not settable"
-            )
-
-        setattr(
-            instance,
-            self.delegated_attribute_name,
-            self.setting_converter(value),
-        )

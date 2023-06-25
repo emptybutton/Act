@@ -1,6 +1,7 @@
 from functools import partial
 from dataclasses import dataclass
 from typing import TypeVar, Callable, Generic, Optional, Self, Final, Any
+from operator import attrgetter
 
 from pyannotating import Special
 
@@ -9,7 +10,6 @@ from pyhandling.atomization import atomically
 from pyhandling.pipeline import then
 from pyhandling.contexting import contexted, contextual
 from pyhandling.data_flow import by, yes
-from pyhandling.immutability import property_to
 from pyhandling.operators import not_
 from pyhandling.representations import action_repr_of
 from pyhandling.synonyms import on, returned
@@ -58,8 +58,8 @@ class Effect(Generic[V, R, C]):
 
     _NO_VALUE: Final[object] = object()
 
-    lift = property_to("_lift")
-    is_lifted = property_to("_is_lifted")
+    lift = property(attrgetter("_lift"))
+    is_lifted = property(attrgetter("_is_lifted"))
 
     def __new__(
         cls,

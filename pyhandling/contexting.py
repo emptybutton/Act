@@ -12,7 +12,7 @@ from pyhandling.annotations import (
 )
 from pyhandling.atomization import atomically
 from pyhandling.flags import nothing, Flag, pointed, _NamedFlag, _CallableNamedFlag
-from pyhandling.immutability import property_to, NotInitializable
+from pyhandling.immutability import NotInitializable
 from pyhandling.partiality import partially, will, rpartial
 from pyhandling.pipeline import then
 from pyhandling.representations import action_repr_of
@@ -135,15 +135,15 @@ class _BinaryContextRoot(ContextRoot, Generic[V, C]):
 class contextual(_BinaryContextRoot, Generic[V, C]):
     """Basic `ContextRoot` form representing values with no additional effect."""
 
-    value = property_to("_value")
-    context = property_to("_context")
+    value = property(attrgetter("_value"))
+    context = property(attrgetter("_context"))
 
 
 class contextually(_BinaryContextRoot, Generic[ActionT, C]):
     """`ContextRoot` form for annotating actions with saving their call."""
 
-    action = property_to("_value")
-    context = property_to("_context")
+    action = property(attrgetter("_value"))
+    context = property(attrgetter("_context"))
 
     def __init__(self, action: Callable[Pm, R], *contexts: C):
         super().__init__(action, *contexts)
@@ -162,8 +162,8 @@ class ContextualError(Exception, _BinaryContextRoot, Generic[ErrorT, C]):
     the ability to `raise` the call.
     """
 
-    error = property_to("_value")
-    context = property_to("_context")
+    error = property(attrgetter("_value"))
+    context = property(attrgetter("_context"))
 
     def __init__(self, error: ErrorT, *contexts: C):
         _BinaryContextRoot.__init__(self, error, *contexts)
