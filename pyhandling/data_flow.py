@@ -328,7 +328,10 @@ class _CustomPartialApplicationInfix(PartialApplicationInfix):
         return type(self)(self._transform, arguments=arguments, name=self._name)
 
 
-class _CallableCustomPartialApplicationInfix(_CustomPartialApplicationInfix):
+class _CallableCustomPartialApplicationInfix(
+    LeftCallable,
+    _CustomPartialApplicationInfix,
+):
     """
     `_CustomPartialApplicationInfix` delegating its call to the input action.
     """

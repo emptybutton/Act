@@ -139,7 +139,7 @@ class contextual(_BinaryContextRoot, Generic[V, C]):
     context = property(attrgetter("_context"))
 
 
-class contextually(_BinaryContextRoot, Generic[ActionT, C]):
+class contextually(LeftCallable, _BinaryContextRoot, Generic[ActionT, C]):
     """`ContextRoot` form for annotating actions with saving their call."""
 
     action = property(attrgetter("_value"))

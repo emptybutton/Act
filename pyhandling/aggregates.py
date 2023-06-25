@@ -36,7 +36,7 @@ class Access(Generic[_GetterT, _SetterT]):
     set: _SetterT
 
 
-class Effect(Generic[V, R, C]):
+class Effect(LeftCallable, Generic[V, R, C]):
     """
     Aggregating decorator class for executing in a specific container type and
     actions for casting value to this container type.

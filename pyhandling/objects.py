@@ -20,6 +20,7 @@ from pyhandling.pipeline import then
 from pyhandling.representations import code_like_repr_of
 from pyhandling.synonyms import on, returned
 from pyhandling.signatures import call_signature_of
+from pyhandling.tools import LeftCallable
 
 
 __all__ = (
@@ -134,7 +135,7 @@ class obj:
         return obj(**reduce(or_, map(dict_of, objects)))
 
 
-class _callable_obj(obj, Generic[Pm, R]):
+class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
     """Variation of `obj` for callability."""
 
     def __new__(cls, *args, **kwargs) -> Self:

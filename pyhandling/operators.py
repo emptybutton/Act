@@ -20,7 +20,7 @@ __all__ = (
 )
 
 
-class _DynamicDeterminant:
+class _DynamicDeterminant(LeftCallable):
     """
     Class for using synonyms of comparison operators as checking values and
     decorating actions with this synonym.
