@@ -106,15 +106,13 @@ deep_flat = documenting_by(
     Function to expand all subcollections within an input collection while they
     exist.
     """
-)(
-    atomically(
-        as_collection
-        |then>> repeating(
-            flat,
-            while_=partial(tfilter, rpartial(isinstance, Iterable)),
-        )
+)(atomically(
+    as_collection
+    |then>> repeating(
+        flat,
+        while_=partial(tfilter, rpartial(isinstance, Iterable)),
     )
-)
+))
 
 
 append: LeftCallable[..., LeftCallable[Iterable[V] | V, tuple]]
