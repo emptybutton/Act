@@ -113,7 +113,7 @@ class ArgumentKeys:
         return iter(self._keys)
 
     def __call__(self) -> Tuple[int | str]:
-        return tmap(attrgetter("value"), self._keys)
+        return tmap(attrgetter("value"), self.keywords)
 
 
 class Arguments(Mapping, Generic[A]):
