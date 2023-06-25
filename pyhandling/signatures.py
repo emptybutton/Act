@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
-from inspect import Signature, signature, Parameter
+from inspect import Signature, signature, Parameter, getdoc
 from typing import Generic, Callable, Any, Union
 
 from pyannotating import Special
 
 from pyhandling.annotations import ActionT
 from pyhandling.representations import code_like_repr_of
+from pyhandling.tools import LeftCallable
 
 
 __all__ = ("Decorator", "call_signature_of", "annotation_sum")

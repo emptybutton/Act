@@ -53,6 +53,7 @@ def to_check(determinant: checker_of[V] | V) -> checker_of[V]:
     """Function representing an input value to a validation action."""
 
     from pyhandling.flags import _CallableNamedFlag
+    from pyhandling.partiality import partial
 
     return (
         determinant
