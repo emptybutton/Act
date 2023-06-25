@@ -10,20 +10,20 @@ import operator
 
 from pyannotating import Special
 
-from pyhandling.annotations import merger_of, R, reformer_of, Pm, V, O
-from pyhandling.arguments import Arguments
-from pyhandling.contexting import contextual, to_read, saving_context
-from pyhandling.data_flow import by, to, to_left, returnly
-from pyhandling.errors import ActionCursorError
-from pyhandling.flags import flag_about, Flag
-from pyhandling.monads import maybe
-from pyhandling.objects import obj
-from pyhandling.partiality import flipped, rpartial, will, partial
-from pyhandling.pipeline import ActionChain, binding_by, on, then, _ActionChainInfix
-from pyhandling.representations import code_like_repr_of
-from pyhandling.scoping import value_in
-from pyhandling.structures import tfilter, groups_in
-from pyhandling.synonyms import with_keyword, tuple_of
+from act.annotations import merger_of, R, reformer_of, Pm, V, O
+from act.arguments import Arguments
+from act.contexting import contextual, to_read, saving_context
+from act.data_flow import by, to, to_left, returnly
+from act.errors import ActionCursorError
+from act.flags import flag_about, Flag
+from act.monads import maybe
+from act.objects import obj
+from act.partiality import flipped, rpartial, will, partial
+from act.pipeline import ActionChain, binding_by, on, then, _ActionChainInfix
+from act.representations import code_like_repr_of
+from act.scoping import value_in
+from act.structures import tfilter, groups_in
+from act.synonyms import with_keyword, tuple_of
 
 
 __all__ = (

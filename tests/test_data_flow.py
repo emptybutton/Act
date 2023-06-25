@@ -3,8 +3,8 @@ from typing import Any, Iterable
 
 from pytest import mark, raises
 
-from pyhandling.data_flow import *
-from pyhandling.testing import case_of
+from act.data_flow import *
+from act.testing import case_of
 
 
 test_eventually = case_of(

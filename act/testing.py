@@ -4,8 +4,8 @@ from unittest import TestCase
 
 from pyannotating import Subgroup
 
-from pyhandling.annotations import event
-from pyhandling.data_flow import anything
+from act.annotations import event
+from act.data_flow import anything
 
 
 __all__ = ("case_of", "test_case_pack")
@@ -62,7 +62,7 @@ def case_of(*test_packs: test_case_pack | event) -> Type[TestCase]:
             "__doc__": (
                 """
                 `TestCase` class generated from
-                `pyhandling.testing.test_case_of` for some actions
+                `act.testing.test_case_of` for some actions
                 """
             )
         }

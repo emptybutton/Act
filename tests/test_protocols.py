@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 
-from pyhandling.objects import obj
-from pyhandling.protocols import *
-from pyhandling.testing import case_of
+from act.objects import obj
+from act.protocols import *
+from act.testing import case_of
 
 
 test_protocol_of = case_of(

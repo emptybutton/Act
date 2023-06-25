@@ -4,11 +4,11 @@ from operator import attrgetter
 from typing import Any, Self, Iterable, Tuple, Optional, Callable
 import functools
 
-from pyhandling.annotations import action_for, R
-from pyhandling.atomization import atomically
-from pyhandling.representations import code_like_repr_of
-from pyhandling.signatures import Decorator, call_signature_of
-from pyhandling.tools import documenting_by, LeftCallable
+from act.annotations import action_for, R
+from act.atomization import atomically
+from act.representations import code_like_repr_of
+from act.signatures import Decorator, call_signature_of
+from act.tools import documenting_by, LeftCallable
 
 
 __all__ = (

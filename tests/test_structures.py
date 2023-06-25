@@ -1,7 +1,7 @@
 from functools import partial
 
-from pyhandling.testing import case_of
-from pyhandling.structures import *
+from act.testing import case_of
+from act.structures import *
 
 
 test_as_collection = case_of(

@@ -2,9 +2,9 @@ from typing import Mapping, Any
 
 from pytest import mark
 
-from pyhandling.aggregates import *
-from pyhandling.partiality import partial
-from pyhandling.testing import case_of
+from act.aggregates import *
+from act.partiality import partial
+from act.testing import case_of
 
 
 @partial(mark.parametrize, "kwargs")([

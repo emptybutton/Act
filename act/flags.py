@@ -9,17 +9,17 @@ from operator import or_, sub, attrgetter, not_
 
 from pyannotating import Special
 
-from pyhandling.atomization import atomic
-from pyhandling.annotations import (
+from act.atomization import atomic
+from act.annotations import (
     V, FlagT, checker_of, merger_of, reformer_of, A, B, P, Pm, R, CommentAnnotation
 )
-from pyhandling.data_flow import by, then
-from pyhandling.errors import FlagError
-from pyhandling.immutability import to_clone
-from pyhandling.partiality import partially
-from pyhandling.representations import code_like_repr_of
-from pyhandling.synonyms import returned, on
-from pyhandling.tools import documenting_by
+from act.data_flow import by, then
+from act.errors import FlagError
+from act.immutability import to_clone
+from act.partiality import partially
+from act.representations import code_like_repr_of
+from act.synonyms import returned, on
+from act.tools import documenting_by
 
 
 __all__ = (

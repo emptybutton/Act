@@ -1,8 +1,8 @@
 from typing import Iterable, Callable
 
-from pyhandling.annotations import one_value_action
-from pyhandling.pipeline import *
-from pyhandling.testing import case_of
+from act.annotations import one_value_action
+from act.pipeline import *
+from act.testing import case_of
 from tests.mocks import MockAction
 
 from pytest import mark

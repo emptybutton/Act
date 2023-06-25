@@ -2,8 +2,8 @@ from typing import Iterable, Callable, Any
 
 from pytest import mark
 
-from pyhandling.arguments import *
-from pyhandling.testing import case_of
+from act.arguments import *
+from act.testing import case_of
 
 
 @mark.parametrize(

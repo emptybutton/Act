@@ -1,7 +1,7 @@
 from operator import truediv
 
-from pyhandling.partiality import *
-from pyhandling.testing import case_of
+from act.partiality import *
+from act.testing import case_of
 
 
 test_rpartial = case_of(

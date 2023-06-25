@@ -10,17 +10,17 @@ from sys import getrecursionlimit, setrecursionlimit
 
 from pyannotating import Special
 
-from pyhandling.annotations import K, V, Pm, R, O
-from pyhandling.contexting import contextually, contexted, ContextRoot
-from pyhandling.data_flow import mergely, by, returnly
-from pyhandling.flags import flag_about, Flag
-from pyhandling.immutability import to_clone
-from pyhandling.partiality import partially, flipped, partial
-from pyhandling.pipeline import then
-from pyhandling.representations import code_like_repr_of
-from pyhandling.synonyms import on, returned
-from pyhandling.signatures import call_signature_of
-from pyhandling.tools import LeftCallable
+from act.annotations import K, V, Pm, R, O
+from act.contexting import contextually, contexted, ContextRoot
+from act.data_flow import mergely, by, returnly
+from act.flags import flag_about, Flag
+from act.immutability import to_clone
+from act.partiality import partially, flipped, partial
+from act.pipeline import then
+from act.representations import code_like_repr_of
+from act.synonyms import on, returned
+from act.signatures import call_signature_of
+from act.tools import LeftCallable
 
 
 __all__ = (

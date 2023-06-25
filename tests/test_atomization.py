@@ -1,8 +1,8 @@
 from typing import Self
 
-from pyhandling.atomization import *
-from pyhandling.pipeline import ActionChain
-from pyhandling.testing import case_of
+from act.atomization import *
+from act.pipeline import ActionChain
+from act.testing import case_of
 
 
 class AtomizableMock:

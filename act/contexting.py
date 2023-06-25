@@ -7,18 +7,18 @@ from typing import (
 
 from pyannotating import Special
 
-from pyhandling.annotations import (
+from act.annotations import (
     ActionT, ErrorT, P, Pm, checker_of, A, B, C, V, R, W, D, S
 )
-from pyhandling.atomization import atomically
-from pyhandling.flags import nothing, Flag, pointed, _NamedFlag, _CallableNamedFlag
-from pyhandling.immutability import NotInitializable
-from pyhandling.partiality import partially, will, rpartial
-from pyhandling.pipeline import then
-from pyhandling.representations import code_like_repr_of
-from pyhandling.signatures import call_signature_of
-from pyhandling.synonyms import repeating, returned, on
-from pyhandling.tools import documenting_by, LeftCallable
+from act.atomization import atomically
+from act.flags import nothing, Flag, pointed, _NamedFlag, _CallableNamedFlag
+from act.immutability import NotInitializable
+from act.partiality import partially, will, rpartial
+from act.pipeline import then
+from act.representations import code_like_repr_of
+from act.signatures import call_signature_of
+from act.synonyms import repeating, returned, on
+from act.tools import documenting_by, LeftCallable
 
 
 __all__ = (

@@ -2,14 +2,14 @@ from functools import reduce
 from operator import attrgetter, not_
 from typing import Callable, Generic, Iterable, Iterator, Self, Any, Tuple
 
-from pyhandling.annotations import ActionT, R, Pm, V, A, B, C, D
-from pyhandling.atomization import atomically
-from pyhandling.errors import TemplatedActionChainError
-from pyhandling.partiality import rpartial, will
-from pyhandling.representations import code_like_repr_of
-from pyhandling.signatures import call_signature_of
-from pyhandling.synonyms import returned, on
-from pyhandling.tools import documenting_by, LeftCallable
+from act.annotations import ActionT, R, Pm, V, A, B, C, D
+from act.atomization import atomically
+from act.errors import TemplatedActionChainError
+from act.partiality import rpartial, will
+from act.representations import code_like_repr_of
+from act.signatures import call_signature_of
+from act.synonyms import returned, on
+from act.tools import documenting_by, LeftCallable
 
 
 __all__ = (

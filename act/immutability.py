@@ -2,10 +2,10 @@ from copy import deepcopy, copy
 from functools import wraps
 from typing import NoReturn, Callable, Any, Concatenate, Self
 
-from pyhandling.annotations import V, Pm, TypeT
-from pyhandling.errors import InvalidInitializationError
-from pyhandling.partiality import partially
-from pyhandling.signatures import call_signature_of
+from act.annotations import V, Pm, TypeT
+from act.errors import InvalidInitializationError
+from act.partiality import partially
+from act.signatures import call_signature_of
 
 
 __all__ = ("NotInitializable", "to_clone", "publicly_immutable")

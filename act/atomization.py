@@ -1,10 +1,10 @@
 from functools import update_wrapper
 from typing import runtime_checkable, Protocol, Self, Callable
 
-from pyhandling.annotations import AtomizableT, Pm, R
-from pyhandling.errors import AtomizationError
-from pyhandling.representations import code_like_repr_of
-from pyhandling.tools import LeftCallable
+from act.annotations import AtomizableT, Pm, R
+from act.errors import AtomizationError
+from act.representations import code_like_repr_of
+from act.tools import LeftCallable
 
 
 __all__ = ("Atomizable", "atomic", "atomically")

@@ -4,16 +4,16 @@ from operator import attrgetter
 
 from pyannotating import Special
 
-from pyhandling.annotations import V, R, C, M, reformer_of
-from pyhandling.atomization import atomically
-from pyhandling.pipeline import then
-from pyhandling.contexting import contexted, contextual
-from pyhandling.data_flow import by, yes
-from pyhandling.operators import not_
-from pyhandling.partiality import partial
-from pyhandling.representations import code_like_repr_of
-from pyhandling.synonyms import on, returned
-from pyhandling.tools import documenting_by, LeftCallable
+from act.annotations import V, R, C, M, reformer_of
+from act.atomization import atomically
+from act.pipeline import then
+from act.contexting import contexted, contextual
+from act.data_flow import by, yes
+from act.operators import not_
+from act.partiality import partial
+from act.representations import code_like_repr_of
+from act.synonyms import on, returned
+from act.tools import documenting_by, LeftCallable
 
 
 __all__ = (

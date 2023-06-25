@@ -3,9 +3,9 @@ from typing import Any
 
 from pytest import raises
 
-from pyhandling.errors import InvalidInitializationError
-from pyhandling.immutability import *
-from pyhandling.objects import obj
+from act.errors import InvalidInitializationError
+from act.immutability import *
+from act.objects import obj
 
 
 def test_not_initializable():

@@ -1,9 +1,9 @@
 from pytest import raises
 
-from pyhandling.contexting import contextual
-from pyhandling.error_flow import *
-from pyhandling.synonyms import with_
-from pyhandling.testing import case_of
+from act.contexting import contextual
+from act.error_flow import *
+from act.synonyms import with_
+from act.testing import case_of
 
 
 test_raising = case_of(

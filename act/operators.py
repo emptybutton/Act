@@ -1,12 +1,12 @@
 from typing import Iterable, Callable, Generator, Any
 import operator
 
-from pyhandling.annotations import V
-from pyhandling.atomization import atomically
-from pyhandling.data_flow import by
-from pyhandling.partiality import partial
-from pyhandling.representations import code_like_repr_of
-from pyhandling.tools import documenting_by, to_check, LeftCallable
+from act.annotations import V
+from act.atomization import atomically
+from act.data_flow import by
+from act.partiality import partial
+from act.representations import code_like_repr_of
+from act.tools import documenting_by, to_check, LeftCallable
 
 
 __all__ = (

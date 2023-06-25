@@ -1,8 +1,8 @@
 from functools import partial
 from operator import add
 
-from pyhandling.objects import *
-from pyhandling.testing import case_of
+from act.objects import *
+from act.testing import case_of
 from tests.mocks import MockA, MockB, nested
 
 

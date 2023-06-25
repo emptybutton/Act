@@ -3,7 +3,7 @@ from typing import Callable, TypeVar
 
 from pytest import mark
 
-from pyhandling.scoping import *
+from act.scoping import *
 
 
 _R = TypeVar('_R')

@@ -1,8 +1,8 @@
 from random import choice
 
-from pyhandling.atomization import atomic
-from pyhandling.flags import *
-from pyhandling.testing import case_of
+from act.atomization import atomic
+from act.flags import *
+from act.testing import case_of
 
 
 instance = flag_about("instance")

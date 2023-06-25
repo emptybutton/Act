@@ -2,9 +2,9 @@ from typing import Union, runtime_checkable, Protocol, Self, Tuple, Iterable
 
 from pyannotating import AnnotationTemplate, input_annotation
 
-from pyhandling.annotations import ErrorT
-from pyhandling.errors import PyhandingError
-from pyhandling.structures import flat
+from act.annotations import ErrorT
+from act.errors import PyhandingError
+from act.structures import flat
 
 
 __all__ = (

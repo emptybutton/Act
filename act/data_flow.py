@@ -9,15 +9,15 @@ from typing import (
 
 from pyannotating import Special
 
-from pyhandling.annotations import Pm, V, R, dirty, ArgumentsT
-from pyhandling.atomization import atomically
-from pyhandling.errors import ReturningError, MatchingError
-from pyhandling.partiality import will, rpartial, flipped, partial
-from pyhandling.pipeline import bind, then
-from pyhandling.representations import code_like_repr_of
-from pyhandling.signatures import Decorator, call_signature_of
-from pyhandling.synonyms import returned, on
-from pyhandling.tools import documenting_by, LeftCallable
+from act.annotations import Pm, V, R, dirty, ArgumentsT
+from act.atomization import atomically
+from act.errors import ReturningError, MatchingError
+from act.partiality import will, rpartial, flipped, partial
+from act.pipeline import bind, then
+from act.representations import code_like_repr_of
+from act.signatures import Decorator, call_signature_of
+from act.synonyms import returned, on
+from act.tools import documenting_by, LeftCallable
 
 
 __all__ = (

@@ -3,9 +3,9 @@ from operator import or_, attrgetter
 
 from typing import runtime_checkable, Protocol, Self, Callable
 
-from pyhandling.annotations import P, V, Unia
-from pyhandling.immutability import to_clone, NotInitializable
-from pyhandling.objects import dict_of
+from act.annotations import P, V, Unia
+from act.immutability import to_clone, NotInitializable
+from act.objects import dict_of
 
 
 __all__ = (

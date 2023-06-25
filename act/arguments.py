@@ -10,18 +10,16 @@ from typing import (
 
 from pyannotating import Special
 
-from pyhandling.annotations import A, D
-from pyhandling.atomization import atomically
-from pyhandling.errors import ArgumentError
-from pyhandling.partiality import partial
-from pyhandling.representations import code_like_repr_of
-from pyhandling.signatures import (
-    Decorator, call_signature_of
-)
-from pyhandling.structures import (
+from act.annotations import A, D
+from act.atomization import atomically
+from act.errors import ArgumentError
+from act.partiality import partial
+from act.representations import code_like_repr_of
+from act.signatures import Decorator, call_signature_of
+from act.structures import (
     without, frozendict, tmap, without_duplicates, reversed_table
 )
-from pyhandling.tools import documenting_by
+from act.tools import documenting_by
 
 
 __all__ = ("ArgumentKey", "Arguments", "as_arguments", "unpackly")

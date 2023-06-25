@@ -1,4 +1,4 @@
-from pyhandling.testing import case_of
+from act.testing import case_of
 
 
 test_case_of = case_of(

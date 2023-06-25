@@ -1,9 +1,9 @@
 from operator import attrgetter
 
-from pyhandling.contexting import *
-from pyhandling.flags import pointed
-from pyhandling.pipeline import then
-from pyhandling.testing import case_of
+from act.contexting import *
+from act.flags import pointed
+from act.pipeline import then
+from act.testing import case_of
 
 
 test_context_oriented = case_of(

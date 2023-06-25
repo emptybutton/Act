@@ -4,14 +4,12 @@ from inspect import Signature, Parameter
 
 from pyannotating import Special
 
-from pyhandling.annotations import (
-    Pm, V, R, E, action_for, reformer_of, checker_of, L
-)
-from pyhandling.atomization import atomically
-from pyhandling.partiality import partial, partially
-from pyhandling.representations import code_like_repr_of
-from pyhandling.signatures import Decorator, call_signature_of, annotation_sum
-from pyhandling.tools import to_check, as_action, LeftCallable, documenting_by
+from act.annotations import Pm, V, R, E, action_for, reformer_of, checker_of, L
+from act.atomization import atomically
+from act.partiality import partial, partially
+from act.representations import code_like_repr_of
+from act.signatures import Decorator, call_signature_of, annotation_sum
+from act.tools import to_check, as_action, LeftCallable, documenting_by
 
 
 __all__ = (

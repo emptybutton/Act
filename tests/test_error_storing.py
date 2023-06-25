@@ -1,6 +1,6 @@
-from pyhandling.error_storing import *
-from pyhandling.objects import obj, of
-from pyhandling.testing import case_of
+from act.error_storing import *
+from act.objects import obj, of
+from act.testing import case_of
 
 
 test_errors_from = case_of(

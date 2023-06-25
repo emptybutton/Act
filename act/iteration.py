@@ -2,13 +2,13 @@ from typing import Iterable, Generator, Optional, Callable, Type
 
 from pyannotating import Special
 
-from pyhandling.annotations import dirty, V, R
-from pyhandling.atomization import atomically
-from pyhandling.data_flow import eventually, by, to
-from pyhandling.error_flow import catching
-from pyhandling.pipeline import binding_by, then, on
-from pyhandling.synonyms import trying_to, returned
-from pyhandling.tools import documenting_by, LeftCallable
+from act.annotations import dirty, V, R
+from act.atomization import atomically
+from act.data_flow import eventually, by, to
+from act.error_flow import catching
+from act.pipeline import binding_by, then, on
+from act.synonyms import trying_to, returned
+from act.tools import documenting_by, LeftCallable
 
 
 __all__ = (

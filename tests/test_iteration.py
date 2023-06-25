@@ -2,8 +2,8 @@ from typing import Iterable
 
 from pytest import mark
 
-from pyhandling.iteration import *
-from pyhandling.testing import case_of
+from act.iteration import *
+from act.testing import case_of
 
 
 @mark.parametrize("items", [(1, 2, 3), range(10), "Hello world!", tuple(), str()])

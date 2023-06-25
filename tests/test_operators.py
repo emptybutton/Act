@@ -1,5 +1,5 @@
-from pyhandling.operators import *
-from pyhandling.testing import case_of
+from act.operators import *
+from act.testing import case_of
 
 
 test_are_linear = case_of(

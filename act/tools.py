@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from operator import eq
 from typing import Generic, Callable, Any
 
-from pyhandling.annotations import (
+from act.annotations import (
     V, dirty, reformer_of, checker_of, ActionT, action_for, Pm, R
 )
 
@@ -52,8 +52,8 @@ def documenting_by(documentation: str) -> dirty[reformer_of[V]]:
 def to_check(determinant: checker_of[V] | V) -> checker_of[V]:
     """Function representing an input value to a validation action."""
 
-    from pyhandling.flags import _CallableNamedFlag
-    from pyhandling.partiality import partial
+    from act.flags import _CallableNamedFlag
+    from act.partiality import partial
 
     return (
         determinant

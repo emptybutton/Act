@@ -3,10 +3,10 @@ from typing import Callable, Any, Iterable, Container
 
 from pytest import mark, raises
 
-from pyhandling.annotations import *
-from pyhandling.errors import UniaError
-from pyhandling.objects import obj
-from pyhandling.testing import case_of
+from act.annotations import *
+from act.errors import UniaError
+from act.objects import obj
+from act.testing import case_of
 
 
 test_action_of = case_of(

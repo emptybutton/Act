@@ -9,19 +9,17 @@ from typing import (
 
 from pyannotating import many_or_one, Special
 
-from pyhandling.annotations import V, M, K, checker_of, I, Unia
-from pyhandling.atomization import atomically
-from pyhandling.contexting import (
-    ContextRoot, contexted, contextualizing, saving_context
-)
-from pyhandling.data_flow import returnly, by
-from pyhandling.errors import RangeConstructionError, IndexingError
-from pyhandling.flags import flag_about
-from pyhandling.partiality import partial, rpartial, partially, rwill
-from pyhandling.pipeline import then, binding_by, ActionChain
-from pyhandling.protocols import Hashable
-from pyhandling.synonyms import on, tuple_of, repeating
-from pyhandling.tools import documenting_by, LeftCallable
+from act.annotations import V, M, K, checker_of, I, Unia
+from act.atomization import atomically
+from act.contexting import ContextRoot, contexted, contextualizing, saving_context
+from act.data_flow import returnly, by
+from act.errors import RangeConstructionError, IndexingError
+from act.flags import flag_about
+from act.partiality import partial, rpartial, partially, rwill
+from act.pipeline import then, binding_by, ActionChain
+from act.protocols import Hashable
+from act.synonyms import on, tuple_of, repeating
+from act.tools import documenting_by, LeftCallable
 
 
 __all__ = (

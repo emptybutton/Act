@@ -1,7 +1,7 @@
 from inspect import Parameter
 
-from pyhandling.signatures import *
-from pyhandling.testing import case_of
+from act.signatures import *
+from act.testing import case_of
 
 
 test_annotation_sum = case_of(

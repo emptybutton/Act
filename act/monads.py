@@ -3,24 +3,22 @@ from typing import Callable, Any, Tuple, Optional
 
 from pyannotating import Special
 
-from pyhandling.aggregates import context_effect
-from pyhandling.annotations import (
-    dirty, R, checker_of, event_for, A, B, V, FlagT, C
-)
-from pyhandling.atomization import atomically
-from pyhandling.contexting import (
+from act.aggregates import context_effect
+from act.annotations import dirty, R, checker_of, event_for, A, B, V, FlagT, C
+from act.atomization import atomically
+from act.contexting import (
     contextual, contextually, contexted, ContextRoot, saving_context,
     with_reduced_metacontext, contextualizing
 )
-from pyhandling.data_flow import returnly, by, to, matching, break_
-from pyhandling.flags import flag_about, nothing, Flag, pointed
-from pyhandling.objects import obj
-from pyhandling.operators import and_
-from pyhandling.partiality import will, partially
-from pyhandling.pipeline import discretely, ActionChain, binding_by, then
-from pyhandling.structures import tmap
-from pyhandling.synonyms import on, returned
-from pyhandling.tools import documenting_by, to_check, as_action, LeftCallable
+from act.data_flow import returnly, by, to, matching, break_
+from act.flags import flag_about, nothing, Flag, pointed
+from act.objects import obj
+from act.operators import and_
+from act.partiality import will, partially
+from act.pipeline import discretely, ActionChain, binding_by, then
+from act.structures import tmap
+from act.synonyms import on, returned
+from act.tools import documenting_by, to_check, as_action, LeftCallable
 
 
 __all__ = (

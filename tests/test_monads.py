@@ -1,12 +1,12 @@
 from functools import partial
 from operator import add, mul, truediv
 
-from pyhandling.contexting import contextual, contextually
-from pyhandling.data_flow import break_
-from pyhandling.flags import nothing, pointed, flag_about
-from pyhandling.monads import *
-from pyhandling.pipeline import then
-from pyhandling.testing import case_of
+from act.contexting import contextual, contextually
+from act.data_flow import break_
+from act.flags import nothing, pointed, flag_about
+from act.monads import *
+from act.pipeline import then
+from act.testing import case_of
 
 
 test_maybe = case_of(

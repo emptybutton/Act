@@ -1,7 +1,7 @@
 from pytest import mark
 
-from pyhandling.testing import case_of
-from pyhandling.tools import *
+from act.testing import case_of
+from act.tools import *
 from tests.mocks import MockA
 
 

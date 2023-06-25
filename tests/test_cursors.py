@@ -1,8 +1,8 @@
 from functools import reduce
 import operator
 
-from pyhandling.cursors import *
-from pyhandling.testing import case_of
+from act.cursors import *
+from act.testing import case_of
 from tests.mocks import MockA, MockB
 
 from pytest import mark

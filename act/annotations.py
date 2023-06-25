@@ -8,8 +8,8 @@ from pyannotating import (
     FormalAnnotation, AnnotationTemplate, input_annotation, Special
 )
 
-from pyhandling.errors import UniaError
-from pyhandling.representations import code_like_repr_of
+from act.errors import UniaError
+from act.representations import code_like_repr_of
 
 
 __all__ = (
