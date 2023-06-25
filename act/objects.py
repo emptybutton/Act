@@ -11,7 +11,7 @@ from sys import getrecursionlimit, setrecursionlimit
 from pyannotating import Special
 
 from act.annotations import K, V, Pm, R, O
-from act.contexting import contextually, contexted, ContextRoot
+from act.contexting import contextually, contexted, ContextRoot, contextualizing
 from act.data_flow import mergely, by, returnly
 from act.flags import flag_about, Flag
 from act.immutability import to_clone
@@ -63,7 +63,7 @@ class obj:
     Can be obtained union of an instance with any other object via `&`.
     """
 
-    plugin: ClassVar[Flag] = flag_about("flag_about")
+    plugin: ClassVar[Flag] = contextualizing(flag_about("obj_plugin"))
 
     def __new__(
         cls,
