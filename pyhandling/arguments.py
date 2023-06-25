@@ -13,7 +13,7 @@ from pyannotating import Special
 from pyhandling.annotations import A, D
 from pyhandling.atomization import atomically
 from pyhandling.errors import ArgumentError
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 from pyhandling.signatures import (
     Decorator, call_signature_of
 )
@@ -56,7 +56,7 @@ class ArgumentKey(Generic[_ArgumentKeyT, D]):
 
     def __str__(self, *, with_position: bool = True) -> str:
         formatted_key = (
-            action_repr_of(self.value)
+            code_like_repr_of(self.value)
             if with_position or self.is_keyword
             else '...'
         )
@@ -64,7 +64,7 @@ class ArgumentKey(Generic[_ArgumentKeyT, D]):
         formatted_value = (
             '...'
             if self.default is _EMPTY_DEFAULT_VALUE
-            else action_repr_of(self.default)
+            else code_like_repr_of(self.default)
         )
 
         return (

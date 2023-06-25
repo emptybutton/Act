@@ -16,7 +16,7 @@ from pyhandling.atomization import atomically
 from pyhandling.errors import ReturningError, MatchingError
 from pyhandling.partiality import will, rpartial, flipped
 from pyhandling.pipeline import bind, then
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 from pyhandling.signatures import Decorator, call_signature_of
 from pyhandling.synonyms import returned, on
 from pyhandling.tools import documenting_by, LeftCallable
@@ -99,7 +99,7 @@ class eventually(Decorator):
         return (
             f"{type(self).__name__}({self._action}"
             f"{', ' if self._args or self._kwargs else str()}"
-            f"{', '.join(map(action_repr_of, self._args))}"
+            f"{', '.join(map(code_like_repr_of, self._args))}"
             f"{', ' if self._args and self._kwargs else str()}"
             f"{formatted_kwargs})"
         )
@@ -217,8 +217,8 @@ class once:
         self.__signature__ = call_signature_of(self._action)
 
     def __repr__(self) -> str:
-        return f"once({{}}{action_repr_of(self._action)})".format(
-            f"{action_repr_of(self._result)} from "
+        return f"once({{}}{code_like_repr_of(self._action)})".format(
+            f"{code_like_repr_of(self._result)} from "
             if self._was_called
             else str()
         )
@@ -252,7 +252,7 @@ class via_items:
 
     def __repr__(self) -> str:
         return "({})[{}]".format(
-            action_repr_of(self._action),
+            code_like_repr_of(self._action),
             str(call_signature_of(self._action))[1:-1],
         )
 
@@ -425,7 +425,7 @@ class merged:
         return tuple(action(*args, **kwargs) for action in self._actions)
 
     def __repr__(self) -> str:
-        return ' & '.join(map(action_repr_of, self._actions))
+        return ' & '.join(map(code_like_repr_of, self._actions))
 
     def __get_signature(self) -> Signature:
         if not self._actions:

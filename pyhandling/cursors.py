@@ -20,7 +20,7 @@ from pyhandling.monads import maybe
 from pyhandling.objects import obj
 from pyhandling.partiality import flipped, rpartial, will
 from pyhandling.pipeline import ActionChain, binding_by, on, then, _ActionChainInfix
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 from pyhandling.scoping import value_in
 from pyhandling.structures import tfilter, groups_in
 from pyhandling.synonyms import with_keyword, tuple_of
@@ -303,7 +303,7 @@ class _ActionCursor(Mapping):
 
     def as_(self, action: Special[Self, Callable], *, mutably: bool = False) -> Self:
         return partial(self.set, mutably=mutably)(partial(self._with, action)(
-            internal_repr=f"{action_repr_of(action)}({self._internal_repr})"
+            internal_repr=f"{code_like_repr_of(action)}({self._internal_repr})"
         ))
 
     def keys(self) -> tuple[str]:
@@ -643,7 +643,7 @@ class _ActionCursor(Mapping):
             return f"*{value.cursor._single_adapted_internal_repr}"
 
         else:
-            return action_repr_of(value)
+            return code_like_repr_of(value)
 
     def __get_adapted_internal_repr(self, *, single: bool = False) -> str:
         return (

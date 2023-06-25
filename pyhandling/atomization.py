@@ -3,7 +3,7 @@ from typing import runtime_checkable, Protocol, Self, Callable
 
 from pyhandling.annotations import AtomizableT, Pm, R
 from pyhandling.errors import AtomizationError
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 from pyhandling.tools import LeftCallable
 
 
@@ -49,7 +49,7 @@ class atomically(LeftCallable):
         update_wrapper(self, self._action)
 
     def __repr__(self) -> str:
-        return f"atomically({action_repr_of(self._action)})"
+        return f"atomically({code_like_repr_of(self._action)})"
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._action(*args, **kwargs)

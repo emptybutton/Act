@@ -9,7 +9,7 @@ from pyannotating import (
 )
 
 from pyhandling.errors import UniaError
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 
 
 __all__ = (
@@ -147,7 +147,7 @@ class CommentAnnotation:
 
     def __repr__(self) -> str:
         return f"~{self._name}{{}}".format(
-            "[{}]".format(', '.join(map(action_repr_of, self._args)))
+            "[{}]".format(', '.join(map(code_like_repr_of, self._args)))
             if len(self._args) > 0
             else str()
         )

@@ -15,7 +15,7 @@ from pyhandling.flags import nothing, Flag, pointed, _NamedFlag, _CallableNamedF
 from pyhandling.immutability import NotInitializable
 from pyhandling.partiality import partially, will, rpartial
 from pyhandling.pipeline import then
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 from pyhandling.signatures import call_signature_of
 from pyhandling.synonyms import repeating, returned, on
 from pyhandling.tools import documenting_by, LeftCallable
@@ -109,12 +109,12 @@ class ContextRoot(ABC, Generic[V, C]):
 
     def _repr_of(self, value: Special["contextual"]) -> str:
         return (
-            f"({action_repr_of(value)})"
+            f"({code_like_repr_of(value)})"
             if (
                 type(value) in (contextual, ContextualError)
                 and type(self) is type(value)
             )
-            else action_repr_of(value)
+            else code_like_repr_of(value)
         )
 
 

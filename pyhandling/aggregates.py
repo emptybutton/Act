@@ -11,7 +11,7 @@ from pyhandling.pipeline import then
 from pyhandling.contexting import contexted, contextual
 from pyhandling.data_flow import by, yes
 from pyhandling.operators import not_
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 from pyhandling.synonyms import on, returned
 from pyhandling.tools import documenting_by, LeftCallable
 
@@ -89,7 +89,7 @@ class Effect(Generic[V, R, C]):
         self._is_lifted = is_lifted
 
     def __repr__(self) -> str:
-        return f"Effect({action_repr_of(self._decorator)})"
+        return f"Effect({code_like_repr_of(self._decorator)})"
 
     def __call__(
         self,

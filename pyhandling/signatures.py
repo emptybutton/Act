@@ -5,7 +5,7 @@ from typing import Generic, Callable, Any, Union
 from pyannotating import Special
 
 from pyhandling.annotations import ActionT
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 
 
 __all__ = ("Decorator", "call_signature_of", "annotation_sum")
@@ -24,7 +24,7 @@ class Decorator(ABC, Generic[ActionT]):
         self._become_native()
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}({action_repr_of(self._action)})"
+        return f"{type(self).__name__}({code_like_repr_of(self._action)})"
 
     @property
     @abstractmethod

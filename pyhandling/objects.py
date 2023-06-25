@@ -17,7 +17,7 @@ from pyhandling.flags import flag_about, Flag
 from pyhandling.immutability import to_clone
 from pyhandling.partiality import partially, flipped
 from pyhandling.pipeline import then
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 from pyhandling.synonyms import on, returned
 from pyhandling.signatures import call_signature_of
 
@@ -95,7 +95,7 @@ class obj:
     @staticmethod
     def __repr_of(value: Any) -> str:
         try:
-            return _with_recurion_limit(20, action_repr_of, value)
+            return _with_recurion_limit(20, code_like_repr_of, value)
         except RecursionError:
             return '...'
 

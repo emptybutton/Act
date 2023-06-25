@@ -10,7 +10,7 @@ from pyhandling.annotations import (
 )
 from pyhandling.atomization import atomically
 from pyhandling.partiality import partially
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 from pyhandling.signatures import Decorator, call_signature_of, annotation_sum
 from pyhandling.tools import to_check, as_action, LeftCallable
 
@@ -89,9 +89,9 @@ class on(LeftCallable):
 
     def __repr__(self) -> str:
         return "({} on {} else {})".format(
-            action_repr_of(self._right_action),
-            action_repr_of(self._condition_checker),
-            action_repr_of(self._left_action),
+            code_like_repr_of(self._right_action),
+            code_like_repr_of(self._condition_checker),
+            code_like_repr_of(self._left_action),
         )
 
     def __get_signature(self) -> Signature:
@@ -131,8 +131,8 @@ class repeating(LeftCallable):
 
     def __repr__(self) -> str:
         return "({} while {})".format(
-            action_repr_of(self._action),
-            action_repr_of(self._is_valid_to_repeat),
+            code_like_repr_of(self._action),
+            code_like_repr_of(self._is_valid_to_repeat),
         )
 
     def __get_signature(self) -> Signature:
@@ -165,8 +165,8 @@ class trying_to(LeftCallable):
 
     def __repr__(self) -> str:
         return "(try {} except {})".format(
-            action_repr_of(self._action),
-            action_repr_of(self._rollback),
+            code_like_repr_of(self._action),
+            code_like_repr_of(self._rollback),
         )
 
     def __get_signature(self) -> Signature:

@@ -6,7 +6,7 @@ from pyhandling.annotations import ActionT, R, Pm, V, A, B, C, D
 from pyhandling.atomization import atomically
 from pyhandling.errors import TemplatedActionChainError
 from pyhandling.partiality import rpartial, will
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 from pyhandling.signatures import call_signature_of
 from pyhandling.synonyms import returned, on
 from pyhandling.tools import documenting_by, LeftCallable
@@ -89,11 +89,11 @@ class ActionChain(LeftCallable, Generic[ActionT]):
     def __repr__(self) -> str:
         return (
             " |then>> ".join(
-                '...' if action is Ellipsis else action_repr_of(action)
+                '...' if action is Ellipsis else code_like_repr_of(action)
                 for action in self._actions
             )
             if len(self._actions) > 1
-            else f"ActionChain({str().join(map(action_repr_of, self._actions))})"
+            else f"ActionChain({str().join(map(code_like_repr_of, self._actions))})"
         )
 
     def __call__(self, *args, **kwargs) -> Any:

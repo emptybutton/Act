@@ -17,7 +17,7 @@ from pyhandling.data_flow import by, then
 from pyhandling.errors import FlagError
 from pyhandling.immutability import to_clone
 from pyhandling.partiality import partially
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 from pyhandling.synonyms import returned, on
 from pyhandling.tools import documenting_by
 
@@ -380,11 +380,11 @@ class _DoubleFlag(Flag, ABC):
         return tuple(points)
 
     def __repr__(self) -> str:
-        to_repr_of = on(isinstance |by| _ValueFlag, attrgetter("_value"))
+        value_of = on(isinstance |by| _ValueFlag, attrgetter("_value"))
 
         return f"{{}} {self._separation_sign} {{}}".format(
-            action_repr_of(to_repr_of(self._first)),
-            action_repr_of(to_repr_of(self._second)),
+            code_like_repr_of(value_of(self._first)),
+            code_like_repr_of(value_of(self._second)),
         )
 
     def __getatom__(self) -> Flag:
@@ -521,7 +521,7 @@ class _ValueFlag(_AtomicFlag, Generic[V]):
         return self._value
 
     def __repr__(self) -> str:
-        return f"pointed({action_repr_of(self._value)})"
+        return f"pointed({code_like_repr_of(self._value)})"
 
     def __hash__(self) -> int:
         return hash(self._value) + 10*19

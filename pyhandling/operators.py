@@ -5,7 +5,7 @@ from pyhandling.annotations import V
 from pyhandling.atomization import atomically
 from pyhandling.data_flow import by
 from pyhandling.partiality import partial
-from pyhandling.representations import action_repr_of
+from pyhandling.representations import code_like_repr_of
 from pyhandling.tools import documenting_by, to_check, LeftCallable
 
 
@@ -45,9 +45,9 @@ class _DynamicDeterminant:
         return "{} ({})".format(
             "positive" if self else "negative",
             (
-                f"{self._name} {action_repr_of(self._checkers[0])}"
+                f"{self._name} {code_like_repr_of(self._checkers[0])}"
                 if len(self._checkers) == 1
-                else f" {self._name} ".join(map(action_repr_of, self._checkers))
+                else f" {self._name} ".join(map(code_like_repr_of, self._checkers))
             ),
         )
 
