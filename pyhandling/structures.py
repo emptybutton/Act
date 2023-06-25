@@ -41,7 +41,6 @@ __all__ = (
     "Interval",
     "ranges_from",
     "range_from",
-    "disjoint_ranges_from",
     "filled",
     "empty",
     "marked_ranges_from",
@@ -251,22 +250,6 @@ def _range_from_slice(slice_: slice, *, limit: Optional[int]) -> range:
         step = int(copysign(1, stop - start))
 
     return range(start, stop, step)
-
-
-def disjoint_ranges_from(numbers: Iterable[int]) -> Tuple[range]:
-    numbers = sorted(set(numbers))
-    ranges = list()
-
-    last_range_start = 0
-
-    for index, current in enumerate(numbers[:-1]):
-        next_ = numbers[index + 1]
-
-        if current + 1 != next_:
-            ranges.append(last_range_start, current)
-            last_range_start = next_
-
-    return tuple(ranges)
 
 
 filled = contextualizing(flag_about("filled"))
