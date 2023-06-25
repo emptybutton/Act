@@ -17,6 +17,7 @@ __all__ = (
     "ActionChain",
     "then",
     "binding_by",
+    "atomic_binding_by",
     "discretely",
 )
 
@@ -199,6 +200,17 @@ def binding_by(
         )
 
     return insert_to_template
+
+
+atomic_binding_by: LeftCallable[
+    Iterable[Callable | Ellipsis],
+    LeftCallable[Callable, LeftCallable],
+]
+atomic_binding_by = documenting_by(
+    """`binding_by` linking actions to an indivisible `ActionChain`."""
+)(atomically(
+    binding_by |then>> binding_by(... |then>> atomically)
+))
 
 
 discretely: Callable[
