@@ -20,6 +20,7 @@ from pyhandling.signatures import (
 from pyhandling.structures import (
     without, frozendict, tmap, without_duplicates, reversed_table
 )
+from pyhandling.tools import documenting_by
 
 
 __all__ = ("ArgumentKey", "Arguments", "as_arguments", "unpackly")
@@ -274,10 +275,11 @@ def as_arguments(*args, **kwargs) -> Arguments:
     return Arguments(args, kwargs)
 
 
+@documenting_by(
+    """Decorator to unpack input arguments into an input action."""
+)
 @atomically
 class unpackly(Decorator):
-    """Decorator to unpack input arguments into an input action."""
-
     def __call__(self, arguments: Special[Arguments, Iterable]) -> Any:
         return (
             arguments.call(self._action)

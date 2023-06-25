@@ -47,13 +47,14 @@ __all__ = (
 )
 
 
-@atomically
-class returnly(Decorator):
+@documenting_by(
     """
     Decorator that causes an input action to return first argument that is
     incoming to it.
     """
-
+)
+@atomically
+class returnly(Decorator):
     def __call__(self, value: V, *args, **kwargs) -> V:
         self._action(value, *args, **kwargs)
 
@@ -71,12 +72,13 @@ class returnly(Decorator):
         ))
 
 
-@atomically
-class eventually(Decorator):
+@documenting_by(
     """
     Decorator function to call with predefined arguments instead of input ones.
     """
-
+)
+@atomically
+class eventually(Decorator):
     def __init__(
         self,
         action: Callable[Pm, R],
@@ -118,10 +120,11 @@ def with_result(result: R, action: Callable[Pm, Any]) -> Callable[Pm, R]:
     return bind(action, to(result))
 
 
+@documenting_by(
+    """Decorator to ignore all arguments except the first."""
+)
 @atomically
 class to_left(Decorator):
-    """Decorator to ignore all arguments except the first."""
-
     def __call__(self, left_: V, *_, **__) -> R:
         return self._action(left_)
 
@@ -170,8 +173,7 @@ def dynamically(
     )
 
 
-@atomically
-class double(Decorator):
+@documenting_by(
     """
     Decorator to double call an input action.
 
@@ -179,7 +181,9 @@ class double(Decorator):
     positional argument, and the second is the call of its resulting action
     with the remaining arguments.
     """
-
+)
+@atomically
+class double(Decorator):
     def __call__(
         self,
         value: Any,
@@ -200,15 +204,16 @@ class double(Decorator):
 
 
 @dirty
-@atomically
-class once:
+@documenting_by(
     """
     Decorator for lazy action call.
 
     Calls an input action once, then returns a value of that first call,
     ignoring input arguments.
     """
-
+)
+@atomically
+class once:
     _result: Optional[R] = None
     _was_called: bool = False
 
@@ -237,13 +242,14 @@ class once:
         return self._result
 
 
-@atomically
-class via_items:
+@documenting_by(
     """
     Decorator for an action, allowing it to be called via `[]` call rather than
     `()`.
     """
-
+)
+@atomically
+class via_items:
     def __init__(
         self,
         action: Callable[[V], R] | Callable[[*ArgumentsT], R],
@@ -408,15 +414,16 @@ anything = documenting_by(
 )
 
 
-@atomically
-class merged:
+@documenting_by(
     """
     Function to merge multiple actions with the same input interface into one.
 
     Merged actions are called in parallel, after which a tuple of their results
     is returned, in the order in which the actions were passed.
     """
-
+)
+@atomically
+class merged:
     def __init__(self, *actions: Callable[Pm, Any]):
         self._actions = actions
         self.__signature__ = self.__get_signature()
@@ -453,8 +460,7 @@ class merged:
         return argument_signature.replace(return_annotation=return_annotation)
 
 
-@atomically
-class mergely:
+@documenting_by(
     """
     Decorator to initially separate several operations on input arguments and
     then combine these results in final operation.
@@ -471,7 +477,9 @@ class mergely:
     final merging action through the same argument name through which they
     were specified.
     """
-
+)
+@atomically
+class mergely:
     def __init__(
         self,
         merging_of: Callable[Pm, Callable[..., R]],

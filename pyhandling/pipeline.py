@@ -22,16 +22,18 @@ __all__ = (
 )
 
 
-class bind:
+@documenting_by(
     """
-    Function to call two input actions sequentially as one function in a
+    Function to call two input actions sequentially as one action in a
     pipeline form.
 
     Used as an atomic binding expression as a function in higher order
     functions (e.g. `reduce`), otherwise less preferred than the `then`
     pseudo-operator.
     """
-
+)
+@atomically
+class bind:
     def __init__(self, first: Callable[Pm, V], second: Callable[V, R]):
         self._first = first
         self._second = second
@@ -178,22 +180,26 @@ then = documenting_by(
 )
 
 
-def binding_by(
-    template: Iterable[Callable | Ellipsis],
-) -> Callable[[Callable], ActionChain]:
+@documenting_by(
     """
     Function to create a function by insertion its input function in the input
     template.
 
     The created function replaces `...` with an input action.
     """
-
-    def insert_to_template(intercalary_action: Callable) -> ActionChain:
+)
+@atomically
+def binding_by(
+    template: Iterable[Callable | Ellipsis],
+) -> Callable[[Callable], ActionChain]:
+    @documenting_by(
         """
         Function given as a result of calling `binding_by`. See `binding_by`
         for more info.
         """
-
+    )
+    @atomically
+    def insert_to_template(intercalary_action: Callable) -> ActionChain:
         return ActionChain(
             intercalary_action if action is Ellipsis else action
             for action in template

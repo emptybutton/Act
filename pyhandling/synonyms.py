@@ -12,7 +12,7 @@ from pyhandling.atomization import atomically
 from pyhandling.partiality import partially
 from pyhandling.representations import code_like_repr_of
 from pyhandling.signatures import Decorator, call_signature_of, annotation_sum
-from pyhandling.tools import to_check, as_action, LeftCallable
+from pyhandling.tools import to_check, as_action, LeftCallable, documenting_by
 
 
 __all__ = (
@@ -186,12 +186,13 @@ def with_(context_manager: AbstractContextManager, action: action_for[R]) -> R:
         return action(context)
 
 
-@atomically
-class keyword_unpackly(Decorator, LeftCallable):
+@documenting_by(
     """
     Decorator function to unpack the passed mapping object into the input action.
     """
-
+)
+@atomically
+class keyword_unpackly(Decorator, LeftCallable):
     def __call__(self, arguments: Mapping[str, Any]) -> Any:
         return self._action(**arguments)
 

@@ -18,8 +18,7 @@ __all__ = (
 )
 
 
-@atomically
-class partially(Decorator):
+@documenting_by(
     """
     Decorator for splitting a decorated action call into non-structured
     sub-calls.
@@ -32,6 +31,10 @@ class partially(Decorator):
     Required arguments are those that are not specified by keyword and do not
     have a default value.
     """
+)
+@atomically
+class partially(Decorator):
+    _doc_parser = True
 
     def __call__(self, *args, **kwargs) -> Any | Self:
         augmented_action = partial(self._action, *args, **kwargs)
@@ -84,9 +87,11 @@ class partially(Decorator):
         )
 
 
+@documenting_by(
+    """Decorator to mirror positional parameters without default value."""
+)
 @atomically
 class flipped(Decorator):
-    """Decorator to mirror positional parameters without default value."""
 
     def __call__(self, *args, **kwargs) -> R:
         return self._action(*args[::-1], **kwargs)
