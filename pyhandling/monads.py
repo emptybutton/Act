@@ -194,7 +194,7 @@ def future_from(
     return tmap(call, pointed(value).that(is_in_future).points)
 
 
-is_in_future: Callable[Special[contextually[Callable, Special[future]]], bool]
+is_in_future: LeftCallable[Special[contextually[Callable, Special[future]]], bool]
 is_in_future = documenting_by(
     """Function to check if an input value is a `in_future` deferred action."""
 )(

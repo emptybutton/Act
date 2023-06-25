@@ -19,7 +19,7 @@ __all__ = (
 
 with_error: LeftCallable[
     [Callable[Pm, R]],
-    Callable[Pm, contextual[Optional[R], Optional[Exception]]]
+    LeftCallable[Pm, contextual[Optional[R], Optional[Exception]]]
 ]
 with_error = documenting_by(
     """
@@ -39,7 +39,7 @@ with_error = documenting_by(
 @partially
 def catching(
     error_type_to_catch: Type[ErrorT],
-    action: Callable[[ErrorT], R],
+    action: Callable[ErrorT, R],
     error: ErrorT,
 ) -> R:
     """
@@ -55,7 +55,7 @@ def catching(
     return action(error)
 
 
-raising: Callable[Exception, LeftCallable[..., NoReturn]]
+raising: LeftCallable[Exception, LeftCallable[..., NoReturn]]
 raising = documenting_by(
     """
     Constructor of an action that raises an input error ignoring input

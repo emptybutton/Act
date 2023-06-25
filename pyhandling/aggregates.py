@@ -69,7 +69,7 @@ class Effect(LeftCallable, Generic[V, R, C]):
         ]] = None,
         /,
         **kwargs,
-    ) -> Self | Callable[Callable[Callable[V, R | C], Callable[C, C | M]], Self]:
+    ) -> Self | LeftCallable[Callable[Callable[V, R | C], Callable[C, C | M]], Self]:
         return (
             partial(Effect, **kwargs)
             if decorator is None
@@ -126,7 +126,7 @@ class Effect(LeftCallable, Generic[V, R, C]):
         )
 
 
-as_effect: Callable[
+as_effect: LeftCallable[
     Effect[V, R, C] | Callable[Callable[V, R], Callable[C, C]],
     Effect[V, R, C],
 ]
@@ -140,7 +140,7 @@ as_effect = documenting_by(
 )
 
 
-context_effect: Callable[
+context_effect: LeftCallable[
     Callable[Callable[V, R], Callable[C, C]],
     Effect[V, R, contextual[C, Any]],
 ]

@@ -35,7 +35,7 @@ iteration_over = documenting_by(
 
 infinite: LeftCallable[
     Callable[V, Special[Type[StopIteration], R]],
-    Callable[V, Optional[R]],
+    LeftCallable[V, Optional[R]],
 ]
 infinite = documenting_by(
     """Decorator function to return `None` instead of `StopIteration`."""

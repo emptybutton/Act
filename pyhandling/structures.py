@@ -56,7 +56,7 @@ __all__ = (
 frozendict: TypeAlias = MappingProxyType
 
 
-as_collection: Callable[[many_or_one[V]], Tuple[V]]
+as_collection: LeftCallable[[many_or_one[V]], Tuple[V]]
 as_collection = documenting_by(
     """
     Function to convert an input value into a tuple collection.
@@ -100,7 +100,7 @@ def flat(value: V | Iterable[Special[Iterable, V]]) -> Tuple[V]:
     return tuple(collection_with_opened_items)
 
 
-deep_flat: Callable[V | Special[Iterable, V], Tuple[V]]
+deep_flat: LeftCallable[V | Special[Iterable, V], Tuple[V]]
 deep_flat = documenting_by(
     """
     Function to expand all subcollections within an input collection while they
@@ -131,7 +131,7 @@ append = documenting_by(
 ))
 
 
-def without(*items: I) -> Callable[I | Iterable[I], Tuple[I]]:
+def without(*items: I) -> LeftCallable[I | Iterable[I], Tuple[I]]:
     """
     Function for an action that represents an input value as a `tuple` with no
     items passed to this function.
@@ -275,7 +275,9 @@ filled = contextualizing(flag_about("filled"))
 empty = contextualizing(flag_about("empty"))
 
 
-def marked_ranges_from(points: Iterable[int]) -> Tuple[range]:
+def marked_ranges_from(
+    points: Iterable[int],
+) -> Tuple[filled[range] | empty[range]]:
     """
     Function to create `ranges` from input numbers and `ranges` between them.
     """

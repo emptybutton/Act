@@ -235,7 +235,7 @@ def to_attribute(
     action: Callable[Optional[V], R],
     *,
     mutably: bool = False,
-) -> Callable[O, O]:
+) -> LeftCallable[O, O]:
     """
     Function to calculate an attribute of an input object.
 

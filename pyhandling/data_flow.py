@@ -9,9 +9,7 @@ from typing import (
 
 from pyannotating import Special
 
-from pyhandling.annotations import (
-    Pm, V, R, action_for, dirty, ArgumentsT, reformer_of
-)
+from pyhandling.annotations import Pm, V, R, dirty, ArgumentsT
 from pyhandling.atomization import atomically
 from pyhandling.errors import ReturningError, MatchingError
 from pyhandling.partiality import will, rpartial, flipped, partial
@@ -116,7 +114,7 @@ class eventually(Decorator):
         ))
 
 
-def with_result(result: R, action: Callable[Pm, Any]) -> Callable[Pm, R]:
+def with_result(result: R, action: Callable[Pm, Any]) -> LeftCallable[Pm, R]:
     """Function to force an input result for an input action."""
 
     return bind(action, to(result))
@@ -152,7 +150,7 @@ def dynamically(
     action: Callable[Pm, R],
     *argument_placeholders: Callable[Pm, Any],
     **keyword_argument_placeholders: Callable[Pm, Any],
-) -> action_for[R]:
+) -> LeftCallable[..., R]:
     """
     Function to dynamically determine arguments for an input action.
 
@@ -279,15 +277,15 @@ class PartialApplicationInfix(ABC):
     """
 
     @abstractmethod
-    def __or__(self, argument: Any) -> Callable:
+    def __or__(self, argument: Any) -> LeftCallable:
         ...
 
     @abstractmethod
-    def __ror__(self, action_to_transform: Callable) -> Self | Callable:
+    def __ror__(self, action_to_transform: Callable) -> Self | LeftCallable:
         ...
 
     @abstractmethod
-    def __mul__(self, arguments: Iterable) -> Callable:
+    def __mul__(self, arguments: Iterable) -> LeftCallable:
         ...
 
 
@@ -388,14 +386,20 @@ by = documenting_by(
 )
 
 
-shown: dirty[reformer_of[V]]
+shown: dirty[LeftCallable[V, V]]
 shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
     returnly(print)
 )
 
 
-yes: action_for[bool] = documenting_by("""Shortcut for `to(True)`.""")(to(True))
-no: action_for[bool] = documenting_by("""Shortcut for `to(False)`.""")(to(False))
+yes: LeftCallable[bool, bool] = documenting_by("""Shortcut for `to(True)`.""")(
+    to(True)
+)
+
+
+no: LeftCallable[bool, bool] = documenting_by("""Shortcut for `to(False)`.""")(
+    to(False)
+)
 
 
 class _ForceComparable:
@@ -557,7 +561,7 @@ break_ = object()
 
 def matching(
     *branches: tuple[Special[Callable[Pm, bool]], Special[Callable[Pm, R] | R]],
-) -> Callable[Pm, R]:
+) -> LeftCallable[Pm, R]:
     """
     Function for using action matching like `if`, `elif` and `else` statements.
 

@@ -361,7 +361,7 @@ def with_reduced_metacontext(
     return contexted(root, +pointed(meta_root.context))
 
 
-without_metacontext: Callable[[ContextRoot], contextual]
+without_metacontext: LeftCallable[ContextRoot, contextual]
 without_metacontext = documenting_by(
     """
     Function to fully glue nested `ContextRoot`s.
