@@ -151,7 +151,7 @@ def dynamically(
     action: Callable[Pm, R],
     *argument_placeholders: Callable[Pm, Any],
     **keyword_argument_placeholders: Callable[Pm, Any],
-) -> LeftCallable[..., R]:
+) -> LeftCallable[Pm, R]:
     """
     Function to dynamically determine arguments for an input action.
 
