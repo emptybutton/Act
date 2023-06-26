@@ -18,4 +18,4 @@ jobs:
           pip install -r requirements.txt
           pip install flake8
       - name: flake8
-        run: flake8 pyhandling --config .flake8
+        run: flake8 act --config .flake8
