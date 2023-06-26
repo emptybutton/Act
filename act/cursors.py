@@ -736,6 +736,11 @@ class _ActionCursor(Mapping):
         flipped(operator.contains) |then>> operator.not_,
         _OperationModel('not in', 8),
     )
+    contains = __merging_by(operator.contains, _OperationModel("contains", 8))
+    contains_no = __merging_by(
+        operator.contains |then>> operator.not_,
+        _OperationModel("contains no", 8),
+    )
     and_ = __merging_by(lambda a, b: a and b, _OperationModel('and', 9))
     or_ = __merging_by(lambda a, b: a or b, _OperationModel('or', 10))
 
