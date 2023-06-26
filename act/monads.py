@@ -1,7 +1,7 @@
 from operator import attrgetter, call, eq
 from typing import Callable, Any, Tuple, Optional
 
-from pyannotating import Special
+from pyannotating import Special, AnnotationTemplate, input_annotation
 
 from act.aggregates import context_effect
 from act.annotations import dirty, R, checker_of, event_for, A, B, V, FlagT, C
@@ -26,6 +26,7 @@ __all__ = (
     "bad",
     "maybe",
     "until_error",
+    "erroneous",
     "showly",
     "right",
     "left",
@@ -101,6 +102,11 @@ def until_error(
         return saving_context(action, value)
     except Exception as error:
         return contexted(value, +pointed(error))
+
+
+erroneous = AnnotationTemplate(contextual, [
+    input_annotation, Exception | Flag[Exception]
+])
 
 
 @dirty
