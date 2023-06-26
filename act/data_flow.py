@@ -27,6 +27,7 @@ __all__ = (
     "to_left",
     "to_right",
     "dynamically",
+    "fmt",
     "double",
     "once",
     "via_items",
@@ -171,6 +172,16 @@ def dynamically(
             for _, value in keyword_argument_placeholders.items()
         },
     )
+
+
+def fmt(
+    template: str,
+    *actions: Callable[Pm, Any],
+    **keyword_actions: Callable[Pm, Any],
+) -> LeftCallable[Pm, str]:
+    """Shortcut function for dynamic template formatting."""
+
+    return dynamically(template.format, *actions, **keyword_actions)
 
 
 @documenting_by(
