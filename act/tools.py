@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from operator import eq
-from typing import Generic, Callable, Any
+from typing import Generic, Callable, Any, Tuple
 
 from act.annotations import (
     V, dirty, reformer_of, checker_of, ActionT, action_for, Pm, R
@@ -14,6 +14,7 @@ __all__ = (
     "to_check",
     "as_action",
     "time_of",
+    "items_of",
 )
 
 
@@ -75,6 +76,12 @@ def time_of(action: Callable[[], Any]) -> timedelta:
     action()
 
     return datetime.now() - start
+
+
+def items_of(items: V | Tuple[V]) -> Tuple[V]:
+    """Function for structured getting inside indexer (`[]`)."""
+
+    return items if isinstance(items, tuple) else (items, )
 
 
 def _module_prefix_of(action: Callable) -> str:
