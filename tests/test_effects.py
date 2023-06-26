@@ -2,7 +2,7 @@ from typing import Mapping, Any
 
 from pytest import mark
 
-from act.aggregates import *
+from act.effects import *
 from act.partiality import partial
 from act.testing import case_of
 

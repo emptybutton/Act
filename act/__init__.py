@@ -1,4 +1,5 @@
 from act.aggregates import *
+from act.effects import *
 from act.annotations import *
 from act.arguments import *
 from act.atomization import *

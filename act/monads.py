@@ -3,7 +3,6 @@ from typing import Callable, Any, Tuple, Optional
 
 from pyannotating import Special, AnnotationTemplate, input_annotation
 
-from act.aggregates import context_effect
 from act.annotations import dirty, R, checker_of, event_for, A, B, V, FlagT, C
 from act.atomization import atomically
 from act.contexting import (
@@ -11,6 +10,7 @@ from act.contexting import (
     with_reduced_metacontext, contextualizing
 )
 from act.data_flow import returnly, by, to, matching, break_, and_via_items
+from act.effects import context_effect
 from act.flags import flag_about, nothing, Flag, pointed
 from act.objects import obj
 from act.operators import and_
