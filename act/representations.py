@@ -17,5 +17,11 @@ def code_like_repr_of(value: Any) -> str:
         return value.__name__
     elif isfunction(value) or isinstance(value, type):
         return value.__qualname__
+    elif isinstance(value, slice):
+        return "{}:{}{}".format(
+            str() if value.start is None else value.start,
+            str() if value.stop is None else value.stop,
+            str() if value.step in (None, 1) else f":{value.step}",
+        )
     else:
         return str(value)
