@@ -8,7 +8,10 @@ from act.testing import case_of
 
 
 @partial(mark.parametrize, "kwargs")([
-    dict(), dict(lift=str), dict(is_lifted=bool), dict(lift=str, is_lifted=bool)
+    dict(annotation_of=None),
+    dict(annotation_of=None, lift=str),
+    dict(annotation_of=None, is_lifted=bool),
+    dict(annotation_of=None, lift=str, is_lifted=bool),
 ])
 def test_effect_partiality(kwargs: Mapping[str, Any]):
     effect = Effect(**kwargs)
