@@ -9,15 +9,15 @@ from typing import (
 
 from pyannotating import Special
 
-from act.annotations import Pm, V, R, dirty, ArgumentsT
+from act.annotations import Pm, V, R, I, A, dirty, ArgumentsT
 from act.atomization import atomically
 from act.errors import ReturningError, MatchingError
-from act.partiality import will, rpartial, flipped, partial
+from act.partiality import will, rpartial, flipped, partial, partially
 from act.pipeline import bind, then
 from act.representations import code_like_repr_of
 from act.signatures import Decorator, call_signature_of
 from act.synonyms import returned, on
-from act.tools import documenting_by, LeftCallable
+from act.tools import documenting_by, LeftCallable, items_of
 
 
 __all__ = (
@@ -31,6 +31,7 @@ __all__ = (
     "double",
     "once",
     "via_items",
+    "and_via_items",
     "PartialApplicationInfix",
     "to",
     "by",
@@ -277,6 +278,27 @@ class via_items:
         arguments = key if isinstance(key, tuple) else (key, )
 
         return self._action(*arguments)
+
+
+@partially
+class and_via_items:
+    """Decorator to add action call action via indexer."""
+
+    def __init__(
+        self,
+        indexer: Callable[[..., I], A],
+        main_action: Callable[Pm, R],
+    ):
+        self._indexer = indexer
+        self._main_action = main_action
+
+        self.__signature__ = call_signature_of(main_action)
+
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
+        return self._main_action(*args, **kwargs)
+
+    def __getitem__(self, items: I | Tuple[I]) -> A:
+        return self._indexer(*items_of(items))
 
 
 class PartialApplicationInfix(ABC):
