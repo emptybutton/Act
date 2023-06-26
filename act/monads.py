@@ -55,8 +55,11 @@ bad = contextualizing(flag_about('bad', negative=True))
 @will
 def maybe(
     action: Callable[A, B],
-    value: contextual[Optional[A], Special[bad, FlagT]],
-) -> contextual[Optional[A | B], Special[bad, FlagT]]:
+    value: contextual[
+        Optional[A] | ContextRoot[V, Special[bad, Flag]],
+        Special[bad, FlagT],
+    ],
+) -> contextual[Optional[A | B | V], Special[bad, FlagT]]:
     stored_value, context = value
 
     if contexted(stored_value).context == bad:
@@ -87,8 +90,8 @@ def maybe(
 @will
 def until_error(
     action: Callable[A, B],
-    value: ContextRoot[A, Special[Exception | Flag[Exception] | C]],
-) -> contextual[A | B, Flag[Exception] | C]:
+    value: ContextRoot[A, Special[Exception | Flag[Exception], C]],
+) -> contextual[A | B, C | Flag[C | Exception]]:
     if pointed(value.context).that(isinstance |by| Exception) != nothing:
         return value
 
