@@ -1,10 +1,12 @@
 from dataclasses import dataclass
-from typing import TypeVar, Callable, Generic, Optional, Self, Final, Any
+from typing import (
+    TypeVar, Callable, Generic, Optional, Self, Final, Any, Union, Tuple
+)
 from operator import attrgetter
 
 from pyannotating import Special
 
-from act.annotations import V, R, C, M, reformer_of
+from act.annotations import V, R, C, M, I, A, reformer_of
 from act.atomization import atomically
 from act.pipeline import then
 from act.contexting import contexted, contextual
@@ -13,7 +15,7 @@ from act.operators import not_
 from act.partiality import partial
 from act.representations import code_like_repr_of
 from act.synonyms import on, returned
-from act.tools import documenting_by, LeftCallable
+from act.tools import documenting_by, LeftCallable, items_of
 
 
 __all__ = (
@@ -68,13 +70,23 @@ class Effect(LeftCallable, Generic[V, R, C]):
             Callable[C, C | M],
         ]] = None,
         /,
+        annotation_of: Optional[Callable[[..., I], A]] = None,
         **kwargs,
-    ) -> Self | LeftCallable[Callable[Callable[V, R | C], Callable[C, C | M]], Self]:
-        return (
-            partial(Effect, **kwargs)
-            if decorator is None
-            else super().__new__(cls)
-        )
+    ) -> Union[
+        Self,
+        LeftCallable[Callable[Callable[V, R | C], Callable[C, C | M]], Self],
+        "_AnotatableEffect[V, R, C, I, A]",
+    ]:
+        if annotation_of is not None and cls is not _AnotatableEffect:
+            return _AnotatableEffect(
+                decorator,
+                annotation_of=annotation_of,
+                **kwargs,
+            )
+        elif decorator is None:
+            return partial(Effect, annotation_of=annotation_of, **kwargs)
+        else:
+            return super().__new__(cls)
 
     def __init__(
         self,
@@ -83,6 +95,7 @@ class Effect(LeftCallable, Generic[V, R, C]):
         *,
         lift: Callable[V | M, C],
         is_lifted: Callable[V | M | C, bool],
+        annotation_of: None = None,
     ):
         self._decorator = decorator
         self._lift = lift
@@ -124,6 +137,23 @@ class Effect(LeftCallable, Generic[V, R, C]):
             lift=self._lift,
             is_lifted=self._is_lifted,
         )
+
+
+class _AnotatableEffect(Effect, Generic[V, R, C, I, A]):
+    def __init__(
+        self,
+        decorator: Callable[Callable[V, R], Callable[C, C | M]],
+        /,
+        *,
+        lift: Callable[V | M, C],
+        is_lifted: Callable[V | M | C, bool],
+        annotation_of: Optional[Callable[[..., I], A]] = None,
+    ):
+        super().__init__(decorator, lift=lift, is_lifted=is_lifted)
+        self._annotation_of = returned if annotation_of is None else annotation_of
+
+    def __getitem__(self, items: I | Tuple[I]) -> A:
+        return self._annotation_of(*items_of(items))
 
 
 as_effect: LeftCallable[
