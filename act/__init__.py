@@ -13,6 +13,7 @@ from act.iteration import *
 from act.logging import *
 from act.monads import *
 from act.objects import *
+from act.parameter_slicing import *
 from act.operators import *
 from act.partiality import *
 from act.pipeline import *
