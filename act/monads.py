@@ -50,7 +50,9 @@ bad = contextualizing(flag_about('bad', negative=True))
     Atomically applied to actions in `ActionChain`.
     """
 )
-@context_effect
+@context_effect(annotation_of=lambda v: (
+    Optional[v] | bad[Optional[v]]
+))
 @discretely
 @will
 def maybe(
