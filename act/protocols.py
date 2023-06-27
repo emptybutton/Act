@@ -83,7 +83,7 @@ def protocol_of(value: V) -> Protocol:
                 )
                 if "__dataclass_params__" in dict_of(value).keys()
                 else reduce(or_, reversed(tuple(map(dict_of, value.__mro__[:-1]))))
-            )
+            ) | dict(__module__="UNDEFINED")
         ))
         if isinstance(value, type)
         else runtime_checkable(type(
