@@ -13,7 +13,7 @@ from pyannotating import Special
 from act.annotations import merger_of, R, reformer_of, Pm, V, O
 from act.arguments import Arguments
 from act.contexting import contextual, to_read, saving_context
-from act.data_flow import by, to, to_left, returnly
+from act.data_flow import by, to, returnly
 from act.errors import ActionCursorError
 from act.flags import flag_about, Flag
 from act.monads import maybe
@@ -372,7 +372,7 @@ class _ActionCursor(Mapping):
         return cls(
             parameters=[parameter],
             actions=ActionChain([
-                to_read(to_left(operator.getitem |by| parameter.name))
+                to_read(lambda v, *_, **__: operator.getitem(v, parameter.name))
             ]),
             nature=contextual(_ActionCursorNature.returning),
             internal_repr=parameter.name,

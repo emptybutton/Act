@@ -12,7 +12,7 @@ from pyannotating import Special
 from act.annotations import Pm, V, R, I, A, dirty, ArgumentsT
 from act.atomization import atomically
 from act.errors import ReturningError, MatchingError
-from act.partiality import will, rpartial, flipped, partial, partially
+from act.partiality import will, rpartial, partial, partially
 from act.pipeline import bind, then
 from act.representations import code_like_repr_of
 from act.signatures import Decorator, call_signature_of
@@ -24,8 +24,6 @@ __all__ = (
     "returnly",
     "eventually",
     "with_result",
-    "to_left",
-    "to_right",
     "dynamically",
     "fmt",
     "double",
@@ -120,32 +118,6 @@ def with_result(result: R, action: Callable[Pm, Any]) -> LeftCallable[Pm, R]:
     """Function to force an input result for an input action."""
 
     return bind(action, to(result))
-
-
-@documenting_by(
-    """Decorator to ignore all arguments except the first."""
-)
-@atomically
-class to_left(Decorator):
-    def __call__(self, left_: V, *_, **__) -> R:
-        return self._action(left_)
-
-    @property
-    def _force_signature(self) -> Signature:
-        signature_ = call_signature_of(self._action)
-
-        return signature_.replace(parameters=[
-            tuple(signature_.parameters.values())[0],
-            *call_signature_of(lambda *_, **__: ...).parameters.values(),
-        ])
-
-
-to_right: LeftCallable[Callable[V, R], Callable[[..., V], R]]
-to_right = documenting_by(
-    """Decorator to ignore all arguments except the last."""
-)(
-    atomically(to_left |then>> flipped)
-)
 
 
 def dynamically(

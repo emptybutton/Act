@@ -58,16 +58,6 @@ test_with_result = case_of(
 )
 
 
-test_to_left = case_of(
-    (lambda: to_left(lambda v: v + 3)(5, ...), 8),
-)
-
-
-test_to_right = case_of(
-    (lambda: to_right(lambda v: v + 3)(..., 5), 8),
-)
-
-
 test_dynamically = case_of(
     (lambda: dynamically(truediv, add, sub)(5, 3), 4),
 )
