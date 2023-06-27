@@ -80,9 +80,9 @@ def test_once():
     assert action() is None
 
 
-test_via_items = case_of(
-    (lambda: via_items(lambda v: v + 3)[5], 8),
-    (lambda: via_items(truediv)[8, 2], 4),
+test_via_indexer = case_of(
+    (lambda: via_indexer(lambda v: v + 3)[5], 8),
+    (lambda: via_indexer(truediv)[8, 2], 4),
 )
 
 

@@ -28,8 +28,8 @@ __all__ = (
     "fmt",
     "double",
     "once",
-    "via_items",
-    "and_via_items",
+    "via_indexer",
+    "and_via_indexer",
     "PartialApplicationInfix",
     "to",
     "by",
@@ -233,7 +233,7 @@ class once:
     """
 )
 @atomically
-class via_items:
+class via_indexer:
     def __init__(
         self,
         action: Callable[[V], R] | Callable[[*ArgumentsT], R],
@@ -253,7 +253,7 @@ class via_items:
 
 
 @partially
-class and_via_items:
+class and_via_indexer:
     """Decorator to add action call action via indexer."""
 
     def __init__(

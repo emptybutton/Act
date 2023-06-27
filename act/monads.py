@@ -9,7 +9,7 @@ from act.contexting import (
     contextual, contextually, contexted, ContextRoot, saving_context,
     with_reduced_metacontext, contextualizing
 )
-from act.data_flow import returnly, by, to, matching, break_, and_via_items
+from act.data_flow import returnly, by, to, matching, break_, and_via_indexer
 from act.effects import context_effect
 from act.flags import flag_about, nothing, Flag, pointed
 from act.objects import obj
@@ -130,7 +130,7 @@ right = contextualizing(flag_about("right"))
 left = contextualizing(flag_about("left", negative=True))
 
 
-@and_via_items(lambda i: right[i] | left[i])
+@and_via_indexer(lambda i: right[i] | left[i])
 def either(
     *determinants_and_ways: tuple[
         Special[checker_of[C]],
