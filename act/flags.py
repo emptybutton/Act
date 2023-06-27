@@ -106,7 +106,7 @@ class Flag(ABC, Generic[P]):
 
     Flags indicating a value are binary by value. Nominal by their signs.
     ```
-    not_super = flag_about("not_super", sign=False)
+    not_super = flag_about("not_super", negative=True)
 
     bool(super_) is True
     bool(not_super) is False
@@ -134,7 +134,7 @@ class Flag(ABC, Generic[P]):
     Don't use the atomic form to get exactly a first flag. The flag sum does not
     guarantee the preservation of the sequence (although it still implements it).
     ```
-    atomic(pointed(1, 2, 3)) # pointed(1)
+    atomic(pointed(1, 2, 3))  # pointed(1)
     ```
 
     Flags can be represented in vector form via unary plus or minus and added
@@ -143,23 +143,23 @@ class Flag(ABC, Generic[P]):
     pointed(1) != +pointed(1)
     pointed(1) != -pointed(1)
 
-    (+pointed(3))(pointed(1, 2)) # pointed(1, 2, 3)
-    (-pointed(3))(pointed(1, 2, 3)) # pointed(1, 2)
-    (-pointed(1))(pointed(1)) # nothing
+    (+pointed(3))(pointed(1, 2))  # pointed(1, 2, 3)
+    (-pointed(3))(pointed(1, 2, 3))  # pointed(1, 2)
+    (-pointed(1))(pointed(1))  # nothing
     ```
 
     They also have unary plus and minus and a sum, which can be created with the
     `^` operator and inverted back to flag by `~` operator.
     ```
-    ++pointed(1) # +pointed(1)
-    --pointed(1) # +pointed(1)
+    ++pointed(1)  # +pointed(1)
+    --pointed(1)  # +pointed(1)
 
     ~+pointed(1) == pointed(1)
     ~-pointed(1) is nothing
 
-    (+pointed(2))(pointed(1)) # pointed(1, 2)
+    (+pointed(2))(pointed(1))  # pointed(1, 2)
 
-    (-pointed(2) ^ +pointed(3))(pointed(1, 2)) # pointed(1, 3)
+    (-pointed(2) ^ +pointed(3))(pointed(1, 2))  # pointed(1, 3)
     ```
 
     Flags also use `~` to come to themselves, which can be used with a `Union`
@@ -172,8 +172,8 @@ class Flag(ABC, Generic[P]):
 
     flag_or_vector = choice([pointed(1), +pointed(1)])
 
-    isinstance(~flag_or_vector, Flag) is True # Always
-    isinstance(+flag_or_vector, FlagVector) is True # Always
+    isinstance(~flag_or_vector, Flag) is True  # always
+    isinstance(+flag_or_vector, FlagVector) is True  # always
     ```
 
     Flags available for instance checking as a synonym for `instance` checking
