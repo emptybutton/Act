@@ -1,4 +1,3 @@
-from act.aggregates import *
 from act.effects import *
 from act.annotations import *
 from act.arguments import *
@@ -9,6 +8,7 @@ from act.data_flow import *
 from act.error_flow import *
 from act.error_storing import *
 from act.flags import *
+from act.aggregates import *
 from act.immutability import *
 from act.iteration import *
 from act.logging import *
