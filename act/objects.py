@@ -14,6 +14,7 @@ from act.contexting import (
     contextually, contexted, contextualizing, as_
 )
 from act.data_flow import mergely, by, returnly
+from act.errors import ObjectTemplateError
 from act.flags import flag_about, Flag
 from act.immutability import to_clone
 from act.partiality import partially, flipped
@@ -27,6 +28,7 @@ from act.tools import LeftCallable
 __all__ = (
     "as_method",
     "obj",
+    "temp",
     "dict_of",
     "of",
     "void",
@@ -50,6 +52,7 @@ class obj:
     Can be obtained union of an instance with any other object via `&`.
     """
 
+    _to_fill: ClassVar[Flag] = contextualizing(flag_about("to_fill"))
 
     def __new__(
         cls,
@@ -57,6 +60,11 @@ class obj:
         __call__: Optional[Callable[Concatenate[Self, Pm], R]] = None,
         **attributes: Special[as_method[Callable[[Self, Any], Any]] | _to_fill[Any]],
     ) -> "Special[_callable_obj[Pm, R] | temp, Self]":
+        if cls is not temp and any(
+            contexted(attr) == obj._to_fill for attr in attributes.values()
+        ):
+            return temp(__call__=__call__, **attributes)
+
         return (
             _callable_obj(__call__=__call__, **attributes)
             if __call__ is not None and cls is obj
@@ -89,10 +97,10 @@ class obj:
         return dict_of(self) == dict_of(other)
 
     def __and__(self, other: Special[Mapping]) -> Self:
-        return obj.of(self, other)
+        return self.__summing_by(other)(self, other)
 
     def __rand__(self, other: Special[Mapping]) -> Self:
-        return obj.of(other, self)
+        return self.__summing_by(other)(other, self)
 
     @to_clone
     def __add__(self, attr_name: str) -> Self:
@@ -120,6 +128,10 @@ class obj:
     def _field_repr_of(self, value: Any) -> str:
         return f"={code_like_repr_of(value)}"
 
+    @classmethod
+    def __summing_by(cls, value: Special["temp"]) -> Callable[..., Self]:
+        return (temp if cls is temp or type(value) is temp else obj).of
+
 
 class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
     """Variation of `obj` for callability."""
@@ -142,8 +154,74 @@ class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
         )
 
 
+class temp(obj, LeftCallable):
+    _filled: ClassVar[Flag] = contextualizing(flag_about("filled"))
 
+    def __init__(self, **attributes: Special[_filled[Any]]):
+        super().__init__(**{
+            _: (
+                value
+                if contexted(value).context == temp._filled
+                else as_(obj._to_fill, value)
+            )
+            for _, value in attributes.items()
+        })
 
+    def __repr__(self) -> str:
+        return super().__repr__() if dict_of(self) else f"{type(self).__name__}()"
+
+    def __call__(self, *attrs, **kwattrs) -> obj:
+        names_to_fill = tuple(
+            name
+            for name, value in self.__dict__.items()
+            if value.context == obj._to_fill
+        )
+
+        entered_values_count = len(attrs) + len(kwattrs.keys())
+
+        if len(names_to_fill) != entered_values_count:
+            raise ObjectTemplateError(
+                f"{len(names_to_fill)} values are needed to create an object"
+                f" from a template, {entered_values_count} are entered"
+            )
+
+        return obj.of(
+            {
+                name: kwattrs[name] if name in kwattrs.keys() else attrs[index]
+                for index, name in enumerate(names_to_fill)
+            }
+            | {
+                name: form.value
+                for name, form in self.__dict__.items()
+                if name not in names_to_fill
+            }
+        )
+
+    def __instancecheck__(self, instance: Any) -> bool:
+        return len(set(dict_of(self).keys()) - set(dict_of(instance).keys())) == 0
+
+    @classmethod
+    def of(cls, *objects: Special[Mapping]) -> Self:
+        return cls(**{
+            _: (
+                value
+                if contexted(value).context == obj._to_fill
+                else as_(temp._filled, value)
+            )
+            for _, value in reduce(or_, map(dict_of, objects)).items()
+        })
+
+    def _field_repr_of(self, value: Any) -> str:
+        stored_value, context = contexted(value)
+
+        if context is obj._to_fill:
+            return f": {code_like_repr_of(stored_value)}"
+        elif context == temp._filled:
+            return f"={code_like_repr_of(stored_value)}"
+        elif context == as_method:
+            return f"()={code_like_repr_of(stored_value)}"
+        else:
+            return f"={code_like_repr_of(value)}"
 
 
 def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:

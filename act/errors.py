@@ -7,6 +7,7 @@ __all__ = (
     "AtomizationError",
     "MatchingError",
     "TemplatedActionChainError",
+    "ObjectTemplateError",
     "ActionCursorError",
     "StructureError",
     "RangeConstructionError"
@@ -53,6 +54,7 @@ class TemplatedActionChainError(ActionChainError):
     __notes__ = ["Regular chain should not contain `Ellipsis`"]
 
 
+class ObjectTemplateError(ActError):
     ...
 
 

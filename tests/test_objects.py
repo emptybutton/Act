@@ -154,3 +154,69 @@ def test_to_attribute_with_mutability():
 test_to_attribute_without_attribute = case_of((
     lambda: to_attribute('b', lambda b: [b])(MockA(3)).b, [None]
 ))
+
+
+test_temp_creation = case_of(
+    (lambda: temp()().__dict__, dict()),
+    (lambda: temp(a=int)(4).__dict__, dict(a=4)),
+    (lambda: temp(a=int)(a=4).__dict__, dict(a=4)),
+    (lambda: temp(a=int, b=int)(4, 8).__dict__, dict(a=4, b=8)),
+    (lambda: temp(a=int, b=int)(a=4, b=8).__dict__, dict(a=4, b=8)),
+    (lambda: temp(a=int, b=int)(4, b=8).__dict__, dict(a=4, b=8)),
+    (
+        lambda: temp(a=int, b=int, c=int, d=int, e=int, f=int)(
+            1, 2, 3, 4, 5, 6
+        ).__dict__,
+        dict(a=1, b=2, c=3, d=4, e=5, f=6),
+    ),
+    (
+        lambda: temp(a=int, b=int, c=int, d=int, e=int, f=int)(
+            a=1, b=2, c=3, d=4, e=5, f=6
+        ).__dict__,
+        dict(a=1, b=2, c=3, d=4, e=5, f=6),
+    ),
+    (
+        lambda: temp(a=int, b=int, c=int, d=int, e=int, f=int)(
+            1, 2, 3, d=4, e=5, f=6
+        ).__dict__,
+        dict(a=1, b=2, c=3, d=4, e=5, f=6),
+    ),
+)
+
+
+test_temp_comprasion = case_of(
+    (lambda: temp() == temp(), True),
+    (lambda: temp(a=str) == temp(a=str), True),
+    (lambda: temp(a=str) == temp(a=int), False),
+    (lambda: temp(a=str, b=int) == temp(a=int, b=int), False),
+    (lambda: temp(a=int, b=int, c=int) == temp(a=int, b=int), False),
+    (lambda: temp(a=int, b=int) == temp(a=int, b=int, c=int), False),
+    (lambda: temp(a=int, b=int) == temp(), False),
+)
+
+
+test_temp_sum = case_of(
+    (lambda: temp(a=int) & temp() == temp(a=int), True),
+    (lambda: temp() & temp(b=str) == temp(b=str), True),
+    (lambda: temp(a=int) & temp(b=str) == temp(a=int, b=str), True),
+    (lambda: temp(a=int) & temp(b=str) == temp(a=int, b=str), True),
+    (
+        lambda: (
+            temp(a=int, b=int) & temp(a=float, c=int)
+            == temp(a=float, b=int, c=int)
+        ),
+        True,
+    ),
+)
+
+
+test_temp_with_values = case_of(
+    (lambda: (temp() & obj(a=1))().__dict__, dict(a=1)),
+    (lambda: (obj(a=1) & temp())().__dict__, dict(a=1)),
+    (lambda: temp(a=int) & obj() == temp(a=int), True),
+    (lambda: (temp(a=int) & obj(b=2))(1).__dict__, dict(a=1, b=2)),
+    (
+        lambda: (obj(a=1) & temp(b=int) & obj(c=3) & temp(d=int))(2, 4).__dict__,
+        dict(a=1, b=2, c=3, d=4),
+    ),
+)
