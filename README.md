@@ -244,6 +244,52 @@ main(-4)
 16 >= 0
 ```
 
+Interact with a pipeline in the same way as with a regular collection
+```py
+main = int |then>> str |then>> float |then>> int
+
+main[1] is str
+main[1:3] == str |then>> float
+
+len(main) == 4
+
+tuple(main) == (int, str, float, int)
+```
+
+...to decorate
+```py
+main = discretely(binding_by(... |then>> (v * 2)))  # there is no such >.<
+
+func = main(int |then>> str)  # int |then>> (v * 2) |then>> str |then>> (v * 2)
+func(10.1)  # 2020
+
+func = main(str)  # str |then>> (v * 2)
+func(1)  # 11
+```
+
+
+</br>
+
+> To remove secondary behavior of a pipeline or part of it, use `atomically`.
+> ```py
+> ...
+> 
+> # int |then>> (v * 2) |then>> atomically(str |then>> (v + '48.')) |then>> (v * 2)
+> func = main(int |then>> atomically(str |then>> (v + '48.')))
+> 
+> func('10')
+> ```
+> ```
+> 2048.2048.
+> ```
+
+> `bind` by default binds without secondary behavior.
+
+> To generate a fully atomic pipeline from a template, use the `atomic_binding_by` shortcut.
+
+</br>
+
+
 ### Partial application
 Memorize arguments
 ```py
@@ -343,7 +389,7 @@ something
 
 </br>
 
-> To get `True` or `False` in this way you can use `yes` and `no` respectively
+> To get `True` or `False` in this way you can use `yes` and `no` shortcuts.
 
 </br>
 
