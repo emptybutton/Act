@@ -1,10 +1,12 @@
 from functools import reduce, partial
 from operator import or_, attrgetter
-
 from typing import runtime_checkable, Protocol, Self, Callable
 
+from pyannotating import Special
+
 from act.annotations import P, V, Unia
-from act.immutability import to_clone, NotInitializable
+from act.data_flow import via_indexer
+from act.immutability import to_clone
 from act.objects import dict_of
 
 
@@ -56,14 +58,15 @@ class Protocolable(Protocol[P]):
     __protocol__: P
 
 
-class Proto(NotInitializable):
-    """
-    Annotation of input value protocol or annotation-like access to
-    `__protocol__` attribute.
-    """
+@via_indexer
+def Proto(value: Special[Protocolable[P]]) -> P:
+    """Annotation of input value protocol."""
 
-    def __class_getitem__(self, value: Protocolable[P]) -> P:
-        return value.__protocol__
+    return (
+        value.__protocol__
+        if isinstance(value, Protocolable)
+        else protocol_of(value)
+    )
 
 
 def protocol_of(value: V) -> Protocol:
