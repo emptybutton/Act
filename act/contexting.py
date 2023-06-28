@@ -170,6 +170,12 @@ class ContextualError(_BinaryContextualForm, Exception, Generic[ErrorT, C]):
         super().__init__(error, *contexts)
         Exception.__init__(self, repr(self))
 
+    def __repr__(self) -> str:
+        return f"ContextualError({super().__repr__()})"
+
+    def __str__(self) -> str:
+        return repr(self)
+
 
 def context_oriented(root_values: contextual_like[V, C]) -> contextual[C, V]:
     """
