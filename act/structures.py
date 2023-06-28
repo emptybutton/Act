@@ -11,7 +11,7 @@ from pyannotating import many_or_one, Special
 
 from act.annotations import V, M, K, checker_of, I, Unia
 from act.atomization import atomically
-from act.contexting import ContextForm, contexted, contextualizing, saving_context
+from act.contexting import ContextualForm, contexted, contextualizing, saving_context
 from act.data_flow import returnly, by
 from act.errors import RangeConstructionError, IndexingError
 from act.flags import flag_about
@@ -300,7 +300,7 @@ def marked_ranges_from(
 
 @partially
 def to_interval(
-    interval: Interval | ContextForm[Interval, empty | filled],
+    interval: Interval | ContextualForm[Interval, empty | filled],
     action: Callable[Tuple[V], Iterable[V]],
     values: Iterable[V],
 ) -> Tuple[V]:

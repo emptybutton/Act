@@ -6,7 +6,7 @@ from pyannotating import Special, AnnotationTemplate, input_annotation
 from act.annotations import dirty, R, checker_of, event_for, A, B, V, FlagT, C
 from act.atomization import atomically
 from act.contexting import (
-    contextual, contextually, contexted, ContextForm, saving_context,
+    contextual, contextually, contexted, ContextualForm, saving_context,
     with_reduced_metacontext, contextualizing
 )
 from act.data_flow import returnly, by, to, matching, break_, and_via_indexer
@@ -59,7 +59,7 @@ bad = contextualizing(flag_about('bad', negative=True))
 def maybe(
     action: Callable[A, B],
     value: contextual[
-        Optional[A] | ContextForm[V, Special[bad, Flag]],
+        Optional[A] | ContextualForm[V, Special[bad, Flag]],
         Special[bad, FlagT],
     ],
 ) -> contextual[Optional[A | B | V], Special[bad, FlagT]]:
@@ -93,7 +93,7 @@ def maybe(
 @will
 def until_error(
     action: Callable[A, B],
-    value: ContextForm[A, Special[Exception | Flag[Exception], C]],
+    value: ContextualForm[A, Special[Exception | Flag[Exception], C]],
 ) -> contextual[A | B, C | Flag[C | Exception]]:
     if pointed(value.context).that(isinstance |by| Exception) != nothing:
         return value
@@ -136,12 +136,12 @@ def either(
         Special[checker_of[C]],
         Special[break_, Callable[V, R] | R],
     ],
-) -> LeftCallable[V | ContextForm[V, C], contextual[R, C]]:
+) -> LeftCallable[V | ContextualForm[V, C], contextual[R, C]]:
     """
-    `matching`-like function for `ContextForm`s with determinants applied to
+    `matching`-like function for `ContextualForm`s with determinants applied to
     contexts and implementers applied to values.
 
-    Casts an input value to `ContextForm`.
+    Casts an input value to `ContextualForm`.
 
     For everything else see `matching`.
     """
@@ -165,7 +165,7 @@ future = contextualizing(flag_about("future"), to=contextually)
 @partially
 def in_future(
     action: Callable[V, R],
-    value: V | ContextForm[V, Flag[C] | C],
+    value: V | ContextualForm[V, Flag[C] | C],
 ) -> contextual[V, Flag[C | contextually[event_for[R], future]]]:
     """
     Decorator to delay the execution of an input action.
@@ -226,7 +226,7 @@ class do:
     Stopping is local to a single `do` action and the executed value is
     returned without the `do.return_` flag.
 
-    With a normal `do`, unflagged `ContextForm` value is unpacked.
+    With a normal `do`, unflagged `ContextualForm` value is unpacked.
     Use `do.in_form` to save the form.
     """
 
