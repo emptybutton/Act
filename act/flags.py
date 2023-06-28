@@ -600,7 +600,7 @@ class _CallableNamedFlag(_BaseNamedFlag, Generic[Pm, R]):
         return _CallableNamedFlag(
             self._name,
             negative=not self._sign,
-            action=action |then>> self._action
+            action=self._action |then>> action
         )
 
 
