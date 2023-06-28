@@ -2,6 +2,8 @@ from functools import reduce
 from operator import attrgetter, not_
 from typing import Callable, Generic, Iterable, Iterator, Self, Any, Tuple
 
+from pyannotating import Special
+
 from act.annotations import ActionT, R, Pm, V, A, B, C, D
 from act.atomization import atomically
 from act.errors import TemplatedActionChainError
@@ -117,6 +119,9 @@ class ActionChain(LeftCallable, Generic[ActionT]):
 
     def __bool__(self) -> bool:
         return bool(self._actions)
+
+    def __eq__(self, other: Special[Self]) -> bool:
+        return isinstance(other, ActionChain) and self._actions == other._actions
 
     def __getitem__(self, key: int | slice) -> Self:
         actions = self._actions[key]
