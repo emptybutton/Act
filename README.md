@@ -28,9 +28,9 @@ main = maybe(
 )
 
 
-main(dict())  # None when nothing
-main({True: 4})  # found 5 when nothing
-main({True: -4})  # -4 when bad
+main(dict())  # nothing None
+main({True: 4})  # nothing "found 5"
+main({True: -4})  # bad -4
 ```
 
 ### Features
@@ -746,11 +746,11 @@ gamma = flag_about("gamma")
 
 Create callable flags
 ```py
-alpha = flag_about("alpha").to(v**2)
+alpha = flag_about("alpha").to(v**2).to(-v)  # flag_about("alpha").to((v**2) |then>> (-v))
 alpha(4)
 ```
 ```
-16
+-16
 ```
 
 </br>
@@ -758,16 +758,6 @@ alpha(4)
 > Only named flags can be callable.
 
 </br>
-
-Add callable flags before actions
-```py
-beta = flag_about("beta").to(-v).to(shown)
-beta(4)
-```
-```
-4
--4
-```
 
 
 ### Contextualization
@@ -778,7 +768,7 @@ great = flag_about("great")
 contextual(4, great)
 ```
 ```
-4 when great
+great 4
 ```
 
 </br>
@@ -789,7 +779,7 @@ contextual(4, great)
 > great(4)
 > ```
 > ```
-> 4 when great
+> great 4
 > ```
 
 </br>
@@ -838,7 +828,7 @@ great(4).context is context is great
 > ```
 > ```
 > Traceback ...
-> act.contexting.ContextualError: ContextualError(>.< when from_domain)
+> act.contexting.ContextualError: ContextualError(from_domain Exception('>.<'))
 > ```
 
 > Flag contextualization also supports all of these forms
@@ -847,7 +837,7 @@ great(4).context is context is great
 > from_domain(Exception('>.<'))
 > ```
 > ```
-> ContextualError(>.< when from_domain)
+> ContextualError(from_domain Exception('>.<'))
 > ```
 
 </br>
