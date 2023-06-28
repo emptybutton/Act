@@ -221,6 +221,15 @@ def contextualizing(
     return contextualizing_flag
 
 
+def as_(
+    flag: Unia[FlagT, Callable[V, ContextForm[V, FlagT]]],
+    value: V | ContextForm[V, Special[FlagT, C]],
+) -> ContextForm[V, FlagT]:
+    """Function to represent an input value contextualized by an input flag."""
+
+    return value if contexted(value).context == flag else flag(value)
+
+
 @partially
 def saving_context(
     action: Callable[A, B],
