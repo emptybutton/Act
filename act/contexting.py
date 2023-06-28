@@ -94,7 +94,7 @@ class ContextRoot(ABC, Generic[V, C]):
     _context: C
 
     def __repr__(self) -> str:
-        return f"{self._repr_of(self._value)} when {self._repr_of(self._context)}"
+        return f"{self._repr_of(self._context)} {self._repr_of(self._value)}"
 
     def __eq__(self, other: Any) -> bool:
         if type(self) is not type(other):
