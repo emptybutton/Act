@@ -257,8 +257,8 @@ void = obj()  # Object without data
 
 @partially
 def like(
-    imitating: Any,
-    original: Any,
+    imitating: Special[V],
+    original: Special[V],
     *,
     _ids_of_found_values: Tuple[int] = tuple(),
 ) -> bool:

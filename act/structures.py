@@ -382,7 +382,7 @@ def indexed(items: Iterable[V], *indexes: int) -> Generator[Tuple[V], None, None
         yield tuple(items[current_index + index] for index in indexes)
 
 
-def map_table(mapped: Callable[[V], M], table: Mapping[K, V]) -> OrderedDict[K, M]:
+def map_table(mapped: Callable[V, M], table: Mapping[K, V]) -> OrderedDict[K, M]:
     """
     Function to map values of an input `Mapping` object by an input action.
 
