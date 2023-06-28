@@ -114,3 +114,8 @@ test_to_value_points = case_of((
     lambda: to_value_points(lambda p: p * 2)(instance | pointed(1, 2)).points,
     (instance, 2, 4),
 ))
+
+
+test_callable_flags = case_of(
+    (lambda: flag_about("n").to(lambda v: v / 2).to(lambda v: v + 1)(16), 9),
+)
