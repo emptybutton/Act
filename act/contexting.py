@@ -95,7 +95,10 @@ class ContextualForm(ABC, Generic[V, C]):
     _context: C
 
     def __repr__(self) -> str:
-        return f"{self._repr_of(self._context)} {self._repr_of(self._value)}"
+        return "{} {}".format(
+            self._context_repr_of(self._context),
+            code_like_repr_of(self._value),
+        )
 
     def __eq__(self, other: Any) -> bool:
         if type(self) is not type(other):
@@ -108,13 +111,10 @@ class ContextualForm(ABC, Generic[V, C]):
     def __iter__(self) -> Iterator:
         return iter((self._value, self._context))
 
-    def _repr_of(self, value: Special["contextual"]) -> str:
+    def _context_repr_of(self, value: Special["contextual"]) -> str:
         return (
             f"({code_like_repr_of(value)})"
-            if (
-                type(value) in (contextual, ContextualError)
-                and type(self) is type(value)
-            )
+            if type(value) is contextual
             else code_like_repr_of(value)
         )
 
@@ -295,7 +295,7 @@ def with_context_that(
     value: V | ContextualForm[V, P | Flag[P]],
 ) -> contextual[V, P | nothing]:
     """
-    Function for transform `ContextForm` with context filtered by input
+    Function for transform `ContextualForm` with context filtered by input
     checker.
 
     When a context is `Flag`, the resulting context will be filtered by any of
