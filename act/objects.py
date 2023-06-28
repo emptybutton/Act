@@ -124,7 +124,6 @@ class obj:
 class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
     """Variation of `obj` for callability."""
 
-        self.__signature__ = call_signature_of(__call__)
     def __init__(
         self,
         *,
@@ -134,7 +133,14 @@ class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self.__call__(*args, **kwargs)
+
+    def __getattribute__(self, attr_name: str) -> Any:
         return (
+            call_signature_of(self.__call__)
+            if attr_name == "__signature__"
+            else super().__getattribute__(attr_name)
+        )
+
 
 
 
