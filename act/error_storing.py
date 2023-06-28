@@ -3,7 +3,7 @@ from typing import Union, runtime_checkable, Protocol, Self, Tuple, Iterable
 from pyannotating import AnnotationTemplate, input_annotation
 
 from act.annotations import ErrorT
-from act.errors import PyhandingError
+from act.errors import ActError
 from act.structures import flat
 
 
@@ -16,7 +16,7 @@ __all__ = (
 )
 
 
-class MechanicalError(PyhandingError):
+class MechanicalError(ActError):
     pass
 
 
