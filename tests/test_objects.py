@@ -49,13 +49,12 @@ test_callable_obj = case_of(
     (lambda: callable(obj(a=1, b=2)), False),
     (lambda: callable(obj(a=1, __call__=lambda _: ...)), True),
     (lambda: obj(action=partial(add, 10)).action(6), 16),
-    (lambda: obj(some=5, __call__=lambda o: o.some + 3)(), 8),
-    (lambda: obj(some=2, __call__=lambda o, v: o.some + 3 + v)(3), 8),
+    (lambda: obj(_=1, __call__=lambda v: v + 5)(3), 8),
 )
 
 
 test_obj_with_method = case_of(
-    (lambda: obj(value=5, method=method_of(lambda o, v: o.value + v)).method(3), 8)
+    (lambda: obj(value=5, method=as_method(lambda o, v: o.value + v)).method(3), 8)
 )
 
 
