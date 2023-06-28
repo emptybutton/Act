@@ -4,14 +4,16 @@ from operator import or_
 from types import MethodType
 from typing import (
     Mapping, Callable, Self, Generic, Concatenate, Any, Optional, ClassVar,
-    Tuple
+    Tuple, Type, Final
 )
 from sys import getrecursionlimit, setrecursionlimit
 
 from pyannotating import Special
 
 from act.annotations import K, V, Pm, R, O
-from act.contexting import contextually, contexted, ContextRoot, contextualizing
+from act.contexting import (
+    contextually, contexted, contextualizing, as_
+)
 from act.data_flow import mergely, by, returnly
 from act.flags import flag_about, Flag
 from act.immutability import to_clone
@@ -24,8 +26,8 @@ from act.tools import LeftCallable
 
 
 __all__ = (
+    "as_method",
     "obj",
-    "method_of",
     "dict_of",
     "of",
     "void",
@@ -51,6 +53,9 @@ def _with_recurion_limit(
     return result
 
 
+as_method = contextualizing(flag_about("as_method"), to=contextually)
+
+
 class obj:
     """
     Constructor for objects that do not have a common structure.
@@ -63,37 +68,33 @@ class obj:
     Can be obtained union of an instance with any other object via `&`.
     """
 
-    plugin: ClassVar[Flag] = contextualizing(flag_about("obj_plugin"))
 
     def __new__(
         cls,
+        *,
         __call__: Optional[Callable[Concatenate[Self, Pm], R]] = None,
-        **attributes: Special[ContextRoot[Callable[[Self, Any], Any], plugin]],
-    ) -> "Special[_callable_obj[Pm, R], Self]":
+        **attributes: Special[as_method[Callable[[Self, Any], Any]] | _to_fill[Any]],
+    ) -> "Special[_callable_obj[Pm, R] | temp, Self]":
         return (
             _callable_obj(__call__=__call__, **attributes)
-            if __call__ is not None
+            if __call__ is not None and cls is obj
             else super().__new__(cls)
         )
 
-    def __init__(
-        self,
-        **attributes: Special[ContextRoot[Callable[[Self, str], Any], plugin]],
-    ):
-        self.__dict__ = {
-            key: (
-                contextually(*attr)(self, key)
-                if contexted(attr).context == obj.plugin
-                else attr
-            )
-            for key, attr in attributes.items()
-        }
+    def __init__(self, **attributes: Special[as_method[Callable[Self, Any]]]):
+        self.__dict__ = attributes
 
     def __repr__(self) -> str:
         return "<{}>".format(', '.join(
             f"{name}={self.__repr_of(value)}"
             for name, value in self.__dict__.items()
         ))
+
+    def __getattribute__(self, attr_name: str) -> Any:
+        value = object.__getattribute__(self, attr_name)
+        action, context = contexted(value)
+
+        return MethodType(action, self) if context == as_method else value
 
     @staticmethod
     def __repr_of(value: Any) -> str:
@@ -138,29 +139,20 @@ class obj:
 class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
     """Variation of `obj` for callability."""
 
-    def __new__(cls, *args, **kwargs) -> Self:
-        return object.__new__(cls)
-
-    def __init__(self, __call__: Callable[Concatenate[Self, Pm], R], **attributes):
-        super().__init__(**attributes)
-        self.__call__ = __call__
         self.__signature__ = call_signature_of(__call__)
+    def __init__(
+        self,
+        *,
+        __call__: Callable[Concatenate[Self, Pm], R], **attributes,
+    ):
+        super().__init__(**attributes | dict(__call__=__call__))
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
+        return self.__call__(*args, **kwargs)
         return (
-            self.__call__
-            if isinstance(self.__call__, staticmethod)
-            else partial(self.__call__, self)
-        )(*args, **kwargs)
 
 
-def method_of(method: Callable[[obj, ...], Any]) -> contextually[
-    Callable[[Any, Any], MethodType],
-    obj.plugin,
-]:
-    """Constructor for `obj` plugin that adds an input method to it."""
 
-    return contextually(lambda object_, _: MethodType(method, object_), obj.plugin)
 
 
 def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
