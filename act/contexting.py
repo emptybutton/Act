@@ -169,9 +169,6 @@ class ContextualError(Exception, _BinaryContextRoot, Generic[ErrorT, C]):
         _BinaryContextRoot.__init__(self, error, *contexts)
         super().__init__(repr(self))
 
-    def __repr__(self) -> str:
-        return f"ContextualError({ContextRoot.__repr__(self)})"
-
 
 def context_oriented(root_values: contextual_like[V, C]) -> contextual[C, V]:
     """
