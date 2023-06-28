@@ -4,9 +4,8 @@ from operator import or_
 from types import MethodType
 from typing import (
     Mapping, Callable, Self, Generic, Concatenate, Any, Optional, ClassVar,
-    Tuple, Type, Final
+    Tuple
 )
-from sys import getrecursionlimit, setrecursionlimit
 
 from pyannotating import Special
 
@@ -17,7 +16,7 @@ from act.contexting import (
 from act.data_flow import mergely, by, returnly
 from act.flags import flag_about, Flag
 from act.immutability import to_clone
-from act.partiality import partially, flipped, partial
+from act.partiality import partially, flipped
 from act.pipeline import then
 from act.representations import code_like_repr_of
 from act.synonyms import on, returned
@@ -34,23 +33,6 @@ __all__ = (
     "like",
     "to_attribute",
 )
-
-
-def _with_recurion_limit(
-    limit: int,
-    action: Callable[Pm, R],
-    *args: Pm.args,
-    **kwargs: Pm.kwargs,
-) -> R:
-    """Decorator function to set a local recursion limit to a single action."""
-
-    old_limit = getrecursionlimit()
-
-    setrecursionlimit(limit)
-    result = action(*args, **kwargs)
-    setrecursionlimit(old_limit)
-
-    return result
 
 
 as_method = contextualizing(flag_about("as_method"), to=contextually)
@@ -86,7 +68,7 @@ class obj:
 
     def __repr__(self) -> str:
         return "<{}>".format(', '.join(
-            f"{name}={self.__repr_of(value)}"
+            f"{name}{self._field_repr_of('<...>' if value is self else value)}"
             for name, value in self.__dict__.items()
         ))
 
@@ -99,7 +81,7 @@ class obj:
     @staticmethod
     def __repr_of(value: Any) -> str:
         try:
-            return _with_recurion_limit(20, code_like_repr_of, value)
+            return code_like_repr_of(value)
         except RecursionError:
             return '...'
 
@@ -134,6 +116,9 @@ class obj:
         """
 
         return obj(**reduce(or_, map(dict_of, objects)))
+
+    def _field_repr_of(self, value: Any) -> str:
+        return f"={code_like_repr_of(value)}"
 
 
 class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
