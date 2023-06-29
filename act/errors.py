@@ -10,7 +10,7 @@ __all__ = (
     "ObjectTemplateError",
     "ActionCursorError",
     "StructureError",
-    "RangeConstructionError"
+    "RangeConstructionError",
 )
 
 
