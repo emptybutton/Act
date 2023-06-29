@@ -1,10 +1,10 @@
 from operator import not_
-from typing import Callable, Any, Iterable, Container
+from typing import Callable, Any, Iterable, Container, Union as typing_union
 
 from pytest import mark, raises
 
 from act.annotations import *
-from act.errors import UniaError
+from act.errors import UnionError
 from act.objects import obj
 from act.testing import case_of
 
@@ -45,7 +45,7 @@ test_unia_creation_with_annotations = case_of(
 
 
 def test_unia_creation_without_annotations():
-    with raises(UniaError):
+    with raises(UnionError):
         Unia()
 
 
