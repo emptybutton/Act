@@ -86,6 +86,12 @@ class _Arbitrary(ABC):
     def __rand__(self, other: Special[Mapping]) -> Self:
         return obj.of(other, self)
 
+    def __or__(self, other: Any):
+        return Union[self, other]
+
+    def __ror__(self, other: Any):
+        return Union[other, self]
+
     @staticmethod
     @abstractmethod
     def _for_setting(value: Any) -> Any:
