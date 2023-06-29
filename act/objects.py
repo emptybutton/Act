@@ -30,6 +30,7 @@ __all__ = (
     "obj",
     "temp",
     "dict_of",
+    "hash_of",
     "of",
     "void",
     "like",
@@ -238,6 +239,12 @@ def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
         return dict(**value)
     else:
         return dict()
+
+
+def hash_of(value: Any) -> int:
+    """Function to get hash of any object."""
+
+    return hash(value) if hasattr(value, "__hash__") else id(value)
 
 
 @partially
