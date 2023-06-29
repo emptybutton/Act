@@ -338,6 +338,11 @@ class Unia:
             isinstance(instance, annotation) for annotation in self._annotations
         )
 
+    def __subclasscheck__(self, type_: type) -> bool:
+        return all(
+            issubclass(type_, annotation) for annotation in self._annotations
+        )
+
     @staticmethod
     def _annotations_from(annotations: Tuple[Special[Self]]) -> tuple:
         result_annotations = list()
