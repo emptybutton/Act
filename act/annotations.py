@@ -1,15 +1,17 @@
 from functools import reduce
 from operator import attrgetter
+from types import UnionType
 from typing import (
     Callable, Any, TypeAlias, TypeVar, ParamSpec, TypeVarTuple, Iterable,
-    Tuple, Self, Union, _CallableGenericAlias, _CallableType
+    Tuple, Self, Union as typing_union, _CallableGenericAlias, _CallableType,
+    _UnionGenericAlias
 )
 
 from pyannotating import (
     FormalAnnotation, AnnotationTemplate, input_annotation, Special
 )
 
-from act.errors import UniaError
+from act.errors import UnionError
 from act.representations import code_like_repr_of
 
 
@@ -65,6 +67,7 @@ __all__ = (
     "pure",
     "action_of",
     "Unia",
+    "Union",
 )
 
 
@@ -230,6 +233,9 @@ pure = CallableFormalAnnotation(
 )
 
 
+_AnnotationsT: TypeAlias = list | tuple
+
+
 class _CallableConstructor:
     """
     Class for generating a ceoidal `Callable` annotation from unconstrained
@@ -307,7 +313,7 @@ class Unia:
         if len(annotations) == 1:
             return annotations[0]
         elif len(annotations) == 0:
-            raise UniaError("Unia without annotations")
+            raise UnionError("Unia without annotations")
         else:
             return super().__new__(cls)
 
@@ -363,4 +369,48 @@ class Unia:
         return tuple(result_annotations)
 
 
-_AnnotationsT: TypeAlias = list | tuple
+class Union:
+    __args__ = property(attrgetter("_annotations"))
+
+    def __new__(cls, *annotations: Special[Self], **kwargs) -> Self:
+        if len(annotations) == 1:
+            return annotations[0]
+        elif len(annotations) == 0:
+            raise UnionError("ValueUnion without annotations")
+        else:
+            return super().__new__(cls)
+
+    def __init__(self, *annotations):
+        self._annotations = sum(
+            tuple(map(self._annotation_of, annotations)), tuple()
+        )
+
+    def __repr__(self) -> str:
+        return ' | '.join(map(code_like_repr_of, self._annotations))
+
+    def __class_getitem__(cls, annotations: Special[tuple]) -> Self:
+        return cls(*(
+            annotations
+            if isinstance(annotations, tuple)
+            else (annotations, )
+        ))
+
+    def __instancecheck__(self, instance) -> bool:
+        return self._annotations and any(
+            isinstance(instance, annotation)
+            for annotation in self._annotations
+        )
+
+    def __or__(self, other: Any) -> Self:
+        return type(self)(self, other)
+
+    def __ror__(self, other: Any) -> Self:
+        return type(self)(other, self)
+
+    @staticmethod
+    def _annotation_of(annotation: Any) -> tuple:
+        return (
+            annotation.__args__
+            if isinstance(annotation, Union | UnionType | _UnionGenericAlias)
+            else (annotation, )
+        )

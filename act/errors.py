@@ -2,7 +2,7 @@ __all__ = (
     "ActError",
     "ArgumentError",
     "ReturningError",
-    "UniaError",
+    "UnionError",
     "InvalidInitializationError",
     "AtomizationError",
     "MatchingError",
@@ -30,7 +30,7 @@ class ReturningError(ActError):
     ...
 
 
-class UniaError(ActError):
+class UnionError(ActError):
     ...
 
 
