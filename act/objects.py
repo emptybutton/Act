@@ -209,6 +209,16 @@ class temp(_Arbitrary, LeftCallable):
     def __repr__(self) -> str:
         return super().__repr__() if dict_of(self) else f"{type(self).__name__}()"
 
+    def __getattribute__(self, name: str) -> Any:
+        attr = object.__getattribute__(self, name)
+
+        if contexted(attr).context == _filled:
+            return attr.value
+        elif contexted(attr).context == _to_fill:
+            raise ObjectTemplateError("getting a template attribute")
+        else:
+            return attr
+
     def __call__(self, *attrs, **kwattrs) -> obj:
         names_to_fill = tuple(
             name
