@@ -77,6 +77,10 @@ class contextual_like(NotInitializable):
     def __instancecheck__(cls, instance: Any) -> bool:
         return isinstance(instance, Iterable) and len(tuple(instance)) == 2
 
+    @classmethod
+    def __subclasscheck__(cls, type_: type) -> bool:
+        return issubclass(type_, Iterable)
+
 
 class ContextualForm(ABC, Generic[V, C]):
     """
