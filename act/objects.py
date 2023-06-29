@@ -51,6 +51,9 @@ class _Arbitrary(ABC):
             for _, attr in attributes.items()
         }
 
+    @abstractmethod
+    def __instancecheck__(self, instance: Any) -> bool:
+        ...
 
     def __repr__(self) -> str:
         return "<{}>".format(', '.join(
@@ -151,6 +154,11 @@ class obj(_Arbitrary):
             else super().__new__(cls)
         )
 
+    def __instancecheck__(self, instance: Any) -> bool:
+        return all(
+            hasattr(instance, name) and getattr(instance, name) == attr
+            for name, attr in dict_of(self).items()
+        )
 
     @staticmethod
     def _for_setting(value: V) -> V:
