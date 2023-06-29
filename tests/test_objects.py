@@ -39,6 +39,7 @@ test_obj_sum = case_of(
     ),
     (lambda: obj(a=1) & obj(), obj(a=1)),
     (lambda: obj(a=1) & obj(b=2), obj(a=1, b=2)),
+    (lambda: obj(a=1) & obj(b=2), obj(b=2, a=1)),
     (lambda: obj(a=1) & obj(a=2), obj(a=2)),
     (lambda: obj(a=1) & MockB(2), obj(a=1, b=2)),
     (lambda: MockA(1) & obj(b=2), obj(a=1, b=2)),
