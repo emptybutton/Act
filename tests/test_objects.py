@@ -199,7 +199,7 @@ test_temp_sum = case_of(
     (lambda: temp(a=int) & temp() == temp(a=int), True),
     (lambda: temp() & temp(b=str) == temp(b=str), True),
     (lambda: temp(a=int) & temp(b=str) == temp(a=int, b=str), True),
-    (lambda: temp(a=int) & temp(b=str) == temp(a=int, b=str), True),
+    (lambda: temp(b=str) & temp(a=int) == temp(a=int, b=str), True),
     (
         lambda: (
             temp(a=int, b=int) & temp(a=float, c=int)
@@ -211,12 +211,12 @@ test_temp_sum = case_of(
 
 
 test_temp_with_values = case_of(
-    (lambda: (temp() & obj(a=1))().__dict__, dict(a=1)),
-    (lambda: (obj(a=1) & temp())().__dict__, dict(a=1)),
+    (lambda: obj(a=1) & temp(), obj(a=1)),
+    (lambda: temp() & obj(a=1), obj(a=1)),
     (lambda: temp(a=int) & obj() == temp(a=int), True),
-    (lambda: (temp(a=int) & obj(b=2))(1).__dict__, dict(a=1, b=2)),
+    (lambda: (temp(a=int) & obj(b=2))(1), obj(a=1, b=2)),
     (
-        lambda: (obj(a=1) & temp(b=int) & obj(c=3) & temp(d=int))(2, 4).__dict__,
-        dict(a=1, b=2, c=3, d=4),
+        lambda: (obj(a=1) & temp(b=int) & obj(c=3) & temp(d=int))(2, 4),
+        obj(a=1, b=2, c=3, d=4),
     ),
 )
