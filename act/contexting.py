@@ -2,7 +2,7 @@ from abc import ABC
 from operator import not_, methodcaller, attrgetter
 from typing import (
     Generic, Any, Iterator, Callable, Iterable, GenericAlias, Optional, Self,
-    TypeVar
+    TypeVar, Final
 )
 
 from pyannotating import Special
@@ -11,7 +11,9 @@ from act.annotations import (
     ActionT, ErrorT, P, Pm, checker_of, A, B, C, V, R, W, D, S, Unia, FlagT
 )
 from act.atomization import atomically
-from act.flags import nothing, Flag, pointed, _NamedFlag, _CallableNamedFlag
+from act.flags import (
+    nothing, Flag, pointed, flag_about, _NamedFlag, _CallableNamedFlag
+)
 from act.immutability import NotInitializable
 from act.partiality import partially, will, rpartial
 from act.pipeline import then
@@ -190,9 +192,12 @@ def context_oriented(root_values: contextual_like[V, C]) -> contextual[C, V]:
     return contextual(*reversed(tuple(root_values)))
 
 
+_NO_VALUE: Final[Flag] = flag_about("_NO_VALUE")
+
+
 def contexted(
     value: V | ContextualForm[V, D],
-    when: Optional[C | Callable[D, C]] = None,
+    when: C | Callable[D, C] | _NO_VALUE = _NO_VALUE,
 ) -> ContextualForm[V, D | C]:
     """
     Function to represent an input value in `contextual` form if it is not
@@ -208,7 +213,7 @@ def contexted(
 
     if callable(when) and not isinstance(when, Flag):
         context = when(context)
-    elif when is not None:
+    elif when is not _NO_VALUE:
         context = when
 
     return contextual(value, context)
