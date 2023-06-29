@@ -65,7 +65,7 @@ main(10, 6)
 
 </br>
 
-With currying
+...with currying
 ```py
 main = a + b + c + d  # lambda a, b, c, d: a + b + c + d without curry >.<
 main(1)()()(2, 3)()()(4)
@@ -152,8 +152,8 @@ values = [1, 2, 3]
 with_a = WithA(...)
 
 main(with_a, values, 8)  # [1, -8, 3]
-with_a.a  # [1, -8, 3]
 values  # [1, -8, 3]
+with_a.a  # [1, -8, 3]
 ```
 
 ...and via a function
@@ -179,8 +179,10 @@ v.contains_no(w)  # lambda v, w: w not in v
 
 </br>
 
-> Operators are executed in the order in which they are nested and such a function will always return `False`:
-> </br> `v.contains(4).or_(w.contains(4)).and_(False)`
+> Operators are executed in the order in which they are nested.
+> ```py
+> v.contains(4).or_(w.contains(4)).and_(False)  # always `False`
+> ```
 
 ### Pipeline
 Combine calls together
@@ -208,7 +210,7 @@ Execute Instantly
 
 Insert functions into templates
 ```py
-main = binding_by(int |then>> ... |then>> str |then>> (l + '!'))
+main = binding_by(int |then>> ... |then>> str |then>> (l + '!'))  # lambda f: int |then>> f |then>> str |then>> (l + '!')
 
 func = main(v + 3)  # int |then>> (v + 3) |then>> str |then>> (l + '!')
 func('5')
@@ -246,14 +248,13 @@ main(-4)
 
 Interact with a pipeline in the same way as with a regular collection
 ```py
-main = int |then>> str |then>> float |then>> int
+main = int |then>> str |then>> float |then>> int  # lambda v: int(float(str(int(v))))
 
-main[1] is str
-main[1:3] == str |then>> float
+tuple(main)  # (int, str, float, int)
+len(main)  # 4
 
-len(main) == 4
-
-tuple(main) == (int, str, float, int)
+main[1]  # str
+main[1:3]  # str |then>> float
 ```
 
 ...to decorate
@@ -274,8 +275,8 @@ func(1)  # 11
 > ```py
 > ...
 > 
-> # int |then>> (v * 2) |then>> atomically(str |then>> (v + '48.')) |then>> (v * 2)
 > func = main(int |then>> atomically(str |then>> (v + '48.')))
+> # int |then>> (v * 2) |then>> atomically(str |then>> (v + '48.')) |then>> (v * 2)
 > 
 > func('10')
 > ```
@@ -285,7 +286,7 @@ func(1)  # 11
 
 > `bind` by default binds without secondary behavior.
 
-> To generate a fully atomic pipeline from a template, use the `atomic_binding_by` shortcut.
+> To generate a pipeline without secondary behavior from a template, use the `atomic_binding_by` shortcut.
 
 </br>
 
@@ -356,7 +357,7 @@ func(0, 1, d=3)(2)  # (0, 1, 2, 3)
 
 </br>
 
-> `TypeVar`s of one letter are already present in the library, so you do not need to create them
+> `TypeVar`s of one letter are already present in the library, so you do not need to create them.
 
 </br>
 
@@ -877,7 +878,7 @@ great(4).context is context is great
 > act.contexting.ContextualError: ContextualError(from_domain Exception('>.<'))
 > ```
 
-> Flag contextualization also supports all of these forms
+> Flag contextualization also supports all of these forms.
 > ```py
 > from_domain = contextualizing(flag_about("from_domain"), to=ContextualError)
 > from_domain(Exception('>.<'))
@@ -886,4 +887,4 @@ great(4).context is context is great
 > ContextualError(from_domain Exception('>.<'))
 > ```
 
-</br>
+
