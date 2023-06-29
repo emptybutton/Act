@@ -219,6 +219,11 @@ class temp(_Arbitrary, LeftCallable):
         else:
             return attr
 
+    def __setattr__(self, name: str, value: Any) -> None:
+        partial(super().__setattr__, name)(
+            value if name == "__dict__" else temp._unit_of(value)
+        )
+
     def __call__(self, *attrs, **kwattrs) -> obj:
         names_to_fill = tuple(
             name
