@@ -1,5 +1,5 @@
 from operator import not_
-from typing import Callable, Any, Iterable, Container
+from typing import Callable, Any, Iterable, Container, Union as typing_union
 
 from pytest import mark, raises
 
