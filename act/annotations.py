@@ -1,3 +1,4 @@
+from functools import reduce
 from operator import attrgetter
 from typing import (
     Callable, Any, TypeAlias, TypeVar, ParamSpec, TypeVarTuple, Iterable,
@@ -153,7 +154,7 @@ class CommentAnnotation:
         )
 
     def __hash__(self) -> int:
-        return hash(self._name) + hash(self._args)
+        return hash(type(self)) + hash(self._name) + hash(self._args)
 
     def __eq__(self, other: Special[Self]) -> bool:
         return (
@@ -321,6 +322,12 @@ class Unia:
                 else str(annotation)
             )
             for annotation in self._annotations
+        )
+
+    def __hash__(self) -> int:
+        return reduce(
+            lambda sum_, a: sum_ + (hash(a) if hasattr(a, "__hash__") else id(a)),
+            [hash(type(self)), *self._annotations],
         )
 
     def __class_getitem__(cls, annotation_or_annotations: Special[tuple]) -> Self:
