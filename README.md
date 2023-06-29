@@ -144,6 +144,16 @@ main(WithA(...), [1, 2, 3], 8)
 [1, -8, 3]
 ```
 
+</br>
+
+> Item setting supports `tuple`.
+> ```py
+> main = t[1].set(8)  # there is no such >.<
+> main((1, 2, 3))  # (1, 8, 2)
+> ```
+
+</br>
+
 ...with side effects
 ```py
 main = v.a.set(w[1].set(-x, mutably=True), mutably=True).a  # there is no such >.<
@@ -818,6 +828,18 @@ contextual(4, great)
 great 4
 ```
 
+...nested
+```py
+...
+
+very = flag_about("very")
+
+contextual(4, great, very)
+```
+```
+very great 4
+```
+
 </br>
 
 > If you describe by a flag you can make it callable on that contextualization
@@ -827,6 +849,12 @@ great 4
 > ```
 > ```
 > great 4
+> ```
+
+> To declare contextualization use the `as_` function.
+> ```py
+> as_(great, 4)  # great 4
+> as_(great, great(4))  # great 4
 > ```
 
 </br>
@@ -887,4 +915,21 @@ great(4).context is context is great
 > ContextualError(from_domain Exception('>.<'))
 > ```
 
+</br>
 
+
+Declorate contextualization
+```py
+...
+
+perfect = contextualizing(flag_about("perfect"))
+
+contexted(4)  # nothing 4
+contexted(perfect(4))  # perfect 4
+
+contexted(4, perfect)  # perfect 4
+contexted(great(4), perfect)  # perfect 4
+
+contexted(great(4), +perfect)  # great | perfect 4
+contexted(great(4), -great)  # nothing 4
+```
