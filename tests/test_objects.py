@@ -46,6 +46,71 @@ test_obj_sum = case_of(
 )
 
 
+test_obj_single_annotating = case_of(
+    (lambda: isinstance(MockA(4), obj(a=4)), True),
+    (lambda: isinstance(MockA(8), obj(a=4)), False),
+    (lambda: isinstance(obj(a=4), obj(a=4)), True),
+    (lambda: isinstance(obj(a=4), obj()), True),
+    (lambda: isinstance(obj(), obj()), True),
+    (lambda: isinstance(obj(a=4, b=2), obj(a=4)), True),
+    (lambda: isinstance(obj(a=4, b=2), obj(a=4, b=4)), False),
+    (lambda: isinstance(obj(a=4, b=2), obj(a=4, b=2)), True),
+    (lambda: isinstance(MockB(4), obj(a=4)), False),
+    (lambda: isinstance(MockA(4), obj()), True),
+    (lambda: isinstance(MockB(4), obj()), True),
+    (lambda: isinstance(obj(a=1, b=2, c=3), obj()), True),
+    (lambda: isinstance(obj(), obj()), True),
+)
+
+
+test_obj_union_annotating_with_one_attribute = case_of(
+    (lambda: isinstance(MockA(1), obj(a=1) | obj(a=2)), True),
+    (lambda: isinstance(MockA(2), obj(a=1) | obj(a=2)), True),
+    (lambda: isinstance(MockA(3), obj(a=1) | obj(a=2)), False),
+    (lambda: isinstance(MockB(3), obj(a=1) | obj(a=2)), False),
+    (lambda: isinstance(obj(a=1), obj(a=1) | obj(a=2)), True),
+    (lambda: isinstance(obj(a=2), obj(a=1) | obj(a=2)), True),
+    (lambda: isinstance(obj(a=3), obj(a=1) | obj(a=2)), False),
+    (lambda: isinstance(obj(b=3), obj(a=1) | obj(a=2)), False),
+    (lambda: isinstance(obj(a=1, b=3), obj(a=1) | obj(a=2)), True),
+)
+
+
+test_obj_union_annotating_with_multiple_attributes = case_of(
+    (lambda: isinstance(obj(a=1, b=3), obj(a=1) | obj(b=2)), True),
+    (lambda: isinstance(obj(a=0, b=2), obj(a=1) | obj(b=2)), True),
+    (lambda: isinstance(obj(a=0, b=0, c=0), obj(a=1) | obj(b=2)), False),
+    (
+        lambda: isinstance(
+            obj(a=0, b=0, c=0),
+            obj(a=1) | obj(b=2, c=2) | obj(b=3, c=3),
+        ),
+        False,
+    ),
+    (
+        lambda: isinstance(
+            obj(a=0, b=2, c=2),
+            obj(a=1) | obj(b=2, c=2) | obj(b=3, c=3),
+        ),
+        True,
+    ),
+    (
+        lambda: isinstance(
+            obj(a=1, b=2, c=3, d=40),
+            obj(a=1) | obj(b=2, c=2) | obj(b=3, c=3),
+        ),
+        True,
+    ),
+    (
+        lambda: isinstance(
+            obj(a=0, b=3, c=3, d=40),
+            obj(a=1) | obj(b=2, c=2) | obj(b=3, c=3),
+        ),
+        True,
+    ),
+)
+
+
 test_callable_obj = case_of(
     (lambda: callable(obj(a=1, b=2)), False),
     (lambda: callable(obj(a=1, __call__=lambda _: ...)), True),
@@ -211,12 +276,47 @@ test_temp_sum = case_of(
 
 
 test_temp_with_values = case_of(
+    (lambda: type(temp() & obj(a=1)), obj),
+    (lambda: type(obj(a=1) & temp()), obj),
     (lambda: obj(a=1) & temp(), obj(a=1)),
     (lambda: temp() & obj(a=1), obj(a=1)),
     (lambda: temp(a=int) & obj() == temp(a=int), True),
+    (lambda: obj() & temp(a=int) == temp(a=int), True),
     (lambda: (temp(a=int) & obj(b=2))(1), obj(a=1, b=2)),
     (
         lambda: (obj(a=1) & temp(b=int) & obj(c=3) & temp(d=int))(2, 4),
         obj(a=1, b=2, c=3, d=4),
     ),
+)
+
+
+test_temp_single_annotating = case_of(
+    (lambda: isinstance(MockA(1), temp(a=int)), True),
+    (lambda: isinstance(MockB(1), temp(a=int)), False),
+    (lambda: isinstance(obj(a=1, b=2), temp(a=int, b=int)), True),
+    (lambda: isinstance(obj(b=2, a=1), temp(a=int, b=int)), True),
+    (lambda: isinstance(obj(c=3, b=2, a=1), temp(a=int, b=int)), True),
+    (lambda: isinstance(obj(c=3, b=2, a=1), temp()), True),
+    (lambda: isinstance(obj(), temp()), True),
+    (lambda: isinstance(obj(a=1), temp()), True),
+)
+
+
+test_temp_single_annotating_with_values = case_of(
+    (lambda: isinstance(obj(a=10, b=2), temp(a=int) & obj(b=2)), True),
+    (lambda: isinstance(obj(a=10, b=2, c=3), temp(a=int) & obj(b=2)), True),
+    (lambda: isinstance(obj(a=10, b=3), temp(a=int) & obj(b=2)), False),
+)
+
+
+test_temp_union_annotating = case_of(
+    (lambda: isinstance(obj(a=1), temp(a=int) | temp(b=int)), True),
+    (lambda: isinstance(obj(b=2), temp(a=int) | temp(b=int)), True),
+    (lambda: isinstance(obj(c=3), temp(a=int) | temp(b=int)), False),
+    (lambda: isinstance(obj(a=1), temp() | temp(a=int)), True),
+    (lambda: isinstance(obj(c=3), temp() | temp(a=int)), True),
+    (lambda: isinstance(obj(), temp() | temp(a=int)), True),
+    (lambda: isinstance(obj(a=1), temp(a=int) | obj(b=2)), True),
+    (lambda: isinstance(obj(b=2), obj(b=2) | temp(a=int)), True),
+    (lambda: isinstance(obj(c=3), obj(b=2) | temp(a=int)), False),
 )
