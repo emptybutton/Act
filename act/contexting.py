@@ -222,6 +222,7 @@ def contexted(
 _NamedFlagT = TypeVar("_NamedFlagT", bound=_NamedFlag)
 
 
+@partially
 def contextualizing(
     flag: _NamedFlagT,
     *,
@@ -236,6 +237,7 @@ def contextualizing(
     return contextualizing_flag
 
 
+@partially
 def as_(
     flag: Unia[FlagT, Callable[V, ContextualForm[V, FlagT]]],
     value: V | ContextualForm[V, Special[FlagT, C]],
