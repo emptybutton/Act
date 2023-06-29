@@ -61,6 +61,8 @@ class _Arbitrary(ABC):
             for name, value in self.__dict__.items()
         ))
 
+    def __hash__(self) -> int:
+        return hash(type(self)) + _table_hash_of(dict_of(self))
 
     def __eq__(self, other: Special[Self]) -> bool:
         return dict_of(self) == dict_of(other)
