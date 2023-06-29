@@ -1,15 +1,16 @@
+from abc import ABC, abstractmethod
 from copy import copy
 from functools import reduce
 from operator import or_
 from types import MethodType
 from typing import (
     Mapping, Callable, Self, Generic, Concatenate, Any, Optional, ClassVar,
-    Tuple
+    Tuple, TypeVar
 )
 
 from pyannotating import Special
 
-from act.annotations import K, V, Pm, R, O
+from act.annotations import K, V, Pm, R, O, Union
 from act.contexting import (
     contextually, contexted, contextualizing, as_
 )
@@ -17,7 +18,7 @@ from act.data_flow import mergely, by, returnly
 from act.errors import ObjectTemplateError
 from act.flags import flag_about, Flag
 from act.immutability import to_clone
-from act.partiality import partially, flipped
+from act.partiality import partially, flipped, partial
 from act.pipeline import then
 from act.representations import code_like_repr_of
 from act.synonyms import on, returned
@@ -41,77 +42,54 @@ __all__ = (
 as_method = contextualizing(flag_about("as_method"), to=contextually)
 
 
-class obj:
-    """
-    Constructor for objects that do not have a common structure.
+class _Arbitrary(ABC):
+    _default_attribute_value: TypeVar
 
-    Creates an object with attributes from keyword arguments.
+    def __init__(self, **attributes):
+        self.__dict__ = {
+            _: type(self)._for_setting(attr)
+            for _, attr in attributes.items()
+        }
 
-    When called with a `__call__` attribute, makes an output object callable on
-    that attribute as a method.
-
-    Can be obtained union of an instance with any other object via `&`.
-    """
-
-    _to_fill: ClassVar[Flag] = contextualizing(flag_about("to_fill"))
-
-    def __new__(
-        cls,
-        *,
-        __call__: Optional[Callable[Concatenate[Self, Pm], R]] = None,
-        **attributes: Special[as_method[Callable[[Self, Any], Any]] | _to_fill[Any]],
-    ) -> "Special[_callable_obj[Pm, R] | temp, Self]":
-        if cls is not temp and any(
-            contexted(attr) == obj._to_fill for attr in attributes.values()
-        ):
-            return temp(__call__=__call__, **attributes)
-
-        return (
-            _callable_obj(__call__=__call__, **attributes)
-            if __call__ is not None and cls is obj
-            else super().__new__(cls)
-        )
-
-    def __init__(self, **attributes: Special[as_method[Callable[Self, Any]]]):
-        self.__dict__ = attributes
 
     def __repr__(self) -> str:
         return "<{}>".format(', '.join(
-            f"{name}{self._field_repr_of('<...>' if value is self else value)}"
+            (
+                f"{name}"
+                f"{type(self)._field_repr_of('<...>' if value is self else value)}"
+            )
             for name, value in self.__dict__.items()
         ))
 
-    def __getattribute__(self, attr_name: str) -> Any:
-        value = object.__getattribute__(self, attr_name)
-        action, context = contexted(value)
-
-        return MethodType(action, self) if context == as_method else value
-
-    @staticmethod
-    def __repr_of(value: Any) -> str:
-        try:
-            return code_like_repr_of(value)
-        except RecursionError:
-            return '...'
 
     def __eq__(self, other: Special[Self]) -> bool:
         return dict_of(self) == dict_of(other)
 
-    def __and__(self, other: Special[Mapping]) -> Self:
-        return self.__summing_by(other)(self, other)
-
-    def __rand__(self, other: Special[Mapping]) -> Self:
-        return self.__summing_by(other)(other, self)
-
     @to_clone
     def __add__(self, attr_name: str) -> Self:
         if not hasattr(self, attr_name):
-            setattr(self, attr_name, None)
+            setattr(self, attr_name, type(self)._default_attribute_value)
 
     @to_clone
     def __sub__(self, attr_name: str) -> Self:
         if hasattr(self, attr_name):
             delattr(self, attr_name)
+
+    def __and__(self, other: Special[Mapping]) -> Self:
+        return obj.of(self, other)
+
+    def __rand__(self, other: Special[Mapping]) -> Self:
+        return obj.of(other, self)
+
+    @staticmethod
+    @abstractmethod
+    def _for_setting(value: Any) -> Any:
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def _field_repr_of(value: Any) -> str:
+        ...
 
     @classmethod
     def of(cls, *objects: Special[Mapping]) -> Self:
@@ -124,14 +102,61 @@ class obj:
         Data of subsequent objects have higher priority than previous ones.
         """
 
-        return obj(**reduce(or_, map(dict_of, objects)))
+        return cls(**reduce(or_, map(dict_of, objects)))
 
-    def _field_repr_of(self, value: Any) -> str:
+
+_to_fill = contextualizing(flag_about("_to_fill"))
+_filled = contextualizing(flag_about("_filled"))
+
+_of_temp = _to_fill | _filled
+
+_NO_VALUE = flag_about("_NO_VALUE")
+
+
+class obj(_Arbitrary):
+    """
+    Constructor for objects that do not have a common structure.
+
+    Creates an object with attributes from keyword arguments.
+
+    When called with a `__call__` attribute, makes an output object callable on
+    that attribute as a method.
+
+    Can be obtained union of an instance with any other object via `&`.
+    """
+
+    _default_attribute_value = None
+
+    def __new__(
+        cls,
+        *,
+        __call__: Callable[Concatenate[Self, Pm], R] | _NO_VALUE = _NO_VALUE,
+        **attributes: Special[as_method[Callable[[Self, Any], Any]] | _to_fill[Any]],
+    ) -> "Special[_callable_obj[Pm, R] | temp, Self]":
+        complete_attributes = (
+            attributes
+            | (dict() if __call__ is _NO_VALUE else dict(__call__=__call__))
+        )
+
+        if any(contexted(attr).context == _of_temp for attr in attributes.values()):
+            return temp(**{
+                _: temp._unit_of(attr) for _, attr in complete_attributes.items()
+            })
+
+        return (
+            _callable_obj(**complete_attributes)
+            if __call__ is not _NO_VALUE and cls is obj
+            else super().__new__(cls)
+        )
+
+
+    @staticmethod
+    def _for_setting(value: V) -> V:
+        return value
+
+    @staticmethod
+    def _field_repr_of(value: Any) -> str:
         return f"={code_like_repr_of(value)}"
-
-    @classmethod
-    def __summing_by(cls, value: Special["temp"]) -> Callable[..., Self]:
-        return (temp if cls is temp or type(value) is temp else obj).of
 
 
 class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
@@ -155,18 +180,8 @@ class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
         )
 
 
-class temp(obj, LeftCallable):
-    _filled: ClassVar[Flag] = contextualizing(flag_about("filled"))
-
-    def __init__(self, **attributes: Special[_filled[Any]]):
-        super().__init__(**{
-            _: (
-                value
-                if contexted(value).context == temp._filled
-                else as_(obj._to_fill, value)
-            )
-            for _, value in attributes.items()
-        })
+class temp(_Arbitrary, LeftCallable):
+    _default_attribute_value = Any
 
     def __repr__(self) -> str:
         return super().__repr__() if dict_of(self) else f"{type(self).__name__}()"
@@ -175,7 +190,7 @@ class temp(obj, LeftCallable):
         names_to_fill = tuple(
             name
             for name, value in self.__dict__.items()
-            if value.context == obj._to_fill
+            if value.context == _to_fill
         )
 
         entered_values_count = len(attrs) + len(kwattrs.keys())
@@ -199,25 +214,41 @@ class temp(obj, LeftCallable):
         )
 
     def __instancecheck__(self, instance: Any) -> bool:
-        return len(set(dict_of(self).keys()) - set(dict_of(instance).keys())) == 0
-
-    @classmethod
-    def of(cls, *objects: Special[Mapping]) -> Self:
-        return cls(**{
-            _: (
-                value
-                if contexted(value).context == obj._to_fill
-                else as_(temp._filled, value)
+        return all(
+            (
+                (
+                    hasattr(instance, name)
+                    and attr.value == getattr(instance, name)
+                )
+                if attr.context == _filled
+                else hasattr(instance, name)
             )
-            for _, value in reduce(or_, map(dict_of, objects)).items()
-        })
+            for name, attr in dict_of(self).items()
+        )
 
-    def _field_repr_of(self, value: Any) -> str:
+    @staticmethod
+    def _unit_of(value: V) -> _to_fill[V] | _filled[V]:
+        return (
+            value
+            if contexted(value).context == _to_fill
+            else as_(_filled, value)
+        )
+
+    @staticmethod
+    def _for_setting(value: V) -> _filled[V] | _to_fill[V]:
+        return (
+            value
+            if contexted(value).context == _filled
+            else as_(_to_fill, value)
+        )
+
+    @staticmethod
+    def _field_repr_of(value: Any) -> str:
         stored_value, context = contexted(value)
 
-        if context is obj._to_fill:
+        if context is _to_fill:
             return f": {code_like_repr_of(stored_value)}"
-        elif context == temp._filled:
+        elif context == _filled:
             return f"={code_like_repr_of(stored_value)}"
         elif context == as_method:
             return f"()={code_like_repr_of(stored_value)}"
@@ -245,6 +276,10 @@ def hash_of(value: Any) -> int:
     """Function to get hash of any object."""
 
     return hash(value) if hasattr(value, "__hash__") else id(value)
+
+
+def _table_hash_of(table: Mapping) -> int:
+    return sum(hash_of(name) + hash_of(attr) for name, attr in table.items())
 
 
 @partially
