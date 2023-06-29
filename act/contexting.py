@@ -1,8 +1,8 @@
 from abc import ABC
 from operator import not_, methodcaller, attrgetter
 from typing import (
-    Generic, Any, Iterator, Callable, Iterable, GenericAlias, Optional, Self,
-    TypeVar, Final
+    Generic, Any, Iterator, Callable, Iterable, GenericAlias, Self, TypeVar,
+    Final
 )
 
 from pyannotating import Special

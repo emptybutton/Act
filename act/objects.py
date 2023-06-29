@@ -4,8 +4,7 @@ from functools import reduce
 from operator import or_
 from types import MethodType
 from typing import (
-    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, ClassVar,
-    Tuple, TypeVar
+    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, Tuple, TypeVar
 )
 
 from pyannotating import Special
@@ -16,7 +15,7 @@ from act.contexting import (
 )
 from act.data_flow import mergely, by, returnly
 from act.errors import ObjectTemplateError
-from act.flags import flag_about, Flag
+from act.flags import flag_about
 from act.immutability import to_clone
 from act.partiality import partially, flipped, partial
 from act.pipeline import then

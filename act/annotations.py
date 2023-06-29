@@ -2,9 +2,8 @@ from functools import reduce
 from operator import attrgetter
 from types import UnionType
 from typing import (
-    Callable, Any, TypeAlias, TypeVar, ParamSpec, TypeVarTuple, Iterable,
-    Tuple, Self, Union as typing_union, _CallableGenericAlias, _CallableType,
-    _UnionGenericAlias
+    Callable, Any, TypeAlias, TypeVar, ParamSpec, TypeVarTuple, Iterable, Tuple,
+    Self, _CallableGenericAlias, _CallableType, _UnionGenericAlias
 )
 
 from pyannotating import (
