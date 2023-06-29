@@ -160,6 +160,12 @@ class obj(_Arbitrary):
             else super().__new__(cls)
         )
 
+    def __getattribute__(self, attr_name: str) -> Any:
+        value = object.__getattribute__(self, attr_name)
+        action, context = contexted(value)
+
+        return MethodType(action, self) if context == as_method else value
+
     def __instancecheck__(self, instance: Any) -> bool:
         return all(
             hasattr(instance, name) and getattr(instance, name) == attr
