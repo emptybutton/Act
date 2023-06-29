@@ -187,7 +187,8 @@ class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
     def __init__(
         self,
         *,
-        __call__: Callable[Concatenate[Self, Pm], R], **attributes,
+        __call__: Callable[Concatenate[Self, Pm], R],
+        **attributes,
     ):
         super().__init__(**attributes | dict(__call__=__call__))
 
