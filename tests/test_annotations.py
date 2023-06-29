@@ -61,3 +61,31 @@ def test_unia(value: Any, unia: Unia, is_correct: bool):
     mode = (lambda r: r) if is_correct else not_
 
     assert mode(isinstance(value, unia))
+
+
+test_union_creation = case_of(
+    (lambda: Union(int), int),
+    (lambda: Union[int], int),
+)
+
+
+test_union_comparison = case_of(
+    (lambda: isinstance(4, Union(int, float)), True),
+    (lambda: isinstance(4.2, Union(int, float)), True),
+    (lambda: isinstance(4, Union[int, float]), True),
+    (lambda: isinstance(4.2, Union[int, float]), True),
+    (lambda: isinstance(None, Union(int, float)), False),
+    (lambda: isinstance(None, Union(int, float)), False),
+    (lambda: isinstance(None, Union[int, float]), False),
+    (lambda: isinstance(None, Union[int, float]), False),
+)
+
+
+test_union_sum = case_of(
+    (lambda: Union(int, Union(float, str)).__args__, (int, float, str)),
+    (lambda: Union(int, float | str).__args__, (int, float, str)),
+    (lambda: Union(int, typing_union[float, str]).__args__, (int, float, str)),
+    (lambda: Union[int, Union(float, str)].__args__, (int, float, str)),
+    (lambda: Union[int, float | str].__args__, (int, float, str)),
+    (lambda: Union[int, typing_union[float, str]].__args__, (int, float, str)),
+)
