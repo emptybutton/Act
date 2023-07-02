@@ -559,7 +559,28 @@ class Branch(NamedTuple, Generic[Pm, R]):
     way: Callable[Pm, R] | R
 
 
-# Unique object to annotate matching to an `else` branch in `matching` or
+def _is_else_branch(branch: Branch) -> bool:
+    return branch.determinant is Ellipsis
+
+
+def _else_action_from(branches: Iterable[Branch[Pm, R]]) -> Callable[Pm, R] | R:
+    branches = tuple(branches)
+
+    else_branches = tuple(
+        branch for branch in branches if _is_else_branch(branch)
+    )
+
+    if len(else_branches) > 1:
+        raise MatchingError("extra \"else\" branches")
+
+    if else_branches:
+
+        return else_branches[0].way
+
+    return returned
+
+
+# Unique object to annotate matching to an `else` branch in `when` or
 # similar actions.
 break_ = object()
 
@@ -593,22 +614,12 @@ def matching(
     """
 
     branches = tuple(Branch(*branch) for branch in branches)
-
-    else_branches = tuple(
-        branch for branch in branches if branch.determinant is Ellipsis
-    )
-
-    if len(else_branches) > 1:
-        raise MatchingError("Extra \"else\" branches")
-
-    else_ = else_branches[0].way if else_branches else returned
+    else_ = _else_action_from(branches)
 
     if else_ is break_:
         raise MatchingError("\"else\" branch recursion")
 
-    branches = tuple(
-        branch for branch in branches if branch.determinant is not Ellipsis
-    )
+    branches = tuple(branch for branch in branches if not _is_else_branch(branch))
 
     if len(branches) == 0:
         return else_
