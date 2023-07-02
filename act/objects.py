@@ -27,6 +27,7 @@ from act.tools import LeftCallable
 
 __all__ = (
     "as_method",
+    "as_descriptor",
     "Arbitrary",
     "obj",
     "temp",
@@ -40,6 +41,9 @@ __all__ = (
 
 
 as_method = contextualizing(flag_about("as_method"), to=contextually)
+as_descriptor = contextualizing(flag_about("as_descriptor"))
+
+
 
 
 class Arbitrary(ABC):
@@ -179,7 +183,7 @@ class obj(_AttributeKeeper):
         cls,
         *,
         __call__: Callable[Concatenate[Self, Pm], R] | _NO_VALUE = _NO_VALUE,
-        **attributes: Special[as_method[Callable[[Self, Any], Any]] | _to_fill[Any]],
+        **attributes: Any,
     ) -> "Special[_callable_obj[Pm, R] | temp, Self]":
         complete_attributes = (
             attributes
@@ -199,9 +203,42 @@ class obj(_AttributeKeeper):
 
     def __getattribute__(self, attr_name: str) -> Any:
         value = object.__getattribute__(self, attr_name)
-        action, context = contexted(value)
+        stored_value, context = contexted(value)
 
-        return MethodType(action, self) if context == as_method else value
+        if context == as_method:
+            return MethodType(stored_value, self)
+        if context == as_descriptor:
+            return (
+                stored_value.__get__(self, type(self))
+                if hasattr(stored_value, "__get__")
+                else stored_value
+            )
+        else:
+            return value
+
+    def __setattr__(self, attr_name: str, value: Any) -> Any:
+        if attr_name not in self.__dict__.keys() or attr_name == "__dict__":
+            return super().__setattr__(attr_name, value)
+
+        setter, context = contexted(self.__dict__[attr_name])
+
+        return (
+            setter.__set__(self, value)
+            if context == as_descriptor and hasattr(setter, "__set__")
+            else super().__setattr__(attr_name, value)
+        )
+
+    def __delattr__(self, attr_name: str) -> Any:
+        if attr_name not in self.__dict__.keys() or attr_name == "__dict__":
+            return super().__delattr__(attr_name)
+
+        deleter, context = contexted(self.__dict__[attr_name])
+
+        return (
+            deleter.__delete__(self)
+            if context == as_descriptor and hasattr(deleter, "__delete__")
+            else super().__delattr__(attr_name)
+        )
 
     def __instancecheck__(self, instance: Any) -> bool:
         return all(
