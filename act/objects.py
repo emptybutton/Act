@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 from copy import copy
 from functools import reduce
 from operator import or_
@@ -31,6 +32,8 @@ __all__ = (
     "Arbitrary",
     "obj",
     "temp",
+    "is_templated",
+    "templated_attrs_of",
     "dict_of",
     "hash_of",
     "of",
@@ -376,6 +379,22 @@ class temp(_AttributeKeeper, LeftCallable):
             return f"()={code_like_repr_of(stored_value)}"
         else:
             return f"={code_like_repr_of(value)}"
+
+
+@partially
+def is_templated(attr_name: str, obj_: Special[temp]) -> bool:
+    return (
+        attr_name in dict_of(obj_).keys()
+        and contexted(dict_of(obj_)[attr_name]).context == _to_fill
+    )
+
+
+def templated_attrs_of(obj_: Special[temp]) -> OrderedDict[str, Any]:
+    return OrderedDict(
+        (name, attr.value)
+        for name, attr in dict_of(obj_).items()
+        if contexted(attr).context == _to_fill
+    )
 
 
 def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
