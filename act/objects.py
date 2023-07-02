@@ -243,6 +243,16 @@ class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
 class temp(_AttributeKeeper, LeftCallable):
     _default_attribute_value = Any
 
+    def __new__(cls, **attributes: Any) -> Self | obj:
+        return (
+            obj(**attributes)
+            if all(
+                contexted(attr).context == _filled
+                for attr in attributes.values()
+            )
+            else super().__new__(cls)
+        )
+
     def __repr__(self) -> str:
         return super().__repr__() if dict_of(self) else f"{type(self).__name__}()"
 

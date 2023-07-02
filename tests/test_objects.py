@@ -222,7 +222,7 @@ test_to_attribute_without_attribute = case_of((
 
 
 test_temp_creation = case_of(
-    (lambda: temp()().__dict__, dict()),
+    (lambda: type(temp()), obj),
     (lambda: temp(a=int)(4).__dict__, dict(a=4)),
     (lambda: temp(a=int)(a=4).__dict__, dict(a=4)),
     (lambda: temp(a=int, b=int)(4, 8).__dict__, dict(a=4, b=8)),
