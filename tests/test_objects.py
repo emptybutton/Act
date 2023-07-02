@@ -124,6 +124,57 @@ test_obj_with_method = case_of(
 )
 
 
+test_obj_with_descriptor_getting = case_of(
+    (lambda: obj(a=5, b=as_descriptor(property(lambda o: o.a + 3))).b, 8),
+    (lambda: obj(a=5, b=as_descriptor(lambda o, v: o.a + v)).b(3), 8),
+)
+
+
+def test_obj_with_descriptor_setting():
+    object_ = obj(
+        a=14,
+        b=as_descriptor(property(
+            lambda o: o.a + 2,
+            lambda o, v: setattr(o, 'a', v * 2),
+        )),
+    )
+
+    assert object_.b == 16
+
+    object_.b = 3
+
+    assert object_.b == 8
+
+
+def test_obj_with_only_descriptor_setting():
+    object_ = obj(
+        a=...,
+        b=as_descriptor(property(fset=lambda o, v: setattr(o, 'a', v + 10))),
+    )
+
+    object_.b = 6
+
+    assert object_.a == 16
+
+
+def test_obj_with_only_descriptor_deleting():
+    logs = list()
+
+    object_ = obj(
+        a=5,
+        b=as_descriptor(property(
+            fdel=lambda o: logs.append(o.a + 3),
+        )),
+    )
+
+    del object_.b
+
+    assert not hasattr(object_, 'b')
+    assert 'b' in object_.__dict__.keys()
+
+    assert logs == [8]
+
+
 test_void = case_of(
     (lambda: void & obj(a=1), obj(a=1)),
     (lambda: void & void, void),
@@ -319,4 +370,24 @@ test_temp_union_annotating = case_of(
     (lambda: isinstance(obj(a=1), temp(a=int) | obj(b=2)), True),
     (lambda: isinstance(obj(b=2), obj(b=2) | temp(a=int)), True),
     (lambda: isinstance(obj(c=3), obj(b=2) | temp(a=int)), False),
+)
+
+
+test_is_templated = case_of(
+    (lambda: is_templated('a', 4), False),
+    (lambda: is_templated('a', MockA(...)), False),
+    (lambda: is_templated('a', obj(a=1, b=2)), False),
+    (lambda: is_templated('a', obj()), False),
+    (lambda: is_templated('a', temp(a=int, b=int)), True),
+    (lambda: is_templated('a', temp(a=int) & obj(b=2)), True),
+)
+
+
+test_templated_attrs_of = case_of(
+    (lambda: templated_attrs_of(4), dict()),
+    (lambda: templated_attrs_of(MockA(...)), dict()),
+    (lambda: templated_attrs_of(obj()), dict()),
+    (lambda: templated_attrs_of(obj(a=1, b=2)), dict()),
+    (lambda: templated_attrs_of(temp(a=int, b=str)), dict(a=int, b=str)),
+    (lambda: templated_attrs_of(temp(a=int, b=str)), dict(a=int, b=str)),
 )
