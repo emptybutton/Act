@@ -27,6 +27,7 @@ from act.tools import LeftCallable
 
 __all__ = (
     "as_method",
+    "Arbitrary",
     "obj",
     "temp",
     "dict_of",
@@ -41,7 +42,53 @@ __all__ = (
 as_method = contextualizing(flag_about("as_method"), to=contextually)
 
 
-class _Arbitrary(ABC):
+class Arbitrary(ABC):
+    @abstractmethod
+    def __init__(self, **attributes):
+        ...
+
+    @abstractmethod
+    def __hash__(self) -> int:
+        ...
+
+    @abstractmethod
+    def __add__(self, attr_name: str) -> Self:
+        ...
+
+    @abstractmethod
+    def __sub__(self, attr_name: str) -> Self:
+        ...
+
+    @abstractmethod
+    def __and__(self, other: Any) -> Self:
+        ...
+
+    @abstractmethod
+    def __rand__(self, other: Any) -> Self:
+        ...
+
+    @abstractmethod
+    def __or__(self, other: Any) -> Any:
+        ...
+
+    @abstractmethod
+    def __ror__(self, other: Any) -> Any:
+        ...
+
+    @classmethod
+    @abstractmethod
+    def of(cls, *objects: Any) -> Self:
+        """
+        Constructor for data from other objects.
+
+        When passing a dictionary without `__dict__`, gets data from that
+        dictionary.
+
+        Data of subsequent objects have higher priority than previous ones.
+        """
+
+
+class _AttributeKeeper(Arbitrary, ABC):
     _default_attribute_value: TypeVar
 
     def __init__(self, **attributes):
@@ -103,15 +150,6 @@ class _Arbitrary(ABC):
 
     @classmethod
     def of(cls, *objects: Special[Mapping]) -> Self:
-        """
-        Constructor for data from other objects.
-
-        When passing a dictionary without `__dict__`, gets data from that
-        dictionary.
-
-        Data of subsequent objects have higher priority than previous ones.
-        """
-
         return cls(**reduce(or_, map(dict_of, objects)))
 
 
@@ -123,7 +161,7 @@ _of_temp = _to_fill | _filled
 _NO_VALUE = flag_about("_NO_VALUE")
 
 
-class obj(_Arbitrary):
+class obj(_AttributeKeeper):
     """
     Constructor for objects that do not have a common structure.
 
@@ -202,7 +240,7 @@ class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
         )
 
 
-class temp(_Arbitrary, LeftCallable):
+class temp(_AttributeKeeper, LeftCallable):
     _default_attribute_value = Any
 
     def __repr__(self) -> str:
