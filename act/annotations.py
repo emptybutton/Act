@@ -33,6 +33,7 @@ __all__ = (
     "TypeT",
     "FlagT",
     "AtomizableT",
+    "ContextualT",
     "A",
     "B",
     "C",
@@ -111,6 +112,8 @@ TypeT = TypeVar("TypeT", bound=type)
 FlagT = TypeVar("FlagT", bound='Flag')
 
 AtomizableT = TypeVar("AtomT", bound="Atomizable")
+
+ContextualT = TypeVar("ContextualT", bound="ContextualForm")
 
 
 A = TypeVar('A')
