@@ -2,13 +2,13 @@ from abc import ABC
 from operator import not_, methodcaller, attrgetter
 from typing import (
     Generic, Any, Iterator, Callable, Iterable, GenericAlias, Self, TypeVar,
-    Final
+    Final, Union
 )
 
 from pyannotating import Special
 
 from act.annotations import (
-    ActionT, ErrorT, P, Pm, checker_of, A, B, C, V, R, W, D, S, Unia, FlagT
+    ActionT, ErrorT, P, Pm, checker_of, A, B, C, V, R, W, D, S, M, G, F, Unia, FlagT
 )
 from act.atomization import atomically
 from act.flags import (
@@ -16,7 +16,7 @@ from act.flags import (
 )
 from act.immutability import NotInitializable
 from act.partiality import partially, will, rpartial
-from act.pipeline import then
+from act.pipeline import then, ActionChain, discretely, atomic_binding_by
 from act.representations import code_like_repr_of
 from act.signatures import call_signature_of
 from act.synonyms import repeating, returned, on
@@ -42,6 +42,7 @@ __all__ = (
     "is_metacontextual",
     "with_reduced_metacontext",
     "without_metacontext",
+    "up",
 )
 
 
@@ -399,3 +400,25 @@ without_metacontext = documenting_by(
 )(
     repeating(with_reduced_metacontext, while_=is_metacontextual)
 )
+
+
+up: LeftCallable[
+    Union[
+        Callable[
+            Callable[A, ContextualForm[B, C]],
+            Callable[M, ContextualForm[Special[ContextualForm[V, G]], F]]
+        ],
+        ActionChain[Callable[
+            Callable[A, ContextualForm[B, C]],
+            Callable[M, ContextualForm[Special[ContextualForm[V, G], W], F]]]
+        ],
+    ],
+    LeftCallable[
+        Callable[A, ContextualForm[B, C]],
+        LeftCallable[M, contextual[V | W, F | G]]
+    ],
+]
+up = discretely(atomic_binding_by(
+    ...
+    |then>> atomic_binding_by(... |then>> with_reduced_metacontext)
+))
