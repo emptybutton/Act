@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from operator import eq
-from typing import Generic, Callable, Any, Tuple
+from typing import Generic, Callable, Any, Tuple, Mapping, Optional
+
+from pyannotating import Special
 
 from act.annotations import (
-    V, dirty, reformer_of, checker_of, ActionT, action_for, Pm, R
+    V, dirty, reformer_of, checker_of, ActionT, action_for, Pm, R, K
 )
 
 
@@ -15,6 +17,8 @@ __all__ = (
     "as_action",
     "time_of",
     "items_of",
+    "maybe_getattr",
+    "maybe_getitem",
 )
 
 
@@ -82,6 +86,14 @@ def items_of(items: V | Tuple[V]) -> Tuple[V]:
     """Function for structured getting inside indexer (`[]`)."""
 
     return items if isinstance(items, tuple) else (items, )
+
+
+def maybe_getattr(object_: Any, attr_name: str) -> Special[None]:
+    return getattr(object_, attr_name) if hasattr(object_, attr_name) else None
+
+
+def maybe_getitem(table: Mapping[K, V], key: Special[K]) -> Optional[V]:
+    return table[key] if key in tuple(table.keys()) else None
 
 
 def _module_prefix_of(action: Callable) -> str:
