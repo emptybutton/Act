@@ -29,6 +29,7 @@ from act.tools import LeftCallable
 __all__ = (
     "as_method",
     "as_descriptor",
+    "as_property",
     "Arbitrary",
     "obj",
     "temp",
@@ -47,6 +48,24 @@ as_method = contextualizing(flag_about("as_method"), to=contextually)
 as_descriptor = contextualizing(flag_about("as_descriptor"))
 
 
+def as_property(
+    maybe_property: Callable['obj', R] | property,
+    setter: Optional[Callable[['obj', Any], Any]] = None,
+    deleter: Optional[Callable['obj', Any]] = None,
+) -> as_descriptor[Callable['obj', R] | property]:
+    property_ = (
+        maybe_property
+        if isinstance(maybe_property, property)
+        else property(maybe_property)
+    )
+
+    if setter is not None:
+        property_ = property_.setter(setter)
+
+    if deleter is not None:
+        property_ = property_.deleter(deleter)
+
+    return as_descriptor(property_)
 
 
 class Arbitrary(ABC):
