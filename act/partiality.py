@@ -53,13 +53,14 @@ class partial(LeftCallable):
         )
 
     def __repr__(self) -> str:
-        return f"{code_like_repr_of(self._action)}({{}}{{}}{{}})".format(
+        return f"partial({code_like_repr_of(self._action)}{{}}{{}}{{}}{{}})".format(
+            ', ' if self._args or self._kwargs else str(),
             f"{', '.join(map(code_like_repr_of, self._args))}",
             ', ' if self._args and self._kwargs else str(),
             ', '.join(
                 f"{key}={code_like_repr_of(arg)}"
                 for key, arg in self._kwargs.items()
-            )
+            ),
         )
 
     def __call__(self, *args, **kwargs) -> R:
