@@ -9,7 +9,7 @@ from act.contexting import (
     contextual, contextually, contexted, ContextualForm, saving_context,
     with_reduced_metacontext, contextualizing
 )
-from act.data_flow import returnly, by, to, matching, break_, and_via_indexer
+from act.data_flow import returnly, by, to, when, break_, and_via_indexer
 from act.effects import context_effect
 from act.flags import flag_about, nothing, Flag, pointed
 from act.objects import obj
@@ -138,15 +138,15 @@ def either(
     ],
 ) -> LeftCallable[V | ContextualForm[V, C], contextual[R, C]]:
     """
-    `matching`-like function for `ContextualForm`s with determinants applied to
+    `when`-like function for `ContextualForm`s with determinants applied to
     contexts and implementers applied to values.
 
     Casts an input value to `ContextualForm`.
 
-    For everything else see `matching`.
+    For everything else see `when`.
     """
 
-    return atomically(contexted |then>> matching(*(
+    return atomically(contexted |then>> when(*(
         (
             (
                 determinant

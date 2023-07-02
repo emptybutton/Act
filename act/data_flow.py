@@ -41,7 +41,7 @@ __all__ = (
     "mergely",
     "Branch",
     "break_",
-    "matching",
+    "when",
 )
 
 
@@ -587,7 +587,7 @@ def _else_action_from(branches: Iterable[Branch[Pm, R]]) -> Callable[Pm, R] | R:
 break_ = object()
 
 
-def matching(
+def when(
     *branches: tuple[Special[Callable[Pm, bool]], Special[Callable[Pm, R] | R]],
 ) -> LeftCallable[Pm, R]:
     """
@@ -632,6 +632,6 @@ def matching(
         else_=(
             else_
             if len(branches) == 1
-            else matching(*branches[1:], Branch(Ellipsis, else_))
+            else when(*branches[1:], Branch(Ellipsis, else_))
         ),
     )
