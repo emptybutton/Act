@@ -574,6 +574,8 @@ def _else_action_from(branches: Iterable[Branch[Pm, R]]) -> Callable[Pm, R] | R:
         raise MatchingError("extra \"else\" branches")
 
     if else_branches:
+        if branches.index(else_branches[0]) != len(branches) - 1:
+            raise MatchingError("`else_` branch must be last")
 
         return else_branches[0].way
 
