@@ -294,9 +294,9 @@ class _ActionCursor(Mapping):
         return (
             self
             ._with_setting(value, in_=place, by=setting, mutably=mutably)
-            ._with(internal_repr=("{}({} <- {})".format(
-                '!' if mutably else str(),
+            ._with(internal_repr=("({} {} {})".format(
                 self._internal_repr,
+                '=' if mutably else '<-',
                 self._repr_of(value),
             )))
         )
