@@ -377,6 +377,12 @@ class Unia:
             issubclass(type_, annotation) for annotation in self._annotations
         )
 
+    def __or__(self, other: Any) -> Union:
+        return Union[self, other]
+
+    def __ror__(self, other: Any) -> Union:
+        return Union[other, self]
+
     @staticmethod
     def _annotations_from(annotations: Tuple[Special[Self]]) -> tuple:
         result_annotations = list()
