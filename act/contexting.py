@@ -42,6 +42,7 @@ __all__ = (
     "is_metacontextual",
     "with_reduced_metacontext",
     "without_metacontext",
+    "metacontexted",
     "up",
     "down",
 )
@@ -411,6 +412,17 @@ without_metacontext = documenting_by(
 )(
     repeating(with_reduced_metacontext, while_=is_metacontextual)
 )
+
+
+def metacontexted(value: Special[ContextualForm]) -> tuple:
+    """Function to get a value and all its contexts as a flat collection."""
+
+    if not isinstance(value, ContextualForm):
+        return (value, )
+
+    value = contexted(value)
+
+    return (*metacontexted(value.value), value.context)
 
 
 up: LeftCallable[
