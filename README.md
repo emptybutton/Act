@@ -178,6 +178,20 @@ main(with_a)  # 256
 with_a.a  # 256
 ```
 
+</br>
+
+> To use a function immutably use `be`.
+> ```py
+> main = t[1].be(lambda i: i**3)  # there is no such >.<
+> main((1, 2, 3))
+> ```
+> ```
+> (1, 8, 2)
+> ```
+
+</br>
+
+
 Use boolean logic operators
 ```py
 v.and_(w)  # lambda v, w: v and w
@@ -887,6 +901,18 @@ great(4).context is context is great
 
 </br>
 
+> Note that with nested contextualization, data is structured recursively.
+> ```py
+> ...
+> 
+> very = contextualizing(flag_about("very"))
+> 
+> very(great(4))  # very great 4
+> 
+> very(great(4)).value  # great 4
+> very(great(4)).context  # very
+> ```
+
 > To preserve some features of the described values, you can use other forms of contextualization
 
 > For `Callable` objects:
@@ -950,4 +976,42 @@ contexted(great(4), perfect)  # perfect 4
 
 contexted(great(4), +perfect)  # great | perfect 4
 contexted(great(4), -great)  # nothing 4
+```
+
+...or a context
+```py
+with_context_that(v > 0, contextual("mega", pointed(1, 2, 3)))  # 1 "mega"
+with_context_that(v > 0, contextual("mega", pointed(-1, -2, -3)))  # nothing "mega"
+with_context_that(v > 0, "mega")  # nothing "mega"
+```
+
+Calculate value with a context
+```py
+nice = contextualizing(flag_about("nice"))
+
+saving_context(v * 2)(nice(4))  # nice 8
+saving_context(v * 2)(4)  # nothing 8
+
+to_context(-nice)(nice(4))  # nothing 8
+to_context(+nice)(4)  # nice 8
+
+to_write(_.(a, b))(nice(4))  # (4, nice) 4
+to_read(_.(a, b))(nice(4))  # nice (4, nice)
+```
+
+...with additional nesting
+```py
+...
+
+to_metacontextual(v * 2, +nice)(contextual(2, nothing, contextual(4)))  # (nice 8) nice 4
+
+is_metacontextual(nice(nice(8)))  # True
+
+with_reduced_metacontext(contextual("mega", 1, 2))  # 1 | 2 "mega"
+with_reduced_metacontext(contextual("mega", 1, 2, 3))  # 2 | 3 1 "mega"
+
+without_metacontext(contextual("mega", 1, 2, 3))  # 1 | 2 | 3 "mega"
+
+metacontexted(contextual("mega", 1, 2, 3))  # ('mega', 1, 2, 3)
+metacontexted("mega")  # ('mega',)
 ```
