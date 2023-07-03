@@ -1,7 +1,7 @@
 from operator import attrgetter
 
 from act.contexting import *
-from act.flags import pointed
+from act.flags import pointed, flag_about
 from act.pipeline import then
 from act.testing import case_of
 
@@ -122,3 +122,15 @@ test_without_metacontext = case_of((
     ),
     contextual('val', (1, 2, 3, 4)),
 ))
+
+
+def test_be():
+    ok = contextualizing(flag_about('ok'))
+    bad = contextualizing(flag_about('bad'))
+
+    assert be(ok, 4) == ok(4)
+    assert be(ok, contextually(print, ok)) == contextually(print, ok)
+    assert be(+ok, ok(4)) == ok(4)
+    assert be(+ok, bad(4)) == contextual(4, ok | bad)
+    assert be(-ok, ok(4)) == contextual(4)
+    assert be(-ok, 4) == contextual(4)
