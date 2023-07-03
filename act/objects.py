@@ -19,7 +19,7 @@ from act.errors import ObjectTemplateError
 from act.flags import flag_about
 from act.immutability import to_clone
 from act.partiality import partially, flipped, partial
-from act.pipeline import then
+from act.pipeline import then, _generating_pipeline
 from act.representations import code_like_repr_of
 from act.synonyms import on, returned
 from act.signatures import call_signature_of
@@ -297,6 +297,8 @@ class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
             if attr_name == "__signature__"
             else super().__getattribute__(attr_name)
         )
+
+    __or__ = _generating_pipeline(obj.__or__)
 
 
 class temp(_AttributeKeeper, LeftCallable):

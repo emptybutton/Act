@@ -1,4 +1,4 @@
-from functools import reduce
+from functools import reduce, wraps
 from operator import attrgetter, not_
 from typing import Callable, Generic, Iterable, Iterator, Self, Any, Tuple
 
@@ -247,3 +247,14 @@ discretely = documenting_by(
     )
     |then>> atomically
 ))
+
+
+def _generating_pipeline(action: Callable[[ActionT, B], R]) -> Callable[
+    [ActionT, B | _ActionChainInfix],
+    R | ActionChain,
+]:
+    return wraps(action)(lambda first, second: (
+        second.__ror__(first)
+        if isinstance(second, _ActionChainInfix)
+        else action(first, second)
+    ))

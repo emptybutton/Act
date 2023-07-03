@@ -19,7 +19,7 @@ from act.flags import flag_about, Flag
 from act.monads import maybe
 from act.objects import obj
 from act.partiality import flipped, rpartial, will, partial
-from act.pipeline import ActionChain, binding_by, on, then, _ActionChainInfix
+from act.pipeline import ActionChain, binding_by, on, then, _generating_pipeline
 from act.representations import code_like_repr_of
 from act.scoping import value_in
 from act.structures import tfilter, groups_in
@@ -760,16 +760,10 @@ class _ActionCursor(Mapping):
     __rshift__ = __merging_by(operator.rshift, _OperationModel('>>', 4))
     __and__ = __merging_by(operator.and_, _OperationModel('&', 5))
     __xor__ = __merging_by(operator.xor, _OperationModel('^', 6))
-
-    def __or__(self, value: Special[ActionChain | Self]) -> Self | ActionChain:
-        return (
-            value.__ror__(self)
-            if isinstance(value, _ActionChainInfix)
-            else self.__merging_by(
-                operator.or_,
-                _OperationModel('|', 7),
-            )(self, value)
-        )
+    __or__ = _generating_pipeline(__merging_by(
+        operator.or_,
+        _OperationModel('|', 7),
+    ))
 
     __rpow__ = __merging_by(operator.pow, _OperationModel('**', 0), is_right=True)
     __rmul__ = __merging_by(operator.mul, _OperationModel('*', 2), is_right=True)

@@ -603,6 +603,11 @@ class _CallableNamedFlag(_BaseNamedFlag, Generic[Pm, R]):
             action=self._action |then>> action
         )
 
+    def __or__(self, other: Special[Self]) -> Any:
+        from act.pipeline import _generating_pipeline
+
+        return _generating_pipeline(_BaseNamedFlag.__or__)(self, other)
+
 
 class _NamedFlag(_BaseNamedFlag):
     """
