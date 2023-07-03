@@ -11,7 +11,7 @@ from pyannotating import Special
 
 from act.atomization import atomic
 from act.annotations import (
-    V, FlagT, checker_of, merger_of, reformer_of, A, B, P, Pm, R, CommentAnnotation
+    V, FlagT, merger_of, reformer_of, A, B, P, Pm, R, CommentAnnotation
 )
 from act.data_flow import by, then
 from act.errors import FlagError
@@ -231,7 +231,7 @@ class Flag(ABC, Generic[P]):
         ...
 
     @abstractmethod
-    def that(self, is_for_selection: checker_of[P]) -> Self:
+    def that(self, is_for_selection: Callable[P, bool]) -> Self:
         ...
 
     def __invert__(self) -> Self:
@@ -430,7 +430,7 @@ class _DoubleFlag(Flag, ABC):
 
     def that(
         self,
-        is_for_selection: checker_of[_FirstPointT | _SecondPointT],
+        is_for_selection: Callable[_FirstPointT | _SecondPointT, bool],
     ) -> Flag:
         return self._combined(
             self._first.that(is_for_selection),
@@ -488,7 +488,7 @@ class _AtomicFlag(Flag, ABC):
     def __iter__(self) -> Iterator[Self]:
         return iter((self, ) if self != nothing else tuple())
 
-    def that(self, is_for_selection: checker_of[P]) -> Self:
+    def that(self, is_for_selection: Callable[P, bool]) -> Self:
         return (
             self
             if self != nothing and is_for_selection(self.point)

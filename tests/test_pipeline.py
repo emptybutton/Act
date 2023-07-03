@@ -1,6 +1,5 @@
-from typing import Iterable, Callable
+from typing import Iterable, Callable, Any
 
-from act.annotations import one_value_action
 from act.pipeline import *
 from act.testing import case_of
 from tests.mocks import MockAction
@@ -28,8 +27,8 @@ test_action_chain_calling = case_of(
     ]
 )
 def test_action_chain_iteration(
-    first_nodes: Iterable[one_value_action],
-    second_nodes: Iterable[one_value_action],
+    first_nodes: Iterable[Callable[Any, Any]],
+    second_nodes: Iterable[Callable[Any, Any]],
 ):
     assert (
         tuple(ActionChain((*first_nodes, *second_nodes)))

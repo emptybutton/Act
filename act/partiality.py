@@ -4,7 +4,7 @@ from operator import attrgetter
 from typing import Any, Self, Iterable, Tuple, Optional, Callable
 import functools
 
-from act.annotations import action_for, R
+from act.annotations import R
 from act.atomization import atomically
 from act.representations import code_like_repr_of
 from act.signatures import Decorator, call_signature_of
@@ -180,7 +180,7 @@ class flipped(Decorator):
         )
 
 
-def mirrored_partial(action: action_for[R], *args, **kwargs) -> action_for[R]:
+def mirrored_partial(action: Callable[..., R], *args, **kwargs) -> Callable[..., R]:
     """
     Function to partially apply an input action with mirrored parameters by
     input arguments.
@@ -189,7 +189,7 @@ def mirrored_partial(action: action_for[R], *args, **kwargs) -> action_for[R]:
     return flipped(partial(flipped(action), *args, **kwargs))
 
 
-def rpartial(action: action_for[R], *args, **kwargs) -> action_for[R]:
+def rpartial(action: Callable[..., R], *args, **kwargs) -> Callable[..., R]:
     """
     Function similar to `functools.partial` with the difference that partially
     applied arguments are set not to the left but to the right.
@@ -198,7 +198,7 @@ def rpartial(action: action_for[R], *args, **kwargs) -> action_for[R]:
     return mirrored_partial(action, *args[::-1], **kwargs)
 
 
-def will(action: action_for[R]) -> action_for[action_for[R]]:
+def will(action: Callable[..., R]) -> Callable[..., Callable[..., R]]:
     """
     Decorator to represent an input action into an action that partially applies
     that input action like `partial` function.
@@ -207,7 +207,7 @@ def will(action: action_for[R]) -> action_for[action_for[R]]:
     return partial(partial, action)
 
 
-def rwill(action: action_for[R]) -> action_for[action_for[R]]:
+def rwill(action: Callable[..., R]) -> Callable[..., Callable[..., R]]:
     """
     Decorator to represent an input action into an action that partially applies
     that input action like `rpartial` function.

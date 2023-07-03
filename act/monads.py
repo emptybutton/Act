@@ -3,7 +3,7 @@ from typing import Callable, Any, Tuple, Optional
 
 from pyannotating import Special, AnnotationTemplate, input_annotation
 
-from act.annotations import dirty, R, checker_of, event_for, A, B, V, FlagT, C
+from act.annotations import dirty, R, A, B, V, FlagT, C
 from act.atomization import atomically
 from act.contexting import (
     contextual, contextually, contexted, ContextualForm, saving_context,
@@ -133,7 +133,7 @@ left = contextualizing(flag_about("left", negative=True))
 @and_via_indexer(lambda i: right[i] | left[i])
 def either(
     *determinants_and_ways: tuple[
-        Special[checker_of[C]],
+        Special[Callable[C, bool]],
         Special[break_, Callable[V, R] | R],
     ],
 ) -> LeftCallable[V | ContextualForm[V, C], contextual[R, C]]:
@@ -166,7 +166,7 @@ future = contextualizing(flag_about("future"), to=contextually)
 def in_future(
     action: Callable[V, R],
     value: V | ContextualForm[V, Flag[C] | C],
-) -> contextual[V, Flag[C | contextually[event_for[R], future]]]:
+) -> contextual[V, Flag[C | contextually[Callable[..., R], future]]]:
     """
     Decorator to delay the execution of an input action.
 
@@ -188,8 +188,8 @@ def in_future(
 
 def future_from(
     value: Special[
-        contextually[event_for[R], future]
-        | Flag[contextually[event_for[R], future]]
+        contextually[Callable[..., R], future]
+        | Flag[contextually[Callable[..., R], future]]
     ],
 ) -> Tuple[R]:
     """

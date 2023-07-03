@@ -5,9 +5,7 @@ from typing import Generic, Callable, Any, Tuple, Mapping, Optional
 
 from pyannotating import Special
 
-from act.annotations import (
-    V, dirty, reformer_of, checker_of, ActionT, action_for, Pm, R, K
-)
+from act.annotations import V, dirty, reformer_of, ActionT, Pm, R, K
 
 
 __all__ = (
@@ -54,7 +52,7 @@ def documenting_by(documentation: str) -> dirty[reformer_of[V]]:
     return document
 
 
-def to_check(determinant: checker_of[V] | V) -> checker_of[V]:
+def to_check(determinant: Callable[V, bool] | V) -> Callable[V, bool]:
     """Function representing an input value to a validation action."""
 
     from act.flags import _CallableNamedFlag
@@ -67,7 +65,7 @@ def to_check(determinant: checker_of[V] | V) -> checker_of[V]:
     )
 
 
-def as_action(value: ActionT | V) -> ActionT | action_for[V]:
+def as_action(value: ActionT | V) -> ActionT | Callable[..., V]:
     """Function representing an input value to aт action."""
 
     return value if callable(value) else lambda *_, **__: value

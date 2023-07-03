@@ -4,14 +4,13 @@ from unittest import TestCase
 
 from pyannotating import Subgroup
 
-from act.annotations import event
 from act.data_flow import anything
 
 
 __all__ = ("case_of", "test_case_pack")
 
 
-test_case_pack: TypeAlias = tuple[event, Any]
+test_case_pack: TypeAlias = tuple[Callable[..., Any], Any]
 
 _character_numbers = Subgroup(int, lambda number: number in range(0, 10))
 
@@ -43,7 +42,7 @@ def _calling_test_method_of(
     return testing_method
 
 
-def case_of(*test_packs: test_case_pack | event) -> Type[TestCase]:
+def case_of(*test_packs: test_case_pack | Callable[..., Any]) -> Type[TestCase]:
     """Function to create a `TestCase` type with input tests."""
 
     return type(

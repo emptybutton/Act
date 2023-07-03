@@ -9,7 +9,7 @@ from typing import (
 
 from pyannotating import many_or_one, Special
 
-from act.annotations import V, M, K, checker_of, I, Unia
+from act.annotations import V, M, K, I, Unia
 from act.atomization import atomically
 from act.contexting import ContextualForm, contexted, contextualizing, saving_context
 from act.data_flow import returnly, by
@@ -393,7 +393,7 @@ def map_table(mapped: Callable[V, M], table: Mapping[K, V]) -> OrderedDict[K, M]
 
 
 def filter_table(
-    is_valid: checker_of[V],
+    is_valid: Callable[V, bool],
     table: Mapping[K, V],
 ) -> OrderedDict[K, V]:
     """

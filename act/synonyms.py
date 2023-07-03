@@ -4,7 +4,7 @@ from inspect import Signature, Parameter
 
 from pyannotating import Special
 
-from act.annotations import Pm, V, R, E, action_for, reformer_of, checker_of, L
+from act.annotations import Pm, V, R, E, reformer_of, L
 from act.atomization import atomically
 from act.partiality import partial, partially
 from act.representations import code_like_repr_of
@@ -114,7 +114,7 @@ class repeating(LeftCallable):
     determinant.
     """
 
-    def __init__(self, action: reformer_of[V], while_: Special[checker_of[V]]):
+    def __init__(self, action: reformer_of[V], while_: Special[Callable[V, bool]]):
         self._action = action
         self._is_valid_to_repeat = to_check(while_)
 
@@ -176,7 +176,7 @@ class trying_to(LeftCallable):
 
 
 @partially
-def with_(context_manager: AbstractContextManager, action: action_for[R]) -> R:
+def with_(context_manager: AbstractContextManager, action: Callable[..., R]) -> R:
     """Function emulating the `with as` context manager."""
 
     with context_manager as context:
@@ -217,8 +217,8 @@ def in_tuple(value: V) -> Tuple[V]:
 def with_keyword(
     keyword: str,
     value: Any,
-    action: action_for[R],
-) -> action_for[R]:
+    action: Callable[..., R],
+) -> Callable[..., R]:
     """Function for atomic partial application with keyword argument."""
 
     return partial(action, **{keyword: value})

@@ -8,7 +8,7 @@ from typing import (
 from pyannotating import Special
 
 from act.annotations import (
-    ActionT, ErrorT, P, Pm, checker_of, A, B, C, V, R, W, D, S, M, G, F, Unia, FlagT
+    ActionT, ErrorT, P, Pm, A, B, C, V, R, W, D, S, M, G, F, Unia, FlagT
 )
 from act.atomization import atomically
 from act.flags import (
@@ -309,7 +309,7 @@ def to_read(
 
 @partially
 def with_context_that(
-    that: checker_of[P],
+    that: Callable[P, bool],
     value: V | ContextualForm[V, P | Flag[P]],
 ) -> contextual[V, P | nothing]:
     """

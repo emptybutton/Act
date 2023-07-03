@@ -15,17 +15,8 @@ from act.representations import code_like_repr_of
 
 
 __all__ = (
-    "checker_of",
-    "formatter_of",
-    "transformer_to",
     "reformer_of",
     "merger_of",
-    "event_for",
-    "action_for",
-    "one_value_action",
-    "checker",
-    "decorator",
-    "event",
     "Pm",
     "ArgumentsT",
     "ActionT",
@@ -71,12 +62,6 @@ __all__ = (
 )
 
 
-checker_of = AnnotationTemplate(Callable, [[input_annotation], bool])
-
-formatter_of = AnnotationTemplate(Callable, [[input_annotation], str])
-
-transformer_to = AnnotationTemplate(Callable, [[Any], input_annotation])
-
 reformer_of = AnnotationTemplate(
     Callable, [[input_annotation], input_annotation]
 )
@@ -84,19 +69,6 @@ reformer_of = AnnotationTemplate(
 merger_of = AnnotationTemplate(Callable, [
     [input_annotation, input_annotation], input_annotation
 ])
-
-event_for = AnnotationTemplate(Callable, [[], input_annotation])
-
-action_for = AnnotationTemplate(Callable, [[...], input_annotation])
-
-
-one_value_action = reformer_of[Any]
-
-checker = checker_of[Any]
-
-decorator = reformer_of[Callable]
-
-event = event_for[Any]
 
 
 Pm = ParamSpec('Pm')
