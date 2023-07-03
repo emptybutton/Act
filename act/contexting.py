@@ -428,7 +428,9 @@ up: LeftCallable[
         LeftCallable[M, contextual[V | W, F | G]]
     ],
 ]
-up = discretely(atomic_binding_by(
+up = documenting_by(
+    """Decorator for execution contextualization with meta-context."""
+)(discretely(atomic_binding_by(
     ...
     |then>> atomic_binding_by(... |then>> with_reduced_metacontext)
-))
+)))
