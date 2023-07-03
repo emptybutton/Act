@@ -69,6 +69,23 @@ def as_property(
 
 
 class Arbitrary(ABC):
+    """
+    Interface for objects that do not have a common structure.
+
+    To create an arbitrary object with data, use the `obj` constructor.
+
+    To create an object annotated with data and its future filling, use the
+    `temp` constructor.
+
+    Data from any several objects can be combined using the `&` operator from
+    an arbitrary object or `of` classmethod of one of the constructors.
+
+    `Arbitrary` objects are compared only by value without type qualification.
+
+    For covariant value checking use the `isinstance` function.
+    `|` supported for `Union`.
+    """
+
     @abstractmethod
     def __init__(self, **attributes):
         ...
@@ -103,13 +120,9 @@ class Arbitrary(ABC):
 
     @classmethod
     @abstractmethod
-    def of(cls, *objects: Any) -> Self:
+    def of(cls, *objects: Special[Mapping]) -> Self:
         """
         Constructor for data from other objects.
-
-        When passing a dictionary without `__dict__`, gets data from that
-        dictionary.
-
         Data of subsequent objects have higher priority than previous ones.
         """
 
@@ -189,12 +202,12 @@ _NO_VALUE = flag_about("_NO_VALUE")
 
 class obj(_AttributeKeeper):
     """
-    Constructor for objects that do not have a common structure.
+    Constructor for an `Arbitrary` object with data.
 
     Creates an object with attributes from keyword arguments.
 
     When called with a `__call__` attribute, makes an output object callable on
-    that attribute as a method.
+    that attribute.
 
     Can be obtained union of an instance with any other object via `&`.
     """
