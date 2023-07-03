@@ -149,14 +149,17 @@ main(WithA(...), [1, 2, 3], 8)
 > Item setting supports `tuple`.
 > ```py
 > main = t[1].set(8)  # there is no such >.<
-> main((1, 2, 3))  # (1, 8, 2)
+> main((1, 2, 3))
+> ```
+> ```
+> (1, 8, 2)
 > ```
 
 </br>
 
 ...with side effects
 ```py
-main = v.a.set(w[1].set(-x, mutably=True), mutably=True).a  # there is no such >.<
+main = v.a.mset(w[1].mset(-x)).a  # there is no such >.<
 
 values = [1, 2, 3]
 with_a = WithA(...)
@@ -168,7 +171,7 @@ with_a.a  # [1, -8, 3]
 
 ...and via a function
 ```py
-main = v.a.as_(lambda a: a * 4, mutably=True).a  # there is no such >.<
+main = v.a.mbe(lambda a: a * 4).a  # there is no such >.<
 with_a = WithA(64)
 
 main(with_a)  # 256
@@ -220,7 +223,8 @@ Execute Instantly
 
 Insert functions into templates
 ```py
-main = binding_by(int |then>> ... |then>> str |then>> (l + '!'))  # lambda f: int |then>> f |then>> str |then>> (l + '!')
+main = binding_by(int |then>> ... |then>> str |then>> (l + '!'))
+# lambda f: int |then>> f |then>> str |then>> (l + '!')
 
 func = main(v + 3)  # int |then>> (v + 3) |then>> str |then>> (l + '!')
 func('5')
@@ -487,7 +491,7 @@ on(None, 4)  # lambda _: 4 if _ is None else None
 on(None, 1, else_=0)  # lambda _: 1 if _ is None else 0
 
 
-matching(
+when(
     (n > 0, "positive"),
     (0, "zero"),
     (n < 0, "negative"),
@@ -507,7 +511,7 @@ matching(
 
 ...with stopping
 ```py
-main = matching(  # there is no such >.<
+main = when(  # there is no such >.<
     (n > 0, "positive"),
     (0, break_),
     (n <= 0, "negative"),
@@ -851,16 +855,30 @@ very great 4
 > great 4
 > ```
 
-> To declare contextualization use the `as_` function.
+> To declare contextualization use the `be` function.
 > ```py
-> as_(great, 4)  # great 4
-> as_(great, great(4))  # great 4
+> ...
+> 
+> be(great)(4)  # great 4
+> be(great, great(4))  # great 4
+> 
+> nice = contextualizing(flag_about("nice"))
+> 
+> be(nice, great(4))  # nice great 4
+> 
+> be(+nice, great(4))  # great | nice 4
+> be(+nice, 4)  # nice 4
+> 
+> be(-nice, nice(4))  # nothing 4
+> be(-nice, 4)  # nothing 4
 > ```
 
 </br>
 
 Get values
 ```py
+...
+
 value, context = great(4)
 
 great(4).value == value == 4
