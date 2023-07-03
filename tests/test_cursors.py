@@ -118,7 +118,7 @@ def test_cursor_item_setting_immutability():
 def test_cursor_item_setting_mutability():
     object_ = [1, 2, 3]
 
-    new_object_ = (v[1].set(-v[1], mutably=True))(object_)
+    new_object_ = (v[1].mset(-v[1]))(object_)
 
     assert object_ is new_object_
     assert object_ == new_object_ == [1, -2, 3]
@@ -155,7 +155,7 @@ def test_cursor_attr_setting_immutability():
 def test_cursor_mutable_attr_setting():
     object_ = MockA(None)
 
-    new_object_ = (v.a.set(4, mutably=True))(object_)
+    new_object_ = (v.a.mset(4))(object_)
 
     assert object_ is new_object_
     assert object_.a == new_object_.a == 4

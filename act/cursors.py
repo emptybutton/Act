@@ -276,8 +276,20 @@ class _ActionCursor(Mapping):
             )
         )
 
+    def set(self, value: Special[Self]) -> Self:
+        return self._set(value)
+
+    def mset(self, value: Special[Self]) -> Self:
+        return self._set(value, mutably=True)
+
+    def be(self, action: Special[Self, Callable]) -> Self:
+        return self._be(action)
+
+    def mbe(self, action: Special[Self, Callable]) -> Self:
+        return self._be(action, mutably=True)
+
     @_generation_transaction
-    def set(self, value: Special[Self], *, mutably: bool = False) -> Self:
+    def _set(self, value: Special[Self], *, mutably: bool = False) -> Self:
         nature, place = self._nature
 
         if nature == _ActionCursorNature.attrgetting:
@@ -301,8 +313,8 @@ class _ActionCursor(Mapping):
             )))
         )
 
-    def as_(self, action: Special[Self, Callable], *, mutably: bool = False) -> Self:
-        return partial(self.set, mutably=mutably)(partial(self._with, action)(
+    def _be(self, action: Special[Self, Callable], *, mutably: bool = False) -> Self:
+        return partial(self._set, mutably=mutably)(partial(self._with, action)(
             internal_repr=f"{code_like_repr_of(action)}({self._internal_repr})"
         ))
 
