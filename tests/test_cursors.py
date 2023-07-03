@@ -100,8 +100,8 @@ test_cursors_with_item_getting = case_of(
 test_cursors_with_item_setting = case_of(
     (lambda: l[1].set(l[1] + 10)([1, 2, 3]), [1, 12, 3]),
     (lambda: t[1].set(t[1] + 10)((1, 2, 3)), (1, 12, 3)),
-    (lambda: l[1].as_(i + 10)([1, 2, 3]), [1, 12, 3]),
-    (lambda: t[1].as_(i + 10)((1, 2, 3)), (1, 12, 3)),
+    (lambda: l[1].be(i + 10)([1, 2, 3]), [1, 12, 3]),
+    (lambda: t[1].be(i + 10)((1, 2, 3)), (1, 12, 3)),
 )
 
 
@@ -137,8 +137,8 @@ test_cursors_with_attr_setting = case_of(
     (lambda: (v.a.set(w))(MockA(6), 16).a, 16),
     (lambda: ((v.a.set(10)).a + w)(MockA(None), 6), 16),
     (lambda: (v.a.set(v.a + 10))(MockA(6)).a, 16),
-    (lambda: o.a.as_(abs)(MockA(a=-8)).a, 8),
-    (lambda: o.a.as_(a**2)(MockA(a=4)).a, 16),
+    (lambda: o.a.be(abs)(MockA(a=-8)).a, 8),
+    (lambda: o.a.be(a**2)(MockA(a=4)).a, 16),
 )
 
 
