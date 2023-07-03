@@ -43,6 +43,7 @@ __all__ = (
     "with_reduced_metacontext",
     "without_metacontext",
     "up",
+    "down",
 )
 
 
@@ -434,3 +435,20 @@ up = documenting_by(
     ...
     |then>> atomic_binding_by(... |then>> with_reduced_metacontext)
 )))
+
+
+down = documenting_by(
+    """
+    Decorator isolating a nested execution context from an outer context
+    execution.
+    """
+)(
+    atomic_binding_by(
+        ...
+        |then>> saving_context
+        |then>> atomic_binding_by(
+            contextual |then>> ... |then>> attrgetter("value")
+        )
+    )
+    |then>> discretely
+)
