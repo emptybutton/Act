@@ -199,7 +199,7 @@ _NO_VALUE: Final[Flag] = flag_about("_NO_VALUE")
 def contexted(
     value: V | ContextualForm[V, D],
     when: C | Callable[D, C] | _NO_VALUE = _NO_VALUE,
-) -> ContextualForm[V, D | C]:
+) -> contextual[V, D | C]:
     """
     Function to represent an input value in `contextual` form if it is not
     already present.
@@ -275,8 +275,8 @@ def saving_context(
 
 @partially
 def to_context(
-    action: Callable[A, B],
-    value_and_context: contextual_like[V, A],
+    action: Callable[A | nothing, B],
+    value_and_context: contextual_like[V, A] | V,
 ) -> contextual[V, B]:
     """
     Function to perform an input action on a context of `contextual_like` value
