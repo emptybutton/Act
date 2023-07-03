@@ -66,8 +66,8 @@ __all__ = (
     "dirty",
     "pure",
     "action_of",
-    "Unia",
     "Union",
+    "Unia",
 )
 
 
@@ -301,6 +301,53 @@ class _CallableConstructor:
 action_of = _CallableConstructor()
 
 
+class Union:
+    __args__ = property(attrgetter("_annotations"))
+
+    def __new__(cls, *annotations: Special[Self], **kwargs) -> Self:
+        if len(annotations) == 1:
+            return annotations[0]
+        elif len(annotations) == 0:
+            raise UnionError("ValueUnion without annotations")
+        else:
+            return super().__new__(cls)
+
+    def __init__(self, *annotations):
+        self._annotations = sum(
+            tuple(map(self._annotation_of, annotations)), tuple()
+        )
+
+    def __repr__(self) -> str:
+        return ' | '.join(map(code_like_repr_of, self._annotations))
+
+    def __class_getitem__(cls, annotations: Special[tuple]) -> Self:
+        return cls(*(
+            annotations
+            if isinstance(annotations, tuple)
+            else (annotations, )
+        ))
+
+    def __instancecheck__(self, instance) -> bool:
+        return self._annotations and any(
+            isinstance(instance, annotation)
+            for annotation in self._annotations
+        )
+
+    def __or__(self, other: Any) -> Self:
+        return type(self)(self, other)
+
+    def __ror__(self, other: Any) -> Self:
+        return type(self)(other, self)
+
+    @staticmethod
+    def _annotation_of(annotation: Any) -> tuple:
+        return (
+            annotation.__args__
+            if isinstance(annotation, Union | UnionType | _UnionGenericAlias)
+            else (annotation, )
+        )
+
+
 class Unia:
     """
     Union type with `and` nature i.e a value being checked must be a descendant
@@ -369,50 +416,3 @@ class Unia:
                 result_annotations.append(annotation)
 
         return tuple(result_annotations)
-
-
-class Union:
-    __args__ = property(attrgetter("_annotations"))
-
-    def __new__(cls, *annotations: Special[Self], **kwargs) -> Self:
-        if len(annotations) == 1:
-            return annotations[0]
-        elif len(annotations) == 0:
-            raise UnionError("ValueUnion without annotations")
-        else:
-            return super().__new__(cls)
-
-    def __init__(self, *annotations):
-        self._annotations = sum(
-            tuple(map(self._annotation_of, annotations)), tuple()
-        )
-
-    def __repr__(self) -> str:
-        return ' | '.join(map(code_like_repr_of, self._annotations))
-
-    def __class_getitem__(cls, annotations: Special[tuple]) -> Self:
-        return cls(*(
-            annotations
-            if isinstance(annotations, tuple)
-            else (annotations, )
-        ))
-
-    def __instancecheck__(self, instance) -> bool:
-        return self._annotations and any(
-            isinstance(instance, annotation)
-            for annotation in self._annotations
-        )
-
-    def __or__(self, other: Any) -> Self:
-        return type(self)(self, other)
-
-    def __ror__(self, other: Any) -> Self:
-        return type(self)(other, self)
-
-    @staticmethod
-    def _annotation_of(annotation: Any) -> tuple:
-        return (
-            annotation.__args__
-            if isinstance(annotation, Union | UnionType | _UnionGenericAlias)
-            else (annotation, )
-        )
