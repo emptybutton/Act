@@ -12,7 +12,7 @@ from act.annotations import (
 )
 from act.atomization import atomically
 from act.flags import (
-    nothing, Flag, pointed, flag_about, _NamedFlag, _CallableNamedFlag
+    nothing, Flag, pointed, flag_about, FlagVector, _NamedFlag, _CallableNamedFlag
 )
 from act.immutability import NotInitializable
 from act.partiality import partially, will, rpartial
@@ -240,12 +240,22 @@ def contextualizing(
 
 @partially
 def as_(
-    flag: Unia[FlagT, Callable[V, ContextualForm[V, FlagT]]],
+    flag_or_vector: Unia[FlagT, Callable[V, ContextualForm[V, FlagT]]] | FlagVector,
     value: V | ContextualForm[V, Special[FlagT, C]],
-) -> ContextualForm[V, FlagT]:
-    """Function to represent an input value contextualized by an input flag."""
+) -> ContextualForm[V, Special[FlagT]]:
+    """
+    Function to represent an input value contextualized by an input flag.
 
-    return value if contexted(value).context == flag else flag(value)
+    Represents in contextual form using an input `FlagVector` when it passed
+    as a flag.
+    """
+
+    if isinstance(flag_or_vector, FlagVector):
+        return contexted(value, flag_or_vector)
+    elif contexted(value).context == flag_or_vector:
+        return value
+    else:
+        return flag_or_vector(value)
 
 
 @partially
