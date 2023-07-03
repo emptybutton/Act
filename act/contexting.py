@@ -32,7 +32,7 @@ __all__ = (
     "context_oriented",
     "contexted",
     "contextualizing",
-    "as_",
+    "be",
     "saving_context",
     "to_context",
     "to_write",
@@ -239,7 +239,7 @@ def contextualizing(
 
 
 @partially
-def as_(
+def be(
     flag_or_vector: Unia[FlagT, Callable[V, ContextualForm[V, FlagT]]] | FlagVector,
     value: V | ContextualForm[V, Special[FlagT, C]],
 ) -> ContextualForm[V, Special[FlagT]]:

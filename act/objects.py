@@ -12,7 +12,7 @@ from pyannotating import Special
 
 from act.annotations import K, V, Pm, R, O, Union
 from act.contexting import (
-    contextually, contexted, contextualizing, as_
+    contextually, contexted, contextualizing, be
 )
 from act.data_flow import mergely, by, returnly
 from act.errors import ObjectTemplateError
@@ -375,7 +375,7 @@ class temp(_AttributeKeeper, LeftCallable):
         return (
             value
             if contexted(value).context == _to_fill
-            else as_(_filled, value)
+            else be(_filled, value)
         )
 
     @staticmethod
@@ -383,7 +383,7 @@ class temp(_AttributeKeeper, LeftCallable):
         return (
             value
             if contexted(value).context == _filled
-            else as_(_to_fill, value)
+            else be(_to_fill, value)
         )
 
     @staticmethod
