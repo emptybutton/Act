@@ -39,6 +39,7 @@ __all__ = (
     "is_in_future",
     "do",
     "up",
+    "mid",
     "down",
 )
 
@@ -302,6 +303,14 @@ up = documenting_by(
 )(discretely(atomic_binding_by(
     ...
     |then>> atomic_binding_by(... |then>> with_reduced_metacontext)
+)))
+
+
+mid = documenting_by(
+    """Decorator for execution contextualization with metacontext removing."""
+)(discretely(atomic_binding_by(
+    ...
+    |then>> atomic_binding_by(... |then>> contexted |then>> attrgetter("value"))
 )))
 
 
