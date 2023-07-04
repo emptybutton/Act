@@ -42,13 +42,10 @@ class _DynamicDeterminant(LeftCallable):
         return self._sign
 
     def __repr__(self) -> str:
-        return "{} ({})".format(
-            "positive" if self else "negative",
-            (
-                f"{self._name} {code_like_repr_of(self._checkers[0])}"
-                if len(self._checkers) == 1
-                else f" {self._name} ".join(map(code_like_repr_of, self._checkers))
-            ),
+        return f"([{self._sign}] {{}})".format(
+            f"{self._name} {code_like_repr_of(self._checkers[0])}"
+            if len(self._checkers) == 1
+            else f" {self._name} ".join(map(code_like_repr_of, self._checkers))
         )
 
     def __call__(self, value: V) -> bool:
