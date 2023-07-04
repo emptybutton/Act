@@ -2,13 +2,13 @@ from abc import ABC
 from operator import not_, methodcaller, attrgetter
 from typing import (
     Generic, Any, Iterator, Callable, Iterable, GenericAlias, Self, TypeVar,
-    Final, Union
+    Final
 )
 
 from pyannotating import Special
 
 from act.annotations import (
-    ActionT, ErrorT, P, Pm, A, B, C, V, R, W, D, S, M, G, F, Unia, FlagT
+    ActionT, ErrorT, P, Pm, A, B, C, V, R, W, D, S, Unia, FlagT
 )
 from act.atomization import atomically
 from act.flags import (
@@ -16,7 +16,7 @@ from act.flags import (
 )
 from act.immutability import NotInitializable
 from act.partiality import partially, will, rpartial
-from act.pipeline import then, ActionChain, discretely, atomic_binding_by
+from act.pipeline import then
 from act.representations import code_like_repr_of
 from act.signatures import call_signature_of
 from act.synonyms import repeating, returned, on
@@ -33,6 +33,7 @@ __all__ = (
     "contexted",
     "contextualizing",
     "be",
+    "of",
     "saving_context",
     "to_context",
     "to_write",
@@ -260,6 +261,13 @@ def be(
         return value
     else:
         return flag_or_vector(value)
+
+
+@partially
+def of(context: C, value: Special[ContextualForm[Any, C]]) -> bool:
+    """Shortcut to compare input value with context of second input value."""
+
+    return contexted(value).context == context
 
 
 @partially

@@ -134,3 +134,11 @@ def test_be():
     assert be(+ok, bad(4)) == contextual(4, ok | bad)
     assert be(-ok, ok(4)) == contextual(4)
     assert be(-ok, 4) == contextual(4)
+
+
+test_of = case_of(
+    lambda: of(4)(contextual(..., 4)),
+    lambda: not of(4)(contextual(..., 8)),
+    lambda: not of(4)(contextual(..., pointed(4))),
+    lambda: not of(4)(contextual(..., pointed(6, 8))),
+)
