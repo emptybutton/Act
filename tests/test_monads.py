@@ -192,6 +192,25 @@ test_do = case_of(
 )
 
 
+@mark.parametrize("value", [do.return_, do.return_ | ok])
+def test_do_with_error(value: ContextualForm[Any, do.return_]):
+    with raises(ReturningError):
+        do()(do.return_(4))
+
+    with raises(ReturningError):
+        do(lambda v: v)(do.return_(4))
+
+    with raises(ReturningError):
+        do((lambda v: v) |then>> (lambda v: v))(do.return_(4))
+
+    with raises(ReturningError):
+        do(
+            (lambda v: v) |then>> (lambda v: v),
+            (lambda v: v) |then>> (lambda v: v),
+            (lambda v: v) |then>> (lambda v: v),
+        )(
+            do.return_(4)
+        )
 
 
 def test_do_with_logs():
