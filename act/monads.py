@@ -234,7 +234,6 @@ class do:
 
     return_ = contextualizing(flag_about("return_"))
 
-    @staticmethod
     def __call__(*lines: Special[ActionChain, Callable]) -> LeftCallable:
         return do._action_from(*lines)
 
