@@ -1,12 +1,9 @@
-from functools import reduce, partial
+from functools import reduce, partial, lru_cache
 from operator import or_, attrgetter
-from typing import runtime_checkable, Protocol, Self, Callable
+from typing import runtime_checkable, Protocol, Self, Callable, Any
 
-from pyannotating import Special
-
-from act.annotations import P, V, Unia
+from act.annotations import V, Unia
 from act.data_flow import via_indexer
-from act.immutability import to_clone
 from act.objects import dict_of
 
 
@@ -14,10 +11,8 @@ __all__ = (
     "Variable",
     "Hashable",
     "Decorateable",
-    "Protocolable",
     "Proto",
     "protocol_of",
-    "protocoled",
 )
 
 
@@ -48,25 +43,12 @@ class Decorateable(Protocol):
         ...
 
 
-@runtime_checkable
-class Protocolable(Protocol[P]):
-    """
-    Protocol for objects that have a reference to a protocol previously based
-    on this object.
-    """
-
-    __protocol__: P
-
-
 @via_indexer
-def Proto(value: Special[Protocolable[P]]) -> P:
+@lru_cache(typed=True)
+def Proto(value: Any) -> Protocol:
     """Annotation of input value protocol."""
 
-    return (
-        value.__protocol__
-        if isinstance(value, Protocolable)
-        else protocol_of(value)
-    )
+    return protocol_of(value)
 
 
 def protocol_of(value: V) -> Protocol:
@@ -95,16 +77,3 @@ def protocol_of(value: V) -> Protocol:
             dict_of(value),
         ))
     )
-
-
-@to_clone
-def protocoled(value: V) -> Unia[V, Protocolable]:
-    """
-    Function to create a protocol based on an input value and immutably add that
-    protocol to an input value.
-
-    Adds a generated protocol to the `__protocol__` attribute, making an output
-    value `Protocolable`.
-    """
-
-    value.__protocol__ = protocol_of(value)
