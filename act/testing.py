@@ -4,8 +4,6 @@ from unittest import TestCase
 
 from pyannotating import Subgroup
 
-from act.data_flow import anything
-
 
 __all__ = ("case_of", "test_case_pack")
 
@@ -53,7 +51,7 @@ def case_of(*test_packs: test_case_pack | Callable[..., Any]) -> Type[TestCase]:
                 test_pack,
             )
             for test_pack_index, test_pack in enumerate(map(
-                lambda p: p if isinstance(p, tuple | list) else (p, anything),
+                lambda p: p if isinstance(p, tuple | list) else (p, True),
                 test_packs,
             ))
         }
