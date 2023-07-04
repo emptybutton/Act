@@ -8,6 +8,11 @@ from act.testing import case_of
 
 test_context_oriented = case_of(
     (lambda: context_oriented(['val', 'con']), contextual(nothing, ['val', 'con'])),
+    (lambda: context_oriented(contextual('val', 'con')), contextual('con', 'val')),
+    (
+        lambda: context_oriented(contextually(print, 'con')),
+        contextual('con', print),
+    ),
 )
 
 
