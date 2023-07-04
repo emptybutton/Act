@@ -282,10 +282,10 @@ class _ActionCursor(Mapping):
     def mset(self, value: Special[Self]) -> Self:
         return self._set(value, mutably=True)
 
-    def be(self, action: Special[Self, Callable]) -> Self:
+    def be(self, action: Special[Self | Callable]) -> Self:
         return self._be(action)
 
-    def mbe(self, action: Special[Self, Callable]) -> Self:
+    def mbe(self, action: Special[Self | Callable]) -> Self:
         return self._be(action, mutably=True)
 
     @_generation_transaction
@@ -313,7 +313,15 @@ class _ActionCursor(Mapping):
             )))
         )
 
-    def _be(self, action: Special[Self, Callable], *, mutably: bool = False) -> Self:
+    def _be(
+        self,
+        action: Special[Self | Callable],
+        *,
+        mutably: bool = False,
+    ) -> Self:
+        if not callable(action):
+            action = to(action)
+
         return partial(self._set, mutably=mutably)(partial(self._with, action)(
             internal_repr=f"{code_like_repr_of(action)}({self._internal_repr})"
         ))
