@@ -237,6 +237,9 @@ class do:
     return_ = contextualizing(flag_about("return_"))
     up = contextualizing(flag_about('up'), to=contextually)
 
+    write = atomically(to_write |then>> up)
+    read = atomically(to_read |then>> up)
+
     def __call__(*lines: Special[ActionChain, Callable]) -> LeftCallable:
         return do._action_from(*lines)
 
