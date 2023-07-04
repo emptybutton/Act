@@ -43,8 +43,6 @@ __all__ = (
     "with_reduced_metacontext",
     "without_metacontext",
     "metacontexted",
-    "up",
-    "down",
 )
 
 
@@ -429,44 +427,3 @@ def metacontexted(value: Special[ContextualForm]) -> tuple:
     value = contexted(value)
 
     return (*metacontexted(value.value), value.context)
-
-
-up: LeftCallable[
-    Union[
-        Callable[
-            Callable[A, ContextualForm[B, C]],
-            Callable[M, ContextualForm[Special[ContextualForm[V, G]], F]]
-        ],
-        ActionChain[Callable[
-            Callable[A, ContextualForm[B, C]],
-            Callable[M, ContextualForm[Special[ContextualForm[V, G], W], F]]]
-        ],
-    ],
-    LeftCallable[
-        Callable[A, ContextualForm[B, C]],
-        LeftCallable[M, contextual[V | W, F | G]]
-    ],
-]
-up = documenting_by(
-    """Decorator for execution contextualization with meta-context."""
-)(discretely(atomic_binding_by(
-    ...
-    |then>> atomic_binding_by(... |then>> with_reduced_metacontext)
-)))
-
-
-down = documenting_by(
-    """
-    Decorator isolating a nested execution context from an outer context
-    execution.
-    """
-)(
-    atomic_binding_by(
-        ...
-        |then>> saving_context
-        |then>> atomic_binding_by(
-            contextual |then>> ... |then>> attrgetter("value")
-        )
-    )
-    |then>> discretely
-)

@@ -3,11 +3,11 @@ from typing import Callable, Any, Tuple, Optional
 
 from pyannotating import Special, AnnotationTemplate, input_annotation
 
-from act.annotations import dirty, R, A, B, V, FlagT, C
+from act.annotations import dirty, R, A, B, V, C, M, G, F, W, FlagT, Union
 from act.atomization import atomically
 from act.contexting import (
     contextual, contextually, contexted, ContextualForm, saving_context,
-    with_reduced_metacontext, contextualizing
+    with_reduced_metacontext, contextualizing, to_write, to_read, of, to_context
 )
 from act.data_flow import returnly, by, to, when, break_, and_via_indexer
 from act.effects import context_effect
@@ -15,7 +15,7 @@ from act.flags import flag_about, nothing, Flag, pointed
 from act.objects import obj
 from act.operators import and_
 from act.partiality import will, partially
-from act.pipeline import discretely, ActionChain, binding_by, then
+from act.pipeline import discretely, ActionChain, then, atomic_binding_by
 from act.structures import tmap
 from act.synonyms import on, returned
 from act.tools import documenting_by, to_check, as_action, LeftCallable
@@ -36,6 +36,8 @@ __all__ = (
     "future_from",
     "is_in_future",
     "do",
+    "up",
+    "down",
 )
 
 
@@ -261,3 +263,44 @@ class do:
                 lambda v: v.value,
             )
         )
+
+
+up: LeftCallable[
+    Union[
+        Callable[
+            Callable[A, ContextualForm[B, C]],
+            Callable[M, ContextualForm[Special[ContextualForm[V, G]], F]]
+        ],
+        ActionChain[Callable[
+            Callable[A, ContextualForm[B, C]],
+            Callable[M, ContextualForm[Special[ContextualForm[V, G], W], F]]]
+        ],
+    ],
+    LeftCallable[
+        Callable[A, ContextualForm[B, C]],
+        LeftCallable[M, contextual[V | W, F | G]]
+    ],
+]
+up = documenting_by(
+    """Decorator for execution contextualization with metacontext join."""
+)(discretely(atomic_binding_by(
+    ...
+    |then>> atomic_binding_by(... |then>> with_reduced_metacontext)
+)))
+
+
+down = documenting_by(
+    """
+    Decorator isolating a nested execution context from an outer context
+    execution.
+    """
+)(
+    atomic_binding_by(
+        ...
+        |then>> saving_context
+        |then>> atomic_binding_by(
+            contextual |then>> ... |then>> attrgetter("value")
+        )
+    )
+    |then>> discretely
+)
