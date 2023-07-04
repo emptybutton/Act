@@ -123,7 +123,7 @@ def showly(
     `ActionChain` to something. Default to console.
     """
 
-    return discretely(binding_by(... |then>> returnly(show)))(
+    return discretely(atomic_binding_by(... |then>> returnly(show)))(
         action_or_actions
     )
 
