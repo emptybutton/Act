@@ -186,13 +186,17 @@ class ContextualError(_BinaryContextualForm, Exception, Generic[ErrorT, C]):
         return repr(self)
 
 
-def context_oriented(root_values: contextual_like[V, C]) -> contextual[C, V]:
+def context_oriented(value: Special[ContextualForm[V, C]]) -> contextual[C, V]:
     """
-    Function to replace the main value of a `contextual_like` object with its
-    context, and its context with its main value.
+    Function to replace the main value of a `ContextualForm` with its context,
+    and its context with its main value.
     """
 
-    return contextual(*reversed(tuple(root_values)))
+    return (
+        contextual(*reversed(tuple(value)))
+        if isinstance(value, ContextualForm)
+        else contextual(nothing, value)
+    )
 
 
 _NO_VALUE: Final[Flag] = flag_about("_NO_VALUE")
