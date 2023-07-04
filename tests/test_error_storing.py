@@ -1,5 +1,5 @@
 from act.error_storing import *
-from act.objects import obj, of
+from act.objects import obj, from_
 from act.testing import case_of
 
 
@@ -12,21 +12,21 @@ test_errors_from = case_of(
     (
         lambda: tuple(map(
             type,
-            errors_from(of(obj(error=ZeroDivisionError()), TypeError())),
+            errors_from(from_(obj(error=ZeroDivisionError()), TypeError())),
         )),
         (TypeError, ZeroDivisionError),
     ),
     (
-        lambda: tuple(map(type, errors_from(of(obj(
+        lambda: tuple(map(type, errors_from(from_(obj(
             error=ZeroDivisionError(),
             errors=[
                 Exception(),
                 obj(errors=[KeyError(), ValueError()]),
                 obj(error=IndexError()),
-                of(obj(error=ValueError()), AttributeError()),
-                of(obj(errors=tuple()), ZeroDivisionError()),
-                of(
-                    obj(error=of(obj(error=IndexError()), Exception())),
+                from_(obj(error=ValueError()), AttributeError()),
+                from_(obj(errors=tuple()), ZeroDivisionError()),
+                from_(
+                    obj(error=from_(obj(error=IndexError()), Exception())),
                     TypeError(),
                 ),
             ],

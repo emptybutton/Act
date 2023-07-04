@@ -181,11 +181,11 @@ test_void = case_of(
 )
 
 
-test_of = case_of(
-    (lambda: of(obj(a=1, b=2), obj(c=3)), obj(a=1, b=2, c=3)),
-    (lambda: of(obj(a=2), obj(a=1)), obj(a=2)),
+test_from_ = case_of(
+    (lambda: from_(obj(a=1, b=2), obj(c=3)), obj(a=1, b=2, c=3)),
+    (lambda: from_(obj(a=2), obj(a=1)), obj(a=2)),
     (
-        lambda: (lambda r: (type(r), r.__dict__))(of(
+        lambda: (lambda r: (type(r), r.__dict__))(from_(
             MockB(2),
             MockA(1),
         )),
