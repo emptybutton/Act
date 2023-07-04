@@ -291,7 +291,7 @@ def to_context(
 
     return context_oriented(saving_context(
         action,
-        context_oriented(contexted(value_and_context)),
+        context_oriented(value_and_context),
     ))
 
 
