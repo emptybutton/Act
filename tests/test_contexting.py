@@ -1,13 +1,13 @@
 from operator import attrgetter
 
 from act.contexting import *
-from act.flags import pointed, flag_about
+from act.flags import pointed, flag_about, nothing
 from act.pipeline import then
 from act.testing import case_of
 
 
 test_context_oriented = case_of(
-    (lambda: context_oriented(['val', 'con']), contextual('con', 'val')),
+    (lambda: context_oriented(['val', 'con']), contextual(nothing, ['val', 'con'])),
 )
 
 

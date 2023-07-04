@@ -7,8 +7,8 @@ from act.testing import case_of
 
 
 test_raising = case_of(
-    lambda: with_(raises(ValueError), raising(ValueError())),
-    lambda: with_(raises(IndexError), raising(IndexError())),
+    (lambda: with_(raises(ValueError), raising(ValueError())), None),
+    (lambda: with_(raises(IndexError), raising(IndexError())), None),
 )
 
 
@@ -16,10 +16,13 @@ test_catching = case_of(
     (lambda: catching(ValueError, type, ValueError()), ValueError),
     (lambda: catching(IndexError, type, IndexError()), IndexError),
     (lambda: catching(IndexError, type)(IndexError()), IndexError),
-    lambda: with_(
-        raises(ValueError),
-        lambda _: catching(IndexError, lambda _: "Bad result", ValueError),
-    ),
+    (
+        lambda: with_(
+            raises(ValueError),
+            lambda _: catching(IndexError, lambda _: "Bad result", ValueError),
+        ),
+        None,
+    )
 )
 
 

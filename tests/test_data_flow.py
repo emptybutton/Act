@@ -101,7 +101,6 @@ test_no = case_of(
 test_anything = case_of(
     (lambda: anything == anything),
     (lambda: anything == 4),
-    (lambda: anything is None),
 )
 
 

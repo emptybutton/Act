@@ -10,14 +10,14 @@ from pytest import mark, raises
 test_returned = case_of((lambda: returned(None), None))
 
 
-test_raise_ = case_of(lambda: (
-    with_(raises(TypeError), lambda _: raise_(TypeError())),
-))
+test_raise_ = case_of(
+    (lambda: with_(raises(TypeError), lambda _: raise_(TypeError())), None),
+)
 
 
 test_assert_ = case_of(
-    lambda: assert_(16),
-    lambda: with_(raises(AssertionError), lambda _: assert_(None)),
+    (lambda: assert_(16), None),
+    (lambda: with_(raises(AssertionError), lambda _: assert_(None)), None),
 )
 
 

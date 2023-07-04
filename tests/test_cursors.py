@@ -272,7 +272,7 @@ test_cursor_unpacking = case_of(
         lambda: _[0, v, *w, 4, *x, y, 8](1, [2, 3], [5, 6], 7),
         [0, 1, 2, 3, 4, 5, 6, 7, 8],
     ),
-    (lambda: _.reduce(v, _(1, *w))(operator.add, [2, 3, 4])),
+    (lambda: _.reduce(v, _(1, *w))(operator.add, [2, 3, 4]), 10),
     (lambda: _.dict(**(v | w))(dict(a=1, b=1), dict(b=2)), dict(a=1, b=2)),
 )
 
