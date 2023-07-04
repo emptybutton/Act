@@ -320,7 +320,9 @@ def to_read(
     passing its context.
     """
 
-    return context_oriented(to_write(action, context_oriented(value)))
+    stored_value, context = value
+
+    return contextual(action(stored_value, context), context)
 
 
 @partially

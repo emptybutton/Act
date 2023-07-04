@@ -384,7 +384,7 @@ class _ActionCursor(Mapping):
         return cls(
             parameters=[parameter],
             actions=ActionChain([
-                to_read(lambda v, *_, **__: operator.getitem(v, parameter.name))
+                to_read(lambda _, env: operator.getitem(env, parameter.name))
             ]),
             nature=contextual(_ActionCursorNature.returning),
             internal_repr=parameter.name,
