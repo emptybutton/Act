@@ -11,6 +11,8 @@ from act.contexting import (
 )
 from act.data_flow import returnly, by, to, when, break_, and_via_indexer
 from act.effects import context_effect
+from act.errors import ReturningError
+from act.error_flow import raising
 from act.flags import flag_about, nothing, Flag, pointed
 from act.objects import obj
 from act.operators import and_, not_
@@ -255,6 +257,10 @@ class do:
         ))
 
         return atomically(
+            on(
+                lambda v: of(do.return_, v) or of(do.return_, contexted(v).value),
+                raising(ReturningError("externally returned value")),
+            )
             |then>> on(to(in_isolation), contextual)
             |then>> to_context(on(nothing, obj()))
             |then>> (lines[:-1] >= discretely((lambda line: lambda value: (
