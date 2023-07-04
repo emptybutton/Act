@@ -267,16 +267,16 @@ def be(
 @partially
 def saving_context(
     action: Callable[A, B],
-    value_and_context: contextual_like[A, C] | A,
+    value: ContextualForm[A, C] | A,
 ) -> contextual[B, C]:
     """
-    Function to perform an input action on a `contextual_like` value while
+    Function to perform an input action to a `ContextualForm` value while
     saving its context.
     """
 
-    value, context = contexted(value_and_context)
+    stored_value, context = contexted(value)
 
-    return contextual(action(value), context)
+    return contextual(action(stored_value), context)
 
 
 @partially
