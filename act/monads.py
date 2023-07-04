@@ -13,7 +13,7 @@ from act.data_flow import returnly, by, to, when, break_, and_via_indexer
 from act.effects import context_effect
 from act.flags import flag_about, nothing, Flag, pointed
 from act.objects import obj
-from act.operators import and_
+from act.operators import and_, not_
 from act.partiality import will, partially
 from act.pipeline import discretely, ActionChain, then, atomic_binding_by
 from act.structures import tmap
@@ -233,33 +233,41 @@ class do:
     """
 
     return_ = contextualizing(flag_about("return_"))
+    up = contextualizing(flag_about('up'), to=contextually)
 
     def __call__(*lines: Special[ActionChain, Callable]) -> LeftCallable:
         return do._action_from(*lines)
 
-    def in_form(*lines: Special[ActionChain, Callable]) -> LeftCallable:
-        return do._action_from(*lines, in_form=True)
+    def openly(*lines: Special[ActionChain, Callable]) -> LeftCallable:
+        return do._action_from(*lines, in_isolation=False)
 
     def _action_from(
         *lines: Special[ActionChain, Callable],
-        in_form: bool = False,
+        in_isolation: bool = True,
     ) -> LeftCallable:
         lines = ActionChain((map |by| lines)(
-            discretely((on |to| (lambda v: contexted(v).context != do.return_)))
+            discretely(
+                saving_context(on |to| not_(of(do.return_)))
+                |then>> on(not_(of(do.up)), saving_context(saving_context))
+                |then>> attrgetter("value")
+            )
             |then>> atomically
         ))
 
         return atomically(
-            (lines[:-1] >= discretely((lambda line: lambda value: (
+            |then>> on(to(in_isolation), contextual)
+            |then>> to_context(on(nothing, obj()))
+            |then>> (lines[:-1] >= discretely((lambda line: lambda value: (
                 result
-                if contexted(result := line(value)).context == do.return_
+                if of(do.return_, (result := line(value)).value)
                 else value
             ))))
             |then>> (returned if len(lines) == 0 else lines[-1])
-            |then>> (contexted |by| -do.return_)
+            |then>> saving_context(on(of(do.return_), attrgetter("value")))
             |then>> on(
-                lambda v: not in_form and v.context == nothing,
-                lambda v: v.value,
+                to(in_isolation),
+                attrgetter("value"),
+                else_=to_context(on(obj(), nothing)),
             )
         )
 
