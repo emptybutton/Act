@@ -105,9 +105,14 @@ def until_error(
         return value
 
     try:
-        return saving_context(action, value)
+        result = saving_context(action, value)
     except Exception as error:
-        return contexted(value, +pointed(error))
+        result = contexted(value, +pointed(error))
+
+    if with_context_that(isinstance |by| Exception, result.value).context != nothing:
+        result = with_reduced_metacontext(result)
+
+    return result
 
 
 erroneous = AnnotationTemplate(contextual, [
