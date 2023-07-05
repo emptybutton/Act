@@ -3,11 +3,13 @@ from typing import Callable, Any, Tuple, Optional
 
 from pyannotating import Special, AnnotationTemplate, input_annotation
 
-from act.annotations import dirty, R, A, B, V, C, M, G, F, W, FlagT, Union
+from act.annotations import dirty, R, A, B, V, C, M, G, F, W, S, Pm, FlagT, Union
+from act.arguments import unpackly
 from act.atomization import atomically
 from act.contexting import (
     contextual, contextually, contexted, ContextualForm, saving_context,
-    with_reduced_metacontext, contextualizing, to_write, to_read, of, to_context
+    with_reduced_metacontext, contextualizing, to_write, to_read, of, be,
+    to_context, with_context_that
 )
 from act.data_flow import returnly, by, to, when, break_, and_via_indexer
 from act.effects import context_effect
@@ -27,6 +29,7 @@ __all__ = (
     "ok",
     "bad",
     "maybe",
+    "optionally",
     "until_error",
     "erroneous",
     "showly",
@@ -48,40 +51,38 @@ ok = contextualizing(flag_about('ok'))
 bad = contextualizing(flag_about('bad', negative=True))
 
 
-@documenting_by(
-    """
-    Effect to stop an execution when an input value is None or returned in the
-    `bad` context.
+def _calling_skip_on(
+    is_bad: Callable[Pm | Callable[Pm, R], bool],
+    *,
+    skipped: Callable[Callable[Pm, R], S],
+) -> Callable[Pm, Callable[Callable[Pm, R] | Pm, R | S | Callable[Pm, R]]]:
+    is_bad = to_check(is_bad)
 
-    Atomically applied to actions in `ActionChain`.
-    """
-)
-@context_effect(annotation_of=lambda v: (
-    Optional[v] | bad[Optional[v]]
-))
-@discretely
-@will
-def maybe(
-    action: Callable[A, B],
-    value: contextual[
-        Optional[A] | ContextualForm[V, Special[bad, Flag]],
-        Special[bad, FlagT],
-    ],
-) -> contextual[Optional[A | B | V], Special[bad, FlagT]]:
-    stored_value, context = value
+    return on(
+        lambda *args, **kwargs: (
+            any(is_bad(args) for arg in args)
+            or any(is_bad(arg) for arg in kwargs.values())
+        ),
+        skipped,
+        else_=lambda action: (
+            action if is_bad(action) else action(*args, **kwargs)
+        ),
+    )
 
-    if contexted(stored_value).context == bad:
-        return contexted(stored_value, +pointed(context))
-    elif stored_value is None or context == bad:
-        return value
-    else:
-        return value >= (
-            saving_context(action)
-            |then>> on(
-                lambda result: contexted(result.value).context == bad,
-                with_reduced_metacontext,
-            )
-        )
+
+@obj.of
+class maybe:
+    __call__ = discretely(on |to| not_(of(bad)))
+    call_by = _calling_skip_on(
+        of(bad),
+        skipped=atomically(be(+bad) |then>> unpackly(contextually)),
+    )
+
+
+@obj.of
+class optionally:
+    __call__ = discretely(on |to| not_(None))
+    call_by = _calling_skip_on(None, skipped=to(None))
 
 
 @documenting_by(

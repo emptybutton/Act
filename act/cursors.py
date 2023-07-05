@@ -16,7 +16,7 @@ from act.contexting import contextual, to_read, saving_context
 from act.data_flow import by, to, returnly
 from act.errors import ActionCursorError
 from act.flags import flag_about, Flag
-from act.monads import maybe
+from act.monads import optionally
 from act.objects import obj
 from act.partiality import flipped, rpartial, will, partial
 from act.pipeline import ActionChain, binding_by, on, then, _generating_pipeline
@@ -612,12 +612,12 @@ class _ActionCursor(Mapping):
     def _update_signature(self) -> None:
         union_parameters = list()
 
-        self._get_positional_union_parameter() >= maybe(
+        self._get_positional_union_parameter() >= optionally(
             (lambda p: Parameter(p.name, Parameter.VAR_POSITIONAL))
             |then>> union_parameters.append
         )
 
-        self._get_keyword_union_parameter() >= maybe(
+        self._get_keyword_union_parameter() >= optionally(
             (lambda p: Parameter(p.name, Parameter.VAR_KEYWORD))
             |then>> union_parameters.append
         )
