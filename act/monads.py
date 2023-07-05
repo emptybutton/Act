@@ -227,13 +227,33 @@ class do:
     Execution context for multiple actions on the same value.
 
     To stop execution (including within one non-atomic action), the value must
-    be contextualized by `do.return_`.
+    be contextualized by `do.return_` (contextualizes by calling).
 
     Stopping is local to a single `do` action and the executed value is
     returned without the `do.return_` flag.
 
-    With a normal `do`, unflagged `ContextualForm` value is unpacked.
-    Use `do.in_form` to save the form.
+    Throws `ReturningError` when trying to pass "returned value".
+
+    `do` action is executed in the context of an empty arbitrary object that
+    can be interacted with when decorating desired actions with `do.up`.
+
+    Actions without `do.up` decoration are executed as if they were decorated
+    with `saving_context |then>> do.up`.
+
+    To write and read from context use `do.write` and `do.read` shortcuts
+    instead of `to_write |then>> up` and `to_read |then>> up`.
+
+    Contextualization is local to each `do` action: by default, you can't inject
+    an arbitrary context to the top level, and the value from the `do` action is
+    returned without that context (in the extracted view).
+
+    To remove contextualization locality, call `do.openly` instead of just `do`.
+
+    `do.openly` action will not additionally contextualize a value if it is
+    already contextualized but still changes context to empty arbitrary object
+    if it is `nothing`.
+
+    `do.openly` saves the top context on return.
     """
 
     return_ = contextualizing(flag_about("return_"))
