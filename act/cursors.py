@@ -422,11 +422,7 @@ class _ActionCursor(Mapping):
         elif len(args) < len(parameters):
             return partial(self, *args, **kwargs)
 
-        env = dict(
-            zip(map(operator.attrgetter('name'), parameters), args),
-            args=args[len(parameters):],
-            kwargs=kwargs,
-        )
+        env = dict(zip(map(operator.attrgetter('name'), parameters), args))
 
         if positional_union_parameter is not None:
             env = {**env, positional_union_parameter.name: args[len(parameters):]}
