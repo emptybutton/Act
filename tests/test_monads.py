@@ -15,34 +15,36 @@ from act.testing import case_of
 
 test_maybe = case_of(
     (
-        lambda: contextual(14, "input context") >= maybe(
+        lambda: 14 >= maybe(
             (lambda a: a + 2)
-            |then>> (lambda v: contextual(v, bad))
+            |then>> bad
             |then>> (lambda _: "last node result")
         ),
-        contextual(16, bad),
+        bad(16),
     ),
     (
-        lambda: contextual(14, "input context") >= maybe(
-            (lambda a: a + 2) |then>> (lambda v: contextual(v, bad))
-        ),
-        contextual(16, bad),
+        lambda: 14 >= maybe((lambda a: a + 2) |then>> bad),
+        bad(16),
     ),
+)
+
+
+test_optionally = case_of(
     (
-        lambda: 1 >= maybe(
+        lambda: 1 >= optionally(
             (lambda a: a + 1)
             |then>> (lambda _: None)
-            |then>> (lambda _: "bad result")
+            |then>> (lambda _: "last node result")
         ),
-        contextual(None),
+        None,
     ),
     (
-        lambda: contextual(10, "input context") >= maybe(
+        lambda: 10 >= optionally(
             (lambda a: a + 3)
             |then>> (lambda b: b + 2)
             |then>> (lambda c: c + 1)
         ),
-        contextual(16, "input context"),
+        16,
     ),
 )
 
