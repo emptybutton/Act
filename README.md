@@ -200,15 +200,15 @@ v.is_(w)  # lambda v, w: v is w
 v.is_not(w)  # lambda v, w: v is not w
 v.in_(w)  # lambda v, w: v in w
 v.not_in(w)  # lambda v, w: v not in w
-v.contains(w)  # lambda v, w: w in v
-v.contains_no(w)  # lambda v, w: w not in v
+v.has(w)  # lambda v, w: w in v
+v.has_no(w)  # lambda v, w: w not in v
 ```
 
 </br>
 
 > Operators are executed in the order in which they are nested.
 > ```py
-> v.contains(4).or_(w.contains(4)).and_(False)  # always `False`
+> v.has(4).or_(w.has(4)).and_(False)  # always `False`
 > ```
 
 ### Pipeline
