@@ -9,7 +9,7 @@ You can even integrate the entire program logic into one call.
 
 ### Overview
 ```py
-from act import trying_to, v, w, to, catching, maybe, by, then, on, bad, fmt
+from act import trying_to, v, w, to, catching, optionally, by, then, on, fmt
 
 
 lookup = trying_to(v[w], to(catching(KeyError, to(None))))
@@ -21,16 +21,16 @@ lookup = trying_to(v[w], to(catching(KeyError, to(None))))
 #        return None
 
 
-main = maybe(
+main = optionally(
     (lookup |by| True)  # lambda table: lookup(table, True)
-    |then>> on(v < 0, bad)  # lambda v: bad(v) if v < 0 else v
+    |then>> on(v > 0, None)  # lambda v: None if v > 0 else v
     |then>> fmt("found {}", v + 1)  # lambda v: f"found {v + 1}" 
 )
 
 
-main(dict())  # nothing None
-main({True: 4})  # nothing "found 5"
-main({True: -4})  # bad -4
+main(dict())  # None
+main({True: 4})  # None
+main({True: -4})  # found -3
 ```
 
 ### Features
@@ -636,7 +636,7 @@ def get_db() -> ...:
 
 test_something = case_of(
     (lambda: 5 + 3, 8),
-    lambda: get_db,
+    lambda: 4 in range(10),
 )
 
 
@@ -658,7 +658,7 @@ OK
 > The body is a function that is called without arguments.
 
 
-> In the absence of a positive result, any result is considered positive.
+> If there is no positive result, `True` is considered a positive result.
 
 ### Flags
 Create objects that display something
@@ -840,7 +840,7 @@ Add a second value to one value, which in one form or another will describe the 
 ```py
 great = flag_about("great")
 
-contextual(4, great)
+contextual(great, 4)
 ```
 ```
 great 4
@@ -852,7 +852,7 @@ great 4
 
 very = flag_about("very")
 
-contextual(4, great, very)
+contextual(very, great, 4)
 ```
 ```
 very great 4
@@ -893,7 +893,7 @@ Get values
 ```py
 ...
 
-value, context = great(4)
+context, value = great(4)
 
 great(4).value == value == 4
 great(4).context is context is great
@@ -918,9 +918,9 @@ great(4).context is context is great
 > For `Callable` objects:
 > ```py
 > safely = flag_about("safely")
-> action_with_context = contextually(print, safely)
+> action_with_context = contextually(safely, print)
 > 
-> action, context = action_with_context
+> context, action = action_with_context
 > 
 > action_with_context.action is action is print
 > action_with_context.context is context is safely
@@ -936,9 +936,9 @@ great(4).context is context is great
 > from_domain = flag_about("from_domain")
 > 
 > some_error = Exception('>.<')
-> error_with_context = ContextualError(some_error, from_domain)
+> error_with_context = ContextualError(from_domain, some_error)
 > 
-> error, context = error_with_context
+> context, error = error_with_context
 > 
 > error_with_context.error is error is some_error
 > error_with_context.context is context is from_domain
@@ -980,8 +980,8 @@ contexted(great(4), -great)  # nothing 4
 
 ...or a context
 ```py
-with_context_that(v > 0, contextual("mega", pointed(1, 2, 3)))  # 1 "mega"
-with_context_that(v > 0, contextual("mega", pointed(-1, -2, -3)))  # nothing "mega"
+with_context_that(v > 0, contextual(pointed(1, 2, 3), "mega"))  # 1 "mega"
+with_context_that(v > 0, contextual(pointed(-1, -2, -3), "mega"))  # nothing "mega"
 with_context_that(v > 0, "mega")  # nothing "mega"
 ```
 
@@ -1003,12 +1003,15 @@ to_read(_.(a, b))(nice(4))  # nice (4, nice)
 ```py
 ...
 
-to_metacontextual(v * 2, +nice)(contextual(2, nothing, contextual(4)))  # (nice 8) nice 4
+to_metacontextual(+nice, v * 2)(contextual(contextual(4), nothing, 2))  # (nice 8) nice 4
 
 is_metacontextual(nice(nice(8)))  # True
 
-with_reduced_metacontext(contextual("mega", 1, 2))  # 1 | 2 "mega"
-with_reduced_metacontext(contextual("mega", 1, 2, 3))  # 2 | 3 1 "mega"
+with_reduced_metacontext(contextual(2, 1, "mega"))  # 2 | 1 "mega"
+with_reduced_metacontext(contextual(3, 2, 1, "mega"))  # 3 | 2 1 "mega"
+
+with_reduced_metacontext(4)  # contextual(4)
+with_reduced_metacontext(contextual(..., 4))  # contextual(..., 4)
 
 without_metacontext(contextual("mega", 1, 2, 3))  # 1 | 2 | 3 "mega"
 
