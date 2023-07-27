@@ -73,10 +73,6 @@ def _calling_skip_on(
 @obj.of
 class maybe:
     __call__ = discretely(on |to| not_(of(bad)))
-    call_by = _calling_skip_on(
-        of(bad),
-        skipped=atomically(be(+bad) |then>> unpackly(contextually)),
-    )
 
 
 @obj.of
