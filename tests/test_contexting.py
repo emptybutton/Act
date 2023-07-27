@@ -119,12 +119,16 @@ test_is_metacontextual = case_of(
 )
 
 
-test_with_reduced_metacontext = case_of((
-    lambda: to_context(attrgetter("points"))(with_reduced_metacontext(
-        contextual('metacon', 'con', 'val')
-    )),
-    contextual(('metacon', 'con'), 'val'),
-))
+test_with_reduced_metacontext = case_of(
+    (lambda: with_reduced_metacontext(4), contextual(4)),
+    (lambda: with_reduced_metacontext(contextual(..., 4)), contextual(..., 4)),
+    (
+        lambda: to_context(attrgetter("points"))(with_reduced_metacontext(
+            contextual('metacon', 'con', 'val')
+        )),
+        contextual(('metacon', 'con'), 'val'),
+    ),
+)
 
 
 test_without_metacontext = case_of((
