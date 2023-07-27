@@ -1018,3 +1018,14 @@ without_metacontext(contextual("mega", 1, 2, 3))  # 1 | 2 | 3 "mega"
 metacontexted(contextual("mega", 1, 2, 3))  # ('mega', 1, 2, 3)
 metacontexted("mega")  # ('mega',)
 ```
+
+</br>
+
+> Similar to context initialization, contextualization form generics also work.
+> ```py
+> contextual[int]  # contextual[nothing, int]
+> contextual[str, int]  # contextual[str, int]
+> contextual[float, str, int]  # contextual[float, contextual[str, int]]
+> ```
+
+</br>
