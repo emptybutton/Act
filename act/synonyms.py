@@ -48,7 +48,7 @@ def assert_(value: Any) -> None:
     assert value
 
 
-@atomically
+@partially
 class on(LeftCallable):
     """
     Function that implements action choosing by condition.
