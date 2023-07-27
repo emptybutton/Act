@@ -6,6 +6,16 @@ from act.pipeline import then
 from act.testing import case_of
 
 
+test_contextual_forms_generic = case_of(
+    (lambda: ContextualForm[int], ContextualForm[nothing, int]),
+    (lambda: ContextualForm[str, int], ContextualForm[str, int]),
+    (
+        lambda: ContextualForm[float, str, int],
+        ContextualForm[float, ContextualForm[str, int]],
+    ),
+)
+
+
 test_context_oriented = case_of(
     (lambda: context_oriented(4), contextual(4, nothing)),
     (lambda: context_oriented(contextual('con', 'val')), contextual('val', 'con')),
