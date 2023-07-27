@@ -1,7 +1,7 @@
 from abc import ABC
 from operator import not_, methodcaller, attrgetter
 from typing import (
-    Generic, Any, Iterator, Callable, Iterable, GenericAlias, Self, TypeVar,
+    Generic, Any, Iterator, Callable, Iterable, GenericAlias, TypeVar,
     Final
 )
 
@@ -65,17 +65,17 @@ class contextual_like(NotInitializable):
 
     def __class_getitem__(
         cls,
-        value_or_value_and_context: Any | tuple[Any, Any],
+        value_or_context_and_value: Any | tuple[Any, Any],
     ) -> GenericAlias:
-        value_and_context = (
-            value_or_value_and_context
-            if isinstance(value_or_value_and_context, Iterable)
-            else (value_or_value_and_context, Any)
+        context_and_value = (
+            value_or_context_and_value
+            if isinstance(value_or_context_and_value, Iterable)
+            else (Any, value_or_context_and_value)
         )
 
-        value, context = value_and_context
+        context, value = context_and_value
 
-        return tuple[value, context]
+        return tuple[context, value]
 
     @classmethod
     def __instancecheck__(cls, instance: Any) -> bool:
@@ -86,7 +86,7 @@ class contextual_like(NotInitializable):
         return issubclass(type_, Iterable)
 
 
-class ContextualForm(ABC, Generic[V, C]):
+class ContextualForm(ABC, Generic[C, V]):
     """
     Abstract value form class for holding an additional value, describing the
     main value.
@@ -99,8 +99,19 @@ class ContextualForm(ABC, Generic[V, C]):
     Attributes for stored values are defined in concrete forms.
     """
 
-    _value: V
-    _context: C
+    def __init__(self, arg: V | C, *args: V | C):
+        args = (arg, *args)
+
+        if len(args) == 1:
+            self._set(nothing, args[0])
+        elif len(args) == 2:
+            self._set(args[0], args[1])
+        else:
+            self._set(args[0], type(self)(*args[1:]))
+
+    def _set(self, context: C, value: V) -> None:
+        self._context = context
+        self._value = value
 
     def __repr__(self) -> str:
         return "{} {}".format(
@@ -112,12 +123,20 @@ class ContextualForm(ABC, Generic[V, C]):
         if type(self) is not type(other):
             return False
 
-        value, context = other
+        context, value = other
 
         return self._value == value and self._context == context
 
     def __iter__(self) -> Iterator:
-        return iter((self._value, self._context))
+        return iter((self._context, self._value))
+
+    def __class_getitem__(cls, annotations: Special[tuple]) -> GenericAlias:
+        if not isinstance(annotations, tuple):
+            return cls[nothing, annotations]
+        elif len(annotations) == 2:
+            return super().__class_getitem__(annotations)
+        else:
+            return super().__class_getitem__((annotations[0], cls[annotations[1:]]))
 
     def _context_repr_of(self, value: Special["contextual"]) -> str:
         return (
@@ -127,35 +146,21 @@ class ContextualForm(ABC, Generic[V, C]):
         )
 
 
-class _BinaryContextualForm(ContextualForm, Generic[V, C]):
-    """`ContextualForm` class with nested creation."""
-
-    def __init__(self, value: V | Self, *contexts: C):
-        if len(contexts) > 1:
-            value = type(self)(value, *contexts[:-1])
-
-        self._reset(value, nothing if len(contexts) == 0 else contexts[-1])
-
-    def _reset(self, value: V, context: C) -> None:
-        self._value = value
-        self._context = context
-
-
-class contextual(_BinaryContextualForm, Generic[V, C]):
+class contextual(ContextualForm, Generic[C, V]):
     """Basic `ContextualForm` form representing values with no additional effect."""
 
     value = property(attrgetter("_value"))
     context = property(attrgetter("_context"))
 
 
-class contextually(LeftCallable, _BinaryContextualForm, Generic[ActionT, C]):
+class contextually(LeftCallable, ContextualForm, Generic[C, ActionT]):
     """`ContextualForm` form for annotating actions with saving their call."""
 
     action = property(attrgetter("_value"))
     context = property(attrgetter("_context"))
 
-    def __init__(self, action: Callable[Pm, R], *contexts: C):
-        super().__init__(action, *contexts)
+    def _update(self, context: C, value: Callable[Pm, R]) -> None:
+        super()._update(context, value)
         self.__signature__ = call_signature_of(self._value)
 
     def __repr__(self) -> str:
@@ -165,7 +170,7 @@ class contextually(LeftCallable, _BinaryContextualForm, Generic[ActionT, C]):
         return self._value(*args, **kwargs)
 
 
-class ContextualError(_BinaryContextualForm, Exception, Generic[ErrorT, C]):
+class ContextualError(ContextualForm, Exception, Generic[ErrorT, C]):
     """
     `ContextualForm` form for annotating an error with a context while retaining
     the ability to `raise` the call.
@@ -174,9 +179,8 @@ class ContextualError(_BinaryContextualForm, Exception, Generic[ErrorT, C]):
     error = property(attrgetter("_value"))
     context = property(attrgetter("_context"))
 
-    def __init__(self, error: ErrorT, *contexts: C):
-        super().__init__(error, *contexts)
-        Exception.__init__(self, repr(self))
+    def _update(context: C, value: ErrorT) -> None:
+        super()._update(context, value)
 
     def __repr__(self) -> str:
         return f"ContextualError({super().__repr__()})"
@@ -185,7 +189,7 @@ class ContextualError(_BinaryContextualForm, Exception, Generic[ErrorT, C]):
         return repr(self)
 
 
-def context_oriented(value: Special[ContextualForm[V, C]]) -> contextual[C, V]:
+def context_oriented(value: Special[ContextualForm[C, V]]) -> contextual[V, C]:
     """
     Function to replace the main value of a `ContextualForm` with its context,
     and its context with its main value.
@@ -194,7 +198,7 @@ def context_oriented(value: Special[ContextualForm[V, C]]) -> contextual[C, V]:
     return (
         contextual(*reversed(tuple(value)))
         if isinstance(value, ContextualForm)
-        else contextual(nothing, value)
+        else contextual(value, nothing)
     )
 
 
@@ -202,9 +206,9 @@ _NO_VALUE: Final[Flag] = flag_about("_NO_VALUE")
 
 
 def contexted(
-    value: V | ContextualForm[V, D],
+    value: V | ContextualForm[D, V],
     when: C | Callable[D, C] | _NO_VALUE = _NO_VALUE,
-) -> contextual[V, D | C]:
+) -> contextual[D | C, V]:
     """
     Function to represent an input value in `contextual` form if it is not
     already present.
@@ -213,7 +217,7 @@ def contexted(
     if it is a callable, or as the forced context itself if not a callable.
     """
 
-    value, context = (
+    context, value = (
         value if isinstance(value, ContextualForm) else contextual(value)
     )
 
@@ -222,7 +226,7 @@ def contexted(
     elif when is not _NO_VALUE:
         context = when
 
-    return contextual(value, context)
+    return contextual(context, value)
 
 
 _NamedFlagT = TypeVar("_NamedFlagT", bound=_NamedFlag)
@@ -232,21 +236,21 @@ _NamedFlagT = TypeVar("_NamedFlagT", bound=_NamedFlag)
 def contextualizing(
     flag: _NamedFlagT,
     *,
-    to: Callable[[V, _CallableNamedFlag[V, R]], R] = contextual,
+    to: Callable[[_CallableNamedFlag[V, R], V], R] = contextual,
 ) -> _CallableNamedFlag[V, R]:
     """
     Function to add to a flag the ability to contextualize values with this flag.
     """
 
-    contextualizing_flag = flag.to(lambda value: to(value, contextualizing_flag))
+    contextualizing_flag = flag.to(lambda value: to(contextualizing_flag, value))
 
     return contextualizing_flag
 
 
 @partially
 def be(
-    flag_or_vector: Unia[FlagT, Callable[V, ContextualForm[V, FlagT]]] | FlagVector,
-    value: V | ContextualForm[V, Special[FlagT, C]],
+    flag_or_vector: Unia[FlagT, Callable[V, ContextualForm[FlagT, V]]] | FlagVector,
+    value: V | ContextualForm[Special[FlagT, C], V],
 ) -> ContextualForm[V, Special[FlagT]]:
     """
     Function to represent an input value contextualized by an input flag.
@@ -264,7 +268,7 @@ def be(
 
 
 @partially
-def of(context: C, value: Special[ContextualForm[Any, C]]) -> bool:
+def of(context: C, value: Special[ContextualForm[C, Any]]) -> bool:
     """Shortcut to compare input value with context of second input value."""
 
     return contexted(value).context == context
@@ -273,69 +277,66 @@ def of(context: C, value: Special[ContextualForm[Any, C]]) -> bool:
 @partially
 def saving_context(
     action: Callable[A, B],
-    value: ContextualForm[A, C] | A,
-) -> contextual[B, C]:
+    value: ContextualForm[C, A] | A,
+) -> contextual[C, B]:
     """
     Function to perform an input action to a `ContextualForm` value while
     saving its context.
     """
 
-    stored_value, context = contexted(value)
+    context, stored_value = contexted(value)
 
-    return contextual(action(stored_value), context)
+    return contextual(context, action(stored_value))
 
 
 @partially
 def to_context(
     action: Callable[A | nothing, B],
-    value_and_context: contextual_like[V, A] | V,
-) -> contextual[V, B]:
+    value: contextual_like[A, V] | V,
+) -> contextual[B, V]:
     """
     Function to perform an input action on a context of `contextual_like` value
     while saving its value.
     """
 
-    return context_oriented(saving_context(
-        action,
-        context_oriented(value_and_context),
-    ))
+    return context_oriented(saving_context(action, context_oriented(value)))
 
 
 @partially
 def to_write(
-    action: Callable[[V, C], R],
-    value: contextual_like[V, C],
-) -> contextual[V, R]:
+    action: Callable[[C, V], R],
+    value: contextual_like[C, V],
+) -> contextual[R, V]:
     """
     Function to perform an input action on a `contextual_like` context, with
     passing its main value.
     """
 
-    stored_value, context = value
+    context, stored_value = value
 
-    return contextual(stored_value, action(stored_value, context))
+    return contextual(action(context, stored_value), stored_value)
 
 
 @partially
 def to_read(
-    action: Callable[[V, C], R],
-    value: contextual_like[V, C],
-) -> contextual[R, V]:
+    action: Callable[[C, V], R],
+    value: contextual_like[C, V],
+) -> contextual[V, R]:
     """
     Function to perform an input action on a `contextual_like` main value, with
     passing its context.
     """
 
-    stored_value, context = value
+    context, stored_value = value
 
-    return contextual(action(stored_value, context), context)
+    return contextual(context, action(context, stored_value))
 
 
 @partially
 def with_context_that(
     that: Callable[P, bool],
-    value: V | ContextualForm[V, P | Flag[P]],
-) -> contextual[V, P | nothing]:
+    value: V | ContextualForm[P | Flag[P], V],
+) -> contextual[P | nothing, V]:
     """
     Function for transform `ContextualForm` with context filtered by input
     checker.
@@ -352,12 +353,12 @@ def with_context_that(
 
 
 def to_metacontextual(
-    value_action: Callable[V, W] = returned,
-    context_action: Callable[C, D] = returned,
+    context_action: Callable[C, D],
+    value_action: Callable[V, W],
     /,
     *,
-    summed: Callable[contextual[W, D] | S, S] = returned,
-) -> LeftCallable[contextual_like[V, C] | V, S]:
+    summed: Callable[contextual[D, W] | S, S] = returned,
+) -> LeftCallable[contextual_like[C, V] | V, S]:
     """
     Reduce function for values of nested `ContextualForms`.
 
@@ -371,8 +372,8 @@ def to_metacontextual(
         will(on)(
             rpartial(isinstance, ContextualForm) |then>> not_,
             else_=lambda v: to_metacontextual(
-                value_action,
                 context_action,
+                value_action,
                 summed=summed,
             )(v),
         ),
@@ -387,9 +388,7 @@ def to_metacontextual(
     )
 
 
-def is_metacontextual(
-    value: Special[ContextualForm[ContextualForm, Any], Any],
-) -> bool:
+def is_metacontextual(value: Special[ContextualForm[Any, Any, Any]]) -> bool:
     """
     Function to check `ContextualForm`s describing another `ContextualForm` if
     it is at all `ContextualForm`.
@@ -402,17 +401,23 @@ def is_metacontextual(
 
 
 def with_reduced_metacontext(
-    value: ContextualForm[ContextualForm[V, Any], Any]
-) -> contextual[V, Flag]:
+    value: ContextualForm[Any, Any, V] | ContextualForm[C, V] | V
+) -> contextual[C | Flag, V]:
     """
     Function to remove nesting of two `ContextualForm`s.
     The resulting context is a flag sum from the top and bottom `ContextualForm`.
     """
 
-    meta_root = contextual(*value)
-    root = meta_root.value
+    context, value = contexted(value)
 
-    return contexted(root, +pointed(meta_root.context))
+    return (
+        contextual(
+            pointed(context, contexted(value).context),
+            contexted(value).value,
+        )
+        if isinstance(value, ContextualForm)
+        else contextual(context, value)
+    )
 
 
 without_metacontext: LeftCallable[ContextualForm, contextual]
@@ -432,6 +437,6 @@ def metacontexted(value: Special[ContextualForm]) -> tuple:
     if not isinstance(value, ContextualForm):
         return (value, )
 
-    value = contexted(value)
+    value = contextual(*value)
 
-    return (*metacontexted(value.value), value.context)
+    return (value.context, *metacontexted(value.value))

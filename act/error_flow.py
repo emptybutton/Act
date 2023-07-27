@@ -19,19 +19,19 @@ __all__ = (
 
 with_error: LeftCallable[
     [Callable[Pm, R]],
-    LeftCallable[Pm, contextual[Optional[R], Optional[Exception]]]
+    LeftCallable[Pm, contextual[Optional[Exception], Optional[R]]]
 ]
 with_error = documenting_by(
     """
     Decorator that causes the decorated function to return the error that
     occurred.
 
-    Returns in `contextual` format (result, error).
+    Returns in `contextual` format (error, result).
     """
 )(
     atomically(
         binding_by(... |then>> contextual)
-        |then>> (trying_to |by| to(contextual |to| None))
+        |then>> (trying_to |by| to(contextual |by| None))
     )
 )
 

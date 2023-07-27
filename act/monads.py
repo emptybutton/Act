@@ -3,13 +3,12 @@ from typing import Callable, Any, Tuple, Optional
 
 from pyannotating import Special, AnnotationTemplate, input_annotation
 
-from act.annotations import dirty, R, A, B, V, C, M, G, F, W, S, Pm, FlagT, Union
-from act.arguments import unpackly
+from act.annotations import dirty, R, A, B, V, C, M, G, F, W, Pm, Union
 from act.atomization import atomically
 from act.contexting import (
     contextual, contextually, contexted, ContextualForm, saving_context,
-    with_reduced_metacontext, contextualizing, to_write, to_read, of, be,
-    to_context, with_context_that
+    with_reduced_metacontext, contextualizing, to_write, to_read, of, to_context,
+    with_context_that
 )
 from act.data_flow import returnly, by, to, when, break_, and_via_indexer
 from act.effects import context_effect
@@ -18,7 +17,7 @@ from act.error_flow import raising
 from act.flags import flag_about, nothing, Flag, pointed
 from act.objects import obj
 from act.operators import and_, not_
-from act.partiality import will, partially
+from act.partiality import will, partially, rpartial
 from act.pipeline import discretely, ActionChain, then, atomic_binding_by
 from act.structures import tmap
 from act.synonyms import on, returned
@@ -50,35 +49,40 @@ __all__ = (
 ok = contextualizing(flag_about('ok'))
 bad = contextualizing(flag_about('bad', negative=True))
 
+maybe = documenting_by(
+    """
+    Decorator to stop an execution when an input value is returned with the
+    `bad` context.
 
-def _calling_skip_on(
-    is_bad: Callable[Pm | Callable[Pm, R], bool],
-    *,
-    skipped: Callable[Callable[Pm, R], S],
-) -> Callable[Pm, Callable[Callable[Pm, R] | Pm, R | S | Callable[Pm, R]]]:
-    is_bad = to_check(is_bad)
-
-    return on(
-        lambda *args, **kwargs: (
-            any(is_bad(args) for arg in args)
-            or any(is_bad(arg) for arg in kwargs.values())
-        ),
-        skipped,
-        else_=lambda action: (
-            action if is_bad(action) else action(*args, **kwargs)
-        ),
-    )
-
-
-@obj.of
-class maybe:
-    __call__ = discretely(on |to| not_(of(bad)))
+    Atomically applied to actions in `ActionChain`.
+    """
+)(
+    discretely(on |to| not_(of(bad)))
+)
 
 
 @obj.of
 class optionally:
+    """
+    Decorator to stop an execution when an input value is `None`.
+
+    Atomically applied to actions in `ActionChain`.
+
+    Use `call_by` to call with optional arguments over an optional action.
+    """
+
     __call__ = discretely(on |to| not_(None))
-    call_by = _calling_skip_on(None, skipped=to(None))
+
+    @atomically
+    def call_by(
+        *args: Union[Pm.args, None],
+        **kwargs: Union[Pm.kwargs, None],
+    ) -> LeftCallable[Optional[Callable[Pm, R]], Optional[R]]:
+        return (
+            to(None)
+            if any(arg is None for arg in (*args, *kwargs.values()))
+            else on(not_(None), rpartial(call, *args, **kwargs))
+        )
 
 
 @documenting_by(
@@ -95,8 +99,8 @@ class optionally:
 @will
 def until_error(
     action: Callable[A, B],
-    value: ContextualForm[A, Special[Exception | Flag[Exception], C]],
-) -> contextual[A | B, C | Flag[C | Exception]]:
+    value: ContextualForm[Special[Exception | Flag[Exception], C], A],
+) -> contextual[C | Flag[C | Exception], A | B]:
     if pointed(value.context).that(isinstance |by| Exception) != nothing:
         return value
 
@@ -112,7 +116,7 @@ def until_error(
 
 
 erroneous = AnnotationTemplate(contextual, [
-    input_annotation, Exception | Flag[Exception]
+    Exception | Flag[Exception], input_annotation
 ])
 
 
@@ -122,7 +126,7 @@ def showly(
     action_or_actions: Callable[A, B] | ActionChain[Callable[A, B]],
     *,
     show: dirty[Callable[B, Any]] = print,
-) -> dirty[ActionChain[Callable[[A], B]]]:
+) -> dirty[ActionChain[Callable[A, B]]]:
     """
     Effect of writing results of an input action or actions from an
     `ActionChain` to something. Default to console.
@@ -143,7 +147,7 @@ def either(
         Special[Callable[C, bool]],
         Special[break_, Callable[V, R] | R],
     ],
-) -> LeftCallable[V | ContextualForm[V, C], contextual[R, C]]:
+) -> LeftCallable[V | ContextualForm[C, V], contextual[C, R]]:
     """
     `when`-like function for `ContextualForm`s with determinants applied to
     contexts and implementers applied to values.
@@ -172,8 +176,8 @@ future = contextualizing(flag_about("future"), to=contextually)
 @partially
 def in_future(
     action: Callable[V, R],
-    value: V | ContextualForm[V, Flag[C] | C],
-) -> contextual[V, Flag[C | contextually[Callable[..., R], future]]]:
+    value: V | ContextualForm[Flag[C] | C, V],
+) -> contextual[Flag[C | contextually[future, Callable[..., R]]], V]:
     """
     Decorator to delay the execution of an input action.
 
@@ -189,14 +193,14 @@ def in_future(
 
     return contexted(
         value,
-        +pointed(contextually(action |to| contexted(value).value, future)),
+        +pointed(contextually(future, action |to| contexted(value).value)),
     )
 
 
 def future_from(
     value: Special[
-        contextually[Callable[..., R], future]
-        | Flag[contextually[Callable[..., R], future]]
+        contextually[future, Callable[..., R]]
+        | Flag[contextually[future, Callable[..., R]]]
     ],
 ) -> Tuple[R]:
     """
@@ -211,7 +215,7 @@ def future_from(
     return tmap(call, pointed(value).that(is_in_future).points)
 
 
-is_in_future: LeftCallable[Special[contextually[Callable, Special[future]]], bool]
+is_in_future: LeftCallable[Special[contextually[Special[future], Callable]], bool]
 is_in_future = documenting_by(
     """Function to check if an input value is a `in_future` deferred action."""
 )(
@@ -307,17 +311,17 @@ class do:
 up: LeftCallable[
     Union[
         Callable[
-            Callable[A, ContextualForm[B, C]],
-            Callable[M, ContextualForm[Special[ContextualForm[V, G]], F]]
+            Callable[A, ContextualForm[C, B]],
+            Callable[M, ContextualForm[F, Special[ContextualForm[G, V]]]]
         ],
         ActionChain[Callable[
-            Callable[A, ContextualForm[B, C]],
-            Callable[M, ContextualForm[Special[ContextualForm[V, G], W], F]]]
-        ],
+            Callable[A, ContextualForm[C, B]],
+            Callable[M, ContextualForm[F, Special[ContextualForm[V, G], W]]]
+        ]],
     ],
     LeftCallable[
-        Callable[A, ContextualForm[B, C]],
-        LeftCallable[M, contextual[V | W, F | G]]
+        Callable[A, ContextualForm[C, B]],
+        LeftCallable[M, contextual[F | G, V | W]]
     ],
 ]
 up = documenting_by(

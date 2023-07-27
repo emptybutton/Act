@@ -51,28 +51,28 @@ test_optionally = case_of(
 
 test_until_error = case_of(
     (
-        lambda: until_error(lambda a: a + 3)(contextual(1, "input context")),
-        contextual(4, "input context"),
+        lambda: until_error(lambda a: a + 3)(contextual("input context", 1)),
+        contextual("input context", 4),
     ),
     (
         lambda: until_error((lambda a: a + 1) |then>> (lambda b: b + 2))(
-            contextual(1, "input context")
+            contextual("input context", 1)
         ),
-        contextual(4, "input context"),
+        contextual("input context", 4),
     ),
     (
-        lambda: contextual(4, "input context") >= (
+        lambda: contextual("input context", 4) >= (
             until_error(
                 (lambda a: a + 2)
                 |then>> (lambda b: b / 0)
                 |then>> (lambda _: "last node result")
             )
             |then>> (lambda root: (
+                tuple(map(lambda context: type(context.point), root.context)),
                 root.value,
-                tuple(map(lambda context: type(context.point), root.context))
             ))
         ),
-        (6, (str, ZeroDivisionError)),
+        ((str, ZeroDivisionError), 6),
     ),
 )
 
@@ -86,53 +86,46 @@ def test_showly():
 
 
 test_either = case_of(
-    (lambda: either((.1, 1), (.2, 2))(contextual(..., .1)), contextual(1, .1)),
+    (lambda: either((.1, 1), (.2, 2))(contextual(.1, ...)), contextual(.1, 1)),
     (lambda: either(('...', -8), (nothing, 8))(...), contextual(8)),
     (lambda: either((0, 0), (1, 16))(contextual(4)), contextual(4)),
     (
-        lambda: contextual(4, 2) >= either(
+        lambda: contextual(2, 4) >= either(
             (lambda c: c > 10, lambda v: v * 10),
             (lambda c: c > 0, lambda v: v * 2),
         ),
-        contextual(8, 2),
+        contextual(2, 8),
     ),
     (
-        lambda: contextual(6.4, 16) >= either(
+        lambda: contextual(16, 6.4) >= either(
             (lambda c: c > 10, lambda v: v * 10),
             (lambda c: c > 0, lambda v: v * 2),
         ),
-        contextual(64., 16),
+        contextual(16, 64.),
     ),
     (
-        lambda: contextual(6.4, 16) >= either(
-            (lambda c: c > 10, lambda v: v * 10),
-            (lambda c: c > 0, lambda v: v * 2),
-        ),
-        contextual(64., 16),
-    ),
-    (
-        lambda: contextually(print, 1) >= either(
+        lambda: contextually(1, print) >= either(
             (1, lambda v: v),
             (2, lambda _: "bad result"),
         ),
-        contextual(print, 1),
+        contextual(1, print),
     ),
     (
-        lambda: contextual(32, 3) >= either(
+        lambda: contextual(3, 32) >= either(
             (1, lambda _: "first bad result"),
             (2, lambda _: "second bad result"),
             (..., lambda v: v * 2),
         ),
-        contextual(64, 3),
+        contextual(3, 64),
     ),
     (
-        lambda: contextual(32, 2) >= either(
+        lambda: contextual(2, 32) >= either(
             (1, "bad result"),
             (2, break_),
             (2, "bad result after \"break\""),
             (..., 8),
         ),
-        contextual(8, 2),
+        contextual(2, 8),
     ),
 )
 
@@ -140,19 +133,19 @@ test_either = case_of(
 def test_in_future():
     some = flag_about("some")
 
-    value, context = in_future(partial(add, 3))(contextual(5, some))
+    context, value = in_future(partial(add, 3))(contextual(some, 5))
 
     assert value == 5
     assert context.points[0] is some
 
-    future_actoin, flag = context.points[1]
+    flag, future_actoin = context.points[1]
 
     assert flag is future
     assert future_actoin() == 8
 
 
 def test_in_future_with_noncontextual():
-    value, context = in_future(partial(truediv, 64))(4)
+    context, value = in_future(partial(truediv, 64))(4)
 
     assert value == 4
 
@@ -163,16 +156,16 @@ def test_in_future_with_noncontextual():
 
 test_future_from = case_of(
     (lambda: future_from(4), tuple()),
-    (lambda: future_from(contextual(4, future)), tuple()),
+    (lambda: future_from(contextual(future, 4)), tuple()),
     (lambda: future_from(contextually(lambda: 4)), tuple()),
-    (lambda: future_from(contextually(lambda: 4, future)), (4, )),
-    (lambda: future_from(pointed(contextually(lambda: 4, future))), (4, )),
+    (lambda: future_from(contextually(future, lambda: 4)), (4, )),
+    (lambda: future_from(pointed(contextually(future, lambda: 4))), (4, )),
     (lambda: future_from(pointed(1, 2, 3)), tuple()),
     (
         lambda: future_from(pointed(
-            contextually(lambda: 4, future),
-            contextually(lambda: 8, future),
-            contextually(lambda: 16, future),
+            contextually(future, lambda: 4),
+            contextually(future, lambda: 8),
+            contextually(future, lambda: 16),
             "garbage",
         )),
         (4, 8, 16),

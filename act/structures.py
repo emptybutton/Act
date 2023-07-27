@@ -300,7 +300,7 @@ def marked_ranges_from(
 
 @partially
 def to_interval(
-    interval: Interval | ContextualForm[Interval, empty | filled],
+    interval: Interval | ContextualForm[empty | filled, Interval],
     action: Callable[Tuple[V], Iterable[V]],
     values: Iterable[V],
 ) -> Tuple[V]:

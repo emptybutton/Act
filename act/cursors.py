@@ -15,7 +15,7 @@ from act.arguments import Arguments
 from act.contexting import contextual, to_read, saving_context
 from act.data_flow import by, to, returnly
 from act.errors import ActionCursorError
-from act.flags import flag_about, Flag
+from act.flags import flag_about
 from act.monads import optionally
 from act.objects import obj
 from act.partiality import flipped, rpartial, will, partial
@@ -129,7 +129,7 @@ class _ActionCursor(Mapping):
         parameters: Iterable[_ActionCursorParameter] = tuple(),
         actions: ActionChain = ActionChain(),
         previous: Optional[Self] = None,
-        nature: contextual[Flag, Any] = contextual(
+        nature: contextual = contextual(
             _ActionCursorNature.set_by_initialization,
         ),
         internal_repr: str = '...'
@@ -290,7 +290,7 @@ class _ActionCursor(Mapping):
 
     @_generation_transaction
     def _set(self, value: Special[Self], *, mutably: bool = False) -> Self:
-        nature, place = self._nature
+        place, nature = self._nature
 
         if nature == _ActionCursorNature.attrgetting:
             setting = returnly(setattr)
@@ -344,7 +344,7 @@ class _ActionCursor(Mapping):
                 self
                 ._with_packing_of(keys, by=list)
                 ._with(
-                    nature=contextual(_ActionCursorNature.packing, key),
+                    nature=contextual(key, _ActionCursorNature.packing),
                     internal_repr=formatted_keys
                 )
             )
@@ -365,8 +365,8 @@ class _ActionCursor(Mapping):
             ._with(
                 internal_repr=f"{self._adapted_internal_repr}{formatted_keys}",
                 nature=contextual(
-                    self._next_nature_as(_ActionCursorNature.itemgetting),
                     key,
+                    self._next_nature_as(_ActionCursorNature.itemgetting),
                 ),
             )
         )
@@ -385,14 +385,14 @@ class _ActionCursor(Mapping):
                 internal_repr=f"{self._adapted_internal_repr}.{name}",
             )
 
-        return cursor._with(nature=contextual(nature, name))
+        return cursor._with(nature=contextual(name, nature))
 
     @classmethod
     def _operated_by(cls, parameter: _ActionCursorParameter) -> Self:
         return cls(
             parameters=[parameter],
             actions=ActionChain([
-                to_read(lambda _, env: operator.getitem(env, parameter.name))
+                to_read(lambda env, _: operator.getitem(env, parameter.name))
             ]),
             nature=contextual(_ActionCursorNature.returning),
             internal_repr=parameter.name,
@@ -430,7 +430,7 @@ class _ActionCursor(Mapping):
         if keyword_union_parameter is not None:
             env = {**env, keyword_union_parameter.name: kwargs}
 
-        return self._actions(contextual(None, env)).value
+        return self._actions(contextual(env, None)).value
 
     def _of(
         self,
@@ -438,7 +438,7 @@ class _ActionCursor(Mapping):
         *,
         parameters: Optional[tuple[_ActionCursorParameter]] = None,
         previous: Optional[Self] = None,
-        nature: Optional[contextual[Flag, Any]] = None,
+        nature: Optional[contextual] = None,
         internal_repr: Optional[str] = None,
     ) -> None:
         return type(self)(
@@ -479,8 +479,8 @@ class _ActionCursor(Mapping):
         cursor = (
             self._of(
                 ActionChain([lambda root: contextual(
-                    operation(self._actions(root).value, other._actions(root).value),
                     root.context,
+                    operation(self._actions(root).value, other._actions(root).value),
                 )]),
                 parameters=self._parameters + other._parameters,
             )
@@ -489,8 +489,8 @@ class _ActionCursor(Mapping):
         )
 
         return cursor._with(nature=contextual(
+            contextual(other, operation),
             _ActionCursorNature.binary_operation,
-            contextual(operation, other),
         ))
 
     @_generation_transaction
@@ -504,8 +504,8 @@ class _ActionCursor(Mapping):
             ._with_partial_application_from(args)
             ._with_keyword_partial_application_by(kwargs)
             ._with(operator.call, nature=contextual(
-                _ActionCursorNature.calling,
                 Arguments(args, kwargs),
+                _ActionCursorNature.calling,
             ))
         )
 
@@ -569,8 +569,8 @@ class _ActionCursor(Mapping):
                 set_(a if mutably else copy(a), place, b)
             ))
             ._with(nature=contextual(
+                contextual(place, value),
                 _ActionCursorNature.setting,
-                contextual(value, place),
             ))
         )
 
@@ -588,9 +588,9 @@ class _ActionCursor(Mapping):
             ._with(to(tuple_of))
             ._with_calling_by(*items)
             ._with(by, nature=contextual(
+                contextual(tuple(items), by),
                 _ActionCursorNature.packing,
-                contextual(by, tuple(items))),
-            )
+            ))
         )
 
     def _is_keyword_for_unpacking(self, keyword: Special[str]) -> bool:
@@ -698,8 +698,8 @@ class _ActionCursor(Mapping):
                 )
                 ._with(
                     nature=contextual(
-                        _ActionCursorNature.binary_operation,
                         model,
+                        _ActionCursorNature.binary_operation,
                     ),
                     internal_repr=(
                         (
@@ -725,7 +725,7 @@ class _ActionCursor(Mapping):
         def cursor_transformer(cursor: Self) -> Self:
             return cursor._with(
                 operation,
-                nature=contextual(_ActionCursorNature.single_operation, model),
+                nature=contextual(model, _ActionCursorNature.single_operation),
                 internal_repr=f"{model.sign}{cursor._internal_repr_by(model)}",
             )
 

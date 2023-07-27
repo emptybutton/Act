@@ -260,7 +260,7 @@ class obj(_AttributeKeeper):
 
     def __getattribute__(self, attr_name: str) -> Any:
         value = object.__getattribute__(self, attr_name)
-        stored_value, context = contexted(value)
+        context, stored_value = contexted(value)
 
         if context == as_method:
             return MethodType(stored_value, self)
@@ -277,7 +277,7 @@ class obj(_AttributeKeeper):
         if attr_name not in self.__dict__.keys() or attr_name == "__dict__":
             return super().__setattr__(attr_name, value)
 
-        setter, context = contexted(self.__dict__[attr_name])
+        context, setter = contexted(self.__dict__[attr_name])
 
         return (
             setter.__set__(self, value)
@@ -289,7 +289,7 @@ class obj(_AttributeKeeper):
         if attr_name not in self.__dict__.keys() or attr_name == "__dict__":
             return super().__delattr__(attr_name)
 
-        deleter, context = contexted(self.__dict__[attr_name])
+        context, deleter = contexted(self.__dict__[attr_name])
 
         return (
             deleter.__delete__(self)

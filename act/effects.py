@@ -152,7 +152,7 @@ as_effect = documenting_by(
 
 context_effect: LeftCallable[
     Callable[Callable[V, R], Callable[C, C]],
-    Effect[V, R, contextual[C, Any]],
+    Effect[V, R, contextual[Any, C]],
 ]
 context_effect = documenting_by(
     """`Effect` constructor with container type as `contextual`."""
