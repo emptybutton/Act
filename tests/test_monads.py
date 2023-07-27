@@ -49,6 +49,13 @@ test_optionally = case_of(
 )
 
 
+test_optionally_call_by = case_of(
+    (lambda: optionally.call_by(10)(lambda n: n + 6), 16),
+    (lambda: optionally.call_by(None)(lambda n: n + 6), None),
+    (lambda: optionally.call_by(10)(None), None),
+)
+
+
 test_until_error = case_of(
     (
         lambda: until_error(lambda a: a + 3)(contextual("input context", 1)),
