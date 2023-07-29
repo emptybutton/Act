@@ -39,6 +39,7 @@ __all__ = (
     "in_future",
     "future_from",
     "is_in_future",
+    "returned",
     "do",
     "up",
     "mid",
@@ -226,16 +227,19 @@ is_in_future = documenting_by(
 )
 
 
+returned = contextualizing(flag_about("return_"))
+
+
 @obj.of
 class do:
     """
     Execution context for multiple actions on the same value.
 
     To stop execution (including within one non-atomic action), the value must
-    be contextualized by `do.return_` (contextualizes by calling).
+    be contextualized by `returned` (contextualizes by calling).
 
     Stopping is local to a single `do` action and the executed value is
-    returned without the `do.return_` flag.
+    returned without the `returned` flag.
 
     Throws `ReturningError` when trying to pass "returned value".
 
@@ -261,7 +265,6 @@ class do:
     `do.openly` saves the top context on return.
     """
 
-    return_ = contextualizing(flag_about("return_"))
     up = contextualizing(flag_about('up'), to=contextually)
 
     write = atomically(to_write |then>> up)
@@ -279,7 +282,7 @@ class do:
     ) -> LeftCallable:
         lines = ActionChain((map |by| lines)(
             discretely(
-                saving_context(on |to| not_(of(do.return_)))
+                saving_context(on |to| not_(of(returned)))
                 |then>> on(not_(of(do.up)), saving_context(saving_context))
                 |then>> attrgetter("value")
             )
@@ -288,18 +291,18 @@ class do:
 
         return atomically(
             on(
-                lambda v: of(do.return_, v) or of(do.return_, contexted(v).value),
+                lambda v: of(returned, v) or of(returned, contexted(v).value),
                 raising(ReturningError("externally returned value")),
             )
             |then>> on(to(in_isolation), contextual)
             |then>> to_context(on(nothing, obj()))
             |then>> (lines[:-1] >= discretely((lambda line: lambda value: (
                 result
-                if of(do.return_, (result := line(value)).value)
+                if of(returned, (result := line(value)).value)
                 else value
             ))))
-            |then>> saving_context(on(of(do.return_), attrgetter("value")))
             |then>> (_get if len(lines) == 0 else lines[-1])
+            |then>> saving_context(on(of(returned), attrgetter("value")))
             |then>> on(
                 to(in_isolation),
                 attrgetter("value"),

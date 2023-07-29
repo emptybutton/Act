@@ -195,13 +195,13 @@ test_do = case_of(
 
 def test_do_with_error():
     with raises(ReturningError):
-        do()(do.return_(4))
+        do()(returned(4))
 
     with raises(ReturningError):
-        do(lambda v: v)(do.return_(4))
+        do(lambda v: v)(returned(4))
 
     with raises(ReturningError):
-        do((lambda v: v) |then>> (lambda v: v))(do.return_(4))
+        do((lambda v: v) |then>> (lambda v: v))(returned(4))
 
     with raises(ReturningError):
         do(
@@ -209,7 +209,7 @@ def test_do_with_error():
             (lambda v: v) |then>> (lambda v: v),
             (lambda v: v) |then>> (lambda v: v),
         )(
-            do.return_(4)
+            returned(4)
         )
 
 
@@ -229,13 +229,13 @@ def test_do_with_logs():
     assert logs == [7, 8, None]
 
 
-def test_do_return__with_logs():
+def test_do_returned_with_logs():
     logs = list()
 
     action = do(
         (lambda v: v + 1),
         (lambda v: v - 1) |then>> logs.append,
-        (lambda v: v / 2) |then>> do.return_ |then>> (lambda v: -v),
+        (lambda v: v / 2) |then>> returned |then>> (lambda v: -v),
         logs.append |then>> logs.append,
         (lambda v: v * 10) |then>> (lambda v: v + 4),
     )
