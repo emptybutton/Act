@@ -1,10 +1,9 @@
 from functools import partial
 from operator import add, mul, truediv
-from typing import Any
 
-from pytest import mark, raises
+from pytest import raises
 
-from act.contexting import contextual, contextually, ContextualForm
+from act.contexting import contextual, contextually
 from act.data_flow import break_
 from act.errors import ReturningError
 from act.flags import nothing, pointed, flag_about
@@ -194,8 +193,7 @@ test_do = case_of(
 )
 
 
-@mark.parametrize("value", [do.return_, do.return_ | ok])
-def test_do_with_error(value: ContextualForm[Any, do.return_]):
+def test_do_with_error():
     with raises(ReturningError):
         do()(do.return_(4))
 
