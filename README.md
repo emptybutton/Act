@@ -596,6 +596,19 @@ Traceback ...
 Exception: >.<
 ```
 
+</br>
+
+> Use the `raising` shortcut to ignore input arguments.
+> ```py
+> raising(Exception('>.<'))(...)
+> ```
+> ```
+> Traceback ...
+> Exception: >.<
+> ```
+
+</br>
+
 Catch errors
 ```py
 trying_to(1 / n, will("{} is undivided ({})".format))
@@ -605,6 +618,34 @@ trying_to(1 / n, will("{} is undivided ({})".format))
 #         return 1 / n
 #     except Exception as error:
 #         return f"{n} is undivided ({error})"
+```
+
+</br>
+
+> To emulate an `except` block, use the `catching` function.
+> ```py
+> trying_to(
+>     1 / n,
+>     to(catching(ZeroDivisionError)(
+>         print
+>     )),
+> )
+> 
+> def _(n):
+>     try:
+>         return 1 / n
+>     except ZeroDivisionError as error:
+>         print(error)
+> ```
+
+</br>
+
+Save errors
+```py
+main = with_error(v / w)  # there is no such >.<
+
+error, value = main(8, 2)  # (nothing, 4)
+error, value = main(8, 0)  # (ZeroDivisionError('division by zero'), None)
 ```
 
 Use context manager
