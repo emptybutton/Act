@@ -1070,3 +1070,36 @@ metacontexted("mega")  # ('mega',)
 > ```
 
 </br>
+
+
+### Monads
+Break execution on `None`
+```py
+main: LeftCallable[int | float, Optional[str]]
+main = optionally(
+    (v - 10) |then>> {0: False, 1: True}.get |then>> fmt("<{}>", v)
+)
+
+main(10)  # <False>
+main(16)  # None
+```
+
+...for calling
+```py
+optionally.call_by(5, 3)(v + w)  # 8
+optionally.call_by(...)(None)  # None
+optionally.call_by(None, 1)(v + w)  # None
+```
+
+...or not on `None`
+```py
+main: LeftCallable[int | float | str, int | bad[ValueError]]
+main = maybe(
+    int
+    |then>> on(v < 0, bad(ValueError("number must be greater than zero")))
+    |then>> (v ** 2)
+)
+
+main(4)  # 16
+main(-4)  # bad ValueError("number must be greater than zero")
+```
