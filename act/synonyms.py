@@ -9,11 +9,10 @@ from act.atomization import atomically
 from act.partiality import partial, partially
 from act.representations import code_like_repr_of
 from act.signatures import Decorator, call_signature_of, annotation_sum
-from act.tools import to_check, as_action, LeftCallable, documenting_by
+from act.tools import to_check, as_action, LeftCallable, documenting_by, _get
 
 
 __all__ = (
-    "returned",
     "raise_",
     "assert_",
     "on",
@@ -25,15 +24,6 @@ __all__ = (
     "in_tuple",
     "with_keyword",
 )
-
-
-def returned(value: V) -> V:
-    """
-    Function representing the absence of an action.
-    Returns the value passed to it back.
-    """
-
-    return value
 
 
 def raise_(error: Exception) -> NoReturn:
@@ -69,7 +59,7 @@ class on(LeftCallable):
         determinant: Special[Callable[Pm, bool]],
         right_way: Callable[Pm, R] | R,
         /,
-        else_: Callable[Pm, L] | L = returned
+        else_: Callable[Pm, L] | L = _get
     ):
         self._condition_checker = to_check(determinant)
         self._right_action = as_action(right_way)

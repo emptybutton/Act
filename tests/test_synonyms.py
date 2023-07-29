@@ -7,9 +7,6 @@ from tests.mocks import CustomContext, fail_by_error, Counter
 from pytest import mark, raises
 
 
-test_returned = case_of((lambda: returned(None), None))
-
-
 test_raise_ = case_of(
     (lambda: with_(raises(TypeError), lambda _: raise_(TypeError())), None),
 )

@@ -18,8 +18,8 @@ from act.errors import FlagError
 from act.immutability import to_clone
 from act.partiality import partially
 from act.representations import code_like_repr_of
-from act.synonyms import returned, on
-from act.tools import documenting_by
+from act.synonyms import on
+from act.tools import documenting_by, _get
 
 
 __all__ = (
@@ -338,7 +338,7 @@ class _BinaryFlagVector(FlagVector):
 
     @property
     def _next(self) -> Callable[Special[Flag], Flag]:
-        return self.__next if self.__next is not None else returned
+        return self.__next if self.__next is not None else _get
 
     @property
     def _action(self) -> Callable[Flag, Flag]:

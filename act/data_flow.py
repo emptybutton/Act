@@ -16,8 +16,8 @@ from act.partiality import will, rpartial, partial, partially
 from act.pipeline import bind, then
 from act.representations import code_like_repr_of
 from act.signatures import Decorator, call_signature_of
-from act.synonyms import returned, on
-from act.tools import documenting_by, LeftCallable, items_of
+from act.synonyms import on
+from act.tools import documenting_by, LeftCallable, items_of, _get
 
 
 __all__ = (
@@ -343,7 +343,7 @@ class _CallableCustomPartialApplicationInfix(
         self,
         transform: Callable[[Callable, V], Callable],
         *,
-        action_to_call: Callable[Pm, R] = returned,
+        action_to_call: Callable[Pm, R] = _get,
         action_to_transform: Optional[Callable] = None,
         arguments: Optional[Iterable[V]] = None,
         name: Optional[str] = None
@@ -374,7 +374,7 @@ to = documenting_by(
     _CallableCustomPartialApplicationInfix(
         partial,
         name='to',
-        action_to_call=atomically(will(returned) |then>> eventually),
+        action_to_call=atomically(will(_get) |then>> eventually),
     )
 )
 
@@ -433,7 +433,7 @@ anything = documenting_by(
     Function to merge multiple actions with the same input interface into one.
 
     Merged actions are called in parallel, after which a tuple of their results
-    is returned, in the order in which the actions were passed.
+    is _get, in the order in which the actions were passed.
     """
 )
 @atomically
@@ -579,7 +579,7 @@ def _else_action_from(branches: Iterable[Branch[Pm, R]]) -> Callable[Pm, R] | R:
 
         return else_branches[0].way
 
-    return returned
+    return _get
 
 
 # Unique object to annotate matching to an `else` branch in `when` or

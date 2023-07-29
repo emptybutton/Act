@@ -10,8 +10,8 @@ from act.errors import TemplatedActionChainError
 from act.partiality import rpartial, will
 from act.representations import code_like_repr_of
 from act.signatures import call_signature_of
-from act.synonyms import returned, on
-from act.tools import documenting_by, LeftCallable
+from act.synonyms import on
+from act.tools import documenting_by, LeftCallable, _get
 
 
 __all__ = (
@@ -83,7 +83,7 @@ class ActionChain(LeftCallable, Generic[ActionT]):
 
         if not self._is_template:
             if len(self._actions) == 0:
-                self._main_action = returned
+                self._main_action = _get
             elif len(self._actions) == 1:
                 self._main_action = self._actions[0]
             else:
@@ -144,9 +144,9 @@ class ActionChain(LeftCallable, Generic[ActionT]):
 
 
 class _ActionChainInfix:
-    _second: Ellipsis | Callable = returned
+    _second: Ellipsis | Callable = _get
 
-    def __init__(self, name: str, *, second: Ellipsis | Callable = returned):
+    def __init__(self, name: str, *, second: Ellipsis | Callable = _get):
         self._name = name
         self._second = second
 

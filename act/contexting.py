@@ -19,8 +19,8 @@ from act.partiality import partially, will, rpartial
 from act.pipeline import then
 from act.representations import code_like_repr_of
 from act.signatures import call_signature_of
-from act.synonyms import repeating, returned, on
-from act.tools import documenting_by, LeftCallable
+from act.synonyms import repeating, on
+from act.tools import documenting_by, LeftCallable, _get
 
 
 __all__ = (
@@ -357,7 +357,7 @@ def to_metacontextual(
     value_action: Callable[V, W],
     /,
     *,
-    summed: Callable[contextual[D, W] | S, S] = returned,
+    summed: Callable[contextual[D, W] | S, S] = _get,
 ) -> LeftCallable[contextual_like[C, V] | V, S]:
     """
     Reduce function for values of nested `ContextualForms`.

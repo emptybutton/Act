@@ -11,8 +11,8 @@ from act.data_flow import by, yes
 from act.operators import not_
 from act.partiality import partial
 from act.representations import code_like_repr_of
-from act.synonyms import on, returned
-from act.tools import documenting_by, LeftCallable, items_of
+from act.synonyms import on
+from act.tools import documenting_by, LeftCallable, items_of, _get
 
 
 __all__ = ("Effect", "as_effect", "context_effect")
@@ -130,7 +130,7 @@ class _AnotatableEffect(Effect, Generic[V, R, C, I, A]):
         annotation_of: Optional[Callable[[..., I], A]] = None,
     ):
         super().__init__(decorator, lift=lift, is_lifted=is_lifted)
-        self._annotation_of = returned if annotation_of is None else annotation_of
+        self._annotation_of = _get if annotation_of is None else annotation_of
 
     def __getitem__(self, items: I | Tuple[I]) -> A:
         return self._annotation_of(*items_of(items))
@@ -146,7 +146,7 @@ as_effect = documenting_by(
     When an input decorator is already in the `Effect` form returns the form.
     """
 )(
-    on(not_(isinstance |by| Effect), Effect(lift=returned, is_lifted=yes))
+    on(not_(isinstance |by| Effect), Effect(lift=_get, is_lifted=yes))
 )
 
 

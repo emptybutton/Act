@@ -7,8 +7,8 @@ from act.atomization import atomically
 from act.data_flow import eventually, by, to
 from act.error_flow import catching
 from act.pipeline import binding_by, then, on
-from act.synonyms import trying_to, returned
-from act.tools import documenting_by, LeftCallable
+from act.synonyms import trying_to
+from act.tools import documenting_by, LeftCallable, _get
 
 
 __all__ = (
@@ -28,7 +28,7 @@ iteration_over = documenting_by(
     atomically(
         iter
         |then>> (eventually |to| next)
-        |then>> (trying_to |by| to(catching(StopIteration, returned)))
+        |then>> (trying_to |by| to(catching(StopIteration, _get)))
     )
 )
 

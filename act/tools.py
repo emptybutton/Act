@@ -52,6 +52,15 @@ def documenting_by(documentation: str) -> dirty[reformer_of[V]]:
     return document
 
 
+def _get(value: V) -> V:
+    """
+    Function representing the absence of an action.
+    Returns the value passed to it back.
+    """
+
+    return value
+
+
 def to_check(determinant: Callable[V, bool] | V) -> Callable[V, bool]:
     """Function representing an input value to a validation action."""
 

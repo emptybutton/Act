@@ -22,9 +22,9 @@ from act.immutability import to_clone
 from act.partiality import partially, flipped, partial
 from act.pipeline import then, _generating_pipeline
 from act.representations import code_like_repr_of
-from act.synonyms import on, returned
+from act.synonyms import on
 from act.signatures import call_signature_of
-from act.tools import LeftCallable
+from act.tools import LeftCallable, _get
 
 
 __all__ = (
@@ -552,5 +552,5 @@ def to_attribute(
                 obj_, attr_name, value
             )))
         ),
-        returned if mutably else copy,
+        _get if mutably else copy,
     )

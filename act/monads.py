@@ -20,8 +20,8 @@ from act.operators import and_, not_
 from act.partiality import will, partially, rpartial
 from act.pipeline import discretely, ActionChain, then, atomic_binding_by
 from act.structures import tmap
-from act.synonyms import on, returned
-from act.tools import documenting_by, to_check, as_action, LeftCallable
+from act.synonyms import on
+from act.tools import documenting_by, to_check, as_action, LeftCallable, _get
 
 
 __all__ = (
@@ -298,8 +298,8 @@ class do:
                 if of(do.return_, (result := line(value)).value)
                 else value
             ))))
-            |then>> (returned if len(lines) == 0 else lines[-1])
             |then>> saving_context(on(of(do.return_), attrgetter("value")))
+            |then>> (_get if len(lines) == 0 else lines[-1])
             |then>> on(
                 to(in_isolation),
                 attrgetter("value"),
