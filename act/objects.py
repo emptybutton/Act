@@ -12,6 +12,7 @@ from typing import (
 
 from pyannotating import Special
 
+from act.aggregates import Access
 from act.annotations import K, V, Pm, R, O, Union
 from act.contexting import (
     contextually, contexted, contextualizing, be
@@ -45,6 +46,8 @@ __all__ = (
     "like",
     "to_attribute",
     "read_only",
+    "sculpture_of",
+    "original_of",
 )
 
 
@@ -571,3 +574,64 @@ def read_only(value: Special[str | Callable | Access]) -> property:
         return property(value, raise_error)
     else:
         return property(lambda v: value.__get__(v, type(v)))
+
+
+@partially
+def sculpture_of(
+    original: Any,
+    **descriptor_by_name: Special[str | Callable | Access],
+) -> obj:
+    return (
+        obj.of({
+            name: as_descriptor(_sculpture_property_of(
+                _as_sculpture_descriptor(descriptor),
+                original,
+            ))
+            for name, descriptor in descriptor_by_name.items()
+        })
+        & obj(_sculpture_original=original)
+    )
+
+
+original_of: LeftCallable[Any, Any]
+original_of = attrgetter("_sculpture_original")
+
+
+def _as_sculpture_descriptor(
+    value: Union[
+        str,
+        Callable[Any, Any],
+        Access[Callable[Any, Any], Callable[[Any, Any], Any]],
+        V,
+    ]
+) -> property | V:
+    if isinstance(value, str):
+        return property(attrgetter(value), lambda o, v: setattr(o, value, v))
+    elif isinstance(value, Access):
+        return property(value.get, value.set)
+    elif callable(value):
+        return property(value)
+    else:
+        return value
+
+
+def _sculpture_property_of(descriptor: Any, value: Any) -> property:
+    sculpture_property = property()
+
+    if hasattr(descriptor, "__set__"):
+        sculpture_property = property(fset=descriptor.__set__)
+
+    if hasattr(descriptor, "__get__"):
+        sculpture_property = property(
+            eventually(descriptor.__get__, value, type(value)),
+            sculpture_property.fset,
+        )
+
+    if hasattr(descriptor, "__delete__"):
+        sculpture_property = property(
+            sculpture_property.fget,
+            sculpture_property.fset,
+            descriptor.__delete__,
+        )
+
+    return sculpture_property

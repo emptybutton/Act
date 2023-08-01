@@ -397,6 +397,28 @@ test_templated_attrs_of = case_of(
 )
 
 
+test_sculpture_of_getting = case_of(
+    (lambda: sculpture_of(MockA(4), b='a').b, 4),
+    (lambda: sculpture_of(MockA(4), b=attrgetter('a')).b, 4),
+    (
+        lambda: with_(raises(AttributeError))(
+            lambda _: sculpture_of(MockA(4), b='a').a
+        ),
+        None,
+    ), 
+)
+
+
+def test_sculpture_of_setting():
+    original = MockA(4)
+    sculpture = sculpture_of(original, a='b')
+
+    sculpture.b = 8
+
+    assert sculpture.b == 8
+    assert original.a == 8
+
+
 @mark.parametrize(
     "value",
     [
@@ -425,3 +447,13 @@ def test_read_only_reading(value):
         read_only(Access('b', ...)),
     ]
 )
+def test_read_only_setting(value):
+    class WithReadOnly:
+        a = read_only(value)
+        b = 4
+        c = 2
+
+    with_read_only = WithReadOnly()
+
+    with raises(AttributeError):
+        with_read_only.a = ...
