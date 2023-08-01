@@ -128,7 +128,7 @@ main(10, 5)
 
 Use unlimited arguments
 ```py
-main = _.(v, *args, *kwargs.values_._())  # lambda v, *args, **kwargs: (v, *args, *kwargs.values())
+main = _(v, *args, *kwargs.values_._())  # lambda v, *args, **kwargs: (v, *args, *kwargs.values())
 main(1, 2, a=3, b=4)
 ```
 ```
@@ -148,7 +148,7 @@ main(WithA(...), [1, 2, 3], 8)
 
 > Item setting supports `tuple`.
 > ```py
-> main = t[1].set(8)  # there is no such >.<
+> main = t[1].set(8)
 > main((1, 2, 3))
 > ```
 > ```
@@ -159,7 +159,7 @@ main(WithA(...), [1, 2, 3], 8)
 
 ...with side effects
 ```py
-main = v.a.mset(w[1].mset(-x)).a  # there is no such >.<
+main = v.a.mset(w[1].mset(-x)).a
 
 values = [1, 2, 3]
 with_a = WithA(...)
@@ -171,7 +171,7 @@ with_a.a  # [1, -8, 3]
 
 ...and via a function
 ```py
-main = v.a.mbe(lambda a: a * 4).a  # there is no such >.<
+main = v.a.mbe(lambda a: a * 4).a
 with_a = WithA(64)
 
 main(with_a)  # 256
@@ -182,7 +182,7 @@ with_a.a  # 256
 
 > To use a function immutably use `be`.
 > ```py
-> main = t[1].be(lambda i: i**3)  # there is no such >.<
+> main = t[1].be(lambda i: i**3)
 > main((1, 2, 3))
 > ```
 > ```
@@ -287,7 +287,7 @@ main[1:3]  # str |then>> float
 
 ...to decorate
 ```py
-main = discretely(binding_by(... |then>> (v * 2)))  # there is no such >.<
+main = discretely(binding_by(... |then>> (v * 2)))
 
 func = main(int |then>> str)  # int |then>> (v * 2) |then>> str |then>> (v * 2)
 func(10.1)  # 2020
@@ -392,7 +392,7 @@ func(0, 1, d=3)(2)  # (0, 1, 2, 3)
 ### Data flow
 Ignore arguments
 ```py
-main = take[0][2, 3][5:7]['x'](_(*args, *kwargs.values_._()))  # there is no such >.<
+main = take[0][2, 3][5:7]['x'](_(*args, *kwargs.values_._()))
 main(*range(10), a='a', b='b', x='x')
 ```
 ```
@@ -424,7 +424,7 @@ something
 
 Execute with prepared result
 ```py
-main = with_result("forced result", print)  # there is no such >.<
+main = with_result("forced result", print)
 main("argument") + " and something"
 ```
 ```
@@ -434,7 +434,7 @@ forced result and something
 
 ...as an argument
 ```py
-main = returnly(print)  # there is no such >.<
+main = returnly(print)
 main("argument") + " and something"
 ```
 ```
@@ -461,7 +461,7 @@ flipped(truediv)(10, 1)
 
 Execute only once
 ```py
-main = once(shown)  # there is no such >.<
+main = once(shown)
 
 main("value") + " and something"
 main("value") + " and something"
@@ -474,7 +474,7 @@ value and something
 
 Execute via indexer
 ```py
-main = via_indexer(v / w)  # there is no such >.<
+main = via_indexer(v / w)
 main[16, 2]
 ```
 ```
@@ -525,7 +525,7 @@ when(
 
 ...with stopping
 ```py
-main = when(  # there is no such >.<
+main = when(
     (n > 0, "positive"),
     (0, break_),
     (n <= 0, "negative"),
@@ -642,7 +642,7 @@ trying_to(1 / n, will("{} is undivided ({})".format))
 
 Save errors
 ```py
-main = with_error(v / w)  # there is no such >.<
+main = with_error(v / w)
 
 error, value = main(8, 2)  # (nothing, 4)
 error, value = main(8, 0)  # (ZeroDivisionError('division by zero'), None)
@@ -1075,7 +1075,6 @@ metacontexted("mega")  # ('mega',)
 ### Monads
 Break execution on `None`
 ```py
-main: LeftCallable[int | float, Optional[str]]
 main = optionally(
     (v - 10) |then>> {0: False, 1: True}.get |then>> fmt("<{}>", v)
 )
@@ -1093,7 +1092,6 @@ optionally.call_by(None, 1)(v + w)  # None
 
 ...or not on `None`
 ```py
-main: LeftCallable[int | float | str, int | bad[ValueError]]
 main = maybe(
     int
     |then>> on(v < 0, bad(ValueError("number must be greater than zero")))
