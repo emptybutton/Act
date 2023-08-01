@@ -85,6 +85,12 @@ class Arbitrary(ABC):
 
     For covariant value checking use the `isinstance` function.
     `|` supported for `Union`.
+
+
+    When called with a `__call__` attribute, makes an output object callable on
+    that attribute.
+
+    Can be obtained union of an instance with any other object via `&`.
     """
 
     @abstractmethod
@@ -223,16 +229,7 @@ _NO_VALUE = flag_about("_NO_VALUE")
 
 
 class obj(_AttributeKeeper):
-    """
-    Constructor for an `Arbitrary` object with data.
-
-    Creates an object with attributes from keyword arguments.
-
-    When called with a `__call__` attribute, makes an output object callable on
-    that attribute.
-
-    Can be obtained union of an instance with any other object via `&`.
-    """
+    """Constructor for an `Arbitrary` object with data."""
 
     _default_attribute_value = None
 
@@ -337,6 +334,8 @@ class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
 
 
 class temp(_AttributeKeeper, LeftCallable):
+    """Constructor for an `Arbitrary` object without data."""
+
     _default_attribute_value = Any
 
     def __new__(cls, **attributes: Any) -> Self | obj:
