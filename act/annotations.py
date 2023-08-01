@@ -15,6 +15,7 @@ from act.representations import code_like_repr_of
 
 
 __all__ = (
+    "Special",
     "reformer_of",
     "merger_of",
     "Pm",
