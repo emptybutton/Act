@@ -75,14 +75,14 @@ def test_contextual_error():
 
 
 test_to_write = case_of((
-    lambda: to_write(lambda v, c: v + c)(contextual(3, 5)),
-    contextual(8, 5)
+    lambda: to_write(lambda c, v: v + c)(contextual(3, 5)),
+    contextual(8, 5),
 ))
 
 
 test_to_read = case_of((
-    lambda: to_read(lambda v, c: v + c)(contextual(3, 5)),
-    contextual(3, 8)
+    lambda: to_read(lambda c, v: v + c)(contextual(3, 5)),
+    contextual(3, 8),
 ))
 
 
