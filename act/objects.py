@@ -6,7 +6,8 @@ from functools import reduce
 from operator import or_, attrgetter, methodcaller
 from types import MethodType
 from typing import (
-    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, Tuple, TypeVar
+    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, Tuple, TypeVar,
+    Iterable
 )
 
 from pyannotating import Special
@@ -15,8 +16,9 @@ from act.annotations import K, V, Pm, R, O, Union
 from act.contexting import (
     contextually, contexted, contextualizing, be
 )
-from act.data_flow import mergely, by, returnly, when
+from act.data_flow import mergely, by, returnly, when, eventually
 from act.errors import ObjectTemplateError
+from act.error_flow import raising
 from act.flags import flag_about
 from act.immutability import to_clone
 from act.partiality import partially, flipped, partial
@@ -42,6 +44,7 @@ __all__ = (
     "void",
     "like",
     "to_attribute",
+    "read_only",
 )
 
 
@@ -553,3 +556,18 @@ def to_attribute(
         ),
         _get if mutably else copy,
     )
+
+
+def read_only(value: Special[str | Callable | Access]) -> property:
+    raise_error = raising(AttributeError("attribute cannot be set"))
+
+    if isinstance(value, Access):
+        return read_only(value.get)
+    elif isinstance(value, property):
+        return property(value.fget, raise_error, value.fdel)
+    elif isinstance(value, str):
+        return property(attrgetter(value), raise_error)
+    elif callable(value):
+        return property(value, raise_error)
+    else:
+        return property(lambda v: value.__get__(v, type(v)))

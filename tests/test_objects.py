@@ -1,7 +1,11 @@
 from functools import partial
-from operator import add
+from operator import add, attrgetter
 
+from pytest import mark, raises
+
+from act.aggregates import Access
 from act.objects import *
+from act.synonyms import with_
 from act.testing import case_of
 from tests.mocks import MockA, MockB, nested
 
@@ -390,4 +394,34 @@ test_templated_attrs_of = case_of(
     (lambda: templated_attrs_of(obj(a=1, b=2)), dict()),
     (lambda: templated_attrs_of(temp(a=int, b=str)), dict(a=int, b=str)),
     (lambda: templated_attrs_of(temp(a=int, b=str)), dict(a=int, b=str)),
+)
+
+
+@mark.parametrize(
+    "value",
+    [
+        read_only('b'),
+        read_only(attrgetter('b')),
+        read_only(lambda v: v.c + 2),
+        read_only(Access('b', ...)),
+    ]
+)
+def test_read_only_reading(value):
+    class WithReadOnly:
+        a = read_only(value)
+        b = 4
+        c = 2
+
+
+    assert WithReadOnly().a == 4
+
+
+@mark.parametrize(
+    "value",
+    [
+        read_only('b'),
+        read_only(attrgetter('b')),
+        read_only(lambda v: v.c + 2),
+        read_only(Access('b', ...)),
+    ]
 )
