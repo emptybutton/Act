@@ -1101,3 +1101,49 @@ main = maybe(
 main(4)  # 16
 main(-4)  # bad ValueError("number must be greater than zero")
 ```
+
+...or on errors
+```py
+main = with_error(v / w) |then>> until_error((16 / v) |then>> "fount {}!".format)
+
+main(4, 0)  # ZeroDivisionError("division by zero") None
+main(8, 2)  # nothing "fount 4.0!"
+main(0, 2)  # pointed(ZeroDivisionError("float division by zero")) 0.0
+```
+
+Write an output
+```py
+4 >= showly((v + 4) |then>> (v * 2) |then>> (v - 4))
+```
+```
+8
+16
+12
+```
+
+...in different ways
+```py
+logs = list()
+
+4 >= showly(show=logs.append)((v + 4) |then>> (v * 2) |then>> (v - 4))
+
+logs  # [8, 16, 12]
+```
+
+Choose action by context
+```py
+main = either(
+    (right, v + 1),
+    (left, v - 1),
+)
+
+main(right(3))  # right 4
+main(left(-3))  # left -4
+main(0)  # nothing 0
+```
+
+</br>
+
+> Otherwise, `either` is equivalent to `when`.
+
+</br>
