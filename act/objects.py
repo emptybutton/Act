@@ -6,8 +6,7 @@ from functools import reduce
 from operator import or_, attrgetter, methodcaller
 from types import MethodType
 from typing import (
-    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, Tuple, TypeVar,
-    Iterable
+    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, Tuple, TypeVar
 )
 
 from pyannotating import Special

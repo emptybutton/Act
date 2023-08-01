@@ -405,7 +405,7 @@ test_sculpture_of_getting = case_of(
             lambda _: sculpture_of(MockA(4), b='a').a
         ),
         None,
-    ), 
+    ),
 )
 
 
@@ -433,7 +433,6 @@ def test_read_only_reading(value):
         a = read_only(value)
         b = 4
         c = 2
-
 
     assert WithReadOnly().a == 4
 
