@@ -1,9 +1,9 @@
-from operator import attrgetter, call, eq
-from typing import Callable, Any, Tuple, Optional
+from operator import attrgetter, call
+from typing import Callable, Any, Optional
 
 from pyannotating import Special, AnnotationTemplate, input_annotation
 
-from act.annotations import dirty, R, A, B, V, C, M, G, F, W, Pm, Union
+from act.annotations import dirty, R, A, B, V, C, M, G, F, W, P, Pm, Union
 from act.atomization import atomically
 from act.contexting import (
     contextual, contextually, contexted, ContextualForm, saving_context,
@@ -14,12 +14,11 @@ from act.data_flow import returnly, by, to, when, break_, and_via_indexer
 from act.effects import context_effect
 from act.errors import ReturningError
 from act.error_flow import raising
-from act.flags import flag_about, nothing, Flag, pointed
+from act.flags import flag_about, nothing, Flag, pointed, to_points
 from act.objects import obj
-from act.operators import and_, not_
+from act.operators import not_
 from act.partiality import will, partially, rpartial
 from act.pipeline import discretely, ActionChain, then, atomic_binding_by
-from act.structures import tmap
 from act.synonyms import on
 from act.tools import documenting_by, to_check, as_action, LeftCallable, _get
 
@@ -35,10 +34,10 @@ __all__ = (
     "right",
     "left",
     "either",
-    "future",
     "in_future",
-    "future_from",
-    "is_in_future",
+    "parallel",
+    "future",
+    "has_future",
     "returned",
     "do",
     "up",
@@ -171,14 +170,11 @@ def either(
     )))
 
 
-future = contextualizing(flag_about("future"), to=contextually)
-
-
-@partially
-def in_future(
-    action: Callable[V, R],
-    value: V | ContextualForm[Flag[C] | C, V],
-) -> contextual[Flag[C | contextually[future, Callable[..., R]]], V]:
+@flag_about("in_future").to
+def in_future(action: Callable[V, R]) -> LeftCallable[
+    contexted[Flag[C] | C, V],
+    contextual[Flag["C | in_future[Callable[..., R]]"], V],
+]:
     """
     Decorator to delay the execution of an input action.
 
@@ -192,18 +188,28 @@ def in_future(
     For safe calling of such "future" actions from context see `future_from`.
     """
 
-    return contexted(
-        value,
-        +pointed(contextually(future, action |to| contexted(value).value)),
-    )
+    @atomically
+    def future_action(value: contexted[Flag[C] | C, V]) -> contextual[
+        Flag[C | in_future[Callable[..., R]]],
+        V,
+    ]:
+        return contexted(
+            value,
+            +pointed(contextually(in_future, action |to| contexted(value).value)),
+        )
+
+    return future_action
 
 
-def future_from(
-    value: Special[
-        contextually[future, Callable[..., R]]
-        | Flag[contextually[future, Callable[..., R]]]
+parallel = contextualizing(flag_about("parallel"))
+
+
+def future(
+    value: contexted[
+        Special[pointed[in_future[Callable[[], P]]]],
+        V,
     ],
-) -> Tuple[R]:
+) -> contextual[Flag[Special[parallel[P]]], V]:
     """
     Function for safe execution of actions in `future` context.
 
@@ -213,21 +219,26 @@ def future_from(
     Returns a tuple of the results of found actions.
     """
 
-    return tmap(call, pointed(value).that(is_in_future).points)
+    actions_to_future = pointed(contexted(value).context).that(of(in_future))
 
-
-is_in_future: LeftCallable[Special[contextually[Special[future], Callable]], bool]
-is_in_future = documenting_by(
-    """Function to check if an input value is a `in_future` deferred action."""
-)(
-    and_(
-        isinstance |by| contextually,
-        attrgetter("context") |then>> (eq |by| future),
+    return contexted(
+        value,
+        -actions_to_future & +to_points(call |then>> parallel, actions_to_future),
     )
-)
 
 
-returned = contextualizing(flag_about("return_"))
+def has_future(
+    value: Special[ContextualForm[pointed[in_future[Callable]], Any]],
+) -> bool:
+    """
+    Function to check for the presence of alternative input value processing
+    variations.
+    """
+
+    return pointed(contexted(value).context).that(of(in_future)) != nothing
+
+
+returned = contextualizing(flag_about("returned"))
 
 
 @obj.of
