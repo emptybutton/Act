@@ -411,7 +411,7 @@ test_sculpture_of_getting = case_of(
 
 def test_sculpture_of_setting():
     original = MockA(4)
-    sculpture = sculpture_of(original, a='b')
+    sculpture = sculpture_of(original, b='a')
 
     sculpture.b = 8
 
