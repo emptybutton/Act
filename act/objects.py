@@ -627,7 +627,9 @@ def _sculpture_property_of(descriptor: Any, value: Any) -> property:
     sculpture_property = property()
 
     if hasattr(descriptor, "__set__"):
-        sculpture_property = property(fset=descriptor.__set__)
+        sculpture_property = property(
+            fset=lambda _, v: descriptor.__set__(value, v),
+        )
 
     if hasattr(descriptor, "__get__"):
         sculpture_property = property(
@@ -639,7 +641,7 @@ def _sculpture_property_of(descriptor: Any, value: Any) -> property:
         sculpture_property = property(
             sculpture_property.fget,
             sculpture_property.fset,
-            descriptor.__delete__,
+            eventually(descriptor.__delete__, value),
         )
 
     return sculpture_property
