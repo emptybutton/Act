@@ -11,6 +11,7 @@ from act.annotations import (
     ActionT, ErrorT, P, Pm, A, B, C, V, R, W, D, S, Unia, FlagT
 )
 from act.atomization import atomically
+from act.data_flow import and_via_indexer
 from act.flags import (
     nothing, Flag, pointed, flag_about, FlagVector, _NamedFlag, _CallableNamedFlag
 )
@@ -205,6 +206,11 @@ def context_oriented(value: Special[ContextualForm[C, V]]) -> contextual[V, C]:
 _NO_VALUE: Final[Flag] = flag_about("_NO_VALUE")
 
 
+@and_via_indexer(lambda a, b=_NO_VALUE: (
+    contexted[Any, a]
+    if b is _NO_VALUE
+    else b | ContextualForm[a, b]
+))
 def contexted(
     value: V | ContextualForm[D, V],
     when: C | Callable[D, C] | _NO_VALUE = _NO_VALUE,
