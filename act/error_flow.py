@@ -12,7 +12,7 @@ from act.tools import documenting_by, LeftCallable
 
 __all__ = (
     "with_error",
-    "catching",
+    "catch",
     "raising",
 )
 
@@ -37,7 +37,7 @@ with_error = documenting_by(
 
 
 @partially
-def catching(
+def catch(
     error_type_to_catch: Type[ErrorT],
     action: Callable[ErrorT, R],
     error: ErrorT,
