@@ -266,6 +266,12 @@ class and_via_indexer:
 
         self.__signature__ = call_signature_of(main_action)
 
+    def __repr__(self) -> str:
+        return (
+            f"({code_like_repr_of(self._main_action)})"
+            f"[{code_like_repr_of(self._indexer)}]"
+        )
+
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._main_action(*args, **kwargs)
 
