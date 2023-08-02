@@ -326,8 +326,11 @@ class _BinaryFlagVector(FlagVector):
         )
 
     @to_clone
-        self.__next = other
     def __and__(self, other: Self) -> None:
+        if self.__next is None:
+            self.__next = other
+        else:
+            self.__next = self.__next & other
 
     @to_clone
     def __neg__(self) -> None:
@@ -391,17 +394,10 @@ class _DoubleFlag(Flag, ABC):
         return atomic(self._first)
 
     def __pos__(self) -> FlagVector:
-        return _BinaryFlagVector(
-            self._first,
-            next_=_BinaryFlagVector(self._second),
-        )
+        return +self._first & +self._second
 
     def __neg__(self) -> FlagVector:
-        return _BinaryFlagVector(
-            self._first,
-            is_positive=False,
-            next_=_BinaryFlagVector(self._second, is_positive=False)
-        )
+        return -self._first & -self._second
 
     def __hash__(self) -> int:
         return hash(self._first) + hash(self._second)
