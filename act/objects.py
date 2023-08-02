@@ -581,17 +581,17 @@ def read_only(value: Special[str | Callable | Access]) -> property:
 @partially
 def sculpture_of(
     original: Any,
-    **descriptor_by_name: Special[str | Callable | Access],
+    **descriptor_by_attr_name: Special[str | Callable | Access],
 ) -> obj:
     """Constructor for objects with proxied descriptors to an input value."""
 
     return (
         obj.of({
-            name: as_descriptor(_sculpture_property_of(
+            _: as_descriptor(_sculpture_property_of(
                 _as_sculpture_descriptor(descriptor),
                 original,
             ))
-            for name, descriptor in descriptor_by_name.items()
+            for _, descriptor in descriptor_by_attr_name.items()
         })
         & obj(_sculpture_original=original)
     )
