@@ -17,6 +17,7 @@ __all__ = (
     "assert_",
     "on",
     "while_",
+    "times",
     "try_",
     "with_",
     "keyword_unpackly",
@@ -128,6 +129,14 @@ class while_(LeftCallable):
 
     def __get_signature(self) -> Signature:
         return call_signature_of(self._action)
+
+
+@partially
+def times(number: int, action: Callable[V, V], value: V) -> V:
+    for _ in range(number):
+        value = action(value)
+
+    return value
 
 
 @partially

@@ -1,11 +1,11 @@
-from typing import Iterable, Generator, Optional, Callable, Type
+from typing import Iterable, Optional, Callable, Type
 
 from pyannotating import Special
 
-from act.annotations import dirty, V, R
+from act.annotations import V, R
 from act.atomization import atomically
 from act.data_flow import eventually, by, to
-from act.error_flow import catching
+from act.error_flow import catch
 from act.pipeline import binding_by, then, on
 from act.synonyms import try_
 from act.tools import documenting_by, LeftCallable, _get
@@ -14,7 +14,6 @@ from act.tools import documenting_by, LeftCallable, _get
 __all__ = (
     "iteration_over",
     "infinite",
-    "times",
 )
 
 
@@ -43,25 +42,3 @@ infinite = documenting_by(
     binding_by(... |then>> on(isinstance |by| StopIteration, None))
     |then>> atomically
 )
-
-
-@dirty
-@documenting_by(
-    """
-    Function for a function returning `True` an input number of times, then
-    `False` once, and again.
-
-    Return function ignores its input arguments.
-    """
-)
-@atomically
-@binding_by(... |then>> iteration_over)
-def times(max_steps: int, /) -> Generator[bool, None, None]:
-    steps = max_steps
-
-    while True:
-        yield steps > 0
-        steps -= 1
-
-        if steps < 0:
-            steps = max_steps
