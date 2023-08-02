@@ -6,7 +6,7 @@ from act.contexting import contextual
 from act.data_flow import by, to, eventually
 from act.partiality import partially
 from act.pipeline import binding_by, then
-from act.synonyms import trying_to, raise_
+from act.synonyms import try_, raise_
 from act.tools import documenting_by, LeftCallable
 
 
@@ -31,7 +31,7 @@ with_error = documenting_by(
 )(
     atomically(
         binding_by(... |then>> contextual)
-        |then>> (trying_to |by| to(contextual |by| None))
+        |then>> (try_ |by| to(contextual |by| None))
     )
 )
 

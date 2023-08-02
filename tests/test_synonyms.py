@@ -59,11 +59,11 @@ def test_repeating_execution_sequences(
     assert number_of_checker_calls == checking_counter.counted
 
 
-test_trying_to_without_error = case_of(
-    (lambda: trying_to(lambda a: 1 / a, lambda _: fail_by_error)(10), 0.1),
-    (lambda: trying_to(lambda a, b: a + b, lambda _: fail_by_error)(5, 3), 8),
-    (lambda: trying_to(lambda a, b: a + b, lambda _: fail_by_error)(5, b=3), 8),
-    (lambda: trying_to(lambda: 256, lambda _: fail_by_error)(), 256),
+test_try__without_error = case_of(
+    (lambda: try_(lambda a: 1 / a, lambda _: fail_by_error)(10), 0.1),
+    (lambda: try_(lambda a, b: a + b, lambda _: fail_by_error)(5, 3), 8),
+    (lambda: try_(lambda a, b: a + b, lambda _: fail_by_error)(5, b=3), 8),
+    (lambda: try_(lambda: 256, lambda _: fail_by_error)(), 256),
 )
 
 
@@ -80,13 +80,13 @@ test_trying_to_without_error = case_of(
         (lambda: int('1' + '0'*4300), tuple(), ValueError)
     ]
 )
-def test_trying_to_with_error(
+def test_try__with_error(
     func: Callable,
     input_args: Iterable,
     error_type: Type[Exception]
 ):
     assert (
-        type(trying_to(func, lambda *_: lambda error: error)(*input_args))
+        type(try_(func, lambda *_: lambda error: error)(*input_args))
         is error_type
     )
 

@@ -17,7 +17,7 @@ __all__ = (
     "assert_",
     "on",
     "repeating",
-    "trying_to",
+    "try_",
     "with_",
     "keyword_unpackly",
     "tuple_of",
@@ -127,7 +127,7 @@ class repeating(LeftCallable):
 
 
 @partially
-class trying_to(LeftCallable):
+class try_(LeftCallable):
     """
     Decorator function providing handling of possible errors in an input action.
 
