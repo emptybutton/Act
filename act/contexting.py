@@ -164,7 +164,7 @@ class contextually(LeftCallable, ContextualForm, Generic[C, ActionT]):
         self.__signature__ = call_signature_of(self._value)
 
     def __repr__(self) -> str:
-        return f"contextually({super().__repr__()})"
+        return f"callable({super().__repr__()})"
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._value(*args, **kwargs)
@@ -183,7 +183,7 @@ class ContextualError(ContextualForm, Exception, Generic[ErrorT, C]):
         super()._update(context, value)
 
     def __repr__(self) -> str:
-        return f"ContextualError({super().__repr__()})"
+        return f"raisable({super().__repr__()})"
 
     def __str__(self) -> str:
         return repr(self)
