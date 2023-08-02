@@ -117,9 +117,9 @@ class repeating(LeftCallable):
         return value
 
     def __repr__(self) -> str:
-        return "({} while {})".format(
-            code_like_repr_of(self._action),
+        return "(while {}: {})".format(
             code_like_repr_of(self._is_valid_to_repeat),
+            code_like_repr_of(self._action),
         )
 
     def __get_signature(self) -> Signature:
