@@ -13,7 +13,7 @@ from act.atomization import atomic
 from act.annotations import (
     V, FlagT, merger_of, reformer_of, A, B, P, Pm, R, CommentAnnotation
 )
-from act.data_flow import by, then
+from act.data_flow import by, then, and_via_indexer
 from act.errors import FlagError
 from act.immutability import to_clone
 from act.partiality import partially
@@ -636,6 +636,7 @@ def flag_about(name: str, /, *, negative: bool = False) -> _NamedFlag:
     return _NamedFlag(name, negative=negative)
 
 
+@and_via_indexer(lambda a: a | Flag[a])
 def pointed(*values: FlagT | V) -> FlagT | _ValueFlag[V]:
     """
     Function to create a flag sum pointing to input values.
