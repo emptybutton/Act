@@ -13,6 +13,7 @@ from pyannotating import Special
 
 from act.aggregates import Access
 from act.annotations import K, V, Pm, R, O, Union
+from act.atomization import atomically
 from act.contexting import (
     contextually, contexted, contextualizing, be
 )
@@ -26,7 +27,7 @@ from act.pipeline import then, _generating_pipeline
 from act.representations import code_like_repr_of
 from act.synonyms import on
 from act.signatures import call_signature_of
-from act.tools import LeftCallable, _get
+from act.tools import LeftCallable, documenting_by, _get
 
 
 __all__ = (
@@ -561,6 +562,8 @@ def to_attribute(
 
 
 def read_only(value: Special[str | Callable | Access]) -> property:
+    """Function declaring a readonly descriptor."""
+
     raise_error = raising(AttributeError("attribute cannot be set"))
 
     if isinstance(value, Access):
@@ -580,6 +583,8 @@ def sculpture_of(
     original: Any,
     **descriptor_by_name: Special[str | Callable | Access],
 ) -> obj:
+    """Constructor for objects with proxied descriptors to an input value."""
+
     return (
         obj.of({
             name: as_descriptor(_sculpture_property_of(
@@ -593,7 +598,11 @@ def sculpture_of(
 
 
 original_of: LeftCallable[Any, Any]
-original_of = attrgetter("_sculpture_original")
+original_of = documenting_by(
+    """Function for a value to which an input sculpture proxies."""
+)(
+    atomically(attrgetter("_sculpture_original"))
+)
 
 
 def _as_sculpture_descriptor(
