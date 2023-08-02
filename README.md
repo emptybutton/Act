@@ -280,6 +280,7 @@ main = int |then>> str |then>> float |then>> int  # lambda v: int(float(str(int(
 
 tuple(main)  # (int, str, float, int)
 len(main)  # 4
+len(main * 2)  # 8
 
 main[1]  # str
 main[1:3]  # str |then>> float
@@ -776,6 +777,11 @@ gamma = flag_about("gamma")
 > (alpha | beta).points == (alpha.point, beta.point)
 > ```
 
+> `pointed` can annotate a value it declares.
+> ```py
+> pointed[int] == int | Flag[]
+> ```
+
 > Flags indicating a value are binary by value.</br>
 > Nominal by their signs.
 > ```py
@@ -1021,6 +1027,16 @@ contexted(great(4), perfect)  # perfect 4
 contexted(great(4), +perfect)  # great | perfect 4
 contexted(great(4), -great)  # nothing 4
 ```
+
+</br>
+
+> `contexted` can annotate a value it declares.
+> ```py
+> contexted[str]  # typing.Union[str, act.contexting.ContextualForm[typing.Any, str]]
+> contexted[int, str]  # typing.Union[str, act.contexting.ContextualForm[int, str]]
+> ```
+
+</br>
 
 ...or a context
 ```py
