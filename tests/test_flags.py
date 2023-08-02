@@ -83,7 +83,7 @@ def test_flag_algebra():
 
     assert (+pointed(2))(pointed(1)).points == (1, 2)
 
-    assert (-pointed(2) ^ +pointed(3))(pointed(1, 2)).points == (1, 3)
+    assert (-pointed(2) & +pointed(3))(pointed(1, 2)).points == (1, 3)
 
     assert ~pointed(1) == pointed(1)
 

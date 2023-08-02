@@ -149,7 +149,7 @@ class Flag(ABC, Generic[P]):
     ```
 
     They also have unary plus and minus and a sum, which can be created with the
-    `^` operator and inverted back to flag by `~` operator.
+    `&` operator and inverted back to flag by `~` operator.
     ```
     ++pointed(1)  # +pointed(1)
     --pointed(1)  # +pointed(1)
@@ -159,7 +159,7 @@ class Flag(ABC, Generic[P]):
 
     (+pointed(2))(pointed(1))  # pointed(1, 2)
 
-    (-pointed(2) ^ +pointed(3))(pointed(1, 2))  # pointed(1, 3)
+    (-pointed(2) & +pointed(3))(pointed(1, 2))  # pointed(1, 3)
     ```
 
     Flags also use `~` to come to themselves, which can be used with a `Union`
@@ -278,7 +278,7 @@ class FlagVector(ABC):
     """
 
     @abstractmethod
-    def __xor__(self, other: Self) -> Self:
+    def __and__(self, other: Self) -> Self:
         ...
 
     @abstractmethod
@@ -315,7 +315,7 @@ class _BinaryFlagVector(FlagVector):
 
     def __repr__(self) -> str:
         return f"{'+' if self._is_positive else '-'}{self._flag}{{}}".format(
-            f" ^ {self._next}" if self.__next is not None else str()
+            f" & {self._next}" if self.__next is not None else str()
         )
 
     def __eq__(self, other: Special[Self]) -> bool:
@@ -326,8 +326,8 @@ class _BinaryFlagVector(FlagVector):
         )
 
     @to_clone
-    def __xor__(self, other: Self) -> None:
         self.__next = other
+    def __and__(self, other: Self) -> None:
 
     @to_clone
     def __neg__(self) -> None:
