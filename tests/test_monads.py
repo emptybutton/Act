@@ -146,7 +146,7 @@ def test_in_future():
 
     flag, future_actoin = context.points[1]
 
-    assert flag is future
+    assert flag is in_future
     assert future_actoin() == 8
 
 
@@ -156,25 +156,37 @@ def test_in_future_with_noncontextual():
     assert value == 4
 
     assert len(context.points) == 1
-    assert context.point.context is future
+    assert context.point.context is in_future
     assert context.point.action() == 16
 
 
-test_future_from = case_of(
-    (lambda: future_from(4), tuple()),
-    (lambda: future_from(contextual(future, 4)), tuple()),
-    (lambda: future_from(contextually(lambda: 4)), tuple()),
-    (lambda: future_from(contextually(future, lambda: 4)), (4, )),
-    (lambda: future_from(pointed(contextually(future, lambda: 4))), (4, )),
-    (lambda: future_from(pointed(1, 2, 3)), tuple()),
+test_future = case_of(
+    (lambda: future(4), contextual(4)),
     (
-        lambda: future_from(pointed(
-            contextually(future, lambda: 4),
-            contextually(future, lambda: 8),
-            contextually(future, lambda: 16),
-            "garbage",
-        )),
-        (4, 8, 16),
+        lambda: future(contextual(contextually(print), None)),
+        contextual(pointed(contextually(print)), None),
+    ),
+    (
+        lambda: future(contextual(pointed(1, 2, 3), 1)),
+        contextual(pointed(1, 2, 3), 1),
+    ),
+    (
+        lambda: future(contextual(contextually(in_future, lambda: 4), ...)),
+        contextual(pointed(parallel(4)), ...),
+    ),
+    (
+        lambda: future(
+            contextual(
+                pointed(
+                    contextually(in_future, lambda: 4),
+                    contextually(in_future, lambda: 8),
+                    contextually(in_future, lambda: 16),
+                    "garbage",
+                ),
+                ...,
+            )
+        ),
+        contextual(pointed(parallel(4), parallel(8), parallel(16)), ...),
     ),
 )
 

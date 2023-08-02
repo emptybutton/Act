@@ -12,14 +12,14 @@ test_raising = case_of(
 )
 
 
-test_catching = case_of(
-    (lambda: catching(ValueError, type, ValueError()), ValueError),
-    (lambda: catching(IndexError, type, IndexError()), IndexError),
-    (lambda: catching(IndexError, type)(IndexError()), IndexError),
+test_catch = case_of(
+    (lambda: catch(ValueError, type, ValueError()), ValueError),
+    (lambda: catch(IndexError, type, IndexError()), IndexError),
+    (lambda: catch(IndexError, type)(IndexError()), IndexError),
     (
         lambda: with_(
             raises(ValueError),
-            lambda _: catching(IndexError, lambda _: "Bad result", ValueError),
+            lambda _: catch(IndexError, lambda _: "Bad result", ValueError),
         ),
         None,
     )
