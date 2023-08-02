@@ -18,7 +18,7 @@ from act.flags import flag_about
 from act.partiality import partial, rpartial, partially, rwill
 from act.pipeline import then, binding_by, ActionChain
 from act.protocols import Hashable
-from act.synonyms import on, tuple_of, repeating
+from act.synonyms import on, tuple_of, while_
 from act.tools import documenting_by, LeftCallable
 
 
@@ -106,10 +106,7 @@ deep_flat = documenting_by(
     """
 )(atomically(
     as_collection
-    |then>> repeating(
-        flat,
-        while_=partial(tfilter, rpartial(isinstance, Iterable)),
-    )
+    |then>> while_(partial(tfilter, rpartial(isinstance, Iterable)), flat)
 ))
 
 

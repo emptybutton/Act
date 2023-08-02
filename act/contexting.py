@@ -19,7 +19,7 @@ from act.partiality import partially, will, rpartial
 from act.pipeline import then
 from act.representations import code_like_repr_of
 from act.signatures import call_signature_of
-from act.synonyms import repeating, on
+from act.synonyms import while_, on
 from act.tools import documenting_by, LeftCallable, _get
 
 
@@ -427,7 +427,7 @@ without_metacontext = documenting_by(
     The resulting context is a flag sum from all nested `ContextualForm`s.
     """
 )(
-    repeating(with_reduced_metacontext, while_=is_metacontextual)
+    while_(is_metacontextual, with_reduced_metacontext)
 )
 
 

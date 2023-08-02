@@ -30,9 +30,9 @@ test_on = case_of(
 )
 
 
-test_repeating = case_of(
-    (lambda: repeating(lambda x: x + 1, lambda x: x < 10)(0), 10),
-    (lambda: repeating(lambda x: x - 1, lambda x: x > 0)(0), 0),
+test_while_ = case_of(
+    (lambda: while_(lambda x: x < 10, lambda x: x + 1)(0), 10),
+    (lambda: while_(lambda x: x > 0, lambda x: x - 1)(0), 0),
 )
 
 
@@ -40,19 +40,19 @@ test_repeating = case_of(
     "number_of_handler_calls, number_of_checker_calls",
     [(i, i + 1) for i in range(3)] + [(100, 101), (653, 654), (999, 1000)]
 )
-def test_repeating_execution_sequences(
+def test_while__execution_sequences(
     number_of_handler_calls: int,
     number_of_checker_calls: int
 ):
     handling_counter = Counter()
     checking_counter = Counter()
 
-    repeating(
-        lambda _: handling_counter(),
+    while_(
         lambda _: (
             checking_counter()
             or checking_counter.counted < number_of_checker_calls
-        )
+        ),
+        lambda _: handling_counter(),
     )(None)
 
     assert number_of_handler_calls == handling_counter.counted

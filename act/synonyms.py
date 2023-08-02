@@ -16,7 +16,7 @@ __all__ = (
     "raise_",
     "assert_",
     "on",
-    "repeating",
+    "while_",
     "try_",
     "with_",
     "keyword_unpackly",
@@ -91,7 +91,7 @@ class on(LeftCallable):
 
 
 @partially
-class repeating(LeftCallable):
+class while_(LeftCallable):
     """
     Function to call an input action multiple times.
 
@@ -104,9 +104,13 @@ class repeating(LeftCallable):
     determinant.
     """
 
-    def __init__(self, action: reformer_of[V], while_: Special[Callable[V, bool]]):
+    def __init__(
+        self,
+        is_valid_to_repeat: Special[Callable[V, bool]],
+        action: reformer_of[V],
+    ):
+        self._is_valid_to_repeat = to_check(is_valid_to_repeat)
         self._action = action
-        self._is_valid_to_repeat = to_check(while_)
 
         self.__signature__ = self.__get_signature()
 
