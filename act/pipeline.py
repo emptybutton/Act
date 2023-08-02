@@ -123,6 +123,9 @@ class ActionChain(LeftCallable, Generic[ActionT]):
     def __eq__(self, other: Special[Self]) -> bool:
         return isinstance(other, ActionChain) and self._actions == other._actions
 
+    def __mul__(self, factor: int) -> Self:
+        return type(self)(self._actions * factor)
+
     def __getitem__(self, key: int | slice) -> Self:
         actions = self._actions[key]
 
