@@ -9,10 +9,10 @@ You can even integrate the entire program logic into one call.
 
 ### Overview
 ```py
-from act import trying_to, v, w, to, catching, optionally, by, then, on, fmt
+from act import try_, v, w, to, catch, optionally, by, then, on, fmt
 
 
-lookup = trying_to(v[w], to(catching(KeyError, to(None))))
+lookup = try_(v[w], to(catch(KeyError, to(None))))
 
 # def lookup(table: Mapping[K, V], key: K) -> Optional[V]:
 #    try:
@@ -500,9 +500,12 @@ anything == ...  # True
 ### Function generation
 Use branching
 ```py
+from typing import Any
+
+
 on(v >= 0, v**2)  # lambda v: v**2 if v >= 0 else v
-on(None, 4)  # lambda _: 4 if _ is None else None
-on(None, 1, else_=0)  # lambda _: 1 if _ is None else 0
+on(None, 4)  # lambda _: 4 if _ is None else _
+on(None, 4, else_=0)  # lambda _: 4 if _ is None else 0
 
 
 when(
@@ -512,7 +515,7 @@ when(
     (..., "NaN: {}".format),
 )
 
-# def _(n: int | float) -> str:
+# def _(n: Any) -> str:
 #     if n > 0:
 #         return "positive"
 #     elif n == 0:
@@ -576,9 +579,9 @@ main(float)
 
 Use cycles
 ```py
-repeating(shown, times(3))  # lambda _: shown(shown(shown(_)))
+times(3)(shown)  # lambda _: shown(shown(shown(_)))
 
-repeating(v[0], while_=not_(None))
+while_(not_(None), v[0])
 
 # def _(v) -> None:
 #     while v is not None:
@@ -589,29 +592,29 @@ repeating(v[0], while_=not_(None))
 
 Raise errors
 ```py
-raise_(Exception('>.<'))
+raise_(Exception('o.O'))
 ```
 ```
 Traceback ...
-Exception: >.<
+Exception: o.O
 ```
 
 </br>
 
 > Use the `raising` shortcut to ignore input arguments.
 > ```py
-> raising(Exception('>.<'))(...)
+> raising(Exception('o.O'))(...)
 > ```
 > ```
 > Traceback ...
-> Exception: >.<
+> Exception: o.O
 > ```
 
 </br>
 
 Catch errors
 ```py
-trying_to(1 / n, will("{} is undivided ({})".format))
+try_(1 / n, will("{} is undivided ({})".format))
 
 # def _(n):
 #     try:
@@ -622,11 +625,11 @@ trying_to(1 / n, will("{} is undivided ({})".format))
 
 </br>
 
-> To emulate an `except` block, use the `catching` function.
+> To emulate an `except` block, use the `catch` function.
 > ```py
-> trying_to(
+> try_(
 >     1 / n,
->     to(catching(ZeroDivisionError)(
+>     to(catch(ZeroDivisionError)(
 >         print
 >     )),
 > )
@@ -818,7 +821,7 @@ gamma = flag_about("gamma")
 > ```
 
 > Flag vectors have unary plus and minus and a sum, which can be created with the
-> `^` operator and inverted back to flag by `~` operator.
+> `&` operator and inverted back to flag by `~` operator.
 > ```py
 > ++pointed(1)  # +pointed(1)
 > --pointed(1)  # +pointed(1)
@@ -828,7 +831,7 @@ gamma = flag_about("gamma")
 > 
 > (+pointed(2))(pointed(1))  # pointed(1, 2)
 > 
-> (-pointed(2) ^ +pointed(3))(pointed(1, 2))  # pointed(1, 3)
+> (-pointed(2) & +pointed(3))(pointed(1, 2))  # pointed(1, 3)
 > ```
 
 > Flags also use `~` to come to themselves, which can be used with a `Union`
@@ -976,7 +979,7 @@ great(4).context is context is great
 > ```py
 > from_domain = flag_about("from_domain")
 > 
-> some_error = Exception('>.<')
+> some_error = Exception('o.O')
 > error_with_context = ContextualError(from_domain, some_error)
 > 
 > context, error = error_with_context
@@ -988,16 +991,16 @@ great(4).context is context is great
 > ```
 > ```
 > Traceback ...
-> act.contexting.ContextualError: ContextualError(from_domain Exception('>.<'))
+> act.contexting.ContextualError: raisable(from_domain Exception('o.O'))
 > ```
 
 > Flag contextualization also supports all of these forms.
 > ```py
 > from_domain = contextualizing(flag_about("from_domain"), to=ContextualError)
-> from_domain(Exception('>.<'))
+> from_domain(Exception('o.O'))
 > ```
 > ```
-> ContextualError(from_domain Exception('>.<'))
+> raisable(from_domain Exception('o.O'))
 > ```
 
 </br>
@@ -1054,9 +1057,9 @@ with_reduced_metacontext(contextual(3, 2, 1, "mega"))  # 3 | 2 1 "mega"
 with_reduced_metacontext(4)  # contextual(4)
 with_reduced_metacontext(contextual(..., 4))  # contextual(..., 4)
 
-without_metacontext(contextual("mega", 1, 2, 3))  # 1 | 2 | 3 "mega"
+without_metacontext(contextual(1, 2, 3, "mega"))  # 1 | 2 | 3 "mega"
 
-metacontexted(contextual("mega", 1, 2, 3))  # ('mega', 1, 2, 3)
+metacontexted(contextual(1, 2, 3, "mega"))  # (1, 2, 3, 'mega')
 metacontexted("mega")  # ('mega',)
 ```
 
@@ -1104,10 +1107,10 @@ main(-4)  # bad ValueError("number must be greater than zero")
 
 ...or on errors
 ```py
-main = with_error(v / w) |then>> until_error((16 / v) |then>> "fount {}!".format)
+main = with_error(v / w) |then>> until_error((16 / v) |then>> "found {}!".format)
 
 main(4, 0)  # ZeroDivisionError("division by zero") None
-main(8, 2)  # nothing "fount 4.0!"
+main(8, 2)  # nothing "found 4.0!"
 main(0, 2)  # pointed(ZeroDivisionError("float division by zero")) 0.0
 ```
 
