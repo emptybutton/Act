@@ -38,6 +38,9 @@ __all__ = (
     "parallel",
     "future",
     "has_future",
+    "up",
+    "write",
+    "read",
     "returned",
     "do",
     "cross",
@@ -238,6 +241,11 @@ def has_future(
     return pointed(contexted(value).context).that(of(in_future)) != nothing
 
 
+up = contextualizing(flag_about('up'), to=contextually)
+
+write = func(to_write |then>> up)
+read = func(to_read |then>> up)
+
 returned = contextualizing(flag_about("returned"))
 
 
@@ -255,12 +263,12 @@ class do:
     Throws `ReturningError` when trying to pass "returned value".
 
     `do` action is executed in the context of an empty arbitrary object that
-    can be interacted with when decorating desired actions with `do.up`.
+    can be interacted with when decorating desired actions with `up`.
 
-    Actions without `do.up` decoration are executed as if they were decorated
-    with `saving_context |then>> do.up`.
+    Actions without `up` decoration are executed as if they were decorated
+    with `saving_context |then>> up`.
 
-    To write and read from context use `do.write` and `do.read` shortcuts
+    To write and read from context use `write` and `read` shortcuts
     instead of `to_write |then>> up` and `to_read |then>> up`.
 
     Contextualization is local to each `do` action: by default, you can't inject
@@ -276,11 +284,6 @@ class do:
     `do.openly` saves the top context on return.
     """
 
-    up = contextualizing(flag_about('up'), to=contextually)
-
-    write = atomically(to_write |then>> up)
-    read = atomically(to_read |then>> up)
-
     def __call__(*lines: Special[ActionChain, Callable]) -> LeftCallable:
         return do._action_from(*lines)
 
@@ -294,7 +297,7 @@ class do:
         lines = ActionChain((map |by| lines)(
             discretely(
                 saving_context(on |to| not_(of(returned)))
-                |then>> on(not_(of(do.up)), saving_context(saving_context))
+                |then>> on(not_(of(up)), saving_context(saving_context))
                 |then>> attrgetter("value")
             )
             |then>> func
