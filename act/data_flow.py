@@ -9,7 +9,7 @@ from typing import (
 
 from pyannotating import Special
 
-from act.annotations import Pm, V, R, I, A, dirty, ArgumentsT
+from act.annotations import Pm, V, R, I, A, dirty, ArgumentsT, ActionT, Unia
 from act.atomization import func
 from act.errors import ReturningError, MatchingError
 from act.partiality import will, rpartial, partial, partially
@@ -30,6 +30,8 @@ __all__ = (
     "once",
     "via_indexer",
     "and_via_indexer",
+    "with_repr_by",
+    "decorate_with_repr_by",
     "PartialApplicationInfix",
     "to",
     "by",
@@ -277,6 +279,34 @@ class and_via_indexer(LeftCallable):
 
     def __getitem__(self, items: I | Tuple[I]) -> A:
         return self._indexer(*items_of(items))
+
+
+@partially
+class with_repr_by(LeftCallable):
+    """Decorator to set `__repr__`."""
+
+    def __init__(self, repr_of: Callable[ActionT, str], action: Unia[ActionT, Callable[Pm, R]]):
+        self._action = action
+        self._repr_of = repr_of
+
+        self.__signature__ = call_signature_of(action)
+
+    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
+        return self._action(*args, **kwargs)
+
+    def __repr__(self) -> str:
+        return self._repr_of(self._action)
+
+
+@partially
+def decorate_with_repr_by(
+    decorated: Callable[ActionT, Callable[Pm, R]],
+    action: ActionT,
+) -> Callable[Pm, R]:
+    return with_repr_by(
+        to(f"{code_like_repr_of(decorated)}({code_like_repr_of(action)})"),
+        decorated(action),
+    )
 
 
 class PartialApplicationInfix(ABC):
