@@ -9,15 +9,16 @@ from typing import (
 
 from pyannotating import many_or_one, Special
 
-from act.annotations import V, M, K, I, Unia
+from act.annotations import V, M, K, I, W, Unia
 from act.atomization import func
 from act.contexting import ContextualForm, contexted, contextualizing, saving_context
-from act.data_flow import returnly, by
+from act.data_flow import returnly, by, and_via_indexer, indexer_of
 from act.errors import RangeConstructionError, IndexingError
 from act.flags import flag_about
-from act.partiality import partial, rpartial, partially, rwill
+from act.partiality import partial, rpartial, partially, will, rwill
 from act.pipeline import then, binding_by, ActionChain
 from act.protocols import Hashable
+from act.representations import code_like_repr_of
 from act.synonyms import on, tuple_of, while_
 from act.tools import documenting_by, LeftCallable
 
@@ -295,6 +296,32 @@ def marked_ranges_from(
     return tuple(marked_ranges)
 
 
+class _curried_to_interval:
+    def __init__(self, interval: Iterable[slice | int] = tuple()):
+        self._interval = tuple(interval)
+
+    def __repr__(self) -> str:
+        return "to_interval{}".format(str().join(
+            f"[{code_like_repr_of(segment)}]"
+            for segment in self._interval
+        ))
+
+    def __call__(
+        self,
+        action: Callable[Tuple[V], Iterable[V]],
+        values: Optional[Iterable[V]] = None,
+    ) -> Tuple[V] | Callable[Iterable[W], Tuple[W]]:
+        return (
+            to_interval(self._interval, action, values)
+            if values is not None
+            else partial(self, action)
+        )
+
+    def __getitem__(self, segment: slice | int) -> Self:
+        return type(self)((*self._interval, segment))
+
+
+@and_via_indexer(indexer_of(_curried_to_interval()))
 @partially
 def to_interval(
     interval: Interval | ContextualForm[empty | filled, Interval],
