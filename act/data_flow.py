@@ -196,8 +196,8 @@ class double(Decorator):
     ignoring input arguments.
     """
 )
-class once:
 @func
+class once(LeftCallable):
     _result: Optional[R] = None
     _was_called: bool = False
 
@@ -253,7 +253,7 @@ class via_indexer:
 
 
 @partially
-class and_via_indexer:
+class and_via_indexer(LeftCallable):
     """Decorator to add action call action via indexer."""
 
     def __init__(
