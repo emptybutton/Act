@@ -32,6 +32,7 @@ __all__ = (
     "and_via_indexer",
     "with_repr_by",
     "decorate_with_repr_by",
+    "indexer_of",
     "PartialApplicationInfix",
     "to",
     "by",
@@ -307,6 +308,14 @@ def decorate_with_repr_by(
         to(f"{code_like_repr_of(decorated)}({code_like_repr_of(action)})"),
         decorated(action),
     )
+
+
+@decorate_with_repr_by
+def indexer_of(value: Any) -> Callable:
+    def indexer(*args) -> Any:
+        return value[args[0] if len(args) == 1 else args]
+
+    return indexer
 
 
 class PartialApplicationInfix(ABC):
