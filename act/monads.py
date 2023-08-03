@@ -300,7 +300,7 @@ class do:
             |then>> func
         ))
 
-        return atomically(
+        return func(
             on(
                 lambda v: of(returned, v) or of(returned, contexted(v).value),
                 raising(ReturningError("externally returned value")),
