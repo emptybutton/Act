@@ -11,7 +11,7 @@ from typing import (
 from pyannotating import Special
 
 from act.annotations import A, D
-from act.atomization import atomically
+from act.atomization import func
 from act.errors import ArgumentError
 from act.partiality import partial
 from act.representations import code_like_repr_of
@@ -277,7 +277,7 @@ def as_arguments(*args, **kwargs) -> Arguments:
 @documenting_by(
     """Decorator to unpack input arguments into an input action."""
 )
-@atomically
+@func
 class unpackly(Decorator):
     def __call__(self, arguments: Special[Arguments, Iterable]) -> Any:
         return (

@@ -1,7 +1,7 @@
 from typing import Callable, Optional, Type, NoReturn
 
 from act.annotations import Pm, R, ErrorT
-from act.atomization import atomically
+from act.atomization import func
 from act.contexting import contextual
 from act.data_flow import by, to, eventually
 from act.partiality import partially
@@ -29,7 +29,7 @@ with_error = documenting_by(
     Returns in `contextual` format (error, result).
     """
 )(
-    atomically(
+    func(
         binding_by(... |then>> contextual)
         |then>> (try_ |by| to(contextual |by| None))
     )

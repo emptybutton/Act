@@ -10,7 +10,7 @@ from typing import (
 from pyannotating import many_or_one, Special
 
 from act.annotations import V, M, K, I, Unia
-from act.atomization import atomically
+from act.atomization import func
 from act.contexting import ContextualForm, contexted, contextualizing, saving_context
 from act.data_flow import returnly, by
 from act.errors import RangeConstructionError, IndexingError
@@ -67,19 +67,19 @@ as_collection = documenting_by(
 
 tmap: LeftCallable[Iterable[V], Tuple[V]]
 tmap = documenting_by("""`map` function returning `tuple`""")(
-    atomically(map |then>> tuple)
+    func(map |then>> tuple)
 )
 
 
 tzip: LeftCallable[Iterable[V], Tuple[V]]
 tzip = documenting_by("""`zip` function returning `tuple`""")(
-    atomically(zip |then>> tuple)
+    func(zip |then>> tuple)
 )
 
 
 tfilter: LeftCallable[Iterable[V], Tuple[V]]
 tfilter = documenting_by("""`filter` function returning `tuple`""")(
-    atomically(filter |then>> tuple)
+    func(filter |then>> tuple)
 )
 
 
@@ -104,7 +104,7 @@ deep_flat = documenting_by(
     Function to expand all subcollections within an input collection while they
     exist.
     """
-)(atomically(
+)(func(
     as_collection
     |then>> while_(partial(tfilter, rpartial(isinstance, Iterable)), flat)
 ))
@@ -118,11 +118,11 @@ append = documenting_by(
     all of these elements in case a non-collection was passed to the returned
     function.
     """
-)(atomically(
+)(func(
     tuple_of
     |then>> rwill(tuple_of)
     |then>> binding_by(as_collection |then>> ... |then>> flat)
-    |then>> atomically
+    |then>> func
 ))
 
 
@@ -137,7 +137,7 @@ def without(*items: I) -> LeftCallable[I | Iterable[I], Tuple[I]]:
         for item in items
     )
 
-    return atomically(as_collection |then>> list |then>> removing |then>> tuple)
+    return func(as_collection |then>> list |then>> removing |then>> tuple)
 
 
 def without_duplicates(items: Iterable[V]) -> Tuple[V]:

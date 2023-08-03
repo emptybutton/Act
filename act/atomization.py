@@ -7,7 +7,7 @@ from act.representations import code_like_repr_of
 from act.tools import LeftCallable
 
 
-__all__ = ("Atomizable", "atomic", "atomically")
+__all__ = ("Atomizable", "atomic", "func")
 
 
 @runtime_checkable
@@ -35,7 +35,7 @@ def atomic(value: AtomizableT) -> AtomizableT:
     return value.__getatom__()
 
 
-class atomically(LeftCallable):
+class func(LeftCallable):
     """
     Decorator that removes the behavior of an input action, leaving only
     calling.
@@ -49,7 +49,7 @@ class atomically(LeftCallable):
         update_wrapper(self, self._action)
 
     def __repr__(self) -> str:
-        return f"atomically({code_like_repr_of(self._action)})"
+        return f"func({code_like_repr_of(self._action)})"
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._action(*args, **kwargs)

@@ -4,7 +4,7 @@ from typing import Callable, Any, Optional
 from pyannotating import Special, AnnotationTemplate, input_annotation
 
 from act.annotations import dirty, R, A, B, V, C, M, G, F, W, P, Pm, Union
-from act.atomization import atomically
+from act.atomization import func
 from act.contexting import (
     contextual, contextually, contexted, ContextualForm, saving_context,
     with_reduced_metacontext, contextualizing, to_write, to_read, of, to_context,
@@ -73,7 +73,7 @@ class optionally:
 
     __call__ = discretely(on |to| not_(None))
 
-    @atomically
+    @func
     def call_by(
         *args: Union[Pm.args, None],
         **kwargs: Union[Pm.kwargs, None],
@@ -157,7 +157,7 @@ def either(
     For everything else see `when`.
     """
 
-    return atomically(contexted |then>> when(*(
+    return func(contexted |then>> when(*(
         (
             (
                 determinant
@@ -188,7 +188,7 @@ def in_future(action: Callable[V, R]) -> LeftCallable[
     For safe calling of such "future" actions from context see `future_from`.
     """
 
-    @atomically
+    @func
     def future_action(value: contexted[Flag[C] | C, V]) -> contextual[
         Flag[C | in_future[Callable[..., R]]],
         V,
@@ -297,7 +297,7 @@ class do:
                 |then>> on(not_(of(do.up)), saving_context(saving_context))
                 |then>> attrgetter("value")
             )
-            |then>> atomically
+            |then>> func
         ))
 
         return atomically(

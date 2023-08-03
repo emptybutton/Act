@@ -5,7 +5,7 @@ from inspect import Signature, Parameter
 from pyannotating import Special
 
 from act.annotations import Pm, V, R, E, reformer_of, L
-from act.atomization import atomically
+from act.atomization import func
 from act.partiality import partial, partially
 from act.representations import code_like_repr_of
 from act.signatures import Decorator, call_signature_of, annotation_sum
@@ -191,7 +191,7 @@ def with_(context_manager: AbstractContextManager, action: Callable[..., R]) -> 
     Decorator function to unpack the passed mapping object into the input action.
     """
 )
-@atomically
+@func
 class keyword_unpackly(Decorator, LeftCallable):
     def __call__(self, arguments: Mapping[str, Any]) -> Any:
         return self._action(**arguments)

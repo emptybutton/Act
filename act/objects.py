@@ -13,7 +13,7 @@ from pyannotating import Special
 
 from act.aggregates import Access
 from act.annotations import K, V, Pm, R, O, Union
-from act.atomization import atomically
+from act.atomization import func
 from act.contexting import (
     contextually, contexted, contextualizing, be
 )
@@ -601,7 +601,7 @@ original_of: LeftCallable[Any, Any]
 original_of = documenting_by(
     """Function for a value to which an input sculpture proxies."""
 )(
-    atomically(attrgetter("_sculpture_original"))
+    func(attrgetter("_sculpture_original"))
 )
 
 

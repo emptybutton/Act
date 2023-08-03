@@ -2,7 +2,7 @@ from typing import Iterable, Callable, Generator, Any
 import operator
 
 from act.annotations import V
-from act.atomization import atomically
+from act.atomization import func
 from act.data_flow import by
 from act.partiality import partial
 from act.representations import code_like_repr_of
@@ -94,5 +94,5 @@ and_ = partial(_DynamicDeterminant, 'and', all)
 div: LeftCallable[[int | float, int | float], float] = documenting_by(
     """Synonym function for `operator.truediv`."""
 )(
-    atomically(operator.truediv)
+    func(operator.truediv)
 )

@@ -5,7 +5,7 @@ from typing import Any, Self, Iterable, Tuple, Optional, Callable
 import functools
 
 from act.annotations import R
-from act.atomization import atomically
+from act.atomization import func
 from act.representations import code_like_repr_of
 from act.signatures import Decorator, call_signature_of
 from act.tools import documenting_by, LeftCallable
@@ -81,7 +81,7 @@ class partial(LeftCallable):
     have a default value.
     """
 )
-@atomically
+@func
 class partially(Decorator):
     _doc_parser = True
 
@@ -139,7 +139,7 @@ class partially(Decorator):
 @documenting_by(
     """Decorator to mirror positional parameters without default value."""
 )
-@atomically
+@func
 class flipped(Decorator):
     _doc_parser = True
 

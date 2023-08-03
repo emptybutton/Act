@@ -290,24 +290,24 @@ main[1:3]  # str |then>> float
 ```py
 main = discretely(binding_by(... |then>> (v * 2)))
 
-func = main(int |then>> str)  # int |then>> (v * 2) |then>> str |then>> (v * 2)
-func(10.1)  # 2020
+action = main(int |then>> str)  # int |then>> (v * 2) |then>> str |then>> (v * 2)
+action(10.1)  # 2020
 
-func = main(str)  # str |then>> (v * 2)
-func(1)  # 11
+action = main(str)  # str |then>> (v * 2)
+action(1)  # 11
 ```
 
 
 </br>
 
-> To remove secondary behavior of a pipeline or part of it, use `atomically`.
+> To remove secondary behavior of a pipeline or part of it, use `func`.
 > ```py
 > ...
 > 
-> func = main(int |then>> atomically(str |then>> (v + '48.')))
-> # int |then>> (v * 2) |then>> atomically(str |then>> (v + '48.')) |then>> (v * 2)
+> action = main(int |then>> func(str |then>> (v + '48.')))
+> # int |then>> (v * 2) |then>> func(str |then>> (v + '48.')) |then>> (v * 2)
 > 
-> func('10')
+> action('10')
 > ```
 > ```
 > 2048.2048.

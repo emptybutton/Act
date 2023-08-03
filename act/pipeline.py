@@ -5,7 +5,7 @@ from typing import Callable, Generic, Iterable, Iterator, Self, Any, Tuple
 from pyannotating import Special
 
 from act.annotations import ActionT, R, Pm, V, A, B, C, D
-from act.atomization import atomically
+from act.atomization import func
 from act.errors import TemplatedActionChainError
 from act.partiality import rpartial, will
 from act.representations import code_like_repr_of
@@ -34,7 +34,7 @@ __all__ = (
     pseudo-operator.
     """
 )
-@atomically
+@func
 class bind:
     def __init__(self, first: Callable[Pm, V], second: Callable[V, R]):
         self._first = first
@@ -199,7 +199,7 @@ then = documenting_by(
     The created function replaces `...` with an input action.
     """
 )
-@atomically
+@func
 def binding_by(
     template: Iterable[Callable | Ellipsis],
 ) -> Callable[[Callable], ActionChain]:
@@ -209,7 +209,7 @@ def binding_by(
         for more info.
         """
     )
-    @atomically
+    @func
     def insert_to_template(intercalary_action: Callable) -> ActionChain:
         return ActionChain(
             intercalary_action if action is Ellipsis else action
@@ -225,8 +225,8 @@ atomic_binding_by: LeftCallable[
 ]
 atomic_binding_by = documenting_by(
     """`binding_by` linking actions to an indivisible `ActionChain`."""
-)(atomically(
-    binding_by |then>> binding_by(... |then>> atomically)
+)(func(
+    binding_by |then>> binding_by(... |then>> func)
 ))
 
 
@@ -241,14 +241,14 @@ discretely = documenting_by(
 
     Maps an input decorator for each action individually.
     """
-)(atomically(
+)(func(
     will(map)
     |then>> binding_by(
         on(rpartial(isinstance, ActionChain) |then>> not_, lambda v: (v, ))
         |then>> ...
         |then>> ActionChain
     )
-    |then>> atomically
+    |then>> func
 ))
 
 
