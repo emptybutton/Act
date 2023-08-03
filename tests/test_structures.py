@@ -100,38 +100,33 @@ test_interval = case_of(
 
 
 test_ranges_from = case_of(
-    (lambda: ranges_from(10), (range(10), )),
-    (lambda: ranges_from(10, limit=3), (range(3), )),
-    (lambda: ranges_from(10, limit=11), (range(10), )),
+    (lambda: ranges_from(10), (range(10, 11), )),
     (lambda: ranges_from(range(-1, -11, -1)), (range(-1, -11, -1), )),
-    (lambda: ranges_from(range(-1, -11, -1), limit=20), (range(-1, -11, -1), )),
-    (lambda: ranges_from(range(-1, -11, -1), limit=1), (range(-1, -1, -1), )),
     (lambda: ranges_from(slice(0, 10, 1)), (range(10), )),
     (lambda: ranges_from(slice(None, 10, None)), (range(10), )),
     (lambda: ranges_from(slice(None, 10, 2)), (range(0, 10, 2), )),
     (lambda: ranges_from(slice(5, 10, None)), (range(5, 10), )),
     (lambda: ranges_from(slice(5, -10, None)), (range(5, -10, -1), )),
-    (lambda: ranges_from([3, 5, 10]), (range(3), range(5), range(10))),
-    (lambda: ranges_from([3, 5, 10], limit=7), (range(3), range(5), range(7))),
+    (lambda: ranges_from([3, 5, 10]), (range(3, 4), range(5, 6), range(10, 11))),
     (
-        lambda: ranges_from([3, range(5), slice(None, 10, None)], limit=7),
-        (range(3), range(5), range(10)),
+        lambda: ranges_from([3, range(5), slice(5, None, None)], limit=7),
+        (range(3, 4), range(5), range(5, 7)),
     ),
 )
 
 
 test_range_from = case_of(
-    (lambda: range_from(10), range(10)),
-    (lambda: range_from(10, limit=3), range(3)),
-    (lambda: range_from(10, limit=11), range(10)),
+    (lambda: range_from(10), range(10, 11)),
     (lambda: range_from(range(-1, -11, -1)), range(-1, -11, -1)),
-    (lambda: range_from(range(-1, -11, -1), limit=20), range(-1, -11, -1)),
-    (lambda: range_from(range(-1, -11, -1), limit=1), range(-1, -1, -1)),
+    (lambda: range_from(range(-1, -11, -1), limit=1), range(-1, -11, -1)),
     (lambda: range_from(slice(0, 10, 1)), range(10)),
     (lambda: range_from(slice(None, 10, None)), range(10)),
     (lambda: range_from(slice(None, 10, 2)), range(0, 10, 2)),
     (lambda: range_from(slice(5, 10, None)), range(5, 10)),
     (lambda: range_from(slice(5, -10, None)), range(5, -10, -1)),
+    (lambda: range_from(slice(5, None, None)), range(0, 0)),
+    (lambda: range_from(slice(5, None, None), limit=3), range(0, 0)),
+    (lambda: range_from(slice(5, None, -1), limit=3), range(5, -1, -1)),
 )
 
 
@@ -153,7 +148,7 @@ test_marked_ranges_from = case_of(
 
 
 test_to_interval = case_of(
-    (lambda: to_interval(2, partial(map, lambda v: v * 5), [1, 2, 3]), (5, 10, 3)),
+    (lambda: to_interval(1, partial(map, lambda v: v * 5), [1, 2, 3]), (1, 10, 3)),
     (
         lambda: to_interval(range(2), partial(map, lambda v: v * 5), [1, 2, 3]),
         (5, 10, 3),
@@ -201,6 +196,15 @@ test_to_interval = case_of(
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         ),
         (0, 2, 4, 6, 7, 8, 9, 10),
+    ),
+)
+
+
+test_to_interval_via_indexer = case_of(
+    (lambda: to_interval[2](partial(map, lambda v: v * 10), [-1, 1, 2]), (-1, 1, 20)),
+    (
+        lambda: to_interval[:3][4](partial(map, lambda v: v * 10), [-1, 1, 2, 3, 4, 5]),
+        (-10, 10, 20, 3, 40, 5),
     ),
 )
 

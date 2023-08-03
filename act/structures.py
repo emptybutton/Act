@@ -173,11 +173,22 @@ class _SliceGenerator:
     def __getitem__(self, key: int | slice) -> Self:
         return type(self)(
             self._name,
-            slices=(*self._sleces, key if isinstance(key, slice) else slice(key))
+            slices=(
+                *self._sleces,
+                key if isinstance(key, slice) else self.__slice_of(key),
+            )
         )
 
     def __iter__(self) -> Iterator[slice]:
         return iter(self._sleces)
+
+    @staticmethod
+    def __slice_of(number: int) -> slice:
+        return (
+            slice(number, number + 1)
+            if number >= 0
+            else slice(number, number - 1, -1)
+        )
 
     @staticmethod
     def __native_slice_repr_of(slice_: slice) -> str:
@@ -222,27 +233,14 @@ def range_from(
 ) -> range:
     """Function to get `ranges` from unstructured value"""
 
-    if limit is not None and limit < 0:
-        raise RangeConstructionError("`limit` must be greater than zero")
-
     if isinstance(interval_segment, slice):
         return _range_from_slice(interval_segment, limit=limit)
     elif isinstance(interval_segment, range):
         range_ = interval_segment
     else:
-        range_ = range(interval_segment)
+        range_ = range(interval_segment, interval_segment + 1)
 
-    if limit is None:
-        return range_
-
-    crosses = gt if range_.step > 0 else lt
-    border = int(copysign(limit, range_.step))
-
-    return (
-        range(range_.start, border, range_.step)
-        if crosses(range_.stop, border)
-        else range_
-    )
+    return range_
 
 
 def _range_from_slice(slice_: slice, *, limit: Optional[int]) -> range:
@@ -251,15 +249,13 @@ def _range_from_slice(slice_: slice, *, limit: Optional[int]) -> range:
     step = 1 if slice_.step is None else slice_.step
 
     if slice_.start is None and copysign(1, stop) != copysign(1, step):
-        raise RangeConstructionError("Unable to determine start of range")
+        raise RangeConstructionError("unable to determine start of range")
 
     if slice_.stop is None:
-        if limit is None:
-            raise RangeConstructionError(
-                "Unable to determine end of range. Set it or `limit`"
-            )
+        if limit is None or start >= limit and step > 0:
+            return range(0, 0)
 
-        stop = int(copysign(limit, step))
+        stop = limit if step > 0 else -1
 
     if slice_.step is None:
         step = int(copysign(1, stop - start))
@@ -340,9 +336,9 @@ def to_interval(
     if contexted(interval).context == empty:
         return values
 
-    points = tfilter(
-        lambda point: 0 <= point < len(values),
-        flat(ranges_from(contexted(interval).value, limit=len(values))),
+    points = flat(ranges_from(contexted(interval).value, limit=len(values))) >= (
+        will(map)(lambda p: len(values) + p if p < 0 else p)
+        |then>> will(tfilter)(lambda p: p < len(values))
     )
 
     if len(points) == 0:
