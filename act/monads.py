@@ -40,7 +40,7 @@ __all__ = (
     "has_future",
     "returned",
     "do",
-    "up",
+    "cross",
     "mid",
     "down",
 )
@@ -322,7 +322,7 @@ class do:
         )
 
 
-up: LeftCallable[
+cross: LeftCallable[
     Union[
         Callable[
             Callable[A, ContextualForm[C, B]],
@@ -338,7 +338,7 @@ up: LeftCallable[
         LeftCallable[M, contextual[F | G, V | W]]
     ],
 ]
-up = documenting_by(
+cross = documenting_by(
     """Decorator for execution contextualization with metacontext join."""
 )(discretely(atomic_binding_by(
     ...
