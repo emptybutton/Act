@@ -635,11 +635,11 @@ try_(1 / n, will("{} is undivided ({})".format))
 >     )),
 > )
 > 
-> def _(n):
->     try:
->         return 1 / n
->     except ZeroDivisionError as error:
->         print(error)
+> # def _(n):
+> #    try:
+> #        return 1 / n
+> #    except ZeroDivisionError as error:
+> #        print(error)
 > ```
 
 </br>
@@ -673,10 +673,6 @@ AssertionError
 Create discrete tests
 ```py
 from unittest import main
-
-
-def get_db() -> ...:
-    ...
 
 
 test_something = case_of(
@@ -779,7 +775,7 @@ gamma = flag_about("gamma")
 
 > `pointed` can annotate a value it declares.
 > ```py
-> pointed[int] == int | Flag[]
+> pointed[int] == int | Flag[int]
 > ```
 
 > Flags indicating a value are binary by value.</br>
@@ -1055,8 +1051,8 @@ saving_context(v * 2)(4)  # nothing 8
 to_context(-nice)(nice(4))  # nothing 8
 to_context(+nice)(4)  # nice 8
 
-to_write(_.(a, b))(nice(4))  # (4, nice) 4
-to_read(_.(a, b))(nice(4))  # nice (4, nice)
+to_write(_(a, b))(nice(4))  # (nice, 4) 4
+to_read(_(a, b))(nice(4))  # nice (nice, 4)
 ```
 
 ...with additional nesting
