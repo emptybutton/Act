@@ -48,6 +48,7 @@ __all__ = (
     "read_only",
     "sculpture_of",
     "original_of",
+    "out",
 )
 
 
@@ -603,6 +604,40 @@ original_of = documenting_by(
 )(
     func(attrgetter("_sculpture_original"))
 )
+
+
+class out:
+    """Decorator for optional attribute operations."""
+
+    def __init__(self, value: Any):
+        self.__value = value
+
+    def __repr__(self) -> str:
+        return f"out({code_like_repr_of(self.__value)})"
+
+    def __getattr__(self, attr_name: str) -> Any:
+        return (
+            getattr(self.__value, attr_name)
+            if hasattr(self.__value, attr_name)
+            else None
+        )
+
+    def __setattr__(self, attr_name: str, value: Any) -> Any:
+        if attr_name == "_out__value":
+            return super().__setattr__(attr_name, value)
+
+        if not hasattr(self.__value, attr_name):
+            return None
+
+        setattr(self.__value, attr_name, value)
+        return self.__value
+
+    def __delattr__(self, attr_name: str) -> Any:
+        if not hasattr(self.__value, attr_name):
+            return None
+
+        delattr(self.__value, attr_name)
+        return self.__value
 
 
 def _as_sculpture_descriptor(
