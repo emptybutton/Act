@@ -430,7 +430,7 @@ class temp(_AttributeKeeper, LeftCallable):
 
     @staticmethod
     def _field_repr_of(value: Any) -> str:
-        stored_value, context = contexted(value)
+        context, stored_value = contexted(value)
 
         if context is _to_fill:
             return f": {code_like_repr_of(stored_value)}"
