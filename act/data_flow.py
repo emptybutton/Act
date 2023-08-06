@@ -286,7 +286,11 @@ class and_via_indexer(LeftCallable):
 class with_repr_by(LeftCallable):
     """Decorator to set `__repr__`."""
 
-    def __init__(self, repr_of: Callable[ActionT, str], action: Unia[ActionT, Callable[Pm, R]]):
+    def __init__(
+        self,
+        repr_of: Callable[ActionT, str],
+        action: Unia[ActionT, Callable[Pm, R]],
+    ):
         self._action = action
         self._repr_of = repr_of
 

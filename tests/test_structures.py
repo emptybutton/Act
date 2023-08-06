@@ -201,9 +201,15 @@ test_to_interval = case_of(
 
 
 test_to_interval_via_indexer = case_of(
-    (lambda: to_interval[2](partial(map, lambda v: v * 10), [-1, 1, 2]), (-1, 1, 20)),
     (
-        lambda: to_interval[:3][4](partial(map, lambda v: v * 10), [-1, 1, 2, 3, 4, 5]),
+        lambda: to_interval[2](partial(map, lambda v: v * 10), [-1, 1, 2]),
+        (-1, 1, 20),
+    ),
+    (
+        lambda: to_interval[:3][4](
+            partial(map, lambda v: v * 10),
+            [-1, 1, 2, 3, 4, 5],
+        ),
         (-10, 10, 20, 3, 40, 5),
     ),
 )

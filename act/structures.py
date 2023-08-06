@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from math import copysign
-from operator import methodcaller, contains, gt, lt
+from operator import methodcaller, contains
 from types import MappingProxyType
 from typing import (
     Iterable, Tuple, Callable, Mapping, TypeAlias, Optional, Self, Iterator,
