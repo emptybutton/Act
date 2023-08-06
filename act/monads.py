@@ -15,9 +15,9 @@ from act.effects import context_effect
 from act.errors import ReturningError
 from act.error_flow import raising
 from act.flags import flag_about, nothing, Flag, pointed, to_points
-from act.objects import obj
+from act.objects import obj, temp
 from act.operators import not_
-from act.partiality import will, partially, rpartial
+from act.partiality import will, partially, partial, rpartial
 from act.pipeline import discretely, ActionChain, then, atomic_binding_by
 from act.synonyms import on
 from act.tools import documenting_by, to_check, as_action, LeftCallable, _get
@@ -42,6 +42,8 @@ __all__ = (
     "write",
     "read",
     "returned",
+    "like_do",
+    "doing",
     "do",
     "cross",
     "mid",
@@ -249,8 +251,61 @@ read = func(to_read |then>> up)
 returned = contextualizing(flag_about("returned"))
 
 
-@obj.of
-class do:
+def _action_from(
+    *lines: Special[ActionChain, Callable],
+    in_isolation: bool = True,
+    default_upped: Callable = saving_context,
+) -> LeftCallable:
+    lines = ActionChain((map |by| lines)(
+        discretely(
+            saving_context(on |to| not_(of(returned)))
+            |then>> on(not_(of(up)), saving_context(default_upped))
+            |then>> attrgetter("value")
+        )
+        |then>> func
+    ))
+
+    return func(
+        on(
+            lambda v: of(returned, v) or of(returned, contexted(v).value),
+            raising(ReturningError("externally returned value")),
+        )
+        |then>> on(to(in_isolation), contextual)
+        |then>> to_context(on(nothing, obj()))
+        |then>> (lines[:-1] >= discretely((lambda line: lambda value: (
+            result
+            if of(returned, (result := line(value)).value)
+            else value
+        ))))
+        |then>> (_get if len(lines) == 0 else lines[-1])
+        |then>> saving_context(on(of(returned), attrgetter("value")))
+        |then>> on(
+            to(in_isolation),
+            attrgetter("value"),
+            else_=to_context(on(obj(), nothing)),
+        )
+    )
+
+
+like_do = temp(
+    __call__=Callable[..., LeftCallable],
+    openly=Callable[..., LeftCallable],
+)
+
+
+def doing(upped: Callable) -> like_do:
+    """
+    Function to up non-upped components.
+    Returns an object equivalent to a regular `do` object.
+    """
+
+    return like_do(
+        __call__=partial(_action_from, default_upped=upped),
+        openly=partial(_action_from, default_upped=upped, in_isolation=False),
+    )
+
+
+do = documenting_by(
     """
     Execution context for multiple actions on the same value.
 
@@ -282,47 +337,12 @@ class do:
     if it is `nothing`.
 
     `do.openly` saves the top context on return.
+
+    Use the `doing` function to up non-upped components.
     """
-
-    def __call__(*lines: Special[ActionChain, Callable]) -> LeftCallable:
-        return do._action_from(*lines)
-
-    def openly(*lines: Special[ActionChain, Callable]) -> LeftCallable:
-        return do._action_from(*lines, in_isolation=False)
-
-    def _action_from(
-        *lines: Special[ActionChain, Callable],
-        in_isolation: bool = True,
-    ) -> LeftCallable:
-        lines = ActionChain((map |by| lines)(
-            discretely(
-                saving_context(on |to| not_(of(returned)))
-                |then>> on(not_(of(up)), saving_context(saving_context))
-                |then>> attrgetter("value")
-            )
-            |then>> func
-        ))
-
-        return func(
-            on(
-                lambda v: of(returned, v) or of(returned, contexted(v).value),
-                raising(ReturningError("externally returned value")),
-            )
-            |then>> on(to(in_isolation), contextual)
-            |then>> to_context(on(nothing, obj()))
-            |then>> (lines[:-1] >= discretely((lambda line: lambda value: (
-                result
-                if of(returned, (result := line(value)).value)
-                else value
-            ))))
-            |then>> (_get if len(lines) == 0 else lines[-1])
-            |then>> saving_context(on(of(returned), attrgetter("value")))
-            |then>> on(
-                to(in_isolation),
-                attrgetter("value"),
-                else_=to_context(on(obj(), nothing)),
-            )
-        )
+)(
+    doing(saving_context)
+)
 
 
 cross: LeftCallable[
