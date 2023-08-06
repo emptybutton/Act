@@ -44,7 +44,6 @@ main({True: -4})  # found -3
 > * [**Flags**](#flags)
 > * [**Contextualization**](#contextualization)
 > * [**Monads**](#monads)
-> * [**Immutability**](#immutability)
 > * [**Arbitrary OOP**](#arbitrary-oop)
 > * [**Error management**](#error-management)
 > * [**Structure tools**](#structure-tools)
@@ -499,6 +498,23 @@ anything == ...  # True
 ```
 
 ### Function generation
+Use multi-line constructs
+```py
+do(
+    (v ** 2) |then>> print,
+    on(v > 10, returned),
+    -v,
+)
+
+# def _(v):
+#     print(v ** 2)
+
+#     if v > 10:
+#         return v
+
+#     return -v
+```
+
 Use branching
 ```py
 from typing import Any
@@ -1162,3 +1178,102 @@ main(0)  # nothing 0
 > Otherwise, `either` is equivalent to `when`.
 
 </br>
+
+
+Defer execution
+```py
+main = in_future(shown |then>> float) |then>> saving_context(v ** 2)
+
+print(main(4).value)
+print(future(main(4)))
+```
+```
+16
+4
+pointed(parallel 4.0) 16
+```
+
+Execute multilinearly
+```py
+main = do(print, v ** 2)
+
+# def main(v):
+#     print(v)
+#     return v ** 2
+
+main(4)
+```
+```
+4
+16
+```
+
+</br>
+
+> `do` works with only one argument.
+
+> `do` action is executed in the context of an empty arbitrary object that can be interacted.
+> ```py
+> do(up(shown) |then>> v * 2)(4)
+> ```
+> ```
+> <> 4
+> 8
+> ```
+
+> To write and read from context use `write` and `read` shortcuts.
+> ```py
+> do(
+>     write(u.index.set(v * 2)),
+>     read(u.index + v),
+> )(10)
+> ```
+> ```
+> 30
+> ```
+
+> To save the top context on return use `do.openly`.
+
+> To set the default upping use `doing` and `doing(...).openly` respectively.
+
+</br>
+
+
+### Structural OOP
+Create objects on the fly
+```py
+obj(name="William")  # <name="William">
+obj(name="William").name  # William
+```
+
+...and modify 
+```py
+obj(name="William") & obj(age=24)  # <name="William", age=24>
+
+(obj(name="William") & obj(age=24)) - 'age'  # <name="William">
+obj(name="William") + 'age'  # <name="William", age=None>
+```
+
+</br>
+
+> Objects are compared by value, support `instance` and create `Union` on `I`.
+> ```py
+> from typing import Any
+> 
+> 
+> class WithA:
+>     def __init__(a: Any):
+>         self.a = a
+> 
+> 
+> obj(a=4) == WithA(4)  # True
+> 
+> instance(obj(name="William"), obj(name="William"))  # True
+> instance(obj(name="not William"), obj(name="William"))  # False
+> 
+> instance(obj(name="William", age=24), obj(name="William"))  # True
+> instance(obj(name="William"), obj(name="William", age=24))  # False
+> 
+> instance(obj(name="William"), obj(name="William") | obj(age=24))  # True
+> instance(obj(age=24), obj(name="William") | obj(age=24))  # True
+> ```
