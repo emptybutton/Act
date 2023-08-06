@@ -44,7 +44,7 @@ main({True: -4})  # found -3
 > * [**Flags**](#flags)
 > * [**Contextualization**](#contextualization)
 > * [**Monads**](#monads)
-> * [**Arbitrary OOP**](#arbitrary-oop)
+> * [**Structural OOP**](#structural-oop)
 > * [**Error management**](#error-management)
 > * [**Structure tools**](#structure-tools)
 
@@ -1256,7 +1256,7 @@ obj(name="William") + 'age'  # <name="William", age=None>
 
 </br>
 
-> Objects are compared by value, support `instance` and create `Union` on `I`.
+> Objects are compared by value, support `instance` and create `Union` on `|`.
 > ```py
 > from typing import Any
 > 
@@ -1277,3 +1277,19 @@ obj(name="William") + 'age'  # <name="William", age=None>
 > instance(obj(name="William"), obj(name="William") | obj(age=24))  # True
 > instance(obj(age=24), obj(name="William") | obj(age=24))  # True
 > ```
+
+Use methods
+```py
+namespace = obj(a=2, main=as_method(lambda self, b: self.a ** b))
+
+namespace.main  # <bound method <lambda> of <a=2, main=callable(as_method <lambda>)>>
+namespace.main(4)  # 16
+```
+
+...properties
+```py
+container = obj(_value=0, value=as_property(s._value, s._value.set(t * 4)))
+
+container.value  # 0
+container.value = 16  # 64
+```
