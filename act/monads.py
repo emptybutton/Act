@@ -274,8 +274,8 @@ def _action_from(
         |then>> to_context(on(nothing, obj()))
         |then>> (lines[:-1] >= discretely((lambda line: lambda value: (
             result
-            if of(returned, (result := line(value)).value)
-            else value
+            if of(returned, (result := contexted(line(value))).value)
+            else contextual(result.context, value.value)
         ))))
         |then>> (_get if len(lines) == 0 else lines[-1])
         |then>> saving_context(on(of(returned), attrgetter("value")))
