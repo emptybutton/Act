@@ -12,12 +12,14 @@ from typing import (
 from pyannotating import Special
 
 from act.aggregates import Access
-from act.annotations import K, V, Pm, R, O, Union
+from act.annotations import K, V, Pm, R, O, Union, CommentAnnotation
 from act.atomization import func
 from act.contexting import (
     contextually, contexted, contextualizing, be
 )
-from act.data_flow import mergely, by, returnly, when, eventually
+from act.data_flow import (
+    mergely, by, returnly, when, eventually, and_via_indexer, indexer_of
+)
 from act.errors import ObjectTemplateError
 from act.error_flow import raising
 from act.flags import flag_about
@@ -570,6 +572,7 @@ def to_attribute(
     )
 
 
+@and_via_indexer(indexer_of(CommentAnnotation("read_only")))
 def read_only(value: Special[str | Callable | Access]) -> property:
     """Function declaring a readonly descriptor."""
 
