@@ -39,13 +39,11 @@ main({True: -4})  # found -3
 > * [**Pipeline**](#pipeline)
 > * [**Partial application**](#partial-application)
 > * [**Data flow**](#data-flow)
-> * [**Function generation**](#function-generation)
-> * [**Test generation**](#test-generation)
+> * [**Syntax synonyms**](#syntax-synonyms)
 > * [**Flags**](#flags)
 > * [**Contextualization**](#contextualization)
 > * [**Monads**](#monads)
 > * [**Structural OOP**](#structural-oop)
-> * [**Error management**](#error-management)
 > * [**Structure tools**](#structure-tools)
 
 ### Lambda generation
@@ -494,7 +492,7 @@ Compare positively
 anything == ...  # True
 ```
 
-### Function generation
+### Syntax synonyms
 Use branching
 ```py
 from typing import Any
@@ -665,7 +663,6 @@ Traceback ...
 AssertionError
 ```
 
-### Test generation
 Create discrete tests
 ```py
 from unittest import main
