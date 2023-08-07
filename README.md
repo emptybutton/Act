@@ -75,11 +75,8 @@ main(1)()()(2, 3)()()(4)
 
 ...or attribute getting
 ```python
-from typing import Any
-
-
 class WithA:
-    def __init__(self, a: Any):
+    def __init__(self, a):
         self.a = a
 
 
@@ -498,23 +495,6 @@ anything == ...  # True
 ```
 
 ### Function generation
-Use multi-line constructs
-```py
-do(
-    (v ** 2) |then>> print,
-    on(v > 10, returned),
-    -v,
-)
-
-# def _(v):
-#     print(v ** 2)
-
-#     if v > 10:
-#         return v
-
-#     return -v
-```
-
 Use branching
 ```py
 from typing import Any
@@ -1195,11 +1175,7 @@ pointed(parallel 4.0) 16
 
 Execute multilinearly
 ```py
-main = do(print, v ** 2)
-
-# def main(v):
-#     print(v)
-#     return v ** 2
+main = do(print, v + 1, v ** 2)
 
 main(4)
 ```
@@ -1256,27 +1232,26 @@ obj(name="William") + 'age'  # <name="William", age=None>
 
 </br>
 
-> Objects are compared by value, support `instance` and create `Union` on `|`.
+> Objects are compared by value, support `instance` and create `Union` on `|` so
 > ```py
-> from typing import Any
-> 
-> 
 > class WithA:
->     def __init__(a: Any):
+>     def __init__(a):
 >         self.a = a
 > 
 > 
-> obj(a=4) == WithA(4)  # True
+> obj(a=4) == WithA(4)
 > 
-> instance(obj(name="William"), obj(name="William"))  # True
-> instance(obj(name="not William"), obj(name="William"))  # False
+> instance(obj(name="William"), obj(name="William"))
+> not instance(obj(name="not William"), obj(name="William"))
 > 
-> instance(obj(name="William", age=24), obj(name="William"))  # True
-> instance(obj(name="William"), obj(name="William", age=24))  # False
+> instance(obj(name="William", age=24), obj(name="William"))
+> not instance(obj(name="William"), obj(name="William", age=24))
 > 
-> instance(obj(name="William"), obj(name="William") | obj(age=24))  # True
-> instance(obj(age=24), obj(name="William") | obj(age=24))  # True
+> instance(obj(name="William"), obj(name="William") | obj(age=24))
+> instance(obj(age=24), obj(name="William") | obj(age=24))
 > ```
+
+</br>
 
 Use methods
 ```py
@@ -1288,7 +1263,8 @@ namespace.main(4)  # 16
 
 ...properties
 ```py
-container = obj(_value=0, value=as_property(s._value, s._value.set(t * 4)))
+container = obj(_value=0, value=as_property(v._value, v._value.mset(w * 4)))
+# container = obj(_value=0, value=as_property(property(v._value, v._value.mset(w * 4))))
 
 container.value  # 0
 container.value = 16  # 64
