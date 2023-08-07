@@ -1269,3 +1269,196 @@ container = obj(_value=0, value=as_property(v._value, v._value.mset(w * 4)))
 container.value  # 0
 container.value = 16  # 64
 ```
+
+...and descriptors in general
+```py
+obj(value=as_descriptor(obj(__get__=to(256)))).value
+```
+```
+256
+```
+
+Use callable objects
+```py
+obj(__call__=print)(1, 2, 3, sep=' -> ')
+obj(__call__=as_method(print))(1, 2, 3, sep=' -> ')
+```
+```
+1 -> 2 -> 3
+<__call__=callable(as_method print)> -> 1 -> 2 -> 3
+```
+
+Create from others
+```py
+class Alpha:
+    a = 1
+
+
+class Beta:
+    def __init__(self, b):
+        self.b = b
+
+
+obj.of(Alpha, Beta(2))
+```
+```
+<__module__="__main__", a=1, __doc__=None, b=2>
+```
+
+
+Create object templates
+```py
+User = temp(name=str, age=int)  # <name: str, age: int>
+
+User("Oliver", 24)  # <name="Oliver", age=24>
+```
+```
+
+```
+
+</br>
+
+> Behaviorally, templates are equivalent to objects.
+> ```py
+> temp(name=str) & temp(age=int)  # <name: str, age: int>
+> 
+> User = temp(name=str) & obj(age=24)  # <name: str, age=24>
+> User("Oliver")  # <name="Oliver", age=24>
+> 
+> (temp(name=str) & temp(age=int)) - 'age'  # <name: str>
+> temp(name=str) + 'age'  # <name: str, age=None>
+> 
+> (temp(name=str) & obj(__call__=print))("Oliver")(1, 2, 3, sep=' -> ')  # 1 -> 2 -> 3
+> 
+> temp() == obj()
+> 
+> isinstance(obj(name="Oliver", age=24), temp(name=str))
+> isinstance(obj(name="Oliver", age=24), temp(name=str) & obj(age=24))
+> not isinstance(obj(name="Oliver", age=24), temp(name=str) & obj(age=26))
+> 
+> isinstance(obj(name="Oliver"), temp(name=str) | temp(age=int))
+> isinstance(obj(age=24), temp(name=str) | temp(age=int))
+> 
+> combination = (temp(name=str) & obj(age=24)) | (obj(name="Oliver") & temp(age=int))
+> 
+> isinstance(obj(name="Stone", age=24), combination)
+> not isinstance(obj(name="Stone", age=22), combination)
+> isinstance(obj(name="Oliver", age=2023), combination)
+> ```
+
+> `temp.of` works like `obj.of` with `temp` constructor but with additional behavior for dataclasses.
+> ```py
+> from dataclasses import dataclass, field
+> 
+> 
+> @temp.of
+> @dataclass
+> class Struct:  # <a: int, b=2, c=4>
+>     a: int
+>     b: int = 2
+>     c: int = field(default_factory=lambda: 4)
+> ```
+
+</br>
+
+Use duck typing
+```py
+@dataclass
+class User:
+    name: str
+    age: int
+
+
+isinstance(obj(name="Oliver", age=24), Proto[User])
+isinstance(obj(name="Oliver", age=24, is_mvp=True), Proto[User])
+not isinstance(obj(name="Oliver"), Proto[User])
+```
+
+Create proxies
+```py
+original = obj(a=1)
+
+sculpture = sculpture_of(original, number='a')
+
+sculpture.number = 16
+sculpture.number == original.a == 16
+```
+
+...dynamically
+```py
+...
+
+proxy_of = sculpture_of(number=o.a / 2, value=property(v.a, v.a.mset(w * 2)))
+
+sculpture = proxy_of(original)
+
+sculpture.number == 8
+sculpture.value == 16
+
+sculpture.number = 4  # AttributeError: property of 'obj' object has no setter
+sculpture.value = 4
+
+original.a == 8
+```
+
+</br>
+
+> To get an original object to which a sculpture delegates use `original_of`.
+> ```py
+> ...
+> 
+> original_of(sculpture) is original
+> ```
+
+</br>
+
+Declare a read-only getting
+```py
+class Container:
+    value: int = 4
+
+    a: read_only[int] = read_only("value")
+    b: read_only[int] = read_only(property(v.value, v.value.mset(w)))
+
+
+container = Container()
+
+container.a == container.b == container.value == 4
+
+container.a = ...  # AttributeError: attribute cannot be set
+container.b = ...  # AttributeError: attribute cannot be set
+```
+
+</br>
+
+> `read_only` can be used as an annotation.
+
+</br>
+
+Transfer data
+```py
+class WithA:
+    def __init__(self, a):
+        self.a = a
+
+
+with_a = WithA(None)
+
+from_(obj(a=1, b=2), with_a)
+
+type(with_a)  # <class '__main__.WithA'>
+with_a.__dict__  # {'a': 1, 'b': 2}
+```
+
+Use optional attributes
+```py
+out(obj(a=4)).a == 4
+out(obj()).a is None
+
+original = obj(a=4)
+
+out(original).a = 8
+out(original).b = 8
+
+original  # <a=8>
+```
