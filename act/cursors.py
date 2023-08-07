@@ -10,7 +10,7 @@ import operator
 
 from pyannotating import Special
 
-from act.annotations import merger_of, R, reformer_of, Pm, V, O
+from act.annotations import merger_of, R, reformer_of, Pm, V, O, P
 from act.arguments import Arguments
 from act.contexting import contextual, to_read, saving_context
 from act.data_flow import by, to, returnly
@@ -556,8 +556,8 @@ class _ActionCursor(Mapping):
         self,
         value: V | Self,
         *,
-        in_: str,
-        by: Callable[[O, str, V], R],
+        in_: P,
+        by: Callable[[O, P, V], R],
         mutably: bool = False
     ) -> Self:
         place = in_
