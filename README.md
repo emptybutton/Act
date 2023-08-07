@@ -1290,11 +1290,9 @@ Create from others
 class Alpha:
     a = 1
 
-
 class Beta:
     def __init__(self, b):
         self.b = b
-
 
 obj.of(Alpha, Beta(2))
 ```
@@ -1307,10 +1305,10 @@ Create object templates
 ```py
 User = temp(name=str, age=int)  # <name: str, age: int>
 
-User("Oliver", 24)  # <name="Oliver", age=24>
+User("Oliver", 24)
 ```
 ```
-
+<name="Oliver", age=24>
 ```
 
 </br>
@@ -1328,7 +1326,10 @@ User("Oliver", 24)  # <name="Oliver", age=24>
 > (temp(name=str) & obj(__call__=print))("Oliver")(1, 2, 3, sep=' -> ')  # 1 -> 2 -> 3
 > 
 > temp() == obj()
-> 
+> ```
+
+> `isinstance` checks for empty fields as their presence.
+> ```py
 > isinstance(obj(name="Oliver", age=24), temp(name=str))
 > isinstance(obj(name="Oliver", age=24), temp(name=str) & obj(age=24))
 > not isinstance(obj(name="Oliver", age=24), temp(name=str) & obj(age=26))
@@ -1350,10 +1351,13 @@ User("Oliver", 24)  # <name="Oliver", age=24>
 > 
 > @temp.of
 > @dataclass
-> class Struct:  # <a: int, b=2, c=4>
+> class Struct:
 >     a: int
 >     b: int = 2
 >     c: int = field(default_factory=lambda: 4)
+> ```
+> ```
+> <a: int, b=2, c=4>
 > ```
 
 </br>
@@ -1385,7 +1389,7 @@ sculpture.number == original.a == 16
 ```py
 ...
 
-proxy_of = sculpture_of(number=o.a / 2, value=property(v.a, v.a.mset(w * 2)))
+proxy_of = sculpture_of(number=v.a / 2, value=property(v.a, v.a.mset(w * 2)))
 
 sculpture = proxy_of(original)
 
@@ -1443,8 +1447,8 @@ with_a = WithA(None)
 
 from_(obj(a=1, b=2), with_a)
 
-type(with_a)  # <class '__main__.WithA'>
 with_a.__dict__  # {'a': 1, 'b': 2}
+type(with_a)  # <class '__main__.WithA'>
 ```
 
 Use optional attributes
