@@ -1459,3 +1459,42 @@ out(original).b = 8
 
 original  # <a=8>
 ```
+
+
+### Structure tools
+For collections
+```py
+flat([1, 2, [3, [4, 5]]]) == (1, 2, 3, [4, 5])
+deep_flat([1, 2, [3, [4, 5]]]) == (1, 2, 3, 4, 5)
+
+to_interval[1][3:7](will(filter)(v > 0))(range(0, -10, -1)) == (0, -2, -7, -8, -9)
+
+tmap(v * 2, [1, 2, 3]) == (1, 4, 9)
+tzip(range(10), "abc") == ((0, 'a'), (1, 'b'), (2, 'c'))
+tfilter(v > 0, range(-4, 4)) == (1, 2, 3)
+
+tuple(indexed(range(5), 0, 2)) == ((0, 2), (1, 3), (2, 4))
+
+append(1, 2, 3)(0) == append(1, 2, 3)((0, )) == (0, 1, 2, 3)
+
+without(1, 4, 8, 256)(range(10)) == (0, 2, 3, 5, 6, 7, 9)
+without(4)(4) == tuple()
+
+without_duplicates([0, 0, 1, 2, 2, 3, 4, 5, 5]) == (0, 1, 2, 3, 4, 5)
+
+as_collection(1) == (1, )
+as_collection([1, 2, 3]) == (1, 2, 3)
+as_collection((1, 2, 3)) == (1, 2, 3)
+```
+
+For dictionaries
+```py
+from collections import OrderedDict
+
+map_table(v + 1, dict(a=1, b=2)) == OrderedDict([('a', 2), ('b', 3)])
+filter_table(v > 0, dict(a=0, b=1)) == OrderedDict([('b', 1)])
+reversed_table(dict(a=1, b=2)) == OrderedDict([(1, 'a'), (2, 'b')])
+
+dict(groups_in(range(11), by=v >= 5)) == {False: (0, 1, 2, 3, 4), True: (5, 6, 7, 8, 9, 10)}
+type(groups_in(range(11), by=v >= 5)) is OrderedDict
+```
