@@ -8,7 +8,7 @@ from typing import (
 from pyannotating import Special
 
 from act.annotations import (
-    ActionT, ErrorT, P, Pm, A, B, C, V, R, W, D, S, Unia, FlagT
+    ActionT, ErrorT, P, Pm, A, B, C, V, R, W, D, S, Unia, FlagT, Union
 )
 from act.atomization import func
 from act.data_flow import and_via_indexer
@@ -255,7 +255,11 @@ def contextualizing(
 
 @partially
 def be(
-    flag_or_vector: FlagT | Unia[FlagT, Callable[V, ContextualForm[FlagT, V]]] | FlagVector,
+    flag_or_vector: Union[
+        FlagT,
+        Unia[FlagT, Callable[V, ContextualForm[FlagT, V]]],
+        FlagVector,
+    ],
     value: V | ContextualForm[Special[FlagT, C], V],
 ) -> ContextualForm[Special[FlagT], V]:
     """
