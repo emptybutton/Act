@@ -143,11 +143,15 @@ class Arbitrary(ABC):
 
 class _AttributeKeeper(Arbitrary, ABC):
     _default_attribute_value: TypeVar
+    _ignored_attribute_names: ClassVar[Tuple[str]] = (
+        "__dict__", "__weakref__", "__slots__"
+    )
 
     def __init__(self, **attributes):
         self.__dict__ = {
-            _: type(self)._for_setting(attr)
-            for _, attr in attributes.items()
+            name: type(self)._for_setting(attr)
+            for name, attr in attributes.items()
+            if name not in type(self)._ignored_attribute_names
         }
 
     @abstractmethod
