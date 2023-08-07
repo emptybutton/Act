@@ -170,6 +170,9 @@ class _AttributeKeeper(Arbitrary, ABC):
     def __hash__(self) -> int:
         return hash(type(self)) + _table_hash_of(dict_of(self))
 
+    def __copy__(self) -> Self:
+        return type(self)(**dict_of(self))
+
     def __eq__(self, other: Special[Self]) -> bool:
         return dict_of(self) == dict_of(other)
 
@@ -361,6 +364,12 @@ class temp(_AttributeKeeper, LeftCallable):
 
     def __repr__(self) -> str:
         return super().__repr__() if dict_of(self) else f"{type(self).__name__}()"
+
+    def __deepcopy__(self, memo) -> Self:
+        return temp(**{
+            _: attr.context(deepcopy(attr.value, memo))
+            for _, attr in dict_of(self).items()
+        })
 
     def __getattribute__(self, name: str) -> Any:
         attr = object.__getattribute__(self, name)
