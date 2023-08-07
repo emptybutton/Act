@@ -65,7 +65,7 @@ main(10, 6)
 ...with currying
 ```py
 main = a + b + c + d  # lambda a, b, c, d: a + b + c + d without curry >.<
-main(1)()()(2, 3)()()(4)
+main(1)()(2, 3)(4)
 ```
 ```
 10
