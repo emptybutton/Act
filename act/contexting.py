@@ -255,9 +255,9 @@ def contextualizing(
 
 @partially
 def be(
-    flag_or_vector: Unia[FlagT, Callable[V, ContextualForm[FlagT, V]]] | FlagVector,
+    flag_or_vector: FlagT | Unia[FlagT, Callable[V, ContextualForm[FlagT, V]]] | FlagVector,
     value: V | ContextualForm[Special[FlagT, C], V],
-) -> ContextualForm[V, Special[FlagT]]:
+) -> ContextualForm[Special[FlagT], V]:
     """
     Function to represent an input value contextualized by an input flag.
 
@@ -269,8 +269,10 @@ def be(
         return contexted(value, flag_or_vector)
     elif contexted(value).context == flag_or_vector:
         return value
-    else:
+    elif callable(flag_or_vector):
         return flag_or_vector(value)
+    else:
+        return contextual(flag_or_vector, value)
 
 
 @partially
