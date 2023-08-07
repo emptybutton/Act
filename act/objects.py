@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from copy import copy
+from copy import copy, deepcopy
 from dataclasses import MISSING
 from functools import reduce
 from operator import or_, attrgetter, methodcaller
 from types import MethodType
 from typing import (
-    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, Tuple, TypeVar
+    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, Tuple, ClassVar
 )
 
 from pyannotating import Special
@@ -142,7 +142,6 @@ class Arbitrary(ABC):
 
 
 class _AttributeKeeper(Arbitrary, ABC):
-    _default_attribute_value: TypeVar
     _ignored_attribute_names: ClassVar[Tuple[str]] = (
         "__dict__", "__weakref__", "__slots__"
     )
@@ -179,7 +178,7 @@ class _AttributeKeeper(Arbitrary, ABC):
     @to_clone
     def __add__(self, attr_name: str) -> Self:
         if not hasattr(self, attr_name):
-            setattr(self, attr_name, type(self)._default_attribute_value)
+            setattr(self, attr_name, None)
 
     @to_clone
     def __sub__(self, attr_name: str) -> Self:
@@ -244,8 +243,6 @@ _NO_VALUE = flag_about("_NO_VALUE")
 
 class obj(_AttributeKeeper):
     """Constructor for an `Arbitrary` object with data."""
-
-    _default_attribute_value = None
 
     def __new__(
         cls,
@@ -349,8 +346,6 @@ class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
 
 class temp(_AttributeKeeper, LeftCallable):
     """Constructor for an `Arbitrary` object without data."""
-
-    _default_attribute_value = Any
 
     def __new__(cls, **attributes: Any) -> Self | obj:
         return (
