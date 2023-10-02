@@ -133,7 +133,9 @@ class _ActionCursor(Mapping):
         nature: contextual = contextual(
             _ActionCursorNature.set_by_initialization,
         ),
-        internal_repr: str = '...'
+        internal_repr: str = '...',
+        is_generator_on_call: bool = False,
+        is_call_generator_static: bool = False,
     ):
         self._parameters = tuple(reversed(sorted(
             set(parameters),
@@ -143,6 +145,8 @@ class _ActionCursor(Mapping):
         self._previous = previous
         self._nature = nature
         self._internal_repr = internal_repr
+        self._is_generator_on_call = is_generator_on_call
+        self._is_call_generator_static = is_call_generator_static
 
         self._validate_parameters()
         self._update_signature()
@@ -243,7 +247,7 @@ class _ActionCursor(Mapping):
                 ))
             )
 
-        elif self._nature.value == _ActionCursorNature.vargetting:
+        elif self._is_generator_on_call:
             return self._(*args, **kwargs)
 
         return self._run(
@@ -254,11 +258,17 @@ class _ActionCursor(Mapping):
 
     @staticmethod
     def _generation_transaction(
-        method: Callable[[Self, ...], Self],
-    ) -> Callable[[Self, ...], Self]:
-        return wraps(method)(lambda cursor, *args, **kwargs: (
-            method(cursor, *args, **kwargs)._with(previous=cursor)
-        ))
+        method: Callable[Cn[Self, Pm], Self],
+    ) -> Callable[Cn[Self, Pm], Self]:
+        def transaction(cursor: Self, *args: Pm.args, **kwargs: Pm.kwargs) -> Self:
+            created_cursor = method(cursor, *args, **kwargs)
+
+            return created_cursor._with(
+                previous=cursor,
+                is_generator_on_call=created_cursor._is_generator_on_call,
+            )
+
+        return transaction
 
     @_generation_transaction
     def _(self, *args: Special[Self], **kwargs: Special[Self]) -> Self:
@@ -377,16 +387,21 @@ class _ActionCursor(Mapping):
         name = self._getting_name_by(name)
 
         if len(self._actions) == 0:
-            nature = _ActionCursorNature.vargetting
+            nature_value = _ActionCursorNature.vargetting
+            is_generator_on_call = True
             cursor = self._with(to(value_in(name, scope_in=2)), internal_repr=name)
         else:
-            nature = self._next_nature_as(_ActionCursorNature.attrgetting)
+            nature_value = _ActionCursorNature.attrgetting
+            is_generator_on_call = self._is_generator_on_call
             cursor = self._with(
                 getattr |by| name,
                 internal_repr=f"{self._adapted_internal_repr}.{name}",
             )
 
-        return cursor._with(nature=contextual(name, nature))
+        return cursor._with(
+            nature=contextual(name, nature_value),
+            is_generator_on_call=is_generator_on_call,
+        )
 
     @classmethod
     def _operated_by(cls, parameter: _ActionCursorParameter) -> Self:
@@ -399,11 +414,6 @@ class _ActionCursor(Mapping):
             internal_repr=parameter.name,
         )
 
-    def _next_nature_as(self, nature: contextual) -> Any:
-        return (
-            self._nature.value
-            if self._nature.value == _ActionCursorNature.vargetting
-            else nature
         )
 
     def _run(
@@ -441,7 +451,15 @@ class _ActionCursor(Mapping):
         previous: Optional[Self] = None,
         nature: Optional[contextual] = None,
         internal_repr: Optional[str] = None,
+        is_generator_on_call: bool = False,
+        is_call_generator_static: Optional[bool] = None,
     ) -> None:
+        is_call_generator_static = (
+            self._is_call_generator_static
+            if is_call_generator_static is None
+            else is_call_generator_static
+        )
+
         return type(self)(
             parameters=on(None, self._parameters)(parameters),
             actions=(
@@ -452,6 +470,8 @@ class _ActionCursor(Mapping):
             previous=self._previous if previous is None else previous,
             nature=on(None, self._nature)(nature),
             internal_repr=on(None, self._internal_repr)(internal_repr),
+            is_generator_on_call=is_generator_on_call or is_call_generator_static,
+            is_call_generator_static=is_call_generator_static,
         )
 
     def _with(
@@ -462,6 +482,8 @@ class _ActionCursor(Mapping):
         previous: Optional[Self] = None,
         nature: Any = None,
         internal_repr: Optional[str] = None,
+        is_generator_on_call: bool = False,
+        is_call_generator_static: Optional[bool] = None,
     ) -> Self:
         return self._of(
             self._actions |then>> (
@@ -471,6 +493,8 @@ class _ActionCursor(Mapping):
             previous=previous,
             nature=nature,
             internal_repr=internal_repr,
+            is_generator_on_call=is_generator_on_call,
+            is_call_generator_static=is_call_generator_static,
         )
 
     @_generation_transaction
