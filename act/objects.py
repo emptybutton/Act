@@ -210,28 +210,8 @@ class _AttributeKeeper(Arbitrary, ABC):
 
     @classmethod
     def of(cls, *objects: Special[Mapping]) -> Self:
-        return cls(**reduce(or_, map(cls._to_raw |then>> dict_of, objects)))
+        return cls(**reduce(or_, map(dict_of, objects)))
 
-    @staticmethod
-    def _to_raw(value: Special[Mapping]) -> Any:
-        return (
-            temp(**{
-                field.name: field >= when(
-                    (
-                        lambda f: f.default is not MISSING,
-                        attrgetter("default") |then>> _filled,
-                    ),
-                    (
-                        lambda f: f.default_factory is not MISSING,
-                        methodcaller("default_factory") |then>> _filled,
-                    ),
-                    (..., attrgetter("type")),
-                )
-                for field in dict_of(value)["__dataclass_fields__"].values()
-            })
-            if "__dataclass_fields__" in dict_of(value).keys()
-            else value
-        )
 
 
 _to_fill = contextualizing(flag_about("_to_fill"))
@@ -450,6 +430,25 @@ class temp(_AttributeKeeper):
             return f"()={code_like_repr_of(stored_value)}"
         else:
             return f"={code_like_repr_of(value)}"
+
+
+def struct(type_: type) -> temp:
+    dataclass_ = dataclass(type_)
+
+    return temp(**{
+        field.name: field >= when(
+            (
+                lambda f: f.default is not MISSING,
+                attrgetter("default") |then>> _filled,
+            ),
+            (
+                lambda f: f.default_factory is not MISSING,
+                methodcaller("default_factory") |then>> _filled,
+            ),
+            (..., attrgetter("type")),
+        )
+        for field in dict_of(dataclass_)["__dataclass_fields__"].values()
+    })
 
 
 @partially
