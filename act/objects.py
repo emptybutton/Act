@@ -37,6 +37,8 @@ __all__ = (
     "as_descriptor",
     "as_property",
     "Arbitrary",
+    "with_default_descriptor",
+    "default_descriptor",
     "obj",
     "temp",
     "is_templated",
@@ -213,6 +215,15 @@ class _AttributeKeeper(Arbitrary, ABC):
         return cls(**reduce(or_, map(dict_of, objects)))
 
 
+@partially
+def with_default_descriptor(descriptor: Any, obj_: Arbitrary) -> Arbitrary:
+    obj_ = copy(obj_)
+    obj_._obj_default_descriptor__ = descriptor
+    return obj_
+
+
+default_descriptor: str = "_obj_default_descriptor__"
+
 
 _to_fill = contextualizing(flag_about("_to_fill"))
 _filled = contextualizing(flag_about("_filled"))
@@ -248,12 +259,23 @@ class obj(_AttributeKeeper):
         )
 
     def __getattribute__(self, attr_name: str) -> Any:
+        if attr_name == "__dict__":
+            return object.__getattribute__(self, attr_name)
+
+        if (
+            attr_name not in self.__dict__.keys()
+            and "_obj_default_descriptor__" in self.__dict__.keys()
+            and hasattr(self._obj_default_descriptor__, "__get__")
+        ):
+            return self._obj_default_descriptor__.__get__(self, type(self))
+
+
         value = object.__getattribute__(self, attr_name)
         context, stored_value = contexted(value)
 
         if context == as_method:
             return MethodType(stored_value, self)
-        if context == as_descriptor:
+        elif context == as_descriptor:
             return (
                 stored_value.__get__(self, type(self))
                 if hasattr(stored_value, "__get__")
@@ -263,8 +285,17 @@ class obj(_AttributeKeeper):
             return value
 
     def __setattr__(self, attr_name: str, value: Any) -> Any:
-        if attr_name not in self.__dict__.keys() or attr_name == "__dict__":
+        if attr_name == "__dict__":
             return super().__setattr__(attr_name, value)
+
+        if attr_name not in self.__dict__.keys():
+            if (
+                "_obj_default_descriptor__" in self.__dict__.keys()
+                and hasattr(self._obj_default_descriptor__, "__set__")
+            ):
+                return self._obj_default_descriptor__.__set__(self, value)
+            else:
+                return super().__setattr__(attr_name, value)
 
         context, setter = contexted(self.__dict__[attr_name])
 
@@ -275,8 +306,17 @@ class obj(_AttributeKeeper):
         )
 
     def __delattr__(self, attr_name: str) -> Any:
-        if attr_name not in self.__dict__.keys() or attr_name == "__dict__":
+        if attr_name == "__dict__":
             return super().__delattr__(attr_name)
+
+        if attr_name not in self.__dict__.keys():
+            if (
+                "_obj_default_descriptor__" in self.__dict__.keys()
+                and hasattr(self._obj_default_descriptor__, "__delete__")
+            ):
+                return self._obj_default_descriptor__.__delete__(self)
+            else:
+                return super().__delattr__(attr_name)
 
         context, deleter = contexted(self.__dict__[attr_name])
 
