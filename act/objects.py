@@ -44,7 +44,6 @@ __all__ = (
     "dict_of",
     "hash_of",
     "from_",
-    "void",
     "like",
     "to_attribute",
     "read_only",
@@ -507,7 +506,6 @@ def from_(object_: O, data: Special[Mapping], /) -> O:
     object_.__dict__ = dict_of(object_) | dict_of(data)
 
 
-void = obj()  # Object without data
 
 
 @partially

@@ -179,12 +179,6 @@ def test_obj_with_only_descriptor_deleting():
     assert logs == [8]
 
 
-test_void = case_of(
-    (lambda: void & obj(a=1), obj(a=1)),
-    (lambda: void & void, void),
-)
-
-
 test_from_ = case_of(
     (lambda: from_(obj(a=1, b=2), obj(c=3)), obj(a=1, b=2, c=3)),
     (lambda: from_(obj(a=2), obj(a=1)), obj(a=2)),

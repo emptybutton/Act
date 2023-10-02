@@ -38,13 +38,6 @@ __all__ = (
     "parallel",
     "future",
     "has_future",
-    "up",
-    "write",
-    "read",
-    "returned",
-    "like_do",
-    "doing",
-    "do",
     "cross",
     "mid",
     "down",
@@ -241,108 +234,6 @@ def has_future(
     """
 
     return pointed(contexted(value).context).that(of(in_future)) != nothing
-
-
-up = contextualizing(flag_about('up'), to=contextually)
-
-write = func(to_write |then>> up)
-read = func(to_read |then>> up)
-
-returned = contextualizing(flag_about("returned"))
-
-
-def _action_from(
-    *lines: Special[ActionChain, Callable],
-    in_isolation: bool = True,
-    default_upped: Callable = saving_context,
-) -> LeftCallable:
-    lines = ActionChain((map |by| lines)(
-        discretely(
-            saving_context(on |to| not_(of(returned)))
-            |then>> on(not_(of(up)), saving_context(default_upped))
-            |then>> attrgetter("value")
-        )
-        |then>> func
-    ))
-
-    return func(
-        on(
-            lambda v: of(returned, v) or of(returned, contexted(v).value),
-            raising(ReturningError("externally returned value")),
-        )
-        |then>> on(to(in_isolation), contextual)
-        |then>> to_context(on(nothing, obj()))
-        |then>> (lines[:-1] >= discretely((lambda line: lambda value: (
-            result
-            if of(returned, (result := contexted(line(value))).value)
-            else contextual(result.context, value.value)
-        ))))
-        |then>> (_get if len(lines) == 0 else lines[-1])
-        |then>> saving_context(on(of(returned), attrgetter("value")))
-        |then>> on(
-            to(in_isolation),
-            attrgetter("value"),
-            else_=to_context(on(obj(), nothing)),
-        )
-    )
-
-
-like_do = temp(
-    __call__=Callable[..., LeftCallable],
-    openly=Callable[..., LeftCallable],
-)
-
-
-def doing(upped: Callable) -> like_do:
-    """
-    Function to up non-upped components.
-    Returns an object equivalent to a regular `do` object.
-    """
-
-    return like_do(
-        __call__=partial(_action_from, default_upped=upped),
-        openly=partial(_action_from, default_upped=upped, in_isolation=False),
-    )
-
-
-do = documenting_by(
-    """
-    Execution context for multiple actions on the same value.
-
-    To stop execution (including within one non-atomic action), the value must
-    be contextualized by `returned` (contextualizes by calling).
-
-    Stopping is local to a single `do` action and the executed value is
-    returned without the `returned` flag.
-
-    Throws `ReturningError` when trying to pass "returned value".
-
-    `do` action is executed in the context of an empty arbitrary object that
-    can be interacted with when decorating desired actions with `up`.
-
-    Actions without `up` decoration are executed as if they were decorated
-    with `saving_context |then>> up`.
-
-    To write and read from context use `write` and `read` shortcuts
-    instead of `to_write |then>> up` and `to_read |then>> up`.
-
-    Contextualization is local to each `do` action: by default, you can't inject
-    an arbitrary context to the top level, and the value from the `do` action is
-    returned without that context (in the extracted view).
-
-    To remove contextualization locality, call `do.openly` instead of just `do`.
-
-    `do.openly` action will not additionally contextualize a value if it is
-    already contextualized but still changes context to empty arbitrary object
-    if it is `nothing`.
-
-    `do.openly` saves the top context on return.
-
-    Use the `doing` function to up non-upped components.
-    """
-)(
-    doing(saving_context)
-)
 
 
 cross: LeftCallable[
