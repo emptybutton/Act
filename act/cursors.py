@@ -218,7 +218,10 @@ class _ActionCursor(Mapping):
         )
 
     def __repr__(self) -> str:
-        return f"({{}}: {self._internal_repr})".format(
+        return f"({self._get_raw_repr()})"
+
+    def _get_raw_repr(self) -> str:
+        return f"{{}}: {self._internal_repr}".format(
             ', '.join(map(str, self._parameters))
         )
 
@@ -649,6 +652,18 @@ class _ActionCursor(Mapping):
             ]
             + union_parameters
         )
+
+    def get_fun_image__(self) -> fun.Image:
+        keyword_union_parameter = self._get_keyword_union_parameter()
+
+        def run(*args, **kwargs) -> Any:
+            return self._run(
+                args,
+                kwargs,
+                keyword_union_parameter=keyword_union_parameter,
+            )
+
+        return fun.Image(run, self._get_raw_repr)
 
     def _internal_repr_by(
         self,
