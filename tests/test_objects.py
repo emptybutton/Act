@@ -166,9 +166,7 @@ def test_obj_with_only_descriptor_deleting():
 
     object_ = obj(
         a=5,
-        b=as_descriptor(property(
-            fdel=lambda o: logs.append(o.a + 3),
-        )),
+        b=as_descriptor(property(fdel=lambda o: logs.append(o.a + 3))),
     )
 
     del object_.b
