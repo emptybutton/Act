@@ -288,13 +288,13 @@ class _ActionCursor(Mapping):
     def set(self, value: Special[Self]) -> Self:
         return self._set(value)
 
-    def mset(self, value: Special[Self]) -> Self:
+    def ioset(self, value: Special[Self]) -> Self:
         return self._set(value, mutably=True)
 
     def be(self, action: Special[Self | Callable]) -> Self:
         return self._be(action)
 
-    def mbe(self, action: Special[Self | Callable]) -> Self:
+    def iobe(self, action: Special[Self | Callable]) -> Self:
         return self._be(action, mutably=True)
 
     @_generation_transaction
