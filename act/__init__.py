@@ -6,7 +6,6 @@ from act.contexting import *
 from act.cursors import *
 from act.data_flow import *
 from act.error_flow import *
-from act.error_storing import *
 from act.flags import *
 from act.aggregates import *
 from act.immutability import *
