@@ -19,7 +19,6 @@ __all__ = (
     "Special",
     "reformer_of",
     "merger_of",
-    "Pm",
     "ArgumentsT",
     "ActionT",
     "ErrorT",
@@ -53,6 +52,33 @@ __all__ = (
     "X",
     "Y",
     "Z",
+    "Pm",
+    "PmA",
+    "PmB",
+    "PmC",
+    "PmD",
+    "PmE",
+    "PmF",
+    "PmG",
+    "PmH",
+    "PmI",
+    "PmJ",
+    "PmK",
+    "PmL",
+    "PmM",
+    "PmN",
+    "PmO",
+    "PmP",
+    "PmQ",
+    "PmR",
+    "PmS",
+    "PmT",
+    "PmU",
+    "PmV",
+    "PmW",
+    "PmX",
+    "PmY",
+    "PmZ",
     "CommentAnnotation",
     "CallableFormalAnnotation",
     "notes_of",
@@ -74,8 +100,6 @@ merger_of = AnnotationTemplate(Callable, [
     [input_annotation, input_annotation], input_annotation
 ])
 
-
-Pm = ParamSpec('Pm')
 
 ArgumentsT = TypeVarTuple("ArgumentsT")
 
@@ -118,6 +142,34 @@ W = TypeVar('W')
 X = TypeVar('X')
 Y = TypeVar('Y')
 Z = TypeVar('Z')
+
+Pm = ParamSpec('Pm')
+PmA = ParamSpec('PmA')
+PmB = ParamSpec('PmB')
+PmC = ParamSpec('PmC')
+PmD = ParamSpec('PmD')
+PmE = ParamSpec('PmE')
+PmF = ParamSpec('PmF')
+PmG = ParamSpec('PmG')
+PmH = ParamSpec('PmH')
+PmI = ParamSpec('PmI')
+PmJ = ParamSpec('PmJ')
+PmK = ParamSpec('PmK')
+PmL = ParamSpec('PmL')
+PmM = ParamSpec('PmM')
+PmN = ParamSpec('PmN')
+PmO = ParamSpec('PmO')
+PmP = ParamSpec('PmP')
+PmQ = ParamSpec('PmQ')
+PmR = ParamSpec('PmR')
+PmS = ParamSpec('PmS')
+PmT = ParamSpec('PmT')
+PmU = ParamSpec('PmU')
+PmV = ParamSpec('PmV')
+PmW = ParamSpec('PmW')
+PmX = ParamSpec('PmX')
+PmY = ParamSpec('PmY')
+PmZ = ParamSpec('PmZ')
 
 
 class CommentAnnotation:
