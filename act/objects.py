@@ -334,6 +334,16 @@ class obj(_AttributeKeeper):
         )
 
     @staticmethod
+    @partially
+    def to_attr(
+        attr_name: str,
+        action: Callable[Optional[V], R],
+        *,
+        mutably: bool = False,
+    ) -> Callable[O, Self]:
+        return fun(obj.of |then>> to_attr(attr_name, action, mutably=mutably))
+
+    @staticmethod
     def _for_setting(value: V) -> V:
         return value
 
