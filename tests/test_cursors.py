@@ -295,3 +295,9 @@ test_cursot_partiality = case_of(
     (lambda: (v / w + x)(10, 2)(3), 8),
     (lambda: (v / w + x)(10)(2, 3), 8),
 )
+
+
+test_same = case_of(
+    lambda: (same(4).in_([1, 2, 4]))(),
+    lambda: (same(4).not_in(list()))(),
+)
