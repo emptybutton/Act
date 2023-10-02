@@ -583,9 +583,10 @@ class _ActionCursor(Mapping):
 
         return (
             self._previous
-            ._merged_with(value, by=lambda a, b: (
-                set_(a if mutably else copy(a), place, b)
+            ._merged_with(value, by=lambda a, b: lambda p: (
+                set_(a if mutably else copy(a), p, b)
             ))
+            ._with_calling_by(place)
             ._with(nature=contextual(
                 contextual(place, value),
                 _ActionCursorNature.setting,
