@@ -10,7 +10,7 @@ from typing import (
 from pyannotating import many_or_one, Special
 
 from act.annotations import V, M, K, I, W, Unia
-from act.atomization import func
+from act.atomization import fun
 from act.contexting import ContextualForm, contexted, contextualizing, saving_context
 from act.data_flow import returnly, by, and_via_indexer, indexer_of
 from act.errors import RangeConstructionError, IndexingError
@@ -66,21 +66,21 @@ as_collection = documenting_by(
 )
 
 
-tmap: LeftCallable[Iterable[V], Tuple[V]]
+tmap: Callable[Iterable[V], Tuple[V]]
 tmap = documenting_by("""`map` function returning `tuple`""")(
-    func(map |then>> tuple)
+    fun(map |then>> tuple)
 )
 
 
-tzip: LeftCallable[Iterable[V], Tuple[V]]
+tzip: Callable[Iterable[V], Tuple[V]]
 tzip = documenting_by("""`zip` function returning `tuple`""")(
-    func(zip |then>> tuple)
+    fun(zip |then>> tuple)
 )
 
 
-tfilter: LeftCallable[Iterable[V], Tuple[V]]
+tfilter: Callable[Iterable[V], Tuple[V]]
 tfilter = documenting_by("""`filter` function returning `tuple`""")(
-    func(filter |then>> tuple)
+    fun(filter |then>> tuple)
 )
 
 
@@ -99,19 +99,19 @@ def flat(value: V | Iterable[Special[Iterable, V]]) -> Tuple[V]:
     return tuple(collection_with_opened_items)
 
 
-deep_flat: LeftCallable[V | Special[Iterable, V], Tuple[V]]
+deep_flat: Callable[V | Special[Iterable, V], Tuple[V]]
 deep_flat = documenting_by(
     """
     Function to expand all subcollections within an input collection while they
     exist.
     """
-)(func(
+)(fun(
     as_collection
     |then>> while_(partial(tfilter, rpartial(isinstance, Iterable)), flat)
 ))
 
 
-append: LeftCallable[..., LeftCallable[Iterable[V] | V, tuple]]
+append: Callable[..., Callable[Iterable[V] | V, tuple]]
 append = documenting_by(
     """
     Function for a function that adds input arguments of the first function to
@@ -119,11 +119,11 @@ append = documenting_by(
     all of these elements in case a non-collection was passed to the returned
     function.
     """
-)(func(
+)(fun(
     tuple_of
     |then>> rwill(tuple_of)
     |then>> binding_by(as_collection |then>> ... |then>> flat)
-    |then>> func
+    |then>> fun
 ))
 
 
@@ -138,7 +138,6 @@ def without(*items: I) -> LeftCallable[I | Iterable[I], Tuple[I]]:
         for item in items
     )
 
-    return func(as_collection |then>> list |then>> removing |then>> tuple)
 
 
 def without_duplicates(items: Iterable[V]) -> Tuple[V]:

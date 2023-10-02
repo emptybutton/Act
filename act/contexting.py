@@ -10,7 +10,7 @@ from pyannotating import Special
 from act.annotations import (
     ActionT, ErrorT, P, Pm, A, B, C, V, R, W, D, S, Unia, FlagT, Union
 )
-from act.atomization import func
+from act.atomization import fun
 from act.data_flow import and_via_indexer
 from act.flags import (
     nothing, Flag, pointed, flag_about, FlagVector, _NamedFlag, _CallableNamedFlag
@@ -392,7 +392,7 @@ def to_metacontextual(
         (value_action, context_action),
     ))
 
-    return func(
+    return fun(
         contexted
         |then>> saving_context(value_action)
         |then>> to_context(context_action)

@@ -10,7 +10,7 @@ from typing import (
 from pyannotating import Special
 
 from act.annotations import Pm, V, R, I, A, dirty, ArgumentsT, ActionT, Unia
-from act.atomization import func
+from act.atomization import fun
 from act.errors import ReturningError, MatchingError
 from act.partiality import will, rpartial, partial, partially
 from act.pipeline import bind, then
@@ -54,8 +54,8 @@ __all__ = (
     incoming to it.
     """
 )
-@func
 class returnly(Decorator):
+@fun
     def __call__(self, value: V, *args, **kwargs) -> V:
         self._action(value, *args, **kwargs)
 
@@ -78,7 +78,7 @@ class returnly(Decorator):
     Decorator function to call with predefined arguments instead of input ones.
     """
 )
-@func
+@fun
 class eventually(Decorator):
     def __init__(
         self,
@@ -169,7 +169,7 @@ def fmt(
     with the remaining arguments.
     """
 )
-@func
+@fun
 class double(Decorator):
     def __call__(
         self,
@@ -199,8 +199,8 @@ class double(Decorator):
     ignoring input arguments.
     """
 )
-@func
 class once(LeftCallable):
+@fun
     _result: Optional[R] = None
     _was_called: bool = False
 
@@ -235,7 +235,7 @@ class once(LeftCallable):
     `()`.
     """
 )
-@func
+@fun
 class via_indexer:
     def __init__(
         self,
@@ -485,7 +485,7 @@ anything = documenting_by(
     is _get, in the order in which the actions were passed.
     """
 )
-@func
+@fun
 class merged:
     def __init__(self, *actions: Callable[Pm, Any]):
         self._actions = actions
@@ -541,7 +541,7 @@ class merged:
     were specified.
     """
 )
-@func
+@fun
 class mergely:
     def __init__(
         self,

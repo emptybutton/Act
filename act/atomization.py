@@ -4,10 +4,9 @@ from typing import runtime_checkable, Protocol, Self, Callable
 from act.annotations import AtomizableT, Pm, R
 from act.errors import AtomizationError
 from act.representations import code_like_repr_of
-from act.tools import LeftCallable
 
 
-__all__ = ("Atomizable", "atomic", "func")
+__all__ = ("Atomizable", "atomic", "fun")
 
 
 @runtime_checkable
@@ -35,13 +34,10 @@ def atomic(value: AtomizableT) -> AtomizableT:
     return value.__getatom__()
 
 
-class func(LeftCallable):
+class fun:
     """
     Decorator that removes the behavior of an input action, leaving only
     calling.
-
-    Has a one value call synonyms `>=` and `<=` where is it on the right i.e.
-    `value >= instance` and less preferred `instance <= value`.
     """
 
     def __init__(self, action: Callable[Pm, R]):

@@ -4,7 +4,7 @@ from operator import attrgetter
 from pyannotating import Special
 
 from act.annotations import V, R, C, M, I, A, reformer_of
-from act.atomization import func
+from act.atomization import fun
 from act.pipeline import then
 from act.contexting import contexted, contextual
 from act.data_flow import by, yes
@@ -88,8 +88,8 @@ class Effect(LeftCallable, Generic[V, R, C]):
         self,
         action: Callable[V, R | C],
         value: Special[V | C] = _NO_VALUE,
-    ) -> LeftCallable[V | C, C] | C:
-        lifted_action = func(
+    ) -> Callable[V | C, C] | C:
+        lifted_action = fun(
             self.lifted |then>> self._decorator(action) |then>> self.lifted
         )
 

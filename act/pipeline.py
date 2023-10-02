@@ -5,8 +5,8 @@ from typing import Callable, Generic, Iterable, Iterator, Self, Any, Tuple
 from pyannotating import Special
 
 from act.annotations import ActionT, R, Pm, V, A, B, C, D
-from act.atomization import func
 from act.errors import TemplatedActionChainError
+from act.atomization import fun
 from act.partiality import rpartial, will
 from act.representations import code_like_repr_of
 from act.signatures import call_signature_of
@@ -34,7 +34,7 @@ __all__ = (
     pseudo-operator.
     """
 )
-@func
+@fun
 class bind:
     def __init__(self, first: Callable[Pm, V], second: Callable[V, R]):
         self._first = first

@@ -21,11 +21,11 @@ test_atomic = case_of(
 )
 
 
-test_func = case_of(
-    (lambda: isinstance(func(ActionChain([int, str])), ActionChain), False),
+test_fun = case_of(
+    (lambda: isinstance(fun(ActionChain([int, str])), ActionChain), False),
     (
-        lambda: len(ActionChain([func(ActionChain([int, str])), print])),
+        lambda: len(ActionChain([fun(ActionChain([int, str])), print])),
         2
     ),
-    (lambda: func(lambda a: a)(4), 4),
+    (lambda: fun(lambda a: a)(4), 4),
 )
