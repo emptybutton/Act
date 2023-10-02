@@ -127,7 +127,7 @@ append = documenting_by(
 ))
 
 
-def without(*items: I) -> LeftCallable[I | Iterable[I], Tuple[I]]:
+def without(*items: I) -> Callable[I | Iterable[I], Tuple[I]]:
     """
     Function for an action that represents an input value as a `tuple` with no
     items passed to this function.
@@ -138,6 +138,7 @@ def without(*items: I) -> LeftCallable[I | Iterable[I], Tuple[I]]:
         for item in items
     )
 
+    return fun(as_collection |then>> list |then>> removing |then>> tuple)
 
 
 def without_duplicates(items: Iterable[V]) -> Tuple[V]:
@@ -335,10 +336,10 @@ def to_interval(
     if contexted(interval).context == empty:
         return values
 
-    points = flat(ranges_from(contexted(interval).value, limit=len(values))) >= (
+    points = (
         will(map)(lambda p: len(values) + p if p < 0 else p)
         |then>> will(tfilter)(lambda p: p < len(values))
-    )
+    )(flat(ranges_from(contexted(interval).value, limit=len(values))))
 
     if len(points) == 0:
         return values

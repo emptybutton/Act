@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from copy import copy, deepcopy
-from dataclasses import MISSING
+from dataclasses import dataclass, MISSING
 from functools import reduce
 from operator import or_, attrgetter, methodcaller
 from types import MethodType
 from typing import (
-    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, Tuple, ClassVar
+    Mapping, Callable, Self, Generic, Concatenate, Any, Optional, Tuple, ClassVar,
+    Iterable
 )
 
 from pyannotating import Special

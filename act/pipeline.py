@@ -271,14 +271,14 @@ discretely = documenting_by(
 
     Maps an input decorator for each action individually.
     """
-)(func(
+)(fun(
     will(map)
     |then>> bind_by(
         on(rpartial(isinstance, ActionChain) |then>> not_, lambda v: (v, ))
         |then>> ...
         |then>> ActionChain
     )
-    |then>> func
+    |then>> fun
 ))
 
 

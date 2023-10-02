@@ -420,7 +420,7 @@ to = documenting_by(
     _CallableCustomPartialApplicationInfix(
         partial,
         name='to',
-        action_to_call=func(will(_get) |then>> eventually),
+        action_to_call=fun(will(_get) |then>> eventually),
     )
 )
 
