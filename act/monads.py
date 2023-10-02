@@ -10,7 +10,7 @@ from act.contexting import (
     with_reduced_metacontext, contextualizing, to_write, to_read, of, to_context,
     with_context_that
 )
-from act.data_flow import returnly, by, to, when, break_, and_via_indexer
+from act.data_flow import io, by, to, when, break_, and_via_indexer
 from act.effects import context_effect
 from act.errors import ReturningError
 from act.error_flow import raising
@@ -18,7 +18,7 @@ from act.flags import flag_about, nothing, Flag, pointed, to_points
 from act.objects import obj, temp
 from act.operators import not_
 from act.partiality import will, partially, partial, rpartial
-from act.pipeline import discretely, ActionChain, then, atomic_binding_by
+from act.pipeline import discretely, ActionChain, then, fbind_by
 from act.synonyms import on
 from act.tools import documenting_by, to_check, as_action, _get
 
@@ -130,7 +130,7 @@ def showly(
     `ActionChain` to something. Default to console.
     """
 
-    return discretely(atomic_binding_by(... |then>> returnly(show)))(
+    return discretely(fbind_by(... |then>> io(show)))(
         action_or_actions
     )
 
@@ -155,7 +155,7 @@ def either(
     For everything else see `when`.
     """
 
-    return func(contexted |then>> when(*(
+    return fun(contexted |then>> when(*(
         (
             (
                 determinant
@@ -236,7 +236,7 @@ def has_future(
     return pointed(contexted(value).context).that(of(in_future)) != nothing
 
 
-cross: LeftCallable[
+cross: Callable[
     Union[
         Callable[
             Callable[A, ContextualForm[C, B]],
@@ -254,17 +254,17 @@ cross: LeftCallable[
 ]
 cross = documenting_by(
     """Decorator for execution contextualization with metacontext join."""
-)(discretely(atomic_binding_by(
+)(discretely(fbind_by(
     ...
-    |then>> atomic_binding_by(... |then>> with_reduced_metacontext)
+    |then>> fbind_by(... |then>> with_reduced_metacontext)
 )))
 
 
 mid = documenting_by(
     """Decorator for execution contextualization with metacontext removing."""
-)(discretely(atomic_binding_by(
+)(discretely(fbind_by(
     ...
-    |then>> atomic_binding_by(... |then>> contexted |then>> attrgetter("value"))
+    |then>> fbind_by(... |then>> contexted |then>> attrgetter("value"))
 )))
 
 
@@ -274,10 +274,10 @@ down = documenting_by(
     execution.
     """
 )(
-    atomic_binding_by(
+    fbind_by(
         ...
         |then>> saving_context
-        |then>> atomic_binding_by(
+        |then>> fbind_by(
             contextual |then>> ... |then>> attrgetter("value")
         )
     )

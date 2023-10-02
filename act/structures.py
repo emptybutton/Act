@@ -12,11 +12,11 @@ from pyannotating import many_or_one, Special
 from act.annotations import V, M, K, I, W, Unia
 from act.atomization import fun
 from act.contexting import ContextualForm, contexted, contextualizing, saving_context
-from act.data_flow import returnly, by, and_via_indexer, indexer_of
+from act.data_flow import io, by, and_via_indexer, indexer_of
 from act.errors import RangeConstructionError, IndexingError
 from act.flags import flag_about
 from act.partiality import partial, rpartial, partially, will, rwill
-from act.pipeline import then, binding_by, ActionChain
+from act.pipeline import then, bind_by, ActionChain
 from act.protocols import Hashable
 from act.representations import code_like_repr_of
 from act.synonyms import on, tuple_of, while_
@@ -122,7 +122,7 @@ append = documenting_by(
 )(fun(
     tuple_of
     |then>> rwill(tuple_of)
-    |then>> binding_by(as_collection |then>> ... |then>> flat)
+    |then>> bind_by(as_collection |then>> ... |then>> flat)
     |then>> fun
 ))
 
@@ -134,7 +134,7 @@ def without(*items: I) -> LeftCallable[I | Iterable[I], Tuple[I]]:
     """
 
     removing = ActionChain(
-        returnly(on(contains |by| item, methodcaller("remove", item)))
+        io(on(contains |by| item, methodcaller("remove", item)))
         for item in items
     )
 

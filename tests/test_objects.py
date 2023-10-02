@@ -241,32 +241,32 @@ def test_recursive_like():
     assert not like(b)(a)
 
 
-test_to_attribute = case_of((
-    lambda: to_attribute('a', lambda a: a + 5)(MockA(3)).a, 8
+test_to_attr = case_of((
+    lambda: to_attr('a', lambda a: a + 5)(MockA(3)).a, 8
 ))
 
 
-def test_to_attribute_with_immutability():
+def test_to_attr_with_immutability():
     obj_ = MockA(3)
 
-    result = to_attribute('a', lambda a: a + 5)(obj_)
+    result = to_attr('a', lambda a: a + 5)(obj_)
 
     assert isinstance(result, MockA)
     assert result is not obj_
     assert result.a == 8
 
 
-def test_to_attribute_with_mutability():
+def test_to_attr_with_mutability():
     obj_ = MockA(3)
 
-    result = to_attribute('a', lambda a: a + 5, mutably=True)(obj_)
+    result = to_attr('a', lambda a: a + 5, mutably=True)(obj_)
 
     assert result is obj_
     assert result.a == 8
 
 
-test_to_attribute_without_attribute = case_of((
-    lambda: to_attribute('b', lambda b: [b])(MockA(3)).b, [None]
+test_to_attr_without_attribute = case_of((
+    lambda: to_attr('b', lambda b: [b])(MockA(3)).b, [None]
 ))
 
 

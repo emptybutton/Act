@@ -37,9 +37,9 @@ def test_action_chain_iteration(
 
 
 test_action_inserting_in = case_of(
-    (lambda: binding_by([..., (lambda b: b / 2)])(lambda a: a + 3)(13), 8),
-    (lambda: binding_by([(lambda a: a + 3), ...])(lambda b: b / 2)(13), 8),
-    (lambda: binding_by([..., ...])(lambda a: a + 2)(12), 16)
+    (lambda: bind_by([..., (lambda b: b / 2)])(lambda a: a + 3)(13), 8),
+    (lambda: bind_by([(lambda a: a + 3), ...])(lambda b: b / 2)(13), 8),
+    (lambda: bind_by([..., ...])(lambda a: a + 2)(12), 16)
 )
 
 

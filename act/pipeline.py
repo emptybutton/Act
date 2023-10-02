@@ -18,8 +18,8 @@ __all__ = (
     "bind",
     "ActionChain",
     "then",
-    "binding_by",
-    "atomic_binding_by",
+    "bind_by",
+    "fbind_by",
     "discretely",
 )
 
@@ -197,17 +197,16 @@ then = documenting_by(
     The created function replaces `...` with an input action.
     """
 )
-@func
-def binding_by(
+@fun
+def bind_by(
     template: Iterable[Callable | Ellipsis],
-) -> Callable[[Callable], ActionChain]:
     @documenting_by(
         """
-        Function given as a result of calling `binding_by`. See `binding_by`
-        for more info.
+        Function given as a result of calling `bind_by`. See `bind_by` for more
+        info.
         """
     )
-    @func
+    @fun
     def insert_to_template(intercalary_action: Callable) -> ActionChain:
         return ActionChain(
             intercalary_action if action is Ellipsis else action
@@ -217,14 +216,14 @@ def binding_by(
     return insert_to_template
 
 
-atomic_binding_by: LeftCallable[
+fbind_by: Callable[
     Iterable[Callable | Ellipsis],
     Callable[Callable, Callable],
 ]
-atomic_binding_by = documenting_by(
-    """`binding_by` linking actions to an indivisible `ActionChain`."""
-)(func(
-    binding_by |then>> binding_by(... |then>> func)
+fbind_by = documenting_by(
+    """`bind_by` linking actions to an indivisible `ActionChain`."""
+)(fun(
+    bind_by |then>> bind_by(... |then>> fun)
 ))
 
 
@@ -241,7 +240,7 @@ discretely = documenting_by(
     """
 )(func(
     will(map)
-    |then>> binding_by(
+    |then>> bind_by(
         on(rpartial(isinstance, ActionChain) |then>> not_, lambda v: (v, ))
         |then>> ...
         |then>> ActionChain

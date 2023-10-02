@@ -13,11 +13,11 @@ test_eventually = case_of(
 )
 
 
-test_returnly = case_of(
-    (lambda: returnly(lambda _: _)(4), 4),
-    (lambda: returnly(lambda _: ...)(4), 4),
-    (lambda: returnly(lambda _: ...)(None), None),
-    (lambda: returnly(lambda a, b, c: ...)(1, 2, 3), 1),
+test_io = case_of(
+    (lambda: io(lambda _: _)(4), 4),
+    (lambda: io(lambda _: ...)(4), 4),
+    (lambda: io(lambda _: ...)(None), None),
+    (lambda: io(lambda a, b, c: ...)(1, 2, 3), 1),
 )
 
 

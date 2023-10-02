@@ -5,7 +5,7 @@ from act.atomization import fun
 from act.contexting import contextual
 from act.data_flow import by, to, eventually
 from act.partiality import partially
-from act.pipeline import binding_by, then
+from act.pipeline import bind_by, then
 from act.synonyms import try_, raise_
 from act.tools import documenting_by
 
@@ -29,8 +29,8 @@ with_error = documenting_by(
     Returns in `contextual` format (error, result).
     """
 )(
-        binding_by(... |then>> contextual)
     fun(
+        bind_by(... |then>> contextual)
         |then>> (try_ |by| to(contextual |by| None))
     )
 )

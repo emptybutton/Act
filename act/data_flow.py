@@ -21,7 +21,7 @@ from act.tools import documenting_by, items_of, _get
 
 
 __all__ = (
-    "returnly",
+    "io",
     "eventually",
     "with_result",
     "dynamically",
@@ -54,8 +54,8 @@ __all__ = (
     incoming to it.
     """
 )
-class returnly(Decorator):
 @fun
+class io(Decorator):
     def __call__(self, value: V, *args, **kwargs) -> V:
         self._action(value, *args, **kwargs)
 
@@ -437,11 +437,8 @@ by = documenting_by(
 )
 
 
-shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
-    returnly(print)
-)
-
-
+shown: dirty[Callable[V, V]]
+shown = documenting_by("""Shortcut function for `io(print)`.""")(io(print))
 
 
 yes: Callable[bool, bool] = documenting_by("""Shortcut for `to(True)`.""")(to(True))

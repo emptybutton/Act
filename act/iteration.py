@@ -6,7 +6,7 @@ from act.annotations import V, R
 from act.atomization import fun
 from act.data_flow import eventually, by, to
 from act.error_flow import catch
-from act.pipeline import binding_by, then, on
+from act.pipeline import bind_by, then, on
 from act.synonyms import try_
 from act.tools import documenting_by, _get
 
@@ -39,6 +39,6 @@ infinite: Callable[
 infinite = documenting_by(
     """Decorator function to return `None` instead of `StopIteration`."""
 )(
-    binding_by(... |then>> on(isinstance |by| StopIteration, None))
+    bind_by(... |then>> on(isinstance |by| StopIteration, None))
     |then>> fun
 )

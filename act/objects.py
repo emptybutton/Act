@@ -18,7 +18,7 @@ from act.contexting import (
     contextually, contexted, contextualizing, be
 )
 from act.data_flow import (
-    mergely, by, returnly, when, eventually, and_via_indexer, indexer_of
+    mergely, by, io, when, eventually, and_via_indexer, indexer_of
 )
 from act.errors import ObjectTemplateError
 from act.error_flow import raising
@@ -45,7 +45,7 @@ __all__ = (
     "hash_of",
     "from_",
     "like",
-    "to_attribute",
+    "to_attr",
     "read_only",
     "sculpture_of",
     "original_of",
@@ -544,7 +544,7 @@ def like(
 
 
 @partially
-def to_attribute(
+def to_attr(
     attr_name: str,
     action: Callable[Optional[V], R],
     *,
@@ -562,7 +562,7 @@ def to_attribute(
         (
             on(hasattr |by| attr_name, getattr |by| attr_name, else_=None)
             |then>> action
-            |then>> (lambda value: returnly(lambda obj_: setattr(
+            |then>> (lambda value: io(lambda obj_: setattr(
                 obj_, attr_name, value
             )))
         ),
