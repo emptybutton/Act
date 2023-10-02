@@ -6,7 +6,6 @@ __all__ = (
     "InvalidInitializationError",
     "AtomizationError",
     "MatchingError",
-    "TemplatedActionChainError",
     "ObjectTemplateError",
     "ActionCursorError",
     "StructureError",
@@ -48,10 +47,6 @@ class MatchingError(ActError):
 
 class ActionChainError(ActError):
     ...
-
-
-class TemplatedActionChainError(ActionChainError):
-    __notes__ = ["Regular chain should not contain `Ellipsis`"]
 
 
 class ObjectTemplateError(ActError):

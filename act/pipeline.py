@@ -72,40 +72,26 @@ class ActionChain(Generic[ActionT]):
     If there are no actions, returns a input value back.
     """
 
-    is_template = property(attrgetter("_is_template"))
-
-    def __init__(self, actions: Iterable[ActionT | Ellipsis | Self] = tuple()):
+    def __init__(self, actions: Iterable[ActionT | Self] = tuple()):
         self._actions = self._actions_from(actions)
-        self._is_template = Ellipsis in self._actions
 
-        if not self._is_template:
-            if len(self._actions) == 0:
-                self._main_action = _get
-            elif len(self._actions) == 1:
-                self._main_action = self._actions[0]
-            else:
-                self._main_action = reduce(bind, self._actions)
-
-            self.__signature__ = call_signature_of(self._main_action)
+        if len(self._actions) == 0:
+            self._main_action = _get
+        elif len(self._actions) == 1:
+            self._main_action = self._actions[0]
         else:
-            self._main_action = None
+            self._main_action = reduce(bind, self._actions)
+
+        self.__signature__ = call_signature_of(self._main_action)
 
     def __repr__(self) -> str:
         return (
-            " |then>> ".join(
-                '...' if action is Ellipsis else code_like_repr_of(action)
-                for action in self._actions
-            )
+            " |then>> ".join(code_like_repr_of(action) for action in self._actions)
             if len(self._actions) > 1
             else f"ActionChain({str().join(map(code_like_repr_of, self._actions))})"
         )
 
     def __call__(self, *args, **kwargs) -> Any:
-        if self._is_template:
-            raise TemplatedActionChainError(
-                "Templated ActionChain is not callable"
-            )
-
         return self._main_action(*args, **kwargs)
 
     def __iter__(self) -> Iterator[ActionT]:
@@ -130,8 +116,8 @@ class ActionChain(Generic[ActionT]):
 
     @staticmethod
     def _actions_from(
-        actions: Iterable[ActionT | Ellipsis | Self],
-    ) -> Tuple[ActionT | Ellipsis]:
+        actions: Iterable[ActionT | Self],
+    ) -> Tuple[ActionT]:
         new_actions = list()
 
         for action in actions:
@@ -144,23 +130,38 @@ class ActionChain(Generic[ActionT]):
 
 
 class _ActionChainInfix:
-    _second: Ellipsis | Callable = _get
+    _Operand: TypeAlias = Ellipsis | Callable | Iterable[Ellipsis | Callable]
+    _NotCallable: TypeAlias = tuple | type(Ellipsis)
+    _second: _Operand = _get
 
-    def __init__(self, name: str, *, second: Ellipsis | Callable = _get):
+    def __init__(self, name: str, *, second: _Operand = _get):
         self._name = name
         self._second = second
 
     def __repr__(self) -> str:
         return f"|{self._name}>>"
 
-    def __ror__(self, first: Callable | Ellipsis) -> Self:
+    def __ror__(
+        self,
+        first: _Operand | Tuple[_Operand],
+    ) -> ActionChain | Tuple[Ellipsis | Callable]:
+        if (
+            isinstance(first, self._NotCallable)
+            or isinstance(self._second, self._NotCallable)
+        ):
+            return (*self.__as_tuple(first), *self.__as_tuple(self._second))
+
         return ActionChain([first, self._second])
 
-    def __rshift__(self, second: Callable | Ellipsis) -> ActionChain:
+    def __rshift__(self, second: _Operand) -> Self:
         return type(self)(
             self._name,
             second=second,
         )
+
+    @staticmethod
+    def __as_tuple(value: Tuple[V] | V) -> Tuple[V]:
+        return value if isinstance(value, tuple) else (value, )
 
 
 then = documenting_by(
