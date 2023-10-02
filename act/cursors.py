@@ -238,13 +238,11 @@ class _ActionCursor(Mapping):
             if kwargs:
                 raise ActionCursorError("extra keyword arguments")
 
-            return (
-                self
-                ._with_packing_of(args, by=tuple)
-                ._with(internal_repr=(
+            return self._with_packing_of(args, by=tuple)._with(
+                internal_repr=(
                     f"({', '.join(map(self._repr_of, args))}"
                     f"{', ' if len(args) <= 1 else str()})"
-                ))
+                ),
             )
 
         elif self._is_generator_on_call:
@@ -284,7 +282,7 @@ class _ActionCursor(Mapping):
                     )
                     for key, arg in kwargs.items()
                 )
-            )
+            ),
         )
 
     def set(self, value: Special[Self]) -> Self:
@@ -712,15 +710,9 @@ class _ActionCursor(Mapping):
 
             return (
                 cursor
-                ._merged_with(
-                    value,
-                    by=operation if not is_right else flipped(operation),
-                )
+                ._merged_with(value, by=flipped(operation) if is_right else operation)
                 ._with(
-                    nature=contextual(
-                        model,
-                        _ActionCursorNature.binary_operation,
-                    ),
+                    nature=contextual(model, _ActionCursorNature.binary_operation),
                     internal_repr=(
                         (
                             f"{internal_repr} {model.sign} {{}}"
