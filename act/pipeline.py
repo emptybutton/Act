@@ -1,11 +1,13 @@
 from functools import reduce, wraps
-from operator import attrgetter, not_
-from typing import Callable, Generic, Iterable, Iterator, Self, Any, Tuple
+from operator import not_
+from typing import (
+    Callable, Generic, Iterable, Iterator, Self, Any, Tuple, TypeAlias,
+    Concatenate
+)
 
 from pyannotating import Special
 
 from act.annotations import ActionT, R, Pm, V, A, B, C, D
-from act.errors import TemplatedActionChainError
 from act.atomization import fun
 from act.partiality import rpartial, will
 from act.representations import code_like_repr_of
@@ -18,6 +20,7 @@ __all__ = (
     "bind",
     "ActionChain",
     "then",
+    "frm",
     "bind_by",
     "fbind_by",
     "discretely",
@@ -174,18 +177,47 @@ then = documenting_by(
     first_action |then>> second_action
     ```
 
-    Additional you can add any value to the beginning of the construction
-    and >= after it to call the constructed chain with this value.
-
-    You get something like this:
-    ```
-    value >= first_action |then>> second_action
-    ```
-
     See `ActionChain` for more info.
     """
 )(
     _ActionChainInfix("then")
+)
+
+
+class _PipelineInfix:
+    def __init__(self, name: str, *, argument_to_bind: A = None) -> None:
+        self.__name = name
+        self.__argument_to_bind = argument_to_bind
+
+    def __str__(self) -> str:
+        return f"|{self.__name}|"
+
+    def __ror__(self, argument_to_bind: A) -> Self:
+        return _PipelineInfix(self.__name, argument_to_bind=argument_to_bind)
+
+    def __or__(
+        self,
+        action: Callable[Concatenate[A, Pm], R],
+    ) -> Callable[Pm, R]:
+        return action(self.__argument_to_bind)
+
+
+frm = documenting_by(
+    """
+    Pseudo-operator for calling as in a pipeline.
+
+    Assumes usage like:
+    ```
+    value |frm| action
+    ```
+
+    Left-associative, that is:
+    ```
+    value |frm| a |frm| b |frm| c == c(b(a(value)))
+    ``
+    """
+)(
+    _PipelineInfix('frm')
 )
 
 
@@ -200,6 +232,7 @@ then = documenting_by(
 @fun
 def bind_by(
     template: Iterable[Callable | Ellipsis],
+) -> Callable[Callable, ActionChain]:
     @documenting_by(
         """
         Function given as a result of calling `bind_by`. See `bind_by` for more

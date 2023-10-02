@@ -83,3 +83,11 @@ def test_then_operator(
         (first_node |then>> second_node)(*input_args)
         == ActionChain((first_node, second_node))(*input_args)
     )
+
+
+def test_frm():
+    result = (
+        5 |frm| (lambda a: a + 10) |frm| (lambda a: a * 2) |frm| (lambda a: a + 10)
+    )
+
+    assert result == 40
