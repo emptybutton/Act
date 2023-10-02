@@ -45,6 +45,7 @@ __all__ = (
     "templated_attrs_of",
     "dict_of",
     "hash_of",
+    "expand",
     "from_",
     "like",
     "to_attr",
@@ -534,17 +535,17 @@ def _table_hash_of(table: Mapping) -> int:
 
 
 @partially
-@flipped
 @to_clone
-def from_(object_: O, data: Special[Mapping], /) -> O:
+def expand(object_: O, data: Special[Mapping], /) -> O:
     """
-    Function to set all attributes of a first input object to a clone of a
-    second input object.
+    Function to set all attributes of a second input object to a clone of a
+    first input object.
     """
 
     object_.__dict__ = dict_of(object_) | dict_of(data)
 
 
+from_ = partially(flipped(expand))
 
 
 @partially
