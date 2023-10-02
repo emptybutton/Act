@@ -126,7 +126,7 @@ def test_cursor_item_setting_mutability():
 
 test_cursors_with_attr_getting = case_of(
     (lambda: (v.a)(MockA(8)), 8),
-    (lambda: (v.a[w])(MockA([1, 2, 3]), -1), 3),
+    (lambda: (v.a[w - 1])(MockA([1, 2, 3]), -1), 2),
     (lambda: (v.a._(5))(MockA(lambda a: a + 3)), 8),
     (lambda: (2 * v.a._(5) + 16)(MockA(lambda a: a + 3)), 32),
 )
@@ -145,7 +145,7 @@ test_cursors_with_attr_setting = case_of(
 def test_cursor_attr_setting_immutability():
     object_ = MockA(None)
 
-    new_object_ = (v.a.set(4))(object_)
+    new_object_ = (v.a.set(w + 2))(object_, 2)
 
     assert object_ is not new_object_
     assert object_.a is None
@@ -197,18 +197,16 @@ def test_external_cursor_vargetting(cursor):
     actions = [operator.eq, operator.add]
     actions.append(actions)
 
-    assert cursor.actions[0](1, 1)()
-    assert not cursor.actions[0](1, 2)()
+    assert cursor.actions[0]()(1, 1)
+    assert not cursor.actions[0]()(1, 2)
 
-    assert cursor.actions[0](v + w, v - w)(4, 0)
-    assert not cursor.actions[0](v + w, v - w)(4, 1)
-
-    assert (-(w*cursor.actions[2][2][2][1](v + w, v - w)) - v)(4, 2) == -20
+    assert cursor.actions[0]._(v + w, v - w)(4, 0)
+    assert not cursor.actions[0]._(v + w, v - w)(4, 1)
 
     action_boxes = [MockA(lambda a_: a_ + 5), MockB([1, lambda b_: b_ + 3])]
 
-    assert (cursor.action_boxes[0].a(v * 2) + w)(5, 1) == 16
-    assert (cursor.action_boxes[1].b[1](w * 2) + v)(3, 5) == 16
+    assert (cursor.action_boxes[0].a._(v * 2) + w)(5, 1) == 16
+    assert (cursor.action_boxes[1].b[1]._(w * 2) + v)(3, 5) == 16
 
 
 test_cursor_comparison_operators = case_of(
