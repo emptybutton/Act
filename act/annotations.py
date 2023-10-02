@@ -3,7 +3,7 @@ from operator import attrgetter
 from types import UnionType
 from typing import (
     Callable, Any, TypeAlias, TypeVar, ParamSpec, TypeVarTuple, Iterable, Tuple,
-    Self, _CallableGenericAlias, _CallableType, _UnionGenericAlias
+    Self, Concatenate, _CallableGenericAlias, _CallableType, _UnionGenericAlias
 )
 
 from pyannotating import (
@@ -15,6 +15,7 @@ from act.representations import code_like_repr_of
 
 
 __all__ = (
+    "Cn",
     "Special",
     "reformer_of",
     "merger_of",
@@ -62,6 +63,8 @@ __all__ = (
     "Unia",
 )
 
+
+Cn = Concatenate
 
 reformer_of = AnnotationTemplate(
     Callable, [[input_annotation], input_annotation]
