@@ -865,6 +865,13 @@ class _ActionCursor(Mapping):
     )
 
 
+def _dynamic(cursor: _ActionCursor) -> Self:
+    return cursor._with(is_call_generator_static=False)
+
+def _static(cursor: _ActionCursor) -> Self:
+    return cursor._with(is_call_generator_static=True)
+
+
 same = _ActionCursor._lift
 
 
