@@ -1,5 +1,6 @@
+from dataclasses import dataclass
 from functools import update_wrapper
-from typing import runtime_checkable, Protocol, Self, Callable
+from typing import runtime_checkable, Protocol, Self, Callable, Generic, TypeAlias
 
 from act.annotations import AtomizableT, Pm, R
 from act.errors import AtomizationError
@@ -40,12 +41,32 @@ class fun:
     calling.
     """
 
-    def __init__(self, action: Callable[Pm, R]):
-        self._action = action
-        update_wrapper(self, self._action)
+    @dataclass(frozen=True)
+    class Image(Generic[Pm, R]):
+        action: Callable[Pm, R]
+        get_represented: Callable[[], str]
+
+    @runtime_checkable
+    class Imagenariable(Protocol[Pm, R]):
+        def get_fun_image__(self) -> "fun.Image[Pm, R]":
+            ...
+
+    _ImageValue: TypeAlias = Image[Pm, R] | Imagenariable[Pm, R] | Callable[Pm, R]
+
+    def __init__(self, value: _ImageValue) -> None:
+        self._image = self.__image_by(value)
+        update_wrapper(self, self._image.action)
 
     def __repr__(self) -> str:
-        return f"func({code_like_repr_of(self._action)})"
+        return f"fun({self._image.get_represented()})"
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
-        return self._action(*args, **kwargs)
+        return self._image.action(*args, **kwargs)
+
+    def __image_by(self, value: _ImageValue) -> Image:
+        if isinstance(value, fun.Image):
+            return value
+        elif isinstance(value, fun.Imagenariable):
+            return value.get_fun_image__()
+        else:
+            return fun.Image(value, lambda: code_like_repr_of(value))
