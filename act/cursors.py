@@ -28,6 +28,7 @@ from act.synonyms import with_keyword, tuple_of
 
 
 __all__ = (
+    "same",
     "act",
     '_',
     'a',
@@ -410,6 +411,12 @@ class _ActionCursor(Mapping):
             internal_repr=parameter.name,
         )
 
+    @classmethod
+    def _lift(cls, value: Any) -> Self:
+        return cls(
+            actions=ActionChain([saving_context(to(value))]),
+            nature=contextual(_ActionCursorNature.returning),
+            internal_repr=code_like_repr_of(value),
         )
 
     def _run(
@@ -856,6 +863,9 @@ class _ActionCursor(Mapping):
     __eq__ = __with_forced_sign(False)(
         __merging_by(operator.eq, _OperationModel('==', 8))
     )
+
+
+same = _ActionCursor._lift
 
 
 act = _ActionCursor()
