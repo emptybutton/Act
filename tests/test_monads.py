@@ -14,15 +14,15 @@ from act.testing import case_of
 
 test_maybe = case_of(
     (
-        lambda: 14 >= maybe(
+        lambda: maybe(
             (lambda a: a + 2)
             |then>> bad
             |then>> (lambda _: "last node result")
-        ),
+        )(14),
         bad(16),
     ),
     (
-        lambda: 14 >= maybe((lambda a: a + 2) |then>> bad),
+        lambda: maybe((lambda a: a + 2) |then>> bad)(14),
         bad(16),
     ),
 )
@@ -30,19 +30,19 @@ test_maybe = case_of(
 
 test_optionally = case_of(
     (
-        lambda: 1 >= optionally(
+        lambda: optionally(
             (lambda a: a + 1)
             |then>> (lambda _: None)
             |then>> (lambda _: "last node result")
-        ),
+        )(1),
         None,
     ),
     (
-        lambda: 10 >= optionally(
+        lambda: optionally(
             (lambda a: a + 3)
             |then>> (lambda b: b + 2)
             |then>> (lambda c: c + 1)
-        ),
+        )(10),
         16,
     ),
 )
@@ -67,7 +67,7 @@ test_until_error = case_of(
         contextual("input context", 4),
     ),
     (
-        lambda: contextual("input context", 4) >= (
+        lambda: (
             until_error(
                 (lambda a: a + 2)
                 |then>> (lambda b: b / 0)
@@ -77,7 +77,7 @@ test_until_error = case_of(
                 tuple(map(lambda context: type(context.point), root.context)),
                 root.value,
             ))
-        ),
+        )(contextual("input context", 4)),
         ((str, ZeroDivisionError), 6),
     ),
 )
@@ -86,7 +86,7 @@ test_until_error = case_of(
 def test_showly():
     logs = list()
 
-    2 >= showly(show=logs.append)(partial(add, 2) |then>> partial(mul, 2))
+    showly(show=logs.append)(partial(add, 2) |then>> partial(mul, 2))(2)
 
     assert logs == [4, 8]
 
@@ -96,41 +96,41 @@ test_either = case_of(
     (lambda: either(('...', -8), (nothing, 8))(...), contextual(8)),
     (lambda: either((0, 0), (1, 16))(contextual(4)), contextual(4)),
     (
-        lambda: contextual(2, 4) >= either(
+        lambda: either(
             (lambda c: c > 10, lambda v: v * 10),
             (lambda c: c > 0, lambda v: v * 2),
-        ),
+        )(contextual(2, 4)),
         contextual(2, 8),
     ),
     (
-        lambda: contextual(16, 6.4) >= either(
+        lambda: either(
             (lambda c: c > 10, lambda v: v * 10),
             (lambda c: c > 0, lambda v: v * 2),
-        ),
+        )(contextual(16, 6.4)),
         contextual(16, 64.),
     ),
     (
-        lambda: contextually(1, print) >= either(
+        lambda: either(
             (1, lambda v: v),
             (2, lambda _: "bad result"),
-        ),
+        )(contextually(1, print)),
         contextual(1, print),
     ),
     (
-        lambda: contextual(3, 32) >= either(
+        lambda: either(
             (1, lambda _: "first bad result"),
             (2, lambda _: "second bad result"),
             (..., lambda v: v * 2),
-        ),
+        )(contextual(3, 32)),
         contextual(3, 64),
     ),
     (
-        lambda: contextual(2, 32) >= either(
+        lambda: either(
             (1, "bad result"),
             (2, break_),
             (2, "bad result after \"break\""),
             (..., 8),
-        ),
+        )(contextual(2, 32)),
         contextual(2, 8),
     ),
 )

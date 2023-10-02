@@ -5,7 +5,7 @@ from act.annotations import Pm, R, D
 from act.data_flow import by
 from act.representations import code_like_repr_of
 from act.structures import flat
-from act.tools import items_of, LeftCallable
+from act.tools import items_of
 
 
 __all__ = ("take", )
@@ -63,7 +63,7 @@ class _ArgumentSlicer:
         return self._decorator(action, self._positions, self._keywords)
 
 
-class _IgnoringCallable(LeftCallable):
+class _IgnoringCallable:
     def __init__(
         self,
         action: Callable[Pm, R],

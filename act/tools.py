@@ -1,15 +1,13 @@
-from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from operator import eq
-from typing import Generic, Callable, Any, Tuple, Mapping, Optional
+from typing import Callable, Any, Tuple, Mapping, Optional
 
 from pyannotating import Special
 
-from act.annotations import V, dirty, reformer_of, ActionT, Pm, R, K
+from act.annotations import V, dirty, reformer_of, ActionT, K
 
 
 __all__ = (
-    "LeftCallable",
     "documenting_by",
     "to_check",
     "as_action",
@@ -18,20 +16,6 @@ __all__ = (
     "maybe_getattr",
     "maybe_getitem",
 )
-
-
-class LeftCallable(ABC, Generic[Pm, R]):
-    """
-    Mixin class to add a one value call synonyms `>=` and `<=` where is it on
-    the right i.e. `value >= instance` and less preferred `instance <= value`.
-    """
-
-    @abstractmethod
-    def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
-        ...
-
-    def __le__(self, value: Pm) -> R:
-        return self(value)
 
 
 def documenting_by(documentation: str) -> dirty[reformer_of[V]]:

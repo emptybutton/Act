@@ -29,7 +29,7 @@ from act.pipeline import then, _generating_pipeline
 from act.representations import code_like_repr_of
 from act.synonyms import on
 from act.signatures import call_signature_of
-from act.tools import LeftCallable, documenting_by, _get
+from act.tools import documenting_by, _get
 
 
 __all__ = (
@@ -322,7 +322,7 @@ class obj(_AttributeKeeper):
         return f"={code_like_repr_of(value)}"
 
 
-class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
+class _callable_obj(obj, Generic[Pm, R]):
     """Variation of `obj` for callability."""
 
     def __init__(
@@ -346,7 +346,7 @@ class _callable_obj(obj, LeftCallable, Generic[Pm, R]):
     __or__ = _generating_pipeline(obj.__or__)
 
 
-class temp(_AttributeKeeper, LeftCallable):
+class temp(_AttributeKeeper):
     """Constructor for an `Arbitrary` object without data."""
 
     def __new__(cls, **attributes: Any) -> Self | obj:
@@ -551,7 +551,7 @@ def to_attribute(
     action: Callable[Optional[V], R],
     *,
     mutably: bool = False,
-) -> LeftCallable[O, O]:
+) -> Callable[O, O]:
     """
     Function to calculate an attribute of an input object.
 

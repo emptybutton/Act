@@ -6,7 +6,7 @@ from act.atomization import fun
 from act.data_flow import by
 from act.partiality import partial
 from act.representations import code_like_repr_of
-from act.tools import documenting_by, to_check, LeftCallable
+from act.tools import documenting_by, to_check
 
 
 __all__ = (
@@ -20,7 +20,7 @@ __all__ = (
 )
 
 
-class _DynamicDeterminant(LeftCallable):
+class _DynamicDeterminant:
     """
     Class for using synonyms of comparison operators as checking values and
     decorating actions with this synonym.

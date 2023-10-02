@@ -11,7 +11,7 @@ from act.partiality import rpartial, will
 from act.representations import code_like_repr_of
 from act.signatures import call_signature_of
 from act.synonyms import on
-from act.tools import documenting_by, LeftCallable, _get
+from act.tools import documenting_by, _get
 
 
 __all__ = (
@@ -54,7 +54,7 @@ class bind:
         return self._second(self._first(*args, **kwargs))
 
 
-class ActionChain(LeftCallable, Generic[ActionT]):
+class ActionChain(Generic[ActionT]):
     """
     Class to create a pipeline from a collection of actions.
 
@@ -70,9 +70,6 @@ class ActionChain(LeftCallable, Generic[ActionT]):
     Value returned when called is value exited from the last action.
 
     If there are no actions, returns a input value back.
-
-    Has a one value call synonyms `>=` and `<=` where is the chain on the
-    right i.e. `value >= instance` and less preferred `instance <= value`.
     """
 
     is_template = property(attrgetter("_is_template"))
@@ -221,7 +218,7 @@ def binding_by(
 
 atomic_binding_by: LeftCallable[
     Iterable[Callable | Ellipsis],
-    LeftCallable[Callable, LeftCallable],
+    Callable[Callable, Callable],
 ]
 atomic_binding_by = documenting_by(
     """`binding_by` linking actions to an indivisible `ActionChain`."""
@@ -232,7 +229,7 @@ atomic_binding_by = documenting_by(
 
 discretely: Callable[
     Callable[Callable[A, B], Callable[C, D]],
-    LeftCallable[ActionChain[Callable[A, B]] | Callable[A, B], Callable[C, D]],
+    Callable[ActionChain[Callable[A, B]] | Callable[A, B], Callable[C, D]],
 ]
 discretely = documenting_by(
     """

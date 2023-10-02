@@ -20,7 +20,7 @@ from act.operators import not_
 from act.partiality import will, partially, partial, rpartial
 from act.pipeline import discretely, ActionChain, then, atomic_binding_by
 from act.synonyms import on
-from act.tools import documenting_by, to_check, as_action, LeftCallable, _get
+from act.tools import documenting_by, to_check, as_action, _get
 
 
 __all__ = (
@@ -152,7 +152,7 @@ def either(
         Special[Callable[C, bool]],
         Special[break_, Callable[V, R] | R],
     ],
-) -> LeftCallable[V | ContextualForm[C, V], contextual[C, R]]:
+) -> Callable[V | ContextualForm[C, V], contextual[C, R]]:
     """
     `when`-like function for `ContextualForm`s with determinants applied to
     contexts and implementers applied to values.
@@ -176,7 +176,7 @@ def either(
 
 
 @flag_about("in_future").to
-def in_future(action: Callable[V, R]) -> LeftCallable[
+def in_future(action: Callable[V, R]) -> Callable[
     contexted[Flag[C] | C, V],
     contextual[Flag["C | in_future[Callable[..., R]]"], V],
 ]:
@@ -356,9 +356,9 @@ cross: LeftCallable[
             Callable[M, ContextualForm[F, Special[ContextualForm[V, G], W]]]
         ]],
     ],
-    LeftCallable[
+    Callable[
         Callable[A, ContextualForm[C, B]],
-        LeftCallable[M, contextual[F | G, V | W]]
+        Callable[M, contextual[F | G, V | W]]
     ],
 ]
 cross = documenting_by(

@@ -9,7 +9,7 @@ from act.atomization import fun
 from act.partiality import partial, partially
 from act.representations import code_like_repr_of
 from act.signatures import Decorator, call_signature_of, annotation_sum
-from act.tools import to_check, as_action, LeftCallable, documenting_by, _get
+from act.tools import to_check, as_action, documenting_by, _get
 
 
 __all__ = (
@@ -40,7 +40,7 @@ def assert_(value: Any) -> None:
 
 
 @partially
-class on(LeftCallable):
+class on:
     """
     Function that implements action choosing by condition.
 
@@ -92,7 +92,7 @@ class on(LeftCallable):
 
 
 @partially
-class while_(LeftCallable):
+class while_:
     """
     Function to call an input action multiple times.
 
@@ -140,7 +140,7 @@ def times(number: int, action: Callable[V, V], value: V) -> V:
 
 
 @partially
-class try_(LeftCallable):
+class try_:
     """
     Decorator function providing handling of possible errors in an input action.
 
@@ -191,8 +191,8 @@ def with_(context_manager: AbstractContextManager, action: Callable[..., R]) -> 
     Decorator function to unpack the passed mapping object into the input action.
     """
 )
-class keyword_unpackly(Decorator, LeftCallable):
 @fun
+class keyword_unpackly(Decorator):
     def __call__(self, arguments: Mapping[str, Any]) -> Any:
         return self._action(**arguments)
 

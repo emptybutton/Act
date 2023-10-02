@@ -12,13 +12,13 @@ from act.operators import not_
 from act.partiality import partial
 from act.representations import code_like_repr_of
 from act.synonyms import on
-from act.tools import documenting_by, LeftCallable, items_of, _get
+from act.tools import documenting_by, items_of, _get
 
 
 __all__ = ("Effect", "as_effect", "context_effect")
 
 
-class Effect(LeftCallable, Generic[V, R, C]):
+class Effect(Generic[V, R, C]):
     """
     Aggregating decorator class for executing in a specific container type and
     actions for casting value to this container type.
@@ -54,7 +54,7 @@ class Effect(LeftCallable, Generic[V, R, C]):
         **kwargs,
     ) -> Union[
         Self,
-        LeftCallable[Callable[Callable[V, R | C], Callable[C, C | M]], Self],
+        Callable[Callable[Callable[V, R | C], Callable[C, C | M]], Self],
         "_AnotatableEffect[V, R, C, I, A]",
     ]:
         if annotation_of is not None and cls is not _AnotatableEffect:
@@ -136,7 +136,7 @@ class _AnotatableEffect(Effect, Generic[V, R, C, I, A]):
         return self._annotation_of(*items_of(items))
 
 
-as_effect: LeftCallable[
+as_effect: Callable[
     Effect[V, R, C] | Callable[Callable[V, R], Callable[C, C]],
     Effect[V, R, C],
 ]
@@ -150,7 +150,7 @@ as_effect = documenting_by(
 )
 
 
-context_effect: LeftCallable[
+context_effect: Callable[
     Callable[Callable[V, R], Callable[C, C]],
     Effect[V, R, contextual[Any, C]],
 ]

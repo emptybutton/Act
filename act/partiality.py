@@ -8,7 +8,7 @@ from act.annotations import R
 from act.atomization import fun
 from act.representations import code_like_repr_of
 from act.signatures import Decorator, call_signature_of
-from act.tools import documenting_by, LeftCallable
+from act.tools import documenting_by
 
 
 __all__ = (
@@ -22,7 +22,7 @@ __all__ = (
 )
 
 
-class partial(LeftCallable):
+class partial:
     """Decorator to partially apply an input action on input arguments."""
 
     func = property(attrgetter("_action"))

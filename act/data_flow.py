@@ -17,7 +17,7 @@ from act.pipeline import bind, then
 from act.representations import code_like_repr_of
 from act.signatures import Decorator, call_signature_of
 from act.synonyms import on
-from act.tools import documenting_by, LeftCallable, items_of, _get
+from act.tools import documenting_by, items_of, _get
 
 
 __all__ = (
@@ -117,7 +117,7 @@ class eventually(Decorator):
         ))
 
 
-def with_result(result: R, action: Callable[Pm, Any]) -> LeftCallable[Pm, R]:
+def with_result(result: R, action: Callable[Pm, Any]) -> Callable[Pm, R]:
     """Function to force an input result for an input action."""
 
     return bind(action, to(result))
@@ -127,7 +127,7 @@ def dynamically(
     action: Callable[Pm, R],
     *argument_placeholders: Callable[Pm, Any],
     **keyword_argument_placeholders: Callable[Pm, Any],
-) -> LeftCallable[Pm, R]:
+) -> Callable[Pm, R]:
     """
     Function to dynamically determine arguments for an input action.
 
@@ -154,7 +154,7 @@ def fmt(
     template: str,
     *actions: Callable[Pm, Any],
     **keyword_actions: Callable[Pm, Any],
-) -> LeftCallable[Pm, str]:
+) -> Callable[Pm, str]:
     """Shortcut function for dynamic template formatting."""
 
     return dynamically(template.format, *actions, **keyword_actions)
@@ -199,8 +199,8 @@ class double(Decorator):
     ignoring input arguments.
     """
 )
-class once(LeftCallable):
 @fun
+class once:
     _result: Optional[R] = None
     _was_called: bool = False
 
@@ -256,7 +256,7 @@ class via_indexer:
 
 
 @partially
-class and_via_indexer(LeftCallable):
+class and_via_indexer:
     """Decorator to add action call action via indexer."""
 
     def __init__(
@@ -283,7 +283,7 @@ class and_via_indexer(LeftCallable):
 
 
 @partially
-class with_repr_by(LeftCallable):
+class with_repr_by:
     """Decorator to set `__repr__`."""
 
     def __init__(
@@ -331,15 +331,15 @@ class PartialApplicationInfix(ABC):
     """
 
     @abstractmethod
-    def __or__(self, argument: Any) -> LeftCallable:
+    def __or__(self, argument: Any) -> Callable:
         ...
 
     @abstractmethod
-    def __ror__(self, action_to_transform: Callable) -> Self | LeftCallable:
+    def __ror__(self, action_to_transform: Callable) -> Self | Callable:
         ...
 
     @abstractmethod
-    def __mul__(self, arguments: Iterable) -> LeftCallable:
+    def __mul__(self, arguments: Iterable) -> Callable:
         ...
 
 
@@ -380,10 +380,7 @@ class _CustomPartialApplicationInfix(PartialApplicationInfix):
         return type(self)(self._transform, arguments=arguments, name=self._name)
 
 
-class _CallableCustomPartialApplicationInfix(
-    LeftCallable,
-    _CustomPartialApplicationInfix,
-):
+class _CallableCustomPartialApplicationInfix(_CustomPartialApplicationInfix):
     """
     `_CustomPartialApplicationInfix` delegating its call to the input action.
     """
@@ -440,20 +437,15 @@ by = documenting_by(
 )
 
 
-shown: dirty[LeftCallable[V, V]]
 shown = documenting_by("""Shortcut function for `returnly(print)`.""")(
     returnly(print)
 )
 
 
-yes: LeftCallable[bool, bool] = documenting_by("""Shortcut for `to(True)`.""")(
-    to(True)
-)
 
 
-no: LeftCallable[bool, bool] = documenting_by("""Shortcut for `to(False)`.""")(
-    to(False)
-)
+yes: Callable[bool, bool] = documenting_by("""Shortcut for `to(True)`.""")(to(True))
+no: Callable[bool, bool] = documenting_by("""Shortcut for `to(False)`.""")(to(False))
 
 
 class _ForceComparable:
@@ -638,7 +630,7 @@ break_ = object()
 
 def when(
     *branches: tuple[Special[Callable[Pm, bool]], Special[Callable[Pm, R] | R]],
-) -> LeftCallable[Pm, R]:
+) -> Callable[Pm, R]:
     """
     Function for using action matching like `if`, `elif` and `else` statements.
 

@@ -21,7 +21,7 @@ from act.pipeline import then
 from act.representations import code_like_repr_of
 from act.signatures import call_signature_of
 from act.synonyms import while_, on
-from act.tools import documenting_by, LeftCallable, _get
+from act.tools import documenting_by, _get
 
 
 __all__ = (
@@ -154,7 +154,7 @@ class contextual(ContextualForm, Generic[C, V]):
     context = property(attrgetter("_context"))
 
 
-class contextually(LeftCallable, ContextualForm, Generic[C, ActionT]):
+class contextually(ContextualForm, Generic[C, ActionT]):
     """`ContextualForm` form for annotating actions with saving their call."""
 
     action = property(attrgetter("_value"))
@@ -370,7 +370,7 @@ def to_metacontextual(
     /,
     *,
     summed: Callable[contextual[D, W] | S, S] = _get,
-) -> LeftCallable[contextual_like[C, V] | V, S]:
+) -> Callable[contextual_like[C, V] | V, S]:
     """
     Reduce function for values of nested `ContextualForms`.
 
@@ -432,7 +432,7 @@ def with_reduced_metacontext(
     )
 
 
-without_metacontext: LeftCallable[ContextualForm, contextual]
+without_metacontext: Callable[ContextualForm, contextual]
 without_metacontext = documenting_by(
     """
     Function to fully glue nested `ContextualForm`s.

@@ -36,15 +36,6 @@ def test_action_chain_iteration(
     )
 
 
-def test_action_chain_one_value_call_operator(input_resource: int | float = 30):
-    chain = ActionChain((lambda x: x * x + 12, lambda x: x ** x))
-
-    result_of_chain_normal_call = chain(input_resource)
-
-    assert (input_resource >= chain) == result_of_chain_normal_call
-    assert (chain <= input_resource) == result_of_chain_normal_call
-
-
 test_action_inserting_in = case_of(
     (lambda: binding_by([..., (lambda b: b / 2)])(lambda a: a + 3)(13), 8),
     (lambda: binding_by([(lambda a: a + 3), ...])(lambda b: b / 2)(13), 8),

@@ -6,13 +6,12 @@ from pyannotating import Special
 
 from act.annotations import ActionT
 from act.representations import code_like_repr_of
-from act.tools import LeftCallable
 
 
 __all__ = ("Decorator", "call_signature_of", "annotation_sum")
 
 
-class Decorator(LeftCallable, ABC, Generic[ActionT]):
+class Decorator(ABC, Generic[ActionT]):
     """
     Abstract class for decorating an input action and creating a signature
     based on it.

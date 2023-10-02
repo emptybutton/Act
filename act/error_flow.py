@@ -7,7 +7,7 @@ from act.data_flow import by, to, eventually
 from act.partiality import partially
 from act.pipeline import binding_by, then
 from act.synonyms import try_, raise_
-from act.tools import documenting_by, LeftCallable
+from act.tools import documenting_by
 
 
 __all__ = (
@@ -17,9 +17,9 @@ __all__ = (
 )
 
 
-with_error: LeftCallable[
+with_error: Callable[
     [Callable[Pm, R]],
-    LeftCallable[Pm, contextual[Optional[Exception], Optional[R]]]
+    Callable[Pm, contextual[Optional[Exception], Optional[R]]]
 ]
 with_error = documenting_by(
     """
@@ -55,7 +55,7 @@ def catch(
     return action(error)
 
 
-raising: LeftCallable[Exception, LeftCallable[..., NoReturn]]
+raising: Callable[Exception, Callable[..., NoReturn]]
 raising = documenting_by(
     """
     Constructor of an action that raises an input error ignoring input

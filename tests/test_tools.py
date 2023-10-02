@@ -5,16 +5,6 @@ from act.tools import *
 from tests.mocks import MockA
 
 
-def test_left_callable():
-    class Action(LeftCallable):
-        def __call__(self, a: int | float) -> int | float:
-            return a ** 2
-
-    result = 4 >= Action()
-
-    assert result == 16
-
-
 @mark.parametrize(
     "documentation",
     (

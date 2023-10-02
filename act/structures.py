@@ -20,7 +20,7 @@ from act.pipeline import then, binding_by, ActionChain
 from act.protocols import Hashable
 from act.representations import code_like_repr_of
 from act.synonyms import on, tuple_of, while_
-from act.tools import documenting_by, LeftCallable
+from act.tools import documenting_by
 
 
 __all__ = (
@@ -55,7 +55,7 @@ __all__ = (
 frozendict: TypeAlias = MappingProxyType
 
 
-as_collection: LeftCallable[[many_or_one[V]], Tuple[V]]
+as_collection: Callable[[many_or_one[V]], Tuple[V]]
 as_collection = documenting_by(
     """
     Function to convert an input value into a tuple collection.
