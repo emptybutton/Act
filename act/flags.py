@@ -363,7 +363,7 @@ class _DoubleFlag(Flag, ABC):
         self._second = second
 
         if self == nothing:
-            raise FlagError("Combining with \"nothing\"")
+            raise FlagError("combining with \"nothing\"")
 
     @property
     def point(self) -> Tuple:
@@ -510,7 +510,7 @@ class _ValueFlag(_AtomicFlag, Generic[V]):
         self._value = value
 
         if isinstance(self._value, Flag):
-            raise FlagError("Flag pointing to another flag")
+            raise FlagError("flag pointing to another flag")
 
     @property
     def point(self) -> V:

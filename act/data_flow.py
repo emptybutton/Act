@@ -66,7 +66,7 @@ class returnly(Decorator):
         parameters = tuple(call_signature_of(self._action).parameters.values())
 
         if len(parameters) == 0:
-            raise ReturningError("Function must contain at least one parameter")
+            raise ReturningError("function must contain at least one parameter")
 
         return call_signature_of(self._action).replace(return_annotation=(
             parameters[0].annotation
