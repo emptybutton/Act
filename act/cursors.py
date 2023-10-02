@@ -351,19 +351,17 @@ class _ActionCursor(Mapping):
         formatted_keys = f"[{', '.join(map(self._repr_of, keys))}]"
 
         if len(self._actions) == 0:
-            return (
-                self
-                ._with_packing_of(keys, by=list)
-                ._with(
-                    nature=contextual(key, _ActionCursorNature.packing),
-                    internal_repr=formatted_keys
-                )
+            packing_cursor = self._with_packing_of(keys, by=list)
+
+            return packing_cursor._with(
+                nature=contextual(key, _ActionCursorNature.packing),
+                internal_repr=formatted_keys,
             )
 
         return (
             self
             ._with(
-                will(operator.getitem) |then>> binding_by(
+                will(operator.getitem) |then>> bind_by(
                     tuple_of
                     |then>> on(
                         len |then>> (operator.eq |by| 1),
@@ -375,10 +373,7 @@ class _ActionCursor(Mapping):
             ._with_calling_by(*keys)
             ._with(
                 internal_repr=f"{self._adapted_internal_repr}{formatted_keys}",
-                nature=contextual(
-                    key,
-                    self._next_nature_as(_ActionCursorNature.itemgetting),
-                ),
+                nature=contextual(key, _ActionCursorNature.itemgetting),
             )
         )
 
