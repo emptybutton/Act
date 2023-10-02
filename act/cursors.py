@@ -10,16 +10,17 @@ import operator
 
 from pyannotating import Special
 
-from act.annotations import merger_of, R, reformer_of, Pm, V, O, P
+from act.annotations import merger_of, R, reformer_of, Cn, Pm, V, O, P
 from act.arguments import Arguments
+from act.atomization import fun
 from act.contexting import contextual, to_read, saving_context
-from act.data_flow import by, to, returnly
+from act.data_flow import by, to, io
 from act.errors import ActionCursorError
 from act.flags import flag_about
 from act.monads import optionally
 from act.objects import obj
 from act.partiality import flipped, rpartial, will, partial
-from act.pipeline import ActionChain, binding_by, on, then, _generating_pipeline
+from act.pipeline import ActionChain, bind_by, on, then, _generating_pipeline
 from act.representations import code_like_repr_of
 from act.scoping import value_in
 from act.structures import tfilter, groups_in
@@ -293,15 +294,15 @@ class _ActionCursor(Mapping):
         place, nature = self._nature
 
         if nature == _ActionCursorNature.attrgetting:
-            setting = returnly(setattr)
+            setting = io(setattr)
         elif nature == _ActionCursorNature.itemgetting:
             setting = lambda obj_, name, value: (
-                tuple(returnly(operator.setitem)(list(obj_), name, value))
+                tuple(io(operator.setitem)(list(obj_), name, value))
                 if isinstance(obj_, tuple)
-                else returnly(operator.setitem)(obj_, name, value)
+                else io(operator.setitem)(obj_, name, value)
             )
         else:
-            raise ActionCursorError("Setting without a place to set")
+            raise ActionCursorError("setting without a place to set")
 
         return (
             self
@@ -612,15 +613,15 @@ class _ActionCursor(Mapping):
     def _update_signature(self) -> None:
         union_parameters = list()
 
-        self._get_positional_union_parameter() >= optionally(
+        optionally(
             (lambda p: Parameter(p.name, Parameter.VAR_POSITIONAL))
             |then>> union_parameters.append
-        )
+        )(self._get_positional_union_parameter())
 
-        self._get_keyword_union_parameter() >= optionally(
+        optionally(
             (lambda p: Parameter(p.name, Parameter.VAR_KEYWORD))
             |then>> union_parameters.append
-        )
+        )(self._get_keyword_union_parameter())
 
         self.__signature__ = Signature(
             [
