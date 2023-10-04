@@ -925,3 +925,55 @@ kwargs = _ActionCursor._operated_by(_ActionCursorParameter(
     0,
     union_type=_ActionCursorParameterUnionType.KEYWORD,
 ))
+def _fn(*cursors: _ActionCursor) -> Callable[_ActionCursor, Callable]:
+    if len(cursors) == 0:
+        return fun
+
+    parameter_cursors = list()
+    void_parameter_indexes = list()
+
+    for index, cursor in enumerate(parameter_cursors):
+        if cursor in [_, act]:
+            void_parameter_indexes.append(index)
+        else:
+            parameter_cursors.append(cursor)
+
+    if len(frozenset(map(id, parameter_cursors))) != len(parameter_cursors):
+        return ActionCursorError("repeating parameters")
+
+    has_kwargs = kwargs is parameter_cursors[-1]
+    has_args: bool
+
+    if has_kwargs:
+        has_args = (
+            False
+            if len(parameter_cursors) == 1
+            else args is parameter_cursors[-2]
+        )
+    else:
+        has_args = args is parameter_cursors[-1]
+
+    required_parameters_length = (
+        len(parameter_cursors) - int(has_args) - int(has_kwargs)
+    )
+    required_parameter_cursors = parameter_cursors[:required_parameters_length]
+
+    for cursor in required_parameter_cursors:
+        if cursor._natrue.value != _ActionCursorNature.atomic:
+            raise ActionCursorError("calculation parameters")
+        if cursor is args:
+            raise ActionCursorError("parameters after `args`")
+        if cursor is kwargs:
+            raise ActionCursorError("`kwargs` not at the end of parameters")
+
+    required_parameters = tmap(
+        lambda c: c._parameters[0],
+        required_parameter_cursors,
+    )
+
+    argument_order = _normilized(tmap(lambda p: p.priority, required_parameters))
+
+    def decorator(main: _ActionCursor) -> Callable:
+        def func(*args, **kwargs):
+            if not has_kwargs and kwargs:
+                raise ActionCursorError("keyword arguments")
