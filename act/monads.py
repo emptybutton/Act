@@ -12,10 +12,8 @@ from act.contexting import (
 )
 from act.data_flow import io, by, to, when, break_, and_via_indexer
 from act.effects import context_effect
-from act.errors import ReturningError
-from act.error_flow import raising
 from act.flags import flag_about, nothing, Flag, pointed, to_points
-from act.objects import obj, temp
+from act.objects import obj
 from act.operators import not_
 from act.partiality import will, partially, partial, rpartial
 from act.pipeline import discretely, ActionChain, then, fbind_by
