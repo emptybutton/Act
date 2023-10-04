@@ -117,7 +117,12 @@ class _ActionCursorNature:
     setting = flag_about("setting")
     packing = flag_about("packing")
 
-    returning = flag_about("returning")
+    argument_entering = flag_about("argument_entering")
+    external = flag_about("external")
+    atomic = argument_entering | external
+
+    external_value_entering = flag_about("external_value_entering")
+
     set_by_initialization = flag_about("set_by_initialization")
 
 
@@ -407,7 +412,7 @@ class _ActionCursor(Mapping):
             actions=ActionChain([
                 to_read(lambda env, _: operator.getitem(env, parameter.name))
             ]),
-            nature=contextual(_ActionCursorNature.returning),
+            nature=contextual(_ActionCursorNature.argument_entering),
             internal_repr=parameter.name,
         )
 
@@ -415,7 +420,7 @@ class _ActionCursor(Mapping):
     def _lift(cls, value: Any) -> Self:
         return cls(
             actions=ActionChain([saving_context(to(value))]),
-            nature=contextual(_ActionCursorNature.returning),
+            nature=contextual(_ActionCursorNature.external_value_entering),
             internal_repr=code_like_repr_of(value),
         )
 
@@ -875,8 +880,8 @@ def _static(cursor: _ActionCursor) -> Self:
 same = _ActionCursor._lift
 
 
-act = _ActionCursor()
-_ = _ActionCursor()
+act = _ActionCursor(nature=contextual(_ActionCursorNature.external))
+_ = _ActionCursor(nature=contextual(_ActionCursorNature.external))
 
 a = _ActionCursor._operated_by(_ActionCursorParameter('a', 27))
 b = _ActionCursor._operated_by(_ActionCursorParameter('b', 26))
