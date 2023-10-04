@@ -516,6 +516,10 @@ class _ActionCursor(Mapping):
                     operation(self._actions(root).value, other._actions(root).value),
                 )]),
                 parameters=self._parameters + other._parameters,
+                is_call_generator_static=(
+                    self._is_call_generator_static
+                    or other._is_call_generator_static
+                ),
             )
             if isinstance(other, _ActionCursor)
             else self._with(rpartial(operation, other))
