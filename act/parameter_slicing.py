@@ -77,7 +77,7 @@ class _IgnoringCallable:
     def __repr__(self) -> str:
         points = (*self._poisitions, *self._keywords)
 
-        return f"taken{_indexer_repr_of(points)}({code_like_repr_of(self._action)})"
+        return f"take{_indexer_repr_of(points)}({code_like_repr_of(self._action)})"
 
     def __call__(self, *args, **kwargs) -> R:
         return self._action(
