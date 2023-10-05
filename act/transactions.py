@@ -388,11 +388,7 @@ class _TransactionCursor:
         return self(_get)(value)
 
     def child_for(self, *modes: ModeT) -> Self:
-        child = type(self)(
-            *modes,
-            else_=self._operations.bad_result,
-            _parent=self,
-        )
+        child = type(self)(*modes, _parent=self)
 
         self._adopt(child)
         return child
