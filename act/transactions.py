@@ -429,9 +429,15 @@ class do:
     rollbacks = flag_about("rollbacks")
     result = flag_about("result")
 
+    ForInputModeT: ClassVar[TypeAlias] = Union[
+        _TransactionCursor.ModeResourceT,
+        Tuple[_TransactionCursor.ModeResourceT],
+    ]
+
     def __call__(
         *modes: _TransactionCursor.ModeResourceT,
         else_: Special[rollbacks, L] = result,
+        for_input: bool | ForInputModeT = False,
     ) -> Callable[Pm, Special[R | L]]:
         @will
         def decorated(
@@ -442,6 +448,16 @@ class do:
             cursor = _TransactionCursor(*modes)
 
             try:
+                if for_input is not False:
+                    same = (
+                        cursor.same
+                        if for_input is True
+                        else do._same_of(for_input)
+                    )
+
+                    args = tmap(same, args)
+                    kwargs = map_table(same, kwargs)
+
                 return action(cursor, *args, **kwargs)
             except _TransactionRollbackMark as mark:
                 rollbacks = cursor.network_operations.rollback()
@@ -454,3 +470,8 @@ class do:
                 return else_
 
         return decorated
+
+    def _same_of(for_input: ForInputModeT) -> _TransactionCursor:
+        modes = for_input if isinstance(for_input, tuple) else (for_input, )
+
+        return _TransactionCursor(*modes).same
