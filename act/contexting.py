@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from operator import not_, methodcaller, attrgetter
 from typing import (
     Generic, Any, Iterator, Callable, Iterable, GenericAlias, TypeVar,
@@ -100,7 +100,10 @@ class ContextualForm(ABC, Generic[C, V]):
     Attributes for stored values are defined in concrete forms.
     """
 
-    def __init__(self, arg: V | C, *args: V | C):
+    def __init__(self, arg: V | C = None, *args: V | C):
+        if arg is None:
+            arg = self._neutral_value
+
         args = (arg, *args)
 
         if len(args) == 1:
@@ -109,6 +112,11 @@ class ContextualForm(ABC, Generic[C, V]):
             self._set(args[0], args[1])
         else:
             self._set(args[0], type(self)(*args[1:]))
+
+    @property
+    @abstractmethod
+    def _neutral_value(self) -> V:
+        ...
 
     def _set(self, context: C, value: V) -> None:
         self._context = context
@@ -153,12 +161,20 @@ class contextual(ContextualForm, Generic[C, V]):
     value = property(attrgetter("_value"))
     context = property(attrgetter("_context"))
 
+    @property
+    def _neutral_value(self) -> V:
+        return None
+
 
 class contextually(ContextualForm, Generic[C, ActionT]):
     """`ContextualForm` form for annotating actions with saving their call."""
 
     action = property(attrgetter("_value"))
     context = property(attrgetter("_context"))
+
+    @property
+    def _neutral_value(self) -> V:
+        return _get
 
     def _update(self, context: C, value: Callable[Pm, R]) -> None:
         super()._update(context, value)
@@ -179,6 +195,10 @@ class ContextualError(ContextualForm, Exception, Generic[ErrorT, C]):
 
     error = property(attrgetter("_value"))
     context = property(attrgetter("_context"))
+
+    @property
+    def _neutral_value(self) -> V:
+        return Exception()
 
     def _update(context: C, value: ErrorT) -> None:
         super()._update(context, value)
@@ -248,7 +268,9 @@ def contextualizing(
     Function to add to a flag the ability to contextualize values with this flag.
     """
 
-    contextualizing_flag = flag.to(lambda value: to(contextualizing_flag, value))
+    contextualizing_flag = flag.to(
+        lambda value=None: to(contextualizing_flag, value),
+    )
 
     return contextualizing_flag
 
