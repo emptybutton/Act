@@ -925,6 +925,23 @@ kwargs = _ActionCursor._operated_by(_ActionCursorParameter(
     0,
     union_type=_ActionCursorParameterUnionType.KEYWORD,
 ))
+
+
+def _normilized(numbers: Iterable[int]) -> list[int]:
+    normilized_numbers = list()
+
+    for current_number in numbers:
+        smaller_number_counter  = 0
+
+        for target_number in numbers:
+            if current_number > target_number:
+                smaller_number_counter += 1
+
+        normilized_numbers.append(smaller_number_counter)
+
+    return normilized_numbers
+
+
 def _fn(*cursors: _ActionCursor) -> Callable[_ActionCursor, Callable]:
     if len(cursors) == 0:
         return fun
