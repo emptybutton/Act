@@ -441,7 +441,11 @@ class _ActionCursor(Mapping):
             )
 
         elif len(args) < len(parameters):
-            return partial(self, *args, **kwargs)
+            return lambda *second_args, **second_kwargs: self._run(
+                args + second_args,
+                kwargs | second_kwargs,
+                keyword_union_parameter,
+            )
 
         env = dict(zip(map(operator.attrgetter('name'), parameters), args))
 
@@ -681,7 +685,7 @@ class _ActionCursor(Mapping):
                 keyword_union_parameter=keyword_union_parameter,
             )
 
-        return fun.Image(run, self._get_raw_repr)
+        return fun.Image(run, partial(self._get_raw_repr, is_in_fun=True))
 
     def _internal_repr_by(
         self,
