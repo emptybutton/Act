@@ -394,7 +394,7 @@ test_sculpture_of_getting = case_of(
     (lambda: sculpture_of(MockA(4), b=attrgetter('a')).b, 4),
     (
         lambda: with_(raises(AttributeError))(
-            lambda _: sculpture_of(MockA(4), b='a').a
+            lambda _: (sculpture_of(MockA(4), b='a') - default_descriptor).a
         ),
         None,
     ),
@@ -448,3 +448,14 @@ def test_read_only_setting(value):
 
     with raises(AttributeError):
         with_read_only.a = ...
+
+
+def test_sculpture_default_descriptor():
+    sculpture = sculpture_of(obj(a=1, b=2), value='a')
+
+    assert sculpture.value == 1
+
+    assert sculpture.b == 2
+
+    sculpture.b = 4
+    assert sculpture.b == 4

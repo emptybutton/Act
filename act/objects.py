@@ -665,15 +665,32 @@ def sculpture_of(
 ) -> obj:
     """Constructor for objects with proxied descriptors to an input value."""
 
-    return (
+    proxy_property_to_original_by = _sculpture_property_of |by| original
+
+    sculpture_attr_of = (
+        _as_sculpture_descriptor
+        |then>> proxy_property_to_original_by
+        |then>> as_descriptor
+    )
+
+    def default_sculpture_descriptor_for(attr_name: str):
+        return proxy_property_to_original_by(property(
+            lambda a: getattr(a, attr_name),
+            lambda a, b: setattr(a, attr_name, b),
+            lambda a: delattr(a, attr_name),
+        ))
+
+    sculpture = (
         obj.of({
-            _: as_descriptor(_sculpture_property_of(
-                _as_sculpture_descriptor(descriptor),
-                original,
-            ))
+            _: sculpture_attr_of(descriptor)
             for _, descriptor in descriptor_by_attr_name.items()
         })
         & obj(_sculpture_original=original)
+    )
+
+    return with_default_descriptor(
+        default_sculpture_descriptor_for,
+        sculpture,
     )
 
 
