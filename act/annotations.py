@@ -15,6 +15,7 @@ from act.representations import code_like_repr_of
 
 
 __all__ = (
+    "Annotation",
     "Cn",
     "Special",
     "reformer_of",
@@ -89,6 +90,8 @@ __all__ = (
     "Unia",
 )
 
+
+Annotation: TypeAlias = Any
 
 Cn = Concatenate
 
