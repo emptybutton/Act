@@ -410,6 +410,7 @@ _result = contextualizing(flag_about("_result"))
 @obj.of
 class do:
     rollbacks = flag_about("rollbacks")
+    result = flag_about("result")
 
     def __call__(
         *modes: _TransactionCursor.ModeT,
@@ -428,6 +429,8 @@ class do:
             except _TransactionRollbackMark as mark:
                 rollbacks = cursor.network_operations.rollback()
 
+                if else_ == do.result:
+                    return mark.result
                 if else_ == do.rollbacks:
                     return rollbacks
 
