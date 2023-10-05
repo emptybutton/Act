@@ -271,6 +271,9 @@ class obj(_AttributeKeeper):
             else super().__new__(cls)
         )
 
+    def __getitem__(self, item: Special[tuple]) -> CommentAnnotation:
+        return CommentAnnotation("obj(...)")[item]
+
     def __getattribute__(self, attr_name: str) -> Any:
         if attr_name == "__dict__":
             return object.__getattribute__(self, attr_name)
@@ -407,6 +410,9 @@ class temp(_AttributeKeeper):
             _: attr.context(deepcopy(attr.value, memo))
             for _, attr in dict_of(self).items()
         })
+
+    def __getitem__(self, item: Special[tuple]) -> CommentAnnotation:
+        return CommentAnnotation("temp(...)")[item]
 
     def __getattribute__(self, name: str) -> Any:
         attr = object.__getattribute__(self, name)
