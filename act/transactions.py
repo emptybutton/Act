@@ -430,8 +430,8 @@ class do:
     result = flag_about("result")
 
     def __call__(
-        else_: Special[rollbacks, L] = None,
         *modes: _TransactionCursor.ModeResourceT,
+        else_: Special[rollbacks, L] = result,
     ) -> Callable[Pm, Special[R | L]]:
         @will
         def decorated(
