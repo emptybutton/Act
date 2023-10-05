@@ -1,7 +1,7 @@
 from functools import reduce
 import operator
 
-from act.cursors import *
+from act.cursors.dynamic import *
 from act.testing import case_of
 from tests.mocks import MockA, MockB
 

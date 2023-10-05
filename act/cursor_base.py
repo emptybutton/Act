@@ -27,41 +27,6 @@ from act.structures import tmap, tfilter, groups_in
 from act.synonyms import with_keyword, tuple_of
 
 
-__all__ = (
-    "same",
-    "act",
-    '_',
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-    'f',
-    'g',
-    'h',
-    'i',
-    'j',
-    'k',
-    'l',
-    'm',
-    'n',
-    'o',
-    'p',
-    'q',
-    'r',
-    's',
-    't',
-    'u',
-    'v',
-    'w',
-    'x',
-    'y',
-    'z',
-    "args",
-    "kwargs",
-)
-
-
 @dataclass(frozen=True)
 class _OperationModel:
     sign: str
@@ -315,11 +280,12 @@ class _ActionCursor(Mapping):
         if nature == _ActionCursorNature.attrgetting:
             setting = io(setattr)
         elif nature == _ActionCursorNature.itemgetting:
-            setting = lambda obj_, name, value: (
-                tuple(io(operator.setitem)(list(obj_), name, value))
-                if isinstance(obj_, tuple)
-                else io(operator.setitem)(obj_, name, value)
-            )
+            def setting(obj_: Any, name: str, value: Any) -> Any:
+                return (
+                    tuple(io(operator.setitem)(list(obj_), name, value))
+                    if isinstance(obj_, tuple)
+                    else io(operator.setitem)(obj_, name, value)
+                )
         else:
             raise ActionCursorError("setting without a place to set")
 
@@ -419,11 +385,12 @@ class _ActionCursor(Mapping):
         )
 
     @classmethod
-    def _lift(cls, value: Any) -> Self:
+    def _lift(cls, value: Any, *, is_static: bool = False) -> Self:
         return cls(
             actions=ActionChain([saving_context(to(value))]),
             nature=contextual(_ActionCursorNature.external_value_entering),
             internal_repr=code_like_repr_of(value),
+            is_call_generator_static=is_static,
         )
 
     def _run(
@@ -515,7 +482,10 @@ class _ActionCursor(Mapping):
     def _merged_with(self, other: Special[Self], *, by: merger_of[Any]) -> Self:
         operation = by
 
-        if self._is_call_generator_static is not other._is_call_generator_static:
+        if (
+            isinstance(other, _ActionCursor)
+            and self._is_call_generator_static is not other._is_call_generator_static
+        ):
             raise ActionCursorError("combining dynamic and static cursors")
 
         cursor = (
@@ -894,52 +864,6 @@ def _static(cursor: _ActionCursor) -> Self:
     return cursor._with(is_call_generator_static=True)
 
 
-same = _ActionCursor._lift
-
-
-act = _ActionCursor(nature=contextual(_ActionCursorNature.external))
-_ = _ActionCursor(nature=contextual(_ActionCursorNature.external))
-
-a = _ActionCursor._operated_by(_ActionCursorParameter('a', 27))
-b = _ActionCursor._operated_by(_ActionCursorParameter('b', 26))
-c = _ActionCursor._operated_by(_ActionCursorParameter('c', 25))
-d = _ActionCursor._operated_by(_ActionCursorParameter('d', 24))
-e = _ActionCursor._operated_by(_ActionCursorParameter('e', 23))
-f = _ActionCursor._operated_by(_ActionCursorParameter('f', 22))
-g = _ActionCursor._operated_by(_ActionCursorParameter('g', 21))
-h = _ActionCursor._operated_by(_ActionCursorParameter('h', 20))
-i = _ActionCursor._operated_by(_ActionCursorParameter('i', 19))
-j = _ActionCursor._operated_by(_ActionCursorParameter('j', 18))
-k = _ActionCursor._operated_by(_ActionCursorParameter('k', 17))
-l = _ActionCursor._operated_by(_ActionCursorParameter('l', 16))
-m = _ActionCursor._operated_by(_ActionCursorParameter('m', 15))
-n = _ActionCursor._operated_by(_ActionCursorParameter('n', 14))
-o = _ActionCursor._operated_by(_ActionCursorParameter('o', 13))
-p = _ActionCursor._operated_by(_ActionCursorParameter('p', 12))
-q = _ActionCursor._operated_by(_ActionCursorParameter('q', 11))
-r = _ActionCursor._operated_by(_ActionCursorParameter('r', 10))
-s = _ActionCursor._operated_by(_ActionCursorParameter('s', 9))
-t = _ActionCursor._operated_by(_ActionCursorParameter('t', 8))
-u = _ActionCursor._operated_by(_ActionCursorParameter('u', 7))
-v = _ActionCursor._operated_by(_ActionCursorParameter('v', 6))
-w = _ActionCursor._operated_by(_ActionCursorParameter('w', 5))
-x = _ActionCursor._operated_by(_ActionCursorParameter('x', 4))
-y = _ActionCursor._operated_by(_ActionCursorParameter('y', 3))
-z = _ActionCursor._operated_by(_ActionCursorParameter('z', 2))
-
-args = _ActionCursor._operated_by(_ActionCursorParameter(
-    "args",
-    1,
-    union_type=_ActionCursorParameterUnionType.POSITIONAL,
-))
-
-kwargs = _ActionCursor._operated_by(_ActionCursorParameter(
-    "kwargs",
-    0,
-    union_type=_ActionCursorParameterUnionType.KEYWORD,
-))
-
-
 def _normilized(numbers: Iterable[int]) -> list[int]:
     normilized_numbers = list()
 
@@ -963,7 +887,7 @@ def _fn(*cursors: _ActionCursor) -> Callable[_ActionCursor, Callable]:
     void_parameter_indexes = list()
 
     for index, cursor in enumerate(parameter_cursors):
-        if cursor in [_, act]:
+        if cursor in [_, act]:  # noqa: F821
             void_parameter_indexes.append(index)
         else:
             parameter_cursors.append(cursor)
@@ -971,17 +895,17 @@ def _fn(*cursors: _ActionCursor) -> Callable[_ActionCursor, Callable]:
     if len(frozenset(map(id, parameter_cursors))) != len(parameter_cursors):
         return ActionCursorError("repeating parameters")
 
-    has_kwargs = kwargs is parameter_cursors[-1]
+    has_kwargs = kwargs is parameter_cursors[-1]  # noqa: F821
     has_args: bool
 
     if has_kwargs:
         has_args = (
             False
             if len(parameter_cursors) == 1
-            else args is parameter_cursors[-2]
+            else args is parameter_cursors[-2]  # noqa: F821
         )
     else:
-        has_args = args is parameter_cursors[-1]
+        has_args = args is parameter_cursors[-1]  # noqa: F821
 
     required_parameters_length = (
         len(parameter_cursors) - int(has_args) - int(has_kwargs)
@@ -991,9 +915,9 @@ def _fn(*cursors: _ActionCursor) -> Callable[_ActionCursor, Callable]:
     for cursor in required_parameter_cursors:
         if cursor._natrue.value != _ActionCursorNature.atomic:
             raise ActionCursorError("calculation parameters")
-        if cursor is args:
+        if cursor is args:  # noqa: F821
             raise ActionCursorError("parameters after `args`")
-        if cursor is kwargs:
+        if cursor is kwargs:  # noqa: F821
             raise ActionCursorError("`kwargs` not at the end of parameters")
 
     required_parameters = tmap(

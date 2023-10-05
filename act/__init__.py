@@ -3,7 +3,6 @@ from act.annotations import *
 from act.arguments import *
 from act.atomization import *
 from act.contexting import *
-from act.cursors import *
 from act.data_flow import *
 from act.error_flow import *
 from act.flags import *
@@ -26,6 +25,8 @@ from act.synonyms import *
 from act.testing import *
 from act.tools import *
 from act.transactions import *
+
+import act.cursors as cursors
 
 
 __all__ = tfilter(not_(str.startswith |by| '__'), dir())
