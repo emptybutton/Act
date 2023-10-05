@@ -471,6 +471,8 @@ class do:
 
         return decorated
 
+    simply = __call__ |then>> fbind_by(take[1:] |then>> ...)
+
     def _same_of(for_input: ForInputModeT) -> _TransactionCursor:
         modes = for_input if isinstance(for_input, tuple) else (for_input, )
 
