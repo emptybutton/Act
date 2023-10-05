@@ -218,6 +218,12 @@ class CommentAnnotation:
     def __ror__(self, other: Any):
         return Union[other, self]
 
+    def __and__(self, other: Any):
+        return Unia[self, other]
+
+    def __rand__(self, other: Any):
+        return Unia[other, self]
+
 
 class CallableFormalAnnotation(FormalAnnotation):
     """
