@@ -179,7 +179,7 @@ class _AttributeKeeper(Arbitrary, ABC):
         ))
 
     def __hash__(self) -> int:
-        return hash(type(self)) + _table_hash_of(dict_of(self))
+        return hash(type(self)) + id(self)
 
     def __copy__(self) -> Self:
         return type(self)(**dict_of(self))
