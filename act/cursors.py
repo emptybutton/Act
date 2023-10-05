@@ -227,7 +227,7 @@ class _ActionCursor(Mapping):
         return f"({self._get_raw_repr()})"
 
     def _get_raw_repr(self) -> str:
-        return f"{{}}: {self._internal_repr}".format(
+        return f"λ{{}}: {self._internal_repr}".format(
             ', '.join(map(str, self._parameters))
         )
 
