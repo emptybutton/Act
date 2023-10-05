@@ -146,9 +146,12 @@ class Arbitrary(ABC):
         Data of subsequent objects have higher priority than previous ones.
         """
 
+    def __class_getitem__(cls: TypeT, _: Any) -> TypeT:
+        return cls
 
     def __getitem__(self, _) -> Self:
         return self
+
 
 class _AttributeKeeper(Arbitrary, ABC):
     _ignored_attribute_names: ClassVar[Tuple[str]] = (
