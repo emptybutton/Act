@@ -2,14 +2,14 @@
 exclude = test.py
 
 per-file-ignores =
-    act\__init__.py: F401, F403, F405
-    act\cursors\dynamic.py: E741
-    act\cursors\static.py: E741, F403, F405
-    act\annotations.py: F821, E741
-    tests\*.py: F403, F405
-    tests\test_annotations.py: F821, F403, F405
-    tests\test_scoping.py: F841, F403, F405
-    tests\test_cursors.py: F403, F405, F401, F841
+    __init__.py: F401, F403, F405
+    act/cursors/dynamic.py: E741
+    act/cursors/static.py: E741, F403, F405
+    act/annotations.py: F821, E741
+    tests/*.py: F403, F405
+    tests/test_annotations.py: F821, F403, F405
+    tests/test_scoping.py: F841, F403, F405
+    tests/test_cursors.py: F403, F405, F401, F841
 
 extend-ignore = E225
 max-line-length = 85
