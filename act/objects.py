@@ -13,7 +13,9 @@ from typing import (
 from pyannotating import Special
 
 from act.aggregates import Access
-from act.annotations import K, V, Pm, R, O, Union, CommentAnnotation, Annotation
+from act.annotations import (
+    K, V, Pm, R, O, Union, CommentAnnotation, Annotation, TypeT
+)
 from act.atomization import fun
 from act.contexting import (
     contextually, contexted, contextualizing, be
@@ -501,7 +503,9 @@ class temp(_AttributeKeeper):
 
 
 def struct(type_: type) -> temp:
-    dataclass_ = dataclass(type_)
+    dataclass_ = (
+        type_ if hasattr(type_, "__dataclass_fields__") else dataclass(type_)
+    )
 
     return temp(**{
         field.name: field >= when(
