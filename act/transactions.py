@@ -4,10 +4,10 @@ from itertools import count
 from operator import attrgetter
 from typing import (
     Generic, ClassVar, Callable, Any, Optional, Type, NoReturn, Iterable,
-    Iterator, Self, Generator, TypeAlias, Concatenate, ParamSpec
+    Iterator, Self, Generator, TypeAlias, Concatenate, ParamSpec, Tuple
 )
 
-from act.annotations import Special, A, B, R, O, L, ActionT, Pm, Annotation
+from act.annotations import Special, A, B, R, O, L, V, ActionT, Pm, Annotation, Union
 from act.arguments import Arguments
 from act.atomization import fun
 from act.contexting import contextualizing, of
@@ -15,9 +15,10 @@ from act.data_flow import via_indexer, to, by
 from act.flags import flag_about
 from act.monads import bad, left
 from act.objects import temp, obj, ActionOf
+from act.parameter_slicing import take
 from act.partiality import partial, partially, will, rwill
-from act.pipeline import ActionChain, then, frm
-from act.structures import tfilter, tmap
+from act.pipeline import ActionChain, then, frm, fbind_by
+from act.structures import tfilter, tmap, map_table
 from act.tools import _get
 
 
@@ -25,6 +26,7 @@ __all__ = (
     "RollbackableBy",
     "Transaction",
     "transaction_mode_of",
+    "binary",
     "rollbackable",
     "Do",
     "do",
@@ -311,6 +313,9 @@ def transaction_mode_of(is_to_rollback: Callable[R, bool]) -> _Mode:
     return fun(decorated |then>> _rollbackable)
 
 
+binary = obj(_rollbackable_version_name="binary")
+
+
 @obj.of
 class rollbackable:
     __call__ = _rollbackable
@@ -324,13 +329,22 @@ class rollbackable:
 
 class _TransactionCursor:
     ModeT: ClassVar[TypeAlias] = Callable[Callable[Pm, R], ActionT]
+    HasRollbackableVersionT: ClassVar[temp] = temp(_rollbackable_version_name=str)
+    ModeResourceT: ClassVar[TypeAlias] = HasRollbackableVersionT | ModeT
+
     __network_operations_cache: Optional[_TransactionOperations] = None
 
-    def __init__(self, *modes: ModeT, _parent: Optional[Self] = None) -> None:
-        self.__modes = ActionChain(modes)
+    def __init__(self, *modes: ModeResourceT, _parent: Optional[Self] = None):
+        self.__modes = ActionChain(map(self._mode_of, modes))
         self.__operations = _TransactionOperations()
         self.__parent = _parent
         self.__childs = list()
+
+    def _mode_of(self, mode: ModeResourceT) -> ModeT:
+        if hasattr(mode, "_rollbackable_version_name"):
+            return getattr(rollbackable, mode._rollbackable_version_name)
+
+        return mode
 
     @property
     def network_operations(self) -> _TransactionOperations:
@@ -416,8 +430,8 @@ class do:
     result = flag_about("result")
 
     def __call__(
-        *modes: _TransactionCursor.ModeT,
         else_: Special[rollbacks, L] = None,
+        *modes: _TransactionCursor.ModeResourceT,
     ) -> Callable[Pm, Special[R | L]]:
         @will
         def decorated(

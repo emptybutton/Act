@@ -44,16 +44,18 @@ __all__ = (
 ok = contextualizing(flag_about('ok'))
 bad = contextualizing(flag_about('bad', negative=True))
 
-maybe = documenting_by(
+
+@obj.of
+class maybe:
     """
     Decorator to stop an execution when an input value is returned with the
     `bad` context.
 
     Atomically applied to actions in `ActionChain`.
     """
-)(
-    discretely(on |to| not_(of(bad)))
-)
+
+    _rollbackable_version_name = "maybe"
+    __call__ = discretely(on |to| not_(of(bad)))
 
 
 @obj.of
@@ -66,6 +68,7 @@ class optionally:
     Use `call_by` to call with optional arguments over an optional action.
     """
 
+    _rollbackable_version_name = "optionally"
     __call__ = discretely(on |to| not_(None))
 
     @fun
@@ -163,6 +166,9 @@ def either(
         )
         for determinant, way in determinants_and_ways
     )))
+
+
+either._rollbackable_version_name = "either"
 
 
 @flag_about("in_future").to
