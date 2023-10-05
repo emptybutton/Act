@@ -7,18 +7,17 @@ from act.annotations import dirty, R, A, B, V, C, M, G, F, W, P, Pm, Union
 from act.atomization import fun
 from act.contexting import (
     contextual, contextually, contexted, ContextualForm, saving_context,
-    with_reduced_metacontext, contextualizing, to_write, to_read, of, to_context,
-    with_context_that
+    with_reduced_metacontext, contextualizing, of, with_context_that
 )
 from act.data_flow import io, by, to, when, break_, and_via_indexer
 from act.effects import context_effect
 from act.flags import flag_about, nothing, Flag, pointed, to_points
 from act.objects import obj
 from act.operators import not_
-from act.partiality import will, partially, partial, rpartial
+from act.partiality import will, partially, rpartial
 from act.pipeline import discretely, ActionChain, then, fbind_by
 from act.synonyms import on
-from act.tools import documenting_by, to_check, as_action, _get
+from act.tools import documenting_by, to_check, as_action
 
 
 __all__ = (

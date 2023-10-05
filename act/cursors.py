@@ -23,7 +23,7 @@ from act.partiality import flipped, rpartial, will, partial
 from act.pipeline import ActionChain, bind_by, on, then, _generating_pipeline
 from act.representations import code_like_repr_of
 from act.scoping import value_in
-from act.structures import tfilter, groups_in
+from act.structures import tmap, tfilter, groups_in
 from act.synonyms import with_keyword, tuple_of
 
 
@@ -748,7 +748,10 @@ class _ActionCursor(Mapping):
 
             return (
                 cursor
-                ._merged_with(value, by=flipped(operation) if is_right else operation)
+                ._merged_with(
+                    value,
+                    by=flipped(operation) if is_right else operation,
+                )
                 ._with(
                     nature=contextual(model, _ActionCursorNature.binary_operation),
                     internal_repr=(
@@ -883,6 +886,7 @@ class _ActionCursor(Mapping):
 def _dynamic(cursor: _ActionCursor) -> Self:
     return cursor._with(is_call_generator_static=False)
 
+
 def _static(cursor: _ActionCursor) -> Self:
     return cursor._with(is_call_generator_static=True)
 
@@ -937,7 +941,7 @@ def _normilized(numbers: Iterable[int]) -> list[int]:
     normilized_numbers = list()
 
     for current_number in numbers:
-        smaller_number_counter  = 0
+        smaller_number_counter = 0
 
         for target_number in numbers:
             if current_number > target_number:
@@ -994,7 +998,9 @@ def _fn(*cursors: _ActionCursor) -> Callable[_ActionCursor, Callable]:
         required_parameter_cursors,
     )
 
-    argument_order = _normilized(tmap(lambda p: p.priority, required_parameters))
+    argument_order = _normilized(  # noqa: F841
+        tmap(lambda p: p.priority, required_parameters)
+    )
 
     def decorator(main: _ActionCursor) -> Callable:
         if _is_parameters_non_matching(required_parameters, main._parameters):

@@ -1,11 +1,8 @@
 from functools import partial
 from operator import add, mul, truediv
 
-from pytest import raises
-
 from act.contexting import contextual, contextually
 from act.data_flow import break_
-from act.errors import ReturningError
 from act.flags import nothing, pointed, flag_about
 from act.monads import *
 from act.pipeline import then
