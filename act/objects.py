@@ -61,7 +61,6 @@ __all__ = (
     "ActionOf",
 )
 
-
 as_method = contextualizing(flag_about("as_method"), to=contextually)
 as_descriptor = contextualizing(flag_about("as_descriptor"))
 

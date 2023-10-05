@@ -391,6 +391,7 @@ class _TransactionCursor:
         child = type(self)(*modes, _parent=self)
 
         self._adopt(child)
+
         return child
 
     def _adopt(self, child: Self) -> None:
