@@ -8,12 +8,15 @@
 > * [**Contextualization**](#contextualization)
 > * [**Monads**](#monads)
 > * [**Structural OOP**](#structural-oop)
+> * [**Transactions**](#transactions)
 > * [**Structure tools**](#structure-tools)
 
 
 ### Lambda generation
 Use all functionality of lambda functions without **LAMBDA**
 ```py
+from act.cursors.dynamic import *
+
 main = a + b  # lambda a, b: a + b
 main(10, 6)
 ```
@@ -63,6 +66,19 @@ abc!?!?!?
 
 > To interact with names that cursors have, just add underscore to them.
 > </br>E.g. `v.__` or `v.values_`.
+
+> To generate a call without the `_` method, use static cursors instead of these dynamic ones.
+
+> In this case, when you have completed generation, you should call it from the `fun` function.
+> ```py
+> from act.cursors.static import *
+> 
+> main = fun(v.lowwer() + w(x + '?'))  # lambda v, w, x: v.lowwer() + w(x + '?')
+> main('ABC', lambda x: x * 3, '!')
+> ```
+> ```
+> abc!?!?!?
+> ```
 
 </br>
 
@@ -118,7 +134,7 @@ main(WithA(...), [1, 2, 3], 8)
 
 ...with side effects
 ```py
-main = v.a.mset(w[1].mset(-x)).a
+main = v.a.ioset(w[1].ioset(-x)).a
 
 values = [1, 2, 3]
 with_a = WithA(...)
@@ -130,7 +146,7 @@ with_a.a  # [1, -8, 3]
 
 ...and via a function
 ```py
-main = v.a.mbe(lambda a: a * 4).a
+main = v.a.iobe(lambda a: a * 4).a
 with_a = WithA(64)
 
 main(with_a)  # 256
@@ -149,7 +165,6 @@ with_a.a  # 256
 > ```
 
 </br>
-
 
 Use boolean logic operators
 ```py
@@ -170,6 +185,17 @@ v.has_no(w)  # lambda v, w: w not in v
 > v.has(4).or_(w.has(4)).and_(False)  # always `False`
 > ```
 
+</br>
+
+Start generation not with cursors
+```py
+main = same([1, 2, 3]).has(v)  # lambda v: v in [1, 2, 3]
+main(2)
+```
+```
+True
+```
+
 ### Pipeline
 Combine calls together
 ```py
@@ -186,9 +212,9 @@ main(10)
 
 </br>
 
-Execute Instantly
+Execute instantly
 ```py
-10 >= (v * 2) |then>> str |then>> (l + '23')  # (lambda v: str(v * 2) + '23')(10)
+10 |frm| (v * 2) |frm| str |frm| (l + '23')  # str(10 * 2) + '23'
 ```
 ```
 2023
@@ -196,7 +222,7 @@ Execute Instantly
 
 Insert functions into templates
 ```py
-main = binding_by(int |then>> ... |then>> str |then>> (l + '!'))
+main = bind_by(int |then>> ... |then>> str |then>> (l + '!'))
 # lambda f: int |then>> f |then>> str |then>> (l + '!')
 
 func = main(v + 3)  # int |then>> (v + 3) |then>> str |then>> (l + '!')
@@ -225,7 +251,6 @@ main(4)
 ```py
 from functools import reduce
 
-
 main = reduce(bind, [int, v**2, str, l + " >= 0"])  # int |then>> (v**2) |then>> str |then>> (l + " >= 0")
 main(-4)
 ```
@@ -247,7 +272,7 @@ main[1:3]  # str |then>> float
 
 ...to decorate
 ```py
-main = discretely(binding_by(... |then>> (v * 2)))
+main = discretely(bind_by(... |then>> (v * 2)))
 
 action = main(int |then>> str)  # int |then>> (v * 2) |then>> str |then>> (v * 2)
 action(10.1)  # 2020
@@ -259,14 +284,14 @@ action(1)  # 11
 
 </br>
 
-> To remove secondary behavior of a pipeline or part of it, use `func`.
+> To remove secondary behavior of a pipeline or part of it, use `fun`.
 > ```py
 > ...
 > 
-> action = main(int |then>> func(str |then>> (v + '48.')))
-> # int |then>> (v * 2) |then>> func(str |then>> (v + '48.')) |then>> (v * 2)
+> func = main(int |then>> fun(str |then>> (v + '48.')))
+> # int |then>> (v * 2) |then>> fun(str |then>> (v + '48.')) |then>> (v * 2)
 > 
-> action('10')
+> func('10')
 > ```
 > ```
 > 2048.2048.
@@ -274,16 +299,14 @@ action(1)  # 11
 
 > `bind` by default binds without secondary behavior.
 
-> To generate a pipeline without secondary behavior from a template, use the `atomic_binding_by` shortcut.
+> To generate a pipeline without secondary behavior from a template, use the `fbind_by` shortcut.
 
 </br>
-
 
 ### Partial application
 Memorize arguments
 ```py
 from operator import truediv
-
 
 divide_8_by = partial(truediv, 8)  # lambda _: truediv(8, _)
 divide_by_2 = rpartial(truediv, 2)  # lambda _: truediv(_, 2)
@@ -301,7 +324,6 @@ divide_by_2(8)  # 4
 ...using call
 ```py
 from operator import truediv
-
 
 divide_8_by = will(truediv)(8)  # (lambda a: lambda b: truediv(a, b))(8)
 divide_by_2 = rwill(truediv)(2)  # (lambda b: lambda a: truediv(a, b))(2)
@@ -394,7 +416,7 @@ forced result and something
 
 ...as an argument
 ```py
-main = returnly(print)
+main = io(print)
 main("argument") + " and something"
 ```
 ```
@@ -404,14 +426,26 @@ argument and something
 
 </br>
 
-> To print with return just like in that example, you can use the `shown` shortcut.
+> `io` functions returns only the first argument and in this sense are reduced from procedural form to functional form.
+
+> ```py
+> state = list()
+> state_from = io(list.append) |to| state
+> 
+> state_from(1) == [1]
+> state_from(2) == [1, 2]
+> state_from(3) == [1, 2, 3]
+> 
+> state == [1, 2, 3, 4]
+> ```
+
+> To print with return just like in that first example, you can use the `shown` shortcut.
 
 </br>
 
 Flip parameters
 ```py
 from operator import truediv
-
 
 flipped(truediv)(10, 1)
 ```
@@ -462,11 +496,9 @@ Use branching
 ```py
 from typing import Any
 
-
 on(v >= 0, v**2)  # lambda v: v**2 if v >= 0 else v
 on(None, 4)  # lambda _: 4 if _ is None else _
 on(None, 4, else_=0)  # lambda _: 4 if _ is None else 0
-
 
 when(
     (n > 0, "positive"),
@@ -632,12 +664,10 @@ Create discrete tests
 ```py
 from unittest import main
 
-
 test_something = case_of(
     (lambda: 5 + 3, 8),
     lambda: 4 in range(10),
 )
-
 
 if __name__ == "__main__":
     main()
@@ -799,7 +829,6 @@ gamma = flag_about("gamma")
 > ```py
 > from random import choice
 > 
-> 
 > ~pointed(1) == pointed(1)
 > 
 > flag_or_vector = choice([pointed(1), +pointed(1)])
@@ -837,7 +866,6 @@ alpha(4)
 > Only named flags can be callable.
 
 </br>
-
 
 ### Contextualization
 Add a second value to one value, which in one form or another will describe the first value
@@ -1044,7 +1072,6 @@ metacontexted("mega")  # ('mega',)
 
 </br>
 
-
 ### Monads
 Break execution on `None`
 ```py
@@ -1086,7 +1113,7 @@ main(0, 2)  # pointed(ZeroDivisionError("float division by zero")) 0.0
 
 Write an output
 ```py
-4 >= showly((v + 4) |then>> (v * 2) |then>> (v - 4))
+4 |frm| showly((v + 4) |then>> (v * 2) |then>> (v - 4))
 ```
 ```
 8
@@ -1098,9 +1125,9 @@ Write an output
 ```py
 logs = list()
 
-4 >= showly(show=logs.append)((v + 4) |then>> (v * 2) |then>> (v - 4))
+4 |frm| showly(show=logs.append)((v + 4) |then>> (v * 2) |then>> (v - 4))
 
-logs  # [8, 16, 12]
+logs == [8, 16, 12]
 ```
 
 Choose action by context
@@ -1134,48 +1161,6 @@ print(future(main(4)))
 4
 pointed(parallel 4.0) 16
 ```
-
-Execute multilinearly
-```py
-main = do(print, v + 1, v ** 2)
-
-main(4)
-```
-```
-4
-16
-```
-
-</br>
-
-> `do` works with only one argument.
-
-> `do` action is executed in the context of an empty arbitrary object that can be interacted.
-> ```py
-> do(up(shown) |then>> v * 2)(4)
-> ```
-> ```
-> <> 4
-> 8
-> ```
-
-> To write and read from context use `write` and `read` shortcuts.
-> ```py
-> do(
->     write(u.index.set(v * 2)),
->     read(u.index + v),
-> )(10)
-> ```
-> ```
-> 30
-> ```
-
-> To save the top context on return use `do.openly`.
-
-> To set the default upping use `doing` and `doing(...).openly` respectively.
-
-</br>
-
 
 ### Structural OOP
 Create objects on the fly
@@ -1225,8 +1210,8 @@ namespace.main(4)  # 16
 
 ...properties
 ```py
-container = obj(_value=0, value=as_property(v._value, v._value.mset(w * 4)))
-# container = obj(_value=0, value=as_property(property(v._value, v._value.mset(w * 4))))
+container = obj(_value=0, value=as_property(v._value, v._value.ioset(w * 4)))
+# container = obj(_value=0, value=as_property(property(v._value, v._value.ioset(w * 4))))
 
 container.value  # 0
 container.value = 16  # 64
@@ -1309,21 +1294,27 @@ User("Oliver", 24)
 > isinstance(obj(name="Oliver", age=2023), combination)
 > ```
 
-> `temp.of` works like `obj.of` with `temp` constructor but with additional behavior for dataclasses.
-> ```py
-> from dataclasses import dataclass, field
-> 
-> 
-> @temp.of
-> @dataclass
-> class Struct:
->     a: int
->     b: int = 2
->     c: int = field(default_factory=lambda: 4)
-> ```
-> ```
-> <a: int, b=2, c=4>
-> ```
+</br>
+
+
+Create object templates from dataclasses
+```py
+from dataclasses import dataclass, field
+
+@struct
+@dataclass
+class Some:
+    a: int
+    b: int = 2
+    c: int = field(default_factory=lambda: 4)
+```
+```
+<a: int, b=2, c=4>
+```
+
+</br>
+
+> `struct` casts an input value to `dataclass` if it is not one, so `@dataclass` can be omitted.
 
 </br>
 
@@ -1346,6 +1337,8 @@ original = obj(a=1)
 
 sculpture = sculpture_of(original, number='a')
 
+sculpture.number == sculpture.a == original.a == 16
+
 sculpture.number = 16
 sculpture.number == original.a == 16
 ```
@@ -1354,7 +1347,7 @@ sculpture.number == original.a == 16
 ```py
 ...
 
-proxy_of = sculpture_of(number=v.a / 2, value=property(v.a, v.a.mset(w * 2)))
+proxy_of = sculpture_of(number=v.a / 2, value=property(v.a, v.a.ioset(w * 2)))
 
 sculpture = proxy_of(original)
 
@@ -1384,7 +1377,7 @@ class Container:
     value: int = 4
 
     a: read_only[int] = read_only("value")
-    b: read_only[int] = read_only(property(v.value, v.value.mset(w)))
+    b: read_only[int] = read_only(property(v.value, v.value.ioset(w)))
 
 
 container = Container()
@@ -1429,6 +1422,60 @@ out(original).b = 8
 original  # <a=8>
 ```
 
+### Transactions
+Rollback by function
+```py
+def division_between(a: int, b: int) -> int | bad[str]:
+    if a == 0 or b == 0:
+        return bad("division by zero")
+
+    return a / b
+
+
+WithNumber = temp(number=N)
+Result = temp(multiplication=N, division=N)
+
+
+@do(maybe, optionally, for_input=optionally)  # You can use `@do.simply` to avoid passing `Do`.
+def main(do: Do, a: WithNumber[Optional[int]], b: WithNumber[Optional[int]]) -> Result:
+    # You can use just `do`, but then the number type can also be `bad[...]`.
+    maybe, optionally = do  # These unpacked values are also `Do`.
+
+    # `maybe` for `... | bad[...]` type.
+    # `optionally` for `Optional[...]` type.
+    # `either` for `... | left[...]` type.
+    # `binary` for `Special[Literal[False]]` type.
+
+    # if the stored numbers are `None`, then `main` will return `None`.
+    # You can specify `else_` and then this value will be returned instead.
+
+    first_number = optionally.same(a.number)
+    second_number = optionally.same(b.number)
+
+    # If `division_between` had a `rollback` method, then it would be called if one of the numbers is zero.
+    division = maybe(division_between)(first_number, second_number)
+    multiplication = first_number * second_number
+
+    # If the return is bad, all decorated functions by `do` will try to call the `rollback` method without
+    # arguments.
+    
+    # If the target function was decorated with `rollbackable`, then `rollback` would be called with the
+    # same arguments with which the function itself was called.
+
+    return Result(multiplication, division)
+
+
+# As a result, `main` will have this type.
+main: Callable[
+    [Optional[WithNumber[Optional[int]]], Optional[WithNumber[Optional[int]]]],
+    Result | bad[str],
+]
+
+assert main(WithNumber(16), WithNumber(2)) == obj(multiplication=32, division=8)
+assert main(WithNumber(16), WithNumber(0)) == bad("division by zero")
+assert main(WithNumber(16), WithNumber(None)) is None
+assert main(WithNumber(16), None) is None
+```
 
 ### Structure tools
 For collections
