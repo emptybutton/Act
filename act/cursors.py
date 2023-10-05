@@ -974,6 +974,19 @@ def _fn(*cursors: _ActionCursor) -> Callable[_ActionCursor, Callable]:
     argument_order = _normilized(tmap(lambda p: p.priority, required_parameters))
 
     def decorator(main: _ActionCursor) -> Callable:
+        if _is_parameters_non_matching(required_parameters, main._parameters):
+            raise ActionCursorError("non-matching parameters to arguments")
+
         def func(*args, **kwargs):
             if not has_kwargs and kwargs:
                 raise ActionCursorError("keyword arguments")
+
+
+def _is_parameters_non_matching(
+    first_parameters: tuple[_ActionCursorParameter],
+    second_parameters: tuple[_ActionCursorParameter],
+) -> bool:
+    return (
+        len(first_parameters) == len(second_parameters)
+        and frozenset(first_parameters) == frozenset(second_parameters)
+    )
