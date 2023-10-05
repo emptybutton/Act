@@ -13,13 +13,13 @@ from typing import (
 from pyannotating import Special
 
 from act.aggregates import Access
-from act.annotations import K, V, Pm, R, O, Union, CommentAnnotation
+from act.annotations import K, V, Pm, R, O, Union, CommentAnnotation, Annotation
 from act.atomization import fun
 from act.contexting import (
     contextually, contexted, contextualizing, be
 )
 from act.data_flow import (
-    mergely, by, io, when, eventually, and_via_indexer, indexer_of
+    mergely, by, io, when, eventually, and_via_indexer, indexer_of, via_indexer
 )
 from act.errors import ObjectTemplateError
 from act.error_flow import raising
@@ -54,6 +54,7 @@ __all__ = (
     "sculpture_of",
     "original_of",
     "out",
+    "ActionOf",
 )
 
 
@@ -776,3 +777,11 @@ def _sculpture_property_of(descriptor: Any, value: Any) -> property:
         )
 
     return sculpture_property
+
+
+@via_indexer
+def ActionOf(
+    parameters_annotation: Annotation,
+    return_annotation: Annotation,
+) -> temp:
+    return temp(__call__=Callable[parameters_annotation, return_annotation])
