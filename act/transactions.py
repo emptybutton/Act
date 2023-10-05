@@ -370,6 +370,9 @@ class _TransactionCursor:
 
         return self.__modes(operation)
 
+    def same(self, value: V) -> V:
+        return self(_get)(value)
+
     def child_for(self, *modes: ModeT) -> Self:
         child = type(self)(
             *modes,
