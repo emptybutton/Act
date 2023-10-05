@@ -9,7 +9,7 @@ from typing import (
 
 from pyannotating import Special
 
-from act.annotations import Pm, V, R, I, A, dirty, ArgumentsT, ActionT, Unia
+from act.annotations import Pm, V, R, I, A, dirty, ArgumentsT, ActionT, Unia, Cn
 from act.atomization import fun
 from act.errors import ReturningError, MatchingError
 from act.partiality import will, rpartial, partial, partially
@@ -21,6 +21,7 @@ from act.tools import documenting_by, items_of, _get
 
 
 __all__ = (
+    "rec",
     "io",
     "eventually",
     "with_result",
@@ -46,6 +47,10 @@ __all__ = (
     "break_",
     "when",
 )
+
+
+def rec(action: Callable[Cn[Self, Pm], R]) -> Callable[Pm, R]:
+    return action |to| action
 
 
 @documenting_by(
