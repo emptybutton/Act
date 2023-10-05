@@ -44,6 +44,8 @@ __all__ = (
     "default_descriptor",
     "obj",
     "temp",
+    "struct",
+    "name_enum_of",
     "is_templated",
     "templated_attrs_of",
     "dict_of",
