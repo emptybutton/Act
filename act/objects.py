@@ -325,7 +325,7 @@ class obj(_AttributeKeeper):
             return super().__delattr__(attr_name)
 
         if attr_name not in self.__dict__.keys():
-            if default_descriptor_ in self.__dict__.keys():
+            if default_descriptor in self.__dict__.keys():
                 default_descriptor_ = default_descriptor_of(self)
                 if hasattr(default_descriptor_, "__delete__"):
                     return default_descriptor_of(self).__delete__(self)
