@@ -515,6 +515,9 @@ class _ActionCursor(Mapping):
     def _merged_with(self, other: Special[Self], *, by: merger_of[Any]) -> Self:
         operation = by
 
+        if self._is_call_generator_static is not other._is_call_generator_static:
+            raise ActionCursorError("combining dynamic and static cursors")
+
         cursor = (
             self._of(
                 ActionChain([lambda root: contextual(
