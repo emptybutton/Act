@@ -3,7 +3,7 @@ Library for dynamic functional programming and more.
 
 Enter this command and go to the [documentation](https://github.com/TheArtur128/Act/blob/main/DOCS.md):
 ```
-pip install act4
+pip install act4==3.1.0
 ```
 
 ### Overview
