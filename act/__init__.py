@@ -25,6 +25,7 @@ from act.structures import *
 from act.synonyms import *
 from act.testing import *
 from act.tools import *
+from act.transactions import *
 
 
 __all__ = tfilter(not_(str.startswith |by| '__'), dir())
