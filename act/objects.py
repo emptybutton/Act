@@ -218,13 +218,24 @@ class _AttributeKeeper(Arbitrary, ABC):
 
 
 @partially
-def with_default_descriptor(descriptor: Any, obj_: Arbitrary) -> Arbitrary:
+def with_default_descriptor(
+    descriptor_of: Callable[str, Any],
+    obj_: Arbitrary,
+) -> Arbitrary:
     obj_ = copy(obj_)
-    obj_._obj_default_descriptor__ = descriptor
+    setattr(obj_, default_descriptor, descriptor_of)
     return obj_
 
 
-default_descriptor: str = "_obj_default_descriptor__"
+default_descriptor: str = "_obj_default_descriptor_of__"
+
+
+def default_descriptor_of(obj: Any) -> Special[None]:
+    return (
+        getattr(obj, default_descriptor)
+        if hasattr(obj, default_descriptor)
+        else None
+    )
 
 
 _to_fill = contextualizing(flag_about("_to_fill"))
@@ -266,11 +277,11 @@ class obj(_AttributeKeeper):
 
         if (
             attr_name not in self.__dict__.keys()
-            and "_obj_default_descriptor__" in self.__dict__.keys()
-            and hasattr(self._obj_default_descriptor__, "__get__")
+            and default_descriptor in self.__dict__.keys()
         ):
-            return self._obj_default_descriptor__.__get__(self, type(self))
-
+            default_descriptor_ = default_descriptor_of(self)(attr_name)
+            if hasattr(default_descriptor_, "__get__"):
+                return default_descriptor_.__get__(self, type(self))
 
         value = object.__getattribute__(self, attr_name)
         context, stored_value = contexted(value)
@@ -291,11 +302,10 @@ class obj(_AttributeKeeper):
             return super().__setattr__(attr_name, value)
 
         if attr_name not in self.__dict__.keys():
-            if (
-                "_obj_default_descriptor__" in self.__dict__.keys()
-                and hasattr(self._obj_default_descriptor__, "__set__")
-            ):
-                return self._obj_default_descriptor__.__set__(self, value)
+            if default_descriptor in self.__dict__.keys():
+                default_descriptor_ = default_descriptor_of(self)(attr_name)
+                if hasattr(default_descriptor_, "__set__"):
+                    return default_descriptor_.__set__(self, value)
             else:
                 return super().__setattr__(attr_name, value)
 
@@ -312,11 +322,10 @@ class obj(_AttributeKeeper):
             return super().__delattr__(attr_name)
 
         if attr_name not in self.__dict__.keys():
-            if (
-                "_obj_default_descriptor__" in self.__dict__.keys()
-                and hasattr(self._obj_default_descriptor__, "__delete__")
-            ):
-                return self._obj_default_descriptor__.__delete__(self)
+            if default_descriptor_ in self.__dict__.keys():
+                default_descriptor_ = default_descriptor_of(self)
+                if hasattr(default_descriptor_, "__delete__"):
+                    return default_descriptor_of(self).__delete__(self)
             else:
                 return super().__delattr__(attr_name)
 
