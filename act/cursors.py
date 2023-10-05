@@ -226,8 +226,10 @@ class _ActionCursor(Mapping):
     def __repr__(self) -> str:
         return f"({self._get_raw_repr()})"
 
-    def _get_raw_repr(self) -> str:
-        return f"λ{{}}: {self._internal_repr}".format(
+    def _get_raw_repr(self, *, is_in_fun: bool = False) -> str:
+        start_sign = str() if is_in_fun else 'λ'
+
+        return f"{start_sign}{{}}: {self._internal_repr}".format(
             ', '.join(map(str, self._parameters))
         )
 
