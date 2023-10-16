@@ -509,7 +509,7 @@ def struct(type_: type) -> temp:
     )
 
     return temp(**{
-        field.name: field >= when(
+        field.name: when(
             (
                 lambda f: f.default is not MISSING,
                 attrgetter("default") |then>> _filled,
@@ -519,7 +519,7 @@ def struct(type_: type) -> temp:
                 methodcaller("default_factory") |then>> _filled,
             ),
             (..., attrgetter("type")),
-        )
+        )(field)
         for field in dict_of(dataclass_)["__dataclass_fields__"].values()
     })
 
