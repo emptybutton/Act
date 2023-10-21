@@ -525,7 +525,9 @@ def struct(type_: type) -> temp:
 
 
 def name_enum_of(annotated: temp(__annotations__=Iterable[str])) -> obj:
-    return obj.of({name: name for name in annotated.__annotations__.keys()})
+    names = tuple(annotated.__annotations__.keys())
+
+    return obj(all=names, all_=names) & obj.of({name: name for name in names})
 
 
 @partially
