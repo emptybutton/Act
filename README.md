@@ -46,7 +46,7 @@ def main(do: Do, a: WithNumber[Optional[int]], b: WithNumber[Optional[int]]) -> 
 # As a result, `main` has this type.
 main: Callable[
     [Optional[WithNumber[Optional[int]]], Optional[WithNumber[Optional[int]]]],
-    Result | bad[str],
+    Result[int] | bad[str],
 ]
 
 assert main(WithNumber(16), WithNumber(2)) == obj(multiplication=32, division=8)

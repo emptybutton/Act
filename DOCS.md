@@ -40,7 +40,7 @@ main(1)()(2, 3)(4)
 ```
 
 ...or attribute getting
-```python
+```py
 class WithA:
     def __init__(self, a):
         self.a = a
