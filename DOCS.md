@@ -436,7 +436,7 @@ argument and something
 > state_from(2) == [1, 2]
 > state_from(3) == [1, 2, 3]
 > 
-> state == [1, 2, 3, 4]
+> state == [1, 2, 3]
 > ```
 
 > To print with return just like in that first example, you can use the `shown` shortcut.
