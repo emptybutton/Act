@@ -5,7 +5,7 @@ from pytest import raises
 
 from act.errors import InvalidInitializationError
 from act.immutability import *
-from act.objects import obj
+from act.objects import val
 
 
 def test_not_initializable():
@@ -17,7 +17,7 @@ def test_not_initializable():
 
 
 def test_to_clone():
-    object_ = obj(mock_attribute=42)
+    object_ = val(mock_attribute=42)
 
     cloned_object = to_clone(setattr)(object_, 'mock_attribute', 4)
 

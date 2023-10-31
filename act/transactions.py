@@ -14,7 +14,7 @@ from act.contexting import contextualizing, of
 from act.data_flow import via_indexer, to, by
 from act.flags import flag_about
 from act.monads import bad, left
-from act.objects import temp, obj, ActionOf
+from act.objects import temp, val, ActionOf
 from act.parameter_slicing import take
 from act.partiality import partial, partially, will, rwill
 from act.pipeline import ActionChain, then, frm, fbind_by
@@ -278,16 +278,16 @@ def _map_rollbackable(
     main_decorated: Callable[Callable[_Pm3, A], Callable[Pm, R]],
     rollback_decorated: Callable[Callable[_Pm4, B], Callable[_Pm2, L]] = _get,
 ) -> ActionOf[Pm, R] & RollbackableBy[_Pm2, L] | ActionOf[Pm, R]:
-    with_decorated_main = obj(__call__=main_decorated(operation))
+    with_decorated_main = val(__call__=main_decorated(operation))
 
     if isinstance(operation, RollbackableBy[..., Any]):
-        with_decorated_rollback = obj(
+        with_decorated_rollback = val(
             rollback=rollback_decorated(operation.rollback),
         )
     else:
-        with_decorated_rollback = obj()
+        with_decorated_rollback = val()
 
-    return obj.of(operation) & with_decorated_main & with_decorated_rollback
+    return val(operation) & with_decorated_main & with_decorated_rollback
 
 
 _Mode: TypeAlias = Callable[
@@ -313,10 +313,10 @@ def transaction_mode_of(is_to_rollback: Callable[R, bool]) -> _Mode:
     return fun(decorated |then>> _rollbackable)
 
 
-binary = obj(_rollbackable_version_name="binary")
+binary = val(_rollbackable_version_name="binary")
 
 
-@obj.of
+@val
 class rollbackable:
     __call__ = _rollbackable
     map = _map_rollbackable
@@ -421,7 +421,7 @@ Do: TypeAlias = _TransactionCursor
 _result = contextualizing(flag_about("_result"))
 
 
-@obj.of
+@val
 class do:
     rollbacks = flag_about("rollbacks")
     result = flag_about("result")

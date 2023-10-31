@@ -12,7 +12,7 @@ from act.contexting import (
 from act.data_flow import io, by, to, when, break_, and_via_indexer
 from act.effects import context_effect
 from act.flags import flag_about, nothing, Flag, pointed, to_points
-from act.objects import obj
+from act.objects import val
 from act.operators import not_
 from act.partiality import will, partially, rpartial
 from act.pipeline import discretely, ActionChain, then, fbind_by
@@ -45,7 +45,7 @@ ok = contextualizing(flag_about('ok'))
 bad = contextualizing(flag_about('bad', negative=True))
 
 
-@obj.of
+@val
 class maybe:
     """
     Decorator to stop an execution when an input value is returned with the
@@ -58,7 +58,7 @@ class maybe:
     __call__ = discretely(on |to| not_(of(bad)))
 
 
-@obj.of
+@val
 class optionally:
     """
     Decorator to stop an execution when an input value is `None`.

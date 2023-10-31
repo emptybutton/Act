@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from functools import partial
 from operator import add, attrgetter
 
@@ -17,125 +18,126 @@ test_dict_of = case_of(
 )
 
 
-test_obj_creation = case_of(
-    (lambda: obj().__dict__, dict()),
-    (lambda: obj(a=1, b=2).__dict__, dict(a=1, b=2)),
-    (lambda: obj(a=1, b=2), obj(a=1, b=2)),
-    (lambda: obj(a=1, b=2), obj(b=2, a=1)),
+test_val_creation = case_of(
+    (lambda: val().__dict__, dict()),
+    (lambda: val(a=1, b=2).__dict__, dict(a=1, b=2)),
+    (lambda: val(a=1, b=2), val(a=1, b=2)),
+    (lambda: val(a=1, b=2), val(b=2, a=1)),
 )
 
 
-test_obj_reconstruction = case_of(
-    (lambda: obj(a=1) + 'b', obj(a=1, b=None)),
-    (lambda: obj(a=1) + 'a', obj(a=1)),
-    (lambda: obj() + 'a', obj(a=None)),
-    (lambda: obj(a=1, b=2) - 'a', obj(b=2)),
-    (lambda: obj(b=2) - 'a', obj(b=2)),
-    (lambda: obj(b=2) - 'b', obj()),
-    (lambda: obj() - 'b', obj()),
+test_val_reconstruction = case_of(
+    (lambda: val(a=1) + 'b', val(a=1, b=None)),
+    (lambda: val(a=1) + 'a', val(a=1)),
+    (lambda: val() + 'a', val(a=None)),
+    (lambda: val(a=1, b=2) - 'a', val(b=2)),
+    (lambda: val(b=2) - 'a', val(b=2)),
+    (lambda: val(b=2) - 'b', val()),
+    (lambda: val() - 'b', val()),
 )
 
 
-test_obj_sum = case_of(
+test_val_sum = case_of(
     (
-        lambda: obj.of(MockA(1), MockB(2)),
-        obj(a=1, b=2),
+        lambda: val(MockA(1), MockB(2)),
+        val(a=1, b=2),
     ),
-    (lambda: obj(a=1) & obj(), obj(a=1)),
-    (lambda: obj(a=1) & obj(b=2), obj(a=1, b=2)),
-    (lambda: obj(a=1) & obj(b=2), obj(b=2, a=1)),
-    (lambda: obj(a=1) & obj(a=2), obj(a=2)),
-    (lambda: obj(a=1) & MockB(2), obj(a=1, b=2)),
-    (lambda: MockA(1) & obj(b=2), obj(a=1, b=2)),
+    (lambda: val(val(val(a=1))), val(a=1)),
+    (lambda: val(a=1) & val(), val(a=1)),
+    (lambda: val(a=1) & val(b=2), val(a=1, b=2)),
+    (lambda: val(a=1) & val(b=2), val(b=2, a=1)),
+    (lambda: val(a=1) & val(a=2), val(a=2)),
+    (lambda: val(a=1) & MockB(2), val(a=1, b=2)),
+    (lambda: MockA(1) & val(b=2), val(a=1, b=2)),
 )
 
 
-test_obj_single_annotating = case_of(
-    (lambda: isinstance(MockA(4), obj(a=4)), True),
-    (lambda: isinstance(MockA(8), obj(a=4)), False),
-    (lambda: isinstance(obj(a=4), obj(a=4)), True),
-    (lambda: isinstance(obj(a=4), obj()), True),
-    (lambda: isinstance(obj(), obj()), True),
-    (lambda: isinstance(obj(a=4, b=2), obj(a=4)), True),
-    (lambda: isinstance(obj(a=4, b=2), obj(a=4, b=4)), False),
-    (lambda: isinstance(obj(a=4, b=2), obj(a=4, b=2)), True),
-    (lambda: isinstance(MockB(4), obj(a=4)), False),
-    (lambda: isinstance(MockA(4), obj()), True),
-    (lambda: isinstance(MockB(4), obj()), True),
-    (lambda: isinstance(obj(a=1, b=2, c=3), obj()), True),
-    (lambda: isinstance(obj(), obj()), True),
+test_val_single_annotating = case_of(
+    (lambda: isinstance(MockA(4), val(a=4)), True),
+    (lambda: isinstance(MockA(8), val(a=4)), False),
+    (lambda: isinstance(val(a=4), val(a=4)), True),
+    (lambda: isinstance(val(a=4), val()), True),
+    (lambda: isinstance(val(), val()), True),
+    (lambda: isinstance(val(a=4, b=2), val(a=4)), True),
+    (lambda: isinstance(val(a=4, b=2), val(a=4, b=4)), False),
+    (lambda: isinstance(val(a=4, b=2), val(a=4, b=2)), True),
+    (lambda: isinstance(MockB(4), val(a=4)), False),
+    (lambda: isinstance(MockA(4), val()), True),
+    (lambda: isinstance(MockB(4), val()), True),
+    (lambda: isinstance(val(a=1, b=2, c=3), val()), True),
+    (lambda: isinstance(val(), val()), True),
 )
 
 
-test_obj_union_annotating_with_one_attribute = case_of(
-    (lambda: isinstance(MockA(1), obj(a=1) | obj(a=2)), True),
-    (lambda: isinstance(MockA(2), obj(a=1) | obj(a=2)), True),
-    (lambda: isinstance(MockA(3), obj(a=1) | obj(a=2)), False),
-    (lambda: isinstance(MockB(3), obj(a=1) | obj(a=2)), False),
-    (lambda: isinstance(obj(a=1), obj(a=1) | obj(a=2)), True),
-    (lambda: isinstance(obj(a=2), obj(a=1) | obj(a=2)), True),
-    (lambda: isinstance(obj(a=3), obj(a=1) | obj(a=2)), False),
-    (lambda: isinstance(obj(b=3), obj(a=1) | obj(a=2)), False),
-    (lambda: isinstance(obj(a=1, b=3), obj(a=1) | obj(a=2)), True),
+test_val_union_annotating_with_one_attribute = case_of(
+    (lambda: isinstance(MockA(1), val(a=1) | val(a=2)), True),
+    (lambda: isinstance(MockA(2), val(a=1) | val(a=2)), True),
+    (lambda: isinstance(MockA(3), val(a=1) | val(a=2)), False),
+    (lambda: isinstance(MockB(3), val(a=1) | val(a=2)), False),
+    (lambda: isinstance(val(a=1), val(a=1) | val(a=2)), True),
+    (lambda: isinstance(val(a=2), val(a=1) | val(a=2)), True),
+    (lambda: isinstance(val(a=3), val(a=1) | val(a=2)), False),
+    (lambda: isinstance(val(b=3), val(a=1) | val(a=2)), False),
+    (lambda: isinstance(val(a=1, b=3), val(a=1) | val(a=2)), True),
 )
 
 
-test_obj_union_annotating_with_multiple_attributes = case_of(
-    (lambda: isinstance(obj(a=1, b=3), obj(a=1) | obj(b=2)), True),
-    (lambda: isinstance(obj(a=0, b=2), obj(a=1) | obj(b=2)), True),
-    (lambda: isinstance(obj(a=0, b=0, c=0), obj(a=1) | obj(b=2)), False),
+test_val_union_annotating_with_multiple_attributes = case_of(
+    (lambda: isinstance(val(a=1, b=3), val(a=1) | val(b=2)), True),
+    (lambda: isinstance(val(a=0, b=2), val(a=1) | val(b=2)), True),
+    (lambda: isinstance(val(a=0, b=0, c=0), val(a=1) | val(b=2)), False),
     (
         lambda: isinstance(
-            obj(a=0, b=0, c=0),
-            obj(a=1) | obj(b=2, c=2) | obj(b=3, c=3),
+            val(a=0, b=0, c=0),
+            val(a=1) | val(b=2, c=2) | val(b=3, c=3),
         ),
         False,
     ),
     (
         lambda: isinstance(
-            obj(a=0, b=2, c=2),
-            obj(a=1) | obj(b=2, c=2) | obj(b=3, c=3),
+            val(a=0, b=2, c=2),
+            val(a=1) | val(b=2, c=2) | val(b=3, c=3),
         ),
         True,
     ),
     (
         lambda: isinstance(
-            obj(a=1, b=2, c=3, d=40),
-            obj(a=1) | obj(b=2, c=2) | obj(b=3, c=3),
+            val(a=1, b=2, c=3, d=40),
+            val(a=1) | val(b=2, c=2) | val(b=3, c=3),
         ),
         True,
     ),
     (
         lambda: isinstance(
-            obj(a=0, b=3, c=3, d=40),
-            obj(a=1) | obj(b=2, c=2) | obj(b=3, c=3),
+            val(a=0, b=3, c=3, d=40),
+            val(a=1) | val(b=2, c=2) | val(b=3, c=3),
         ),
         True,
     ),
 )
 
 
-test_callable_obj = case_of(
-    (lambda: callable(obj(a=1, b=2)), False),
-    (lambda: callable(obj(a=1, __call__=lambda _: ...)), True),
-    (lambda: obj(action=partial(add, 10)).action(6), 16),
-    (lambda: obj(_=1, __call__=lambda v: v + 5)(3), 8),
+test_callable_val = case_of(
+    (lambda: callable(val(a=1, b=2)), False),
+    (lambda: callable(val(a=1, __call__=lambda _: ...)), True),
+    (lambda: val(action=partial(add, 10)).action(6), 16),
+    (lambda: val(_=1, __call__=lambda v: v + 5)(3), 8),
 )
 
 
-test_obj_with_method = case_of(
-    (lambda: obj(value=5, method=as_method(lambda o, v: o.value + v)).method(3), 8)
+test_val_with_method = case_of(
+    (lambda: val(value=5, method=as_method(lambda o, v: o.value + v)).method(3), 8)
 )
 
 
-test_obj_with_descriptor_getting = case_of(
-    (lambda: obj(a=5, b=as_descriptor(property(lambda o: o.a + 3))).b, 8),
-    (lambda: obj(a=5, b=as_descriptor(lambda o, v: o.a + v)).b(3), 8),
+test_val_with_descriptor_getting = case_of(
+    (lambda: val(a=5, b=as_descriptor(property(lambda o: o.a + 3))).b, 8),
+    (lambda: val(a=5, b=as_descriptor(lambda o, v: o.a + v)).b(3), 8),
 )
 
 
-def test_obj_with_descriptor_setting():
-    object_ = obj(
+def test_val_with_descriptor_setting():
+    valect_ = val(
         a=14,
         b=as_descriptor(property(
             lambda o: o.a + 2,
@@ -143,43 +145,43 @@ def test_obj_with_descriptor_setting():
         )),
     )
 
-    assert object_.b == 16
+    assert valect_.b == 16
 
-    object_.b = 3
+    valect_.b = 3
 
-    assert object_.b == 8
+    assert valect_.b == 8
 
 
-def test_obj_with_only_descriptor_setting():
-    object_ = obj(
+def test_val_with_only_descriptor_setting():
+    valect_ = val(
         a=...,
         b=as_descriptor(property(fset=lambda o, v: setattr(o, 'a', v + 10))),
     )
 
-    object_.b = 6
+    valect_.b = 6
 
-    assert object_.a == 16
+    assert valect_.a == 16
 
 
-def test_obj_with_only_descriptor_deleting():
+def test_val_with_only_descriptor_deleting():
     logs = list()
 
-    object_ = obj(
+    valect_ = val(
         a=5,
         b=as_descriptor(property(fdel=lambda o: logs.append(o.a + 3))),
     )
 
-    del object_.b
+    del valect_.b
 
-    assert not hasattr(object_, 'b')
-    assert 'b' in object_.__dict__.keys()
+    assert not hasattr(valect_, 'b')
+    assert 'b' in valect_.__dict__.keys()
 
     assert logs == [8]
 
 
 test_from_ = case_of(
-    (lambda: from_(obj(a=1, b=2), obj(c=3)), obj(a=1, b=2, c=3)),
-    (lambda: from_(obj(a=2), obj(a=1)), obj(a=2)),
+    (lambda: from_(val(a=1, b=2), val(c=3)), val(a=1, b=2, c=3)),
+    (lambda: from_(val(a=2), val(a=1)), val(a=2)),
     (
         lambda: (lambda r: (type(r), r.__dict__))(from_(
             MockB(2),
@@ -245,21 +247,21 @@ test_to_attr = case_of((
 
 
 def test_to_attr_with_immutability():
-    obj_ = MockA(3)
+    val_ = MockA(3)
 
-    result = to_attr('a', lambda a: a + 5)(obj_)
+    result = to_attr('a', lambda a: a + 5)(val_)
 
     assert isinstance(result, MockA)
-    assert result is not obj_
+    assert result is not val_
     assert result.a == 8
 
 
 def test_to_attr_with_mutability():
-    obj_ = MockA(3)
+    val_ = MockA(3)
 
-    result = to_attr('a', lambda a: a + 5, mutably=True)(obj_)
+    result = to_attr('a', lambda a: a + 5, mutably=True)(val_)
 
-    assert result is obj_
+    assert result is val_
     assert result.a == 8
 
 
@@ -269,7 +271,7 @@ test_to_attr_without_attribute = case_of((
 
 
 test_temp_creation = case_of(
-    (lambda: type(temp()), obj),
+    (lambda: type(temp()), val),
     (lambda: temp(a=int)(4).__dict__, dict(a=4)),
     (lambda: temp(a=int)(a=4).__dict__, dict(a=4)),
     (lambda: temp(a=int, b=int)(4, 8).__dict__, dict(a=4, b=8)),
@@ -323,16 +325,16 @@ test_temp_sum = case_of(
 
 
 test_temp_with_values = case_of(
-    (lambda: type(temp() & obj(a=1)), obj),
-    (lambda: type(obj(a=1) & temp()), obj),
-    (lambda: obj(a=1) & temp(), obj(a=1)),
-    (lambda: temp() & obj(a=1), obj(a=1)),
-    (lambda: temp(a=int) & obj() == temp(a=int), True),
-    (lambda: obj() & temp(a=int) == temp(a=int), True),
-    (lambda: (temp(a=int) & obj(b=2))(1), obj(a=1, b=2)),
+    (lambda: type(temp() & val(a=1)), val),
+    (lambda: type(val(a=1) & temp()), val),
+    (lambda: val(a=1) & temp(), val(a=1)),
+    (lambda: temp() & val(a=1), val(a=1)),
+    (lambda: temp(a=int) & val() == temp(a=int), True),
+    (lambda: val() & temp(a=int) == temp(a=int), True),
+    (lambda: (temp(a=int) & val(b=2))(1), val(a=1, b=2)),
     (
-        lambda: (obj(a=1) & temp(b=int) & obj(c=3) & temp(d=int))(2, 4),
-        obj(a=1, b=2, c=3, d=4),
+        lambda: (val(a=1) & temp(b=int) & val(c=3) & temp(d=int))(2, 4),
+        val(a=1, b=2, c=3, d=4),
     ),
 )
 
@@ -340,50 +342,50 @@ test_temp_with_values = case_of(
 test_temp_single_annotating = case_of(
     (lambda: isinstance(MockA(1), temp(a=int)), True),
     (lambda: isinstance(MockB(1), temp(a=int)), False),
-    (lambda: isinstance(obj(a=1, b=2), temp(a=int, b=int)), True),
-    (lambda: isinstance(obj(b=2, a=1), temp(a=int, b=int)), True),
-    (lambda: isinstance(obj(c=3, b=2, a=1), temp(a=int, b=int)), True),
-    (lambda: isinstance(obj(c=3, b=2, a=1), temp()), True),
-    (lambda: isinstance(obj(), temp()), True),
-    (lambda: isinstance(obj(a=1), temp()), True),
+    (lambda: isinstance(val(a=1, b=2), temp(a=int, b=int)), True),
+    (lambda: isinstance(val(b=2, a=1), temp(a=int, b=int)), True),
+    (lambda: isinstance(val(c=3, b=2, a=1), temp(a=int, b=int)), True),
+    (lambda: isinstance(val(c=3, b=2, a=1), temp()), True),
+    (lambda: isinstance(val(), temp()), True),
+    (lambda: isinstance(val(a=1), temp()), True),
 )
 
 
 test_temp_single_annotating_with_values = case_of(
-    (lambda: isinstance(obj(a=10, b=2), temp(a=int) & obj(b=2)), True),
-    (lambda: isinstance(obj(a=10, b=2, c=3), temp(a=int) & obj(b=2)), True),
-    (lambda: isinstance(obj(a=10, b=3), temp(a=int) & obj(b=2)), False),
+    (lambda: isinstance(val(a=10, b=2), temp(a=int) & val(b=2)), True),
+    (lambda: isinstance(val(a=10, b=2, c=3), temp(a=int) & val(b=2)), True),
+    (lambda: isinstance(val(a=10, b=3), temp(a=int) & val(b=2)), False),
 )
 
 
 test_temp_union_annotating = case_of(
-    (lambda: isinstance(obj(a=1), temp(a=int) | temp(b=int)), True),
-    (lambda: isinstance(obj(b=2), temp(a=int) | temp(b=int)), True),
-    (lambda: isinstance(obj(c=3), temp(a=int) | temp(b=int)), False),
-    (lambda: isinstance(obj(a=1), temp() | temp(a=int)), True),
-    (lambda: isinstance(obj(c=3), temp() | temp(a=int)), True),
-    (lambda: isinstance(obj(), temp() | temp(a=int)), True),
-    (lambda: isinstance(obj(a=1), temp(a=int) | obj(b=2)), True),
-    (lambda: isinstance(obj(b=2), obj(b=2) | temp(a=int)), True),
-    (lambda: isinstance(obj(c=3), obj(b=2) | temp(a=int)), False),
+    (lambda: isinstance(val(a=1), temp(a=int) | temp(b=int)), True),
+    (lambda: isinstance(val(b=2), temp(a=int) | temp(b=int)), True),
+    (lambda: isinstance(val(c=3), temp(a=int) | temp(b=int)), False),
+    (lambda: isinstance(val(a=1), temp() | temp(a=int)), True),
+    (lambda: isinstance(val(c=3), temp() | temp(a=int)), True),
+    (lambda: isinstance(val(), temp() | temp(a=int)), True),
+    (lambda: isinstance(val(a=1), temp(a=int) | val(b=2)), True),
+    (lambda: isinstance(val(b=2), val(b=2) | temp(a=int)), True),
+    (lambda: isinstance(val(c=3), val(b=2) | temp(a=int)), False),
 )
 
 
 test_is_templated = case_of(
     (lambda: is_templated('a', 4), False),
     (lambda: is_templated('a', MockA(...)), False),
-    (lambda: is_templated('a', obj(a=1, b=2)), False),
-    (lambda: is_templated('a', obj()), False),
+    (lambda: is_templated('a', val(a=1, b=2)), False),
+    (lambda: is_templated('a', val()), False),
     (lambda: is_templated('a', temp(a=int, b=int)), True),
-    (lambda: is_templated('a', temp(a=int) & obj(b=2)), True),
+    (lambda: is_templated('a', temp(a=int) & val(b=2)), True),
 )
 
 
 test_templated_attrs_of = case_of(
     (lambda: templated_attrs_of(4), dict()),
     (lambda: templated_attrs_of(MockA(...)), dict()),
-    (lambda: templated_attrs_of(obj()), dict()),
-    (lambda: templated_attrs_of(obj(a=1, b=2)), dict()),
+    (lambda: templated_attrs_of(val()), dict()),
+    (lambda: templated_attrs_of(val(a=1, b=2)), dict()),
     (lambda: templated_attrs_of(temp(a=int, b=str)), dict(a=int, b=str)),
     (lambda: templated_attrs_of(temp(a=int, b=str)), dict(a=int, b=str)),
 )
@@ -451,7 +453,7 @@ def test_read_only_setting(value):
 
 
 def test_sculpture_default_descriptor():
-    sculpture = sculpture_of(obj(a=1, b=2), value='a')
+    sculpture = sculpture_of(val(a=1, b=2), value='a')
 
     assert sculpture.value == 1
 
@@ -459,3 +461,42 @@ def test_sculpture_default_descriptor():
 
     sculpture.b = 4
     assert sculpture.b == 4
+
+
+def test_struct():
+    @dataclass
+    class A:
+        a: int
+
+    @dataclass
+    class B:
+        b: str
+
+    assert struct(A) == temp(a=int)
+    assert struct(A, B) == temp(a=int, b=str)
+
+
+def test_obj():
+    object = obj(val(b=4), a=lambda self, a: a * self.b)
+
+    assert object.b == 4
+    assert object.a(4) == 16
+
+    assert obj(object) == object
+    assert obj(object, {'c': 10}).c == 10
+    assert obj(object, val(b=8)).b == 8
+    assert (object & val(b=8)).b == 8
+
+
+def test_namespace():
+    @namespace
+    class space:
+        a: str
+        b: str
+        all_: str
+
+    assert space.a == 'a'
+    assert space.b == 'b'
+    assert space.all_ == 'all_'
+
+    assert space.all == ('a', 'b', 'all_')

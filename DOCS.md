@@ -1165,44 +1165,44 @@ pointed(parallel 4.0) 16
 ### Structural OOP
 Create objects on the fly
 ```py
-obj(name="William")  # <name="William">
-obj(name="William").name  # William
+val(name="William")  # <name="William">
+val(name="William").name  # William
 ```
 
 ...and modify 
 ```py
-obj(name="William") & obj(age=24)  # <name="William", age=24>
+val(name="William") & val(age=24)  # <name="William", age=24>
 
-(obj(name="William") & obj(age=24)) - 'age'  # <name="William">
-obj(name="William") + 'age'  # <name="William", age=None>
+(val(name="William") & val(age=24)) - 'age'  # <name="William">
+val(name="William") + 'age'  # <name="William", age=None>
 ```
 
 </br>
 
-> Objects are compared by value, support `instance` and create `Union` on `|` so
+> Objects are compared by value, support `isinstance` and create `Union` on `|` so
 > ```py
 > class WithA:
 >     def __init__(a):
 >         self.a = a
 > 
 > 
-> obj(a=4) == WithA(4)
+> val(a=4) == WithA(4)
 > 
-> instance(obj(name="William"), obj(name="William"))
-> not instance(obj(name="not William"), obj(name="William"))
+> isinstance(val(name="William"), val(name="William"))
+> not isinstance(val(name="not William"), val(name="William"))
 > 
-> instance(obj(name="William", age=24), obj(name="William"))
-> not instance(obj(name="William"), obj(name="William", age=24))
+> isinstance(val(name="William", age=24), val(name="William"))
+> not isinstance(val(name="William"), val(name="William", age=24))
 > 
-> instance(obj(name="William"), obj(name="William") | obj(age=24))
-> instance(obj(age=24), obj(name="William") | obj(age=24))
+> isinstance(val(name="William"), val(name="William") | val(age=24))
+> isinstance(val(age=24), val(name="William") | val(age=24))
 > ```
 
 </br>
 
 Use methods
 ```py
-namespace = obj(a=2, main=as_method(lambda self, b: self.a ** b))
+namespace = val(a=2, main=as_method(lambda self, b: self.a ** b))
 
 namespace.main  # <bound method <lambda> of <a=2, main=callable(as_method <lambda>)>>
 namespace.main(4)  # 16
@@ -1210,8 +1210,8 @@ namespace.main(4)  # 16
 
 ...properties
 ```py
-container = obj(_value=0, value=as_property(v._value, v._value.ioset(w * 4)))
-# container = obj(_value=0, value=as_property(property(v._value, v._value.ioset(w * 4))))
+container = val(_value=0, value=as_property(v._value, v._value.ioset(w * 4)))
+# container = val(_value=0, value=as_property(property(v._value, v._value.ioset(w * 4))))
 
 container.value  # 0
 container.value = 16  # 64
@@ -1219,7 +1219,7 @@ container.value = 16  # 64
 
 ...and descriptors in general
 ```py
-obj(value=as_descriptor(obj(__get__=to(256)))).value
+val(value=as_descriptor(val(__get__=to(256)))).value
 ```
 ```
 256
@@ -1227,8 +1227,8 @@ obj(value=as_descriptor(obj(__get__=to(256)))).value
 
 Use callable objects
 ```py
-obj(__call__=print)(1, 2, 3, sep=' -> ')
-obj(__call__=as_method(print))(1, 2, 3, sep=' -> ')
+val(__call__=print)(1, 2, 3, sep=' -> ')
+val(__call__=as_method(print))(1, 2, 3, sep=' -> ')
 ```
 ```
 1 -> 2 -> 3
@@ -1244,7 +1244,7 @@ class Beta:
     def __init__(self, b):
         self.b = b
 
-obj.of(Alpha, Beta(2))
+val(Alpha, Beta(2))
 ```
 ```
 <__module__="__main__", a=1, __doc__=None, b=2>
@@ -1267,31 +1267,31 @@ User("Oliver", 24)
 > ```py
 > temp(name=str) & temp(age=int)  # <name: str, age: int>
 > 
-> User = temp(name=str) & obj(age=24)  # <name: str, age=24>
+> User = temp(name=str) & val(age=24)  # <name: str, age=24>
 > User("Oliver")  # <name="Oliver", age=24>
 > 
 > (temp(name=str) & temp(age=int)) - 'age'  # <name: str>
 > temp(name=str) + 'age'  # <name: str, age=None>
 > 
-> (temp(name=str) & obj(__call__=print))("Oliver")(1, 2, 3, sep=' -> ')  # 1 -> 2 -> 3
+> (temp(name=str) & val(__call__=print))("Oliver")(1, 2, 3, sep=' -> ')  # 1 -> 2 -> 3
 > 
-> temp() == obj()
+> temp() == val()
 > ```
 
 > `isinstance` checks for empty fields as their presence.
 > ```py
-> isinstance(obj(name="Oliver", age=24), temp(name=str))
-> isinstance(obj(name="Oliver", age=24), temp(name=str) & obj(age=24))
-> not isinstance(obj(name="Oliver", age=24), temp(name=str) & obj(age=26))
+> isinstance(val(name="Oliver", age=24), temp(name=str))
+> isinstance(val(name="Oliver", age=24), temp(name=str) & val(age=24))
+> not isinstance(val(name="Oliver", age=24), temp(name=str) & val(age=26))
 > 
-> isinstance(obj(name="Oliver"), temp(name=str) | temp(age=int))
-> isinstance(obj(age=24), temp(name=str) | temp(age=int))
+> isinstance(val(name="Oliver"), temp(name=str) | temp(age=int))
+> isinstance(val(age=24), temp(name=str) | temp(age=int))
 > 
-> combination = (temp(name=str) & obj(age=24)) | (obj(name="Oliver") & temp(age=int))
+> combination = (temp(name=str) & val(age=24)) | (val(name="Oliver") & temp(age=int))
 > 
-> isinstance(obj(name="Stone", age=24), combination)
-> not isinstance(obj(name="Stone", age=22), combination)
-> isinstance(obj(name="Oliver", age=2023), combination)
+> isinstance(val(name="Stone", age=24), combination)
+> not isinstance(val(name="Stone", age=22), combination)
+> isinstance(val(name="Oliver", age=2023), combination)
 > ```
 
 </br>
@@ -1326,14 +1326,14 @@ class User:
     age: int
 
 
-isinstance(obj(name="Oliver", age=24), Proto[User])
-isinstance(obj(name="Oliver", age=24, is_mvp=True), Proto[User])
-not isinstance(obj(name="Oliver"), Proto[User])
+isinstance(val(name="Oliver", age=24), Proto[User])
+isinstance(val(name="Oliver", age=24, is_mvp=True), Proto[User])
+not isinstance(val(name="Oliver"), Proto[User])
 ```
 
 Create proxies
 ```py
-original = obj(a=1)
+original = val(a=1)
 
 sculpture = sculpture_of(original, number='a')
 
@@ -1403,7 +1403,7 @@ class WithA:
 
 with_a = WithA(None)
 
-from_(obj(a=1, b=2), with_a)
+from_(val(a=1, b=2), with_a)
 
 with_a.__dict__  # {'a': 1, 'b': 2}
 type(with_a)  # <class '__main__.WithA'>
@@ -1411,10 +1411,10 @@ type(with_a)  # <class '__main__.WithA'>
 
 Use optional attributes
 ```py
-out(obj(a=4)).a == 4
-out(obj()).a is None
+out(val(a=4)).a == 4
+out(val()).a is None
 
-original = obj(a=4)
+original = val(a=4)
 
 out(original).a = 8
 out(original).b = 8
@@ -1471,7 +1471,7 @@ main: Callable[
     Result | bad[str],
 ]
 
-assert main(WithNumber(16), WithNumber(2)) == obj(multiplication=32, division=8)
+assert main(WithNumber(16), WithNumber(2)) == val(multiplication=32, division=8)
 assert main(WithNumber(16), WithNumber(0)) == bad("division by zero")
 assert main(WithNumber(16), WithNumber(None)) is None
 assert main(WithNumber(16), None) is None

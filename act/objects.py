@@ -14,7 +14,7 @@ from pyannotating import Special
 
 from act.aggregates import Access
 from act.annotations import (
-    K, V, Pm, R, O, Union, CommentAnnotation, Annotation, TypeT
+    K, V, Pm, R, O, Union, CommentAnnotation, Annotation, TypeT, ActionT
 )
 from act.atomization import fun
 from act.contexting import (
@@ -28,7 +28,7 @@ from act.error_flow import raising
 from act.flags import flag_about
 from act.immutability import to_clone
 from act.partiality import partially, flipped, partial
-from act.pipeline import then, _generating_pipeline
+from act.pipeline import then, ActionChain, _generating_pipeline
 from act.representations import code_like_repr_of
 from act.synonyms import on
 from act.signatures import call_signature_of
@@ -36,19 +36,21 @@ from act.tools import documenting_by, _get
 
 
 __all__ = (
+    "dict_of",
     "as_method",
     "as_descriptor",
     "as_property",
     "Arbitrary",
     "with_default_descriptor",
     "default_descriptor",
-    "obj",
+    "val",
     "temp",
+    "constructor",
+    "obj",
     "struct",
-    "name_enum_of",
+    "namespace",
     "is_templated",
     "templated_attrs_of",
-    "dict_of",
     "hash_of",
     "expand",
     "from_",
@@ -61,15 +63,32 @@ __all__ = (
     "ActionOf",
 )
 
+
+def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
+    """
+    Function to safely read from `__dict__` attribute.
+
+    Returns an empty `dict` when an input value has no a `__dict__` attribute
+    or casts it to a `dict`, when passing a `Mapping` object.
+    """
+
+    if hasattr(value, "__dict__"):
+        return dict(value.__dict__)
+    elif isinstance(value, Mapping):
+        return dict(**value)
+    else:
+        return dict()
+
+
 as_method = contextualizing(flag_about("as_method"), to=contextually)
 as_descriptor = contextualizing(flag_about("as_descriptor"))
 
 
 def as_property(
-    maybe_property: Callable['obj', R] | property,
-    setter: Optional[Callable[['obj', Any], Any]] = None,
-    deleter: Optional[Callable['obj', Any]] = None,
-) -> as_descriptor[Callable['obj', R] | property]:
+    maybe_property: Callable['val', R] | property,
+    setter: Optional[Callable[['val', Any], Any]] = None,
+    deleter: Optional[Callable['val', Any]] = None,
+) -> as_descriptor[Callable['val', R] | property]:
     property_ = (
         maybe_property
         if isinstance(maybe_property, property)
@@ -89,7 +108,7 @@ class Arbitrary(ABC):
     """
     Interface for objects that do not have a common structure.
 
-    To create an arbitrary object with data, use the `obj` constructor.
+    To create an arbitrary object with data, use the `val` constructor.
 
     To create an object annotated with data and its future filling, use the
     `temp` constructor.
@@ -110,7 +129,7 @@ class Arbitrary(ABC):
     """
 
     @abstractmethod
-    def __init__(self, **attributes):
+    def __init__(self, *objects, **attributes):
         ...
 
     @abstractmethod
@@ -141,14 +160,6 @@ class Arbitrary(ABC):
     def __ror__(self, other: Any) -> Any:
         ...
 
-    @classmethod
-    @abstractmethod
-    def of(cls, *objects: Special[Mapping]) -> Self:
-        """
-        Constructor for data from other objects.
-        Data of subsequent objects have higher priority than previous ones.
-        """
-
     def __class_getitem__(cls: TypeT, _: Any) -> TypeT:
         return cls
 
@@ -161,7 +172,9 @@ class _AttributeKeeper(Arbitrary, ABC):
         "__dict__", "__weakref__", "__slots__"
     )
 
-    def __init__(self, **attributes):
+    def __init__(self, *objects, **attributes):
+        attributes = type(self)._attributes_from(objects) | attributes
+
         self.__dict__ = {
             name: type(self)._for_setting(attr)
             for name, attr in attributes.items()
@@ -174,10 +187,7 @@ class _AttributeKeeper(Arbitrary, ABC):
 
     def __repr__(self) -> str:
         return "<{}>".format(', '.join(
-            (
-                f"{name}"
-                f"{type(self)._field_repr_of('<...>' if value is self else value)}"
-            )
+            type(self)._field_repr_of(name, value)
             for name, value in self.__dict__.items()
         ))
 
@@ -201,10 +211,10 @@ class _AttributeKeeper(Arbitrary, ABC):
             delattr(self, attr_name)
 
     def __and__(self, other: Special[Mapping]) -> Self:
-        return obj.of(self, other)
+        return val(self, other)
 
     def __rand__(self, other: Special[Mapping]) -> Self:
-        return obj.of(other, self)
+        return val(other, self)
 
     def __or__(self, other: Any):
         return Union[self, other]
@@ -218,13 +228,28 @@ class _AttributeKeeper(Arbitrary, ABC):
         ...
 
     @staticmethod
-    @abstractmethod
-    def _field_repr_of(value: Any) -> str:
-        ...
+    def _field_repr_of(name: str, value: Any) -> str:
+        context, stored_value = contexted(value)
 
-    @classmethod
-    def of(cls, *objects: Special[Mapping]) -> Self:
-        return cls(**reduce(or_, map(dict_of, objects)))
+        if context is _to_fill:
+            return f"{name}: {code_like_repr_of(stored_value)}"
+        elif context == _filled:
+            return f"{name}={code_like_repr_of(stored_value)}"
+        elif context == as_method:
+            return f"method {name}={code_like_repr_of(stored_value)}"
+        elif context == as_descriptor:
+            return f"descriptor {name}={code_like_repr_of(stored_value)}"
+        else:
+            return f"{name}={code_like_repr_of(value)}"
+
+    @staticmethod
+    def _attributes_from(objects: Tuple[Special[dict]]) -> dict:
+        if len(objects) == 0:
+            return dict()
+        elif len(objects) == 1:
+            return dict_of(objects[0])
+        else:
+            return reduce(or_, map(dict_of, objects))
 
 
 @partially
@@ -237,7 +262,7 @@ def with_default_descriptor(
     return obj_
 
 
-default_descriptor: str = "_obj_default_descriptor_of__"
+default_descriptor = "_obj_default_descriptor_of__"
 
 
 def default_descriptor_of(obj: Any) -> Special[None]:
@@ -256,28 +281,34 @@ _of_temp = _to_fill | _filled
 _NO_VALUE = flag_about("_NO_VALUE")
 
 
-class obj(_AttributeKeeper):
+class val(_AttributeKeeper):
     """Constructor for an `Arbitrary` object with data."""
 
     def __new__(
         cls,
-        *,
+        *objects,
         __call__: Callable[Concatenate[Self, Pm], R] | _NO_VALUE = _NO_VALUE,
         **attributes: Any,
-    ) -> "Special[_callable_obj[Pm, R] | temp, Self]":
+    ) -> "Special[_callable_val[Pm, R], Self] | temp":
+        attributes = cls._attributes_from(objects) | attributes
+
+        if __call__ is _NO_VALUE and "__call__" in attributes.keys():
+            __call__ = attributes["__call__"]
+
         complete_attributes = (
             attributes
             | (dict() if __call__ is _NO_VALUE else dict(__call__=__call__))
         )
 
         if any(contexted(attr).context == _of_temp for attr in attributes.values()):
-            return temp(**{
+            attributes_for_temp = {
                 _: temp._unit_of(attr) for _, attr in complete_attributes.items()
-            })
+            }
+            return temp(*objects, **attributes_for_temp)
 
         return (
-            _callable_obj(**complete_attributes)
-            if __call__ is not _NO_VALUE and cls is obj
+            _callable_val(*objects, **complete_attributes)
+            if __call__ is not _NO_VALUE and cls is val
             else super().__new__(cls)
         )
 
@@ -361,27 +392,19 @@ class obj(_AttributeKeeper):
         *,
         mutably: bool = False,
     ) -> Callable[O, Self]:
-        return fun(obj.of |then>> to_attr(attr_name, action, mutably=mutably))
+        return fun(val |then>> to_attr(attr_name, action, mutably=mutably))
 
     @staticmethod
     def _for_setting(value: V) -> V:
         return value
 
-    @staticmethod
-    def _field_repr_of(value: Any) -> str:
-        return f"={code_like_repr_of(value)}"
 
-
-class _callable_obj(obj, Generic[Pm, R]):
+class _callable_val(val, Generic[Pm, R]):
     """Variation of `obj` for callability."""
 
-    def __init__(
-        self,
-        *,
-        __call__: Callable[Concatenate[Self, Pm], R],
-        **attributes,
-    ):
-        super().__init__(**attributes | dict(__call__=__call__))
+    def __init__(self, *objects, **attributes):
+        super().__init__(*objects, **attributes)
+        assert "__call__" in dict_of(self).keys()
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self.__call__(*args, **kwargs)
@@ -393,15 +416,17 @@ class _callable_obj(obj, Generic[Pm, R]):
             else super().__getattribute__(attr_name)
         )
 
-    __or__ = _generating_pipeline(obj.__or__)
+    __or__ = _generating_pipeline(val.__or__)
 
 
 class temp(_AttributeKeeper):
     """Constructor for an `Arbitrary` object without data."""
 
-    def __new__(cls, **attributes: Any) -> Self | obj:
+    def __new__(cls, *objects, **attributes: Any) -> Self | val:
+        attributes = cls._attributes_from(objects) | attributes
+
         return (
-            obj(**attributes)
+            val(**{name: value.value for name, value in attributes.items()})
             if all(
                 contexted(attr).context == _filled
                 for attr in attributes.values()
@@ -433,7 +458,7 @@ class temp(_AttributeKeeper):
             value if name == "__dict__" else temp._unit_of(value)
         )
 
-    def __call__(self, *attrs, **kwattrs) -> obj:
+    def __call__(self, *attrs, **kwattrs) -> val:
         names_to_fill = tuple(
             name
             for name, value in self.__dict__.items()
@@ -448,7 +473,7 @@ class temp(_AttributeKeeper):
                 f" from a template, {entered_values_count} are entered"
             )
 
-        return obj.of(
+        return val(
             {
                 name: kwattrs[name] if name in kwattrs.keys() else attrs[index]
                 for index, name in enumerate(names_to_fill)
@@ -489,45 +514,104 @@ class temp(_AttributeKeeper):
             else be(_to_fill, value)
         )
 
-    @staticmethod
-    def _field_repr_of(value: Any) -> str:
-        context, stored_value = contexted(value)
 
-        if context is _to_fill:
-            return f": {code_like_repr_of(stored_value)}"
-        elif context == _filled:
-            return f"={code_like_repr_of(stored_value)}"
-        elif context == as_method:
-            return f"()={code_like_repr_of(stored_value)}"
-        else:
-            return f"={code_like_repr_of(value)}"
-
-
-def struct(type_: type) -> temp:
-    dataclass_ = (
-        type_ if hasattr(type_, "__dataclass_fields__") else dataclass(type_)
+@val
+class constructor[O, F, V, R]:
+    _Actions = (
+        temp(value_of=Callable[O, V])
+        | temp(combine=Callable[[V, V], V])
+        | temp(with_field=Callable[[V, str, F], V])
+        | temp(construct=Callable[V, R])
+        | temp(default_value=V)
     )
 
-    return temp(**{
-        field.name: when(
-            (
-                lambda f: f.default is not MISSING,
-                attrgetter("default") |then>> _filled,
-            ),
-            (
-                lambda f: f.default_factory is not MISSING,
-                methodcaller("default_factory") |then>> _filled,
-            ),
-            (..., attrgetter("type")),
-        )(field)
-        for field in dict_of(dataclass_)["__dataclass_fields__"].values()
-    })
+    @val
+    class _default_actions:
+        value_of = val
+        combine = val
+        construct = _get
+        default_value = val()
+
+        def with_field(object: Any, name: str, value: Any) -> val:
+            return val(object, {name: value})
+
+    def __call__(actions: _Actions) -> R:
+        actions = constructor._default_actions & actions
+
+        def construct(*objects: O, **fields: F) -> R:
+            values = tuple(map(actions.value_of, objects))
+
+            if len(values) == 0:
+                combination = actions.default_value
+            elif len(values) == 1:
+                combination = values[0]
+            else:
+                combination = reduce(actions.combine, values)
+
+            with_fields = ActionChain(
+                actions.with_field |by* (name, value)
+                for name, value in fields.items()
+            )
+
+            return actions.construct(with_fields(combination))
+
+        return val(actions, __call__=construct)
 
 
-def name_enum_of(annotated: temp(__annotations__=Iterable[str])) -> obj:
-    names = tuple(annotated.__annotations__.keys())
+@constructor
+class obj:
+    def value_of(object: Any) -> val:
+        value_object = val(object)
 
-    return obj(all=names, all_=names) & obj.of({name: name for name in names})
+        for name, value in dict_of(object).items():
+            if callable(value):
+                setattr(value_object, name, obj._as_method(value))
+
+        return value_object
+
+    def with_field(object: val, name: str, value: Any) -> val:
+        return object & val({name: obj._as_method(value)})
+
+    def _as_method(
+        value: Special[Special[staticmethod, ActionT], V],
+    ) -> as_method[ActionT] | V:
+        return (
+            value
+            if not callable(value) or isinstance(value, staticmethod)
+            else be(+as_method, value)
+        )
+
+
+@constructor
+class struct:
+    def value_of(object: Any) -> val:
+        dataclass_ = (
+            object if hasattr(object, "__dataclass_fields__") else dataclass(object)
+        )
+
+        return temp({
+            field.name: when(
+                (
+                    lambda f: f.default is not MISSING,
+                    attrgetter("default") |then>> _filled,
+                ),
+                (
+                    lambda f: f.default_factory is not MISSING,
+                    methodcaller("default_factory") |then>> _filled,
+                ),
+                (..., attrgetter("type")),
+            )(field)
+            for field in dict_of(dataclass_)["__dataclass_fields__"].values()
+        })
+
+    def with_field(object: Arbitrary, name: str, value: Any) -> temp:
+        return object & temp({name: value})
+
+
+def namespace(annotated: temp(__annotations__=Iterable[str])) -> val:
+    names = tuple(annotated.__annotations__)
+
+    return val(all=names, all_=names) & val({name: name for name in names})
 
 
 @partially
@@ -544,22 +628,6 @@ def templated_attrs_of(obj_: Special[temp]) -> OrderedDict[str, Any]:
         for name, attr in dict_of(obj_).items()
         if contexted(attr).context == _to_fill
     )
-
-
-def dict_of(value: Special[Mapping[K, V]]) -> dict[K, V]:
-    """
-    Function to safely read from `__dict__` attribute.
-
-    Returns an empty `dict` when an input value has no a `__dict__` attribute
-    or casts it to a `dict`, when passing a `Mapping` object.
-    """
-
-    if hasattr(value, "__dict__"):
-        return dict(value.__dict__)
-    elif isinstance(value, Mapping):
-        return dict(**value)
-    else:
-        return dict()
 
 
 def hash_of(value: Any) -> int:
@@ -670,7 +738,7 @@ def read_only(value: Special[str | Callable | Access]) -> property:
 def sculpture_of(
     original: Any,
     **descriptor_by_attr_name: Special[str | Callable | Access],
-) -> obj:
+) -> val:
     """Constructor for objects with proxied descriptors to an input value."""
 
     proxy_property_to_original_by = _sculpture_property_of |by| original
@@ -689,11 +757,11 @@ def sculpture_of(
         ))
 
     sculpture = (
-        obj.of({
+        val({
             _: sculpture_attr_of(descriptor)
             for _, descriptor in descriptor_by_attr_name.items()
         })
-        & obj(_sculpture_original=original)
+        & val(_sculpture_original=original)
     )
 
     return with_default_descriptor(

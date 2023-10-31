@@ -5,7 +5,7 @@ from pytest import mark, raises
 
 from act.annotations import *
 from act.errors import UnionError
-from act.objects import obj
+from act.objects import val
 from act.testing import case_of
 
 
@@ -32,7 +32,7 @@ test_action_of = case_of(
 test_noting = case_of(
     (lambda: notes_of(None), tuple()),
     (lambda: notes_of(list()), tuple()),
-    (lambda: notes_of(pure(dirty(obj()))), (dirty, pure)),
+    (lambda: notes_of(pure(dirty(val()))), (dirty, pure)),
 )
 
 

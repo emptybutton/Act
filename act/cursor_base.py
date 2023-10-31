@@ -18,7 +18,7 @@ from act.data_flow import by, to, io
 from act.errors import ActionCursorError
 from act.flags import flag_about
 from act.monads import optionally
-from act.objects import obj
+from act.objects import val
 from act.partiality import flipped, rpartial, will, partial
 from act.pipeline import ActionChain, bind_by, on, then, _generating_pipeline
 from act.representations import code_like_repr_of
@@ -68,7 +68,7 @@ class _ActionCursorUnpacking:
         return self
 
 
-@obj.of
+@val
 class _ActionCursorNature:
     attrgetting = flag_about("attrgetting")
     itemgetting = flag_about("itemgetting")
