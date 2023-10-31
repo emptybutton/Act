@@ -14,7 +14,7 @@ from pyannotating import Special
 
 from act.aggregates import Access
 from act.annotations import (
-    K, V, Pm, R, O, Union, CommentAnnotation, Annotation, TypeT, ActionT
+    K, V, Pm, R, O, F, Union, CommentAnnotation, Annotation, TypeT, ActionT
 )
 from act.atomization import fun
 from act.contexting import (
@@ -516,7 +516,7 @@ class temp(_AttributeKeeper):
 
 
 @val
-class constructor[O, F, V, R]:
+class constructor:
     _Actions = (
         temp(value_of=Callable[O, V])
         | temp(combine=Callable[[V, V], V])
