@@ -1312,6 +1312,26 @@ User("Oliver", 24, is_admin=True) == user & val(is_admin=True)
 
 </br>
 
+Create objects natively
+```py
+not_a_singleton = obj(a=10, add=lambda self, b: self.a + b)
+not_a_singleton.add(6) == 16
+
+other_not_a_singleton = not_a_singleton & val(a=-10)
+other_not_a_singleton.add(6) == -4
+```
+
+</br>
+
+> `obj` just like `val` can create based on existing
+> ```py
+> ...
+> 
+> obj(not_a_singleton, other_not_a_singleton, c=0) == other_not_a_singleton & val(c=0)
+> obj(other_not_a_singleton, not_a_singleton, c=0) == not_a_singleton & val(c=0)
+> ```
+
+</br>
 
 Create types from dataclasses
 ```py
