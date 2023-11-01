@@ -3,7 +3,7 @@ from typing import Callable, Optional, Type, NoReturn
 from act.annotations import Pm, R, ErrorT
 from act.atomization import fun
 from act.contexting import contextual
-from act.data_flow import by, to, eventually
+from act.data_flow import by, to, always
 from act.partiality import partially
 from act.pipeline import bind_by, then
 from act.synonyms import try_, raise_
@@ -62,5 +62,5 @@ raising = documenting_by(
     arguments.
     """
 )(
-    eventually |to| raise_
+    always |to| raise_
 )

@@ -383,7 +383,7 @@ main(*range(10), a='a', b='b', x='x')
 
 ...all
 ```py
-main = eventually(print, 42)  # lambda *_, **__: print(42)
+main = always(print, 42)  # lambda *_, **__: print(42)
 main(*range(100), a='a', b='b', c='c', d='d')
 ```
 ```

@@ -21,7 +21,7 @@ from act.contexting import (
     contextually, contexted, contextualizing, be, of
 )
 from act.data_flow import (
-    mergely, by, io, when, eventually, and_via_indexer, indexer_of, via_indexer
+    mergely, by, io, when, always, and_via_indexer, indexer_of, via_indexer
 )
 from act.errors import ObjectTemplateError
 from act.error_flow import raising
@@ -852,7 +852,7 @@ def _sculpture_property_of(descriptor: Any, value: Any) -> property:
 
     if hasattr(descriptor, "__get__"):
         sculpture_property = property(
-            eventually(descriptor.__get__, value, type(value)),
+            always(descriptor.__get__, value, type(value)),
             sculpture_property.fset,
         )
 
@@ -860,7 +860,7 @@ def _sculpture_property_of(descriptor: Any, value: Any) -> property:
         sculpture_property = property(
             sculpture_property.fget,
             sculpture_property.fset,
-            eventually(descriptor.__delete__, value),
+            always(descriptor.__delete__, value),
         )
 
     return sculpture_property

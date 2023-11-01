@@ -7,9 +7,9 @@ from act.data_flow import *
 from act.testing import case_of
 
 
-test_eventually = case_of(
-    (lambda: eventually(lambda a, b: a + b, 100, 28)(1, 2, 3), 128),
-    (lambda: eventually(lambda a, b: a + b, 100, 28)(), 128),
+test_always = case_of(
+    (lambda: always(lambda a, b: a + b, 100, 28)(1, 2, 3), 128),
+    (lambda: always(lambda a, b: a + b, 100, 28)(), 128),
 )
 
 

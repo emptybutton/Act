@@ -20,7 +20,7 @@ from act.tools import documenting_by, items_of, Decorator, _get
 __all__ = (
     "rec",
     "io",
-    "eventually",
+    "always",
     "with_result",
     "dynamically",
     "fmt",
@@ -70,7 +70,7 @@ class io(Decorator):
     """
 )
 @fun
-class eventually(Decorator):
+class always(Decorator):
     def __init__(
         self,
         action: Callable[Pm, R],
@@ -389,7 +389,7 @@ to = documenting_by(
     _CallableCustomPartialApplicationInfix(
         partial,
         name='to',
-        action_to_call=fun(will(_get) |then>> eventually),
+        action_to_call=fun(will(_get) |then>> always),
     )
 )
 

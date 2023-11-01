@@ -4,7 +4,7 @@ from pyannotating import Special
 
 from act.annotations import V, R
 from act.atomization import fun
-from act.data_flow import eventually, by, to
+from act.data_flow import always, by, to
 from act.error_flow import catch
 from act.pipeline import bind_by, then, on
 from act.synonyms import try_
@@ -26,7 +26,7 @@ iteration_over = documenting_by(
 )(
     fun(
         iter
-        |then>> (eventually |to| next)
+        |then>> (always |to| next)
         |then>> (try_ |by| to(catch(StopIteration, _get)))
     )
 )
