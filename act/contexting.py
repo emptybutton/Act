@@ -209,6 +209,9 @@ class ContextualError(ContextualForm, Exception, Generic[ErrorT, C]):
     def __str__(self) -> str:
         return repr(self)
 
+    def __code_like_repr__(self) -> str:
+        return str(self)
+
 
 def context_oriented(value: Special[ContextualForm[C, V]]) -> contextual[V, C]:
     """

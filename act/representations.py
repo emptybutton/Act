@@ -11,9 +11,9 @@ def code_like_repr_of(value: Any) -> str:
     will match the way it is given in the code.
     """
 
-    from act.contexting import ContextualError
-
-    if ismethod(value):
+    if hasattr(value, "__code_like_repr__"):
+        return value.__code_like_repr__()
+    elif ismethod(value):
         return f"({code_like_repr_of(value.__self__)}).{value.__name__}"
     elif isbuiltin(value):
         return value.__name__
@@ -27,7 +27,7 @@ def code_like_repr_of(value: Any) -> str:
         )
     elif isinstance(value, str):
         return f"'{value}'" if len(value) < 4 else f"\"{value}\""
-    elif isinstance(value, Exception) and not isinstance(value, ContextualError):
+    elif isinstance(value, Exception):
         return f"{type(value).__name__}({code_like_repr_of(str(value))})"
     else:
         return str(value)
