@@ -466,25 +466,15 @@ class _temp(_AttributeKeeper):
             if value.context == _to_fill
         )
 
-        entered_values_count = len(attrs) + len(kwattrs.keys())
+        if len(attrs) > len(names_to_fill):
+            extra_argument_number = len(attrs) - len(names_to_fill)
 
-        if len(names_to_fill) != entered_values_count:
             raise ObjectTemplateError(
-                f"{len(names_to_fill)} values are needed to create an object"
-                f" from a template, {entered_values_count} are entered"
+                f"{extra_argument_number} extra positional argument"
+                f"{str() if extra_argument_number == 1 else 's'}"
             )
 
-        return val(
-            {
-                name: kwattrs[name] if name in kwattrs.keys() else attrs[index]
-                for index, name in enumerate(names_to_fill)
-            }
-            | {
-                name: form.value
-                for name, form in self.__dict__.items()
-                if name not in names_to_fill
-            }
-        )
+        return self & val(dict(zip(names_to_fill, attrs)), kwattrs)
 
     def __instancecheck__(self, instance: Any) -> bool:
         return all(

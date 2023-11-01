@@ -1261,6 +1261,19 @@ user = User("Oliver", 24)
 <name="Oliver", age=24>
 ```
 
+...multi-functionally
+```py
+...
+
+User(name="Oliver", age=24) == user
+User("Oliver", age=24) == user
+User("Oliver")(age=24) == user
+User("Oliver")(24) == user
+User(name="Oliver")(24) == user
+User(age=24)(name="Oliver") == user
+User("Oliver", 24, is_admin=True) == user & val(is_admin=True)
+```
+
 </br>
 
 > `act` only extends `type`, preserving the rest of the behavior.

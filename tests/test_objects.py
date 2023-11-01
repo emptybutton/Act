@@ -274,6 +274,7 @@ test_type_creation = case_of(
     (lambda: type(type()), val),
     (lambda: type(a=int)(4).__dict__, dict(a=4)),
     (lambda: type(a=int)(a=4).__dict__, dict(a=4)),
+    (lambda: type(a=int, b=int)(1, c=3)(2).__dict__, dict(a=1, b=2, c=3)),
     (lambda: type(a=int, b=int)(4, 8).__dict__, dict(a=4, b=8)),
     (lambda: type(a=int, b=int)(a=4, b=8).__dict__, dict(a=4, b=8)),
     (lambda: type(a=int, b=int)(4, b=8).__dict__, dict(a=4, b=8)),
