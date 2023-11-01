@@ -2,7 +2,6 @@ from copy import copy
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import reduce, wraps
-from inspect import Signature, Parameter
 from typing import (
     Iterable, Callable, Any, Mapping, Self, Tuple, Optional, Literal
 )
@@ -17,13 +16,12 @@ from act.contexting import contextual, to_read, saving_context
 from act.data_flow import by, to, io
 from act.errors import ActionCursorError
 from act.flags import flag_about
-from act.monads import optionally
 from act.objects import val
 from act.partiality import flipped, rpartial, will, partial
 from act.pipeline import ActionChain, bind_by, on, then, _generating_pipeline
 from act.representations import code_like_repr_of
 from act.scoping import value_in
-from act.structures import tmap, tfilter, groups_in
+from act.structures import tmap, tfilter
 from act.synonyms import with_keyword, tuple_of
 
 
@@ -108,53 +106,17 @@ class _ActionCursor(Mapping):
         is_generator_on_call: bool = False,
         is_call_generator_static: bool = False,
     ):
-        self._parameters = tuple(reversed(sorted(
+        self._parameters = tuple(sorted(
             set(parameters),
             key=operator.attrgetter("priority"),
-        )))
+            reverse=True,
+        ))
         self._actions = actions
         self._previous = previous
         self._nature = nature
         self._internal_repr = internal_repr
         self._is_generator_on_call = is_generator_on_call
         self._is_call_generator_static = is_call_generator_static
-
-        self._validate_parameters()
-        self._update_signature()
-
-    def _validate_parameters(self) -> None:
-        self._validate_priority_of_parameters()
-        self._validate_uniqueness_of_parameters()
-
-    def _validate_priority_of_parameters(self) -> None:
-        groups_with_same_priority = tfilter(
-            lambda group: len(group) > 1,
-            tuple(groups_in(
-                self._parameters, by=operator.attrgetter("priority")
-            ).values()),
-        )
-
-        if len(groups_with_same_priority) != 0:
-            raise ActionCursorError(
-                "parameters with the same priority: {}".format(
-                    ', '.join(map(str, groups_with_same_priority))
-                )
-            )
-
-    def _validate_uniqueness_of_parameters(self) -> None:
-        if 1 < len(tfilter(
-            lambda p: p.union_type is _ActionCursorParameterUnionType.POSITIONAL,
-            self._parameters,
-        )):
-            raise ActionCursorError(
-                "multiple parameters for residual positional arguments"
-            )
-
-        if 1 < len(tfilter(
-            lambda p: p.union_type is _ActionCursorParameterUnionType.KEYWORD,
-            self._parameters,
-        )):
-            raise ActionCursorError("multiple parameters for keyword arguments")
 
     @property
     def _adapted_internal_repr(self) -> str:
@@ -625,28 +587,6 @@ class _ActionCursor(Mapping):
                 return name[:-1]
 
         return name
-
-    def _update_signature(self) -> None:
-        union_parameters = list()
-
-        optionally(
-            (lambda p: Parameter(p.name, Parameter.VAR_POSITIONAL))
-            |then>> union_parameters.append
-        )(self._get_positional_union_parameter())
-
-        optionally(
-            (lambda p: Parameter(p.name, Parameter.VAR_KEYWORD))
-            |then>> union_parameters.append
-        )(self._get_keyword_union_parameter())
-
-        self.__signature__ = Signature(
-            [
-                Parameter(cursor_parameter.name, Parameter.POSITIONAL_ONLY)
-                for cursor_parameter in self._parameters
-                if cursor_parameter.union_type is None
-            ]
-            + union_parameters
-        )
 
     def get_fun_image__(self) -> fun.Image:
         keyword_union_parameter = self._get_keyword_union_parameter()
