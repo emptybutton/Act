@@ -18,7 +18,7 @@ from act.annotations import (
 )
 from act.atomization import fun
 from act.contexting import (
-    contextually, contexted, contextualizing, be
+    contextually, contexted, contextualizing, be, of
 )
 from act.data_flow import (
     mergely, by, io, when, eventually, and_via_indexer, indexer_of, via_indexer
@@ -44,7 +44,8 @@ __all__ = (
     "with_default_descriptor",
     "default_descriptor",
     "val",
-    "temp",
+    "type",
+    "type_",
     "constructor",
     "obj",
     "struct",
@@ -111,7 +112,7 @@ class Arbitrary(ABC):
     To create an arbitrary object with data, use the `val` constructor.
 
     To create an object annotated with data and its future filling, use the
-    `temp` constructor.
+    `type` constructor.
 
     Data from any several objects can be combined using the `&` operator from
     an arbitrary object or `of` classmethod of one of the constructors.
@@ -289,7 +290,7 @@ class val(_AttributeKeeper):
         *objects,
         __call__: Callable[Concatenate[Self, Pm], R] | _NO_VALUE = _NO_VALUE,
         **attributes: Any,
-    ) -> "Special[_callable_val[Pm, R], Self] | temp":
+    ) -> "Special[_callable_val[Pm, R], Self] | _temp":
         attributes = cls._attributes_from(objects) | attributes
 
         if __call__ is _NO_VALUE and "__call__" in attributes.keys():
@@ -302,9 +303,9 @@ class val(_AttributeKeeper):
 
         if any(contexted(attr).context == _of_temp for attr in attributes.values()):
             attributes_for_temp = {
-                _: temp._unit_of(attr) for _, attr in complete_attributes.items()
+                _: _temp._unit_of(attr) for _, attr in complete_attributes.items()
             }
-            return temp(*objects, **attributes_for_temp)
+            return _temp(*objects, **attributes_for_temp)
 
         return (
             _callable_val(*objects, **complete_attributes)
@@ -396,7 +397,7 @@ class val(_AttributeKeeper):
 
     @staticmethod
     def _for_setting(value: V) -> V:
-        return value
+        return value.value if of(_filled, value) else value
 
 
 class _callable_val(val, Generic[Pm, R]):
@@ -419,7 +420,7 @@ class _callable_val(val, Generic[Pm, R]):
     __or__ = _generating_pipeline(val.__or__)
 
 
-class temp(_AttributeKeeper):
+class _temp(_AttributeKeeper):
     """Constructor for an `Arbitrary` object without data."""
 
     def __new__(cls, *objects, **attributes: Any) -> Self | val:
@@ -438,7 +439,7 @@ class temp(_AttributeKeeper):
         return super().__repr__() if dict_of(self) else f"{type(self).__name__}()"
 
     def __deepcopy__(self, memo) -> Self:
-        return temp(**{
+        return _temp(**{
             _: attr.context(deepcopy(attr.value, memo))
             for _, attr in dict_of(self).items()
         })
@@ -455,7 +456,7 @@ class temp(_AttributeKeeper):
 
     def __setattr__(self, name: str, value: Any) -> None:
         partial(super().__setattr__, name)(
-            value if name == "__dict__" else temp._unit_of(value)
+            value if name == "__dict__" else _temp._unit_of(value)
         )
 
     def __call__(self, *attrs, **kwattrs) -> val:
@@ -515,14 +516,35 @@ class temp(_AttributeKeeper):
         )
 
 
+class type(type):
+    __builtin_type = type
+
+    def __new__(
+        cls,
+        value: Special[str] = None,
+        bases: Optional[tuple] = None,
+        dict: Optional[dict] = None,
+        **kwargs: Any,
+    ) -> type | _temp:
+        if bases is not None and dict is not None:
+            return cls.__builtin_type(value, bases, dict, **kwargs)
+        elif value is None:
+            return _temp(**kwargs)
+        else:
+            return cls.__builtin_type(value, **kwargs)
+
+
+type_ = type
+
+
 @val
 class constructor:
     _Actions = (
-        temp(value_of=Callable[O, V])
-        | temp(combine=Callable[[V, V], V])
-        | temp(with_field=Callable[[V, str, F], V])
-        | temp(construct=Callable[V, R])
-        | temp(default_value=V)
+        type(value_of=Callable[O, V])
+        | type(combine=Callable[[V, V], V])
+        | type(with_field=Callable[[V, str, F], V])
+        | type(construct=Callable[V, R])
+        | type(default_value=V)
     )
 
     @val
@@ -589,7 +611,7 @@ class struct:
             object if hasattr(object, "__dataclass_fields__") else dataclass(object)
         )
 
-        return temp({
+        return _temp({
             field.name: when(
                 (
                     lambda f: f.default is not MISSING,
@@ -604,25 +626,25 @@ class struct:
             for field in dict_of(dataclass_)["__dataclass_fields__"].values()
         })
 
-    def with_field(object: Arbitrary, name: str, value: Any) -> temp:
-        return object & temp({name: value})
+    def with_field(object: Arbitrary, name: str, value: Any) -> _temp:
+        return object & _temp({name: value})
 
 
-def namespace(annotated: temp(__annotations__=Iterable[str])) -> val:
+def namespace(annotated: _temp(__annotations__=Iterable[str])) -> val:
     names = tuple(annotated.__annotations__)
 
     return val(all=names, all_=names) & val({name: name for name in names})
 
 
 @partially
-def is_templated(attr_name: str, obj_: Special[temp]) -> bool:
+def is_templated(attr_name: str, obj_: Special[_temp]) -> bool:
     return (
         attr_name in dict_of(obj_).keys()
         and contexted(dict_of(obj_)[attr_name]).context == _to_fill
     )
 
 
-def templated_attrs_of(obj_: Special[temp]) -> OrderedDict[str, Any]:
+def templated_attrs_of(obj_: Special[_temp]) -> OrderedDict[str, Any]:
     return OrderedDict(
         (name, attr.value)
         for name, attr in dict_of(obj_).items()
@@ -858,5 +880,5 @@ def _sculpture_property_of(descriptor: Any, value: Any) -> property:
 def ActionOf(
     parameters_annotation: Annotation,
     return_annotation: Annotation,
-) -> temp:
-    return temp(__call__=Callable[parameters_annotation, return_annotation])
+) -> _temp:
+    return _temp(__call__=Callable[parameters_annotation, return_annotation])

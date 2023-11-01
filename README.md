@@ -20,10 +20,10 @@ def division_between(a: int, b: int) -> int | bad[str]:
     return a / b
 
 
-WithNumber = temp(number=N)
+WithNumber = type(number=N)
 
-WithMultiplication = temp(multiplication=M)
-WithDivision = temp(division=D)
+WithMultiplication = type(multiplication=M)
+WithDivision = type(division=D)
 
 Result = WithMultiplication[N] & WithDivision[N]
 

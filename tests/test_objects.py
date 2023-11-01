@@ -270,27 +270,27 @@ test_to_attr_without_attribute = case_of((
 ))
 
 
-test_temp_creation = case_of(
-    (lambda: type(temp()), val),
-    (lambda: temp(a=int)(4).__dict__, dict(a=4)),
-    (lambda: temp(a=int)(a=4).__dict__, dict(a=4)),
-    (lambda: temp(a=int, b=int)(4, 8).__dict__, dict(a=4, b=8)),
-    (lambda: temp(a=int, b=int)(a=4, b=8).__dict__, dict(a=4, b=8)),
-    (lambda: temp(a=int, b=int)(4, b=8).__dict__, dict(a=4, b=8)),
+test_type_creation = case_of(
+    (lambda: type(type()), val),
+    (lambda: type(a=int)(4).__dict__, dict(a=4)),
+    (lambda: type(a=int)(a=4).__dict__, dict(a=4)),
+    (lambda: type(a=int, b=int)(4, 8).__dict__, dict(a=4, b=8)),
+    (lambda: type(a=int, b=int)(a=4, b=8).__dict__, dict(a=4, b=8)),
+    (lambda: type(a=int, b=int)(4, b=8).__dict__, dict(a=4, b=8)),
     (
-        lambda: temp(a=int, b=int, c=int, d=int, e=int, f=int)(
+        lambda: type(a=int, b=int, c=int, d=int, e=int, f=int)(
             1, 2, 3, 4, 5, 6
         ).__dict__,
         dict(a=1, b=2, c=3, d=4, e=5, f=6),
     ),
     (
-        lambda: temp(a=int, b=int, c=int, d=int, e=int, f=int)(
+        lambda: type(a=int, b=int, c=int, d=int, e=int, f=int)(
             a=1, b=2, c=3, d=4, e=5, f=6
         ).__dict__,
         dict(a=1, b=2, c=3, d=4, e=5, f=6),
     ),
     (
-        lambda: temp(a=int, b=int, c=int, d=int, e=int, f=int)(
+        lambda: type(a=int, b=int, c=int, d=int, e=int, f=int)(
             1, 2, 3, d=4, e=5, f=6
         ).__dict__,
         dict(a=1, b=2, c=3, d=4, e=5, f=6),
@@ -298,76 +298,76 @@ test_temp_creation = case_of(
 )
 
 
-test_temp_comprasion = case_of(
-    (lambda: temp() == temp(), True),
-    (lambda: temp(a=str) == temp(a=str), True),
-    (lambda: temp(a=str) == temp(a=int), False),
-    (lambda: temp(a=str, b=int) == temp(a=int, b=int), False),
-    (lambda: temp(a=int, b=int, c=int) == temp(a=int, b=int), False),
-    (lambda: temp(a=int, b=int) == temp(a=int, b=int, c=int), False),
-    (lambda: temp(a=int, b=int) == temp(), False),
+test_type_comprasion = case_of(
+    (lambda: type() == type(), True),
+    (lambda: type(a=str) == type(a=str), True),
+    (lambda: type(a=str) == type(a=int), False),
+    (lambda: type(a=str, b=int) == type(a=int, b=int), False),
+    (lambda: type(a=int, b=int, c=int) == type(a=int, b=int), False),
+    (lambda: type(a=int, b=int) == type(a=int, b=int, c=int), False),
+    (lambda: type(a=int, b=int) == type(), False),
 )
 
 
-test_temp_sum = case_of(
-    (lambda: temp(a=int) & temp() == temp(a=int), True),
-    (lambda: temp() & temp(b=str) == temp(b=str), True),
-    (lambda: temp(a=int) & temp(b=str) == temp(a=int, b=str), True),
-    (lambda: temp(b=str) & temp(a=int) == temp(a=int, b=str), True),
+test_type_sum = case_of(
+    (lambda: type(a=int) & type() == type(a=int), True),
+    (lambda: type() & type(b=str) == type(b=str), True),
+    (lambda: type(a=int) & type(b=str) == type(a=int, b=str), True),
+    (lambda: type(b=str) & type(a=int) == type(a=int, b=str), True),
     (
         lambda: (
-            temp(a=int, b=int) & temp(a=float, c=int)
-            == temp(a=float, b=int, c=int)
+            type(a=int, b=int) & type(a=float, c=int)
+            == type(a=float, b=int, c=int)
         ),
         True,
     ),
 )
 
 
-test_temp_with_values = case_of(
-    (lambda: type(temp() & val(a=1)), val),
-    (lambda: type(val(a=1) & temp()), val),
-    (lambda: val(a=1) & temp(), val(a=1)),
-    (lambda: temp() & val(a=1), val(a=1)),
-    (lambda: temp(a=int) & val() == temp(a=int), True),
-    (lambda: val() & temp(a=int) == temp(a=int), True),
-    (lambda: (temp(a=int) & val(b=2))(1), val(a=1, b=2)),
+test_type_with_values = case_of(
+    (lambda: type(type() & val(a=1)), val),
+    (lambda: type(val(a=1) & type()), val),
+    (lambda: val(a=1) & type(), val(a=1)),
+    (lambda: type() & val(a=1), val(a=1)),
+    (lambda: type(a=int) & val() == type(a=int), True),
+    (lambda: val() & type(a=int) == type(a=int), True),
+    (lambda: (type(a=int) & val(b=2))(1), val(a=1, b=2)),
     (
-        lambda: (val(a=1) & temp(b=int) & val(c=3) & temp(d=int))(2, 4),
+        lambda: (val(a=1) & type(b=int) & val(c=3) & type(d=int))(2, 4),
         val(a=1, b=2, c=3, d=4),
     ),
 )
 
 
-test_temp_single_annotating = case_of(
-    (lambda: isinstance(MockA(1), temp(a=int)), True),
-    (lambda: isinstance(MockB(1), temp(a=int)), False),
-    (lambda: isinstance(val(a=1, b=2), temp(a=int, b=int)), True),
-    (lambda: isinstance(val(b=2, a=1), temp(a=int, b=int)), True),
-    (lambda: isinstance(val(c=3, b=2, a=1), temp(a=int, b=int)), True),
-    (lambda: isinstance(val(c=3, b=2, a=1), temp()), True),
-    (lambda: isinstance(val(), temp()), True),
-    (lambda: isinstance(val(a=1), temp()), True),
+test_type_single_annotating = case_of(
+    (lambda: isinstance(MockA(1), type(a=int)), True),
+    (lambda: isinstance(MockB(1), type(a=int)), False),
+    (lambda: isinstance(val(a=1, b=2), type(a=int, b=int)), True),
+    (lambda: isinstance(val(b=2, a=1), type(a=int, b=int)), True),
+    (lambda: isinstance(val(c=3, b=2, a=1), type(a=int, b=int)), True),
+    (lambda: isinstance(val(c=3, b=2, a=1), type()), True),
+    (lambda: isinstance(val(), type()), True),
+    (lambda: isinstance(val(a=1), type()), True),
 )
 
 
-test_temp_single_annotating_with_values = case_of(
-    (lambda: isinstance(val(a=10, b=2), temp(a=int) & val(b=2)), True),
-    (lambda: isinstance(val(a=10, b=2, c=3), temp(a=int) & val(b=2)), True),
-    (lambda: isinstance(val(a=10, b=3), temp(a=int) & val(b=2)), False),
+test_type_single_annotating_with_values = case_of(
+    (lambda: isinstance(val(a=10, b=2), type(a=int) & val(b=2)), True),
+    (lambda: isinstance(val(a=10, b=2, c=3), type(a=int) & val(b=2)), True),
+    (lambda: isinstance(val(a=10, b=3), type(a=int) & val(b=2)), False),
 )
 
 
-test_temp_union_annotating = case_of(
-    (lambda: isinstance(val(a=1), temp(a=int) | temp(b=int)), True),
-    (lambda: isinstance(val(b=2), temp(a=int) | temp(b=int)), True),
-    (lambda: isinstance(val(c=3), temp(a=int) | temp(b=int)), False),
-    (lambda: isinstance(val(a=1), temp() | temp(a=int)), True),
-    (lambda: isinstance(val(c=3), temp() | temp(a=int)), True),
-    (lambda: isinstance(val(), temp() | temp(a=int)), True),
-    (lambda: isinstance(val(a=1), temp(a=int) | val(b=2)), True),
-    (lambda: isinstance(val(b=2), val(b=2) | temp(a=int)), True),
-    (lambda: isinstance(val(c=3), val(b=2) | temp(a=int)), False),
+test_type_union_annotating = case_of(
+    (lambda: isinstance(val(a=1), type(a=int) | type(b=int)), True),
+    (lambda: isinstance(val(b=2), type(a=int) | type(b=int)), True),
+    (lambda: isinstance(val(c=3), type(a=int) | type(b=int)), False),
+    (lambda: isinstance(val(a=1), type() | type(a=int)), True),
+    (lambda: isinstance(val(c=3), type() | type(a=int)), True),
+    (lambda: isinstance(val(), type() | type(a=int)), True),
+    (lambda: isinstance(val(a=1), type(a=int) | val(b=2)), True),
+    (lambda: isinstance(val(b=2), val(b=2) | type(a=int)), True),
+    (lambda: isinstance(val(c=3), val(b=2) | type(a=int)), False),
 )
 
 
@@ -376,18 +376,18 @@ test_is_templated = case_of(
     (lambda: is_templated('a', MockA(...)), False),
     (lambda: is_templated('a', val(a=1, b=2)), False),
     (lambda: is_templated('a', val()), False),
-    (lambda: is_templated('a', temp(a=int, b=int)), True),
-    (lambda: is_templated('a', temp(a=int) & val(b=2)), True),
+    (lambda: is_templated('a', type(a=int, b=int)), True),
+    (lambda: is_templated('a', type(a=int) & val(b=2)), True),
 )
 
 
-test_templated_attrs_of = case_of(
+test_typelated_attrs_of = case_of(
     (lambda: templated_attrs_of(4), dict()),
     (lambda: templated_attrs_of(MockA(...)), dict()),
     (lambda: templated_attrs_of(val()), dict()),
     (lambda: templated_attrs_of(val(a=1, b=2)), dict()),
-    (lambda: templated_attrs_of(temp(a=int, b=str)), dict(a=int, b=str)),
-    (lambda: templated_attrs_of(temp(a=int, b=str)), dict(a=int, b=str)),
+    (lambda: templated_attrs_of(type(a=int, b=str)), dict(a=int, b=str)),
+    (lambda: templated_attrs_of(type(a=int, b=str)), dict(a=int, b=str)),
 )
 
 
@@ -472,8 +472,8 @@ def test_struct():
     class B:
         b: str
 
-    assert struct(A) == temp(a=int)
-    assert struct(A, B) == temp(a=int, b=str)
+    assert struct(A) == type(a=int)
+    assert struct(A, B) == type(a=int, b=str)
 
 
 def test_obj():

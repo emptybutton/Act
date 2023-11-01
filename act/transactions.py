@@ -7,14 +7,16 @@ from typing import (
     Iterator, Self, Generator, TypeAlias, Concatenate, ParamSpec, Tuple
 )
 
-from act.annotations import Special, A, B, R, O, L, V, ActionT, Pm, Annotation, Union
+from act.annotations import (
+    Special, A, B, R, I, O, L, V, ActionT, Pm, Annotation, Union
+)
 from act.arguments import Arguments
 from act.atomization import fun
 from act.contexting import contextualizing, of
-from act.data_flow import via_indexer, to, by
+from act.data_flow import to, by
 from act.flags import flag_about
 from act.monads import bad, left
-from act.objects import temp, val, ActionOf
+from act.objects import type, val, ActionOf
 from act.parameter_slicing import take
 from act.partiality import partial, partially, will, rwill
 from act.pipeline import ActionChain, then, frm, fbind_by
@@ -23,7 +25,7 @@ from act.tools import _get
 
 
 __all__ = (
-    "RollbackableBy",
+    "Rollbackable",
     "Transaction",
     "transaction_mode_of",
     "binary",
@@ -33,17 +35,12 @@ __all__ = (
 )
 
 
-@via_indexer
-def RollbackableBy(
-    parameters_annotation: Annotation,
-    return_annotation: Annotation,
-) -> temp:
-    return temp(rollback=Callable[parameters_annotation, return_annotation])
+Rollbackable = type(rollback=Callable[I, O])
 
 
 class _TransactionOperations:
     __Operation: ClassVar[Annotation]
-    __Operation = Special[RollbackableBy[[], B] | Callable[[], R]]
+    __Operation = Special[Rollbackable[[], B] | Callable[[], R]]
 
     @dataclass(frozen=True)
     class __MarkedOperation:
@@ -92,7 +89,7 @@ class _TransactionOperations:
         return tuple(
             marked_operation.operation.rollback()
             for marked_operation in reversed(self._marked_operations)
-            if isinstance(marked_operation.operation, RollbackableBy[[], Any])
+            if isinstance(marked_operation.operation, Rollbackable[[], Any])
         )
 
     @__to_map
@@ -198,7 +195,7 @@ class _TransactionResult(Generic[R]):
 class Transaction(Generic[O]):
     def __init__(
         self,
-        *operations: Special[RollbackableBy[[], R] | Callable[[], Any], O],
+        *operations: Special[Rollbackable[[], R] | Callable[[], Any], O],
     ) -> None:
         self.__operations = _TransactionOperations(operations)
         self.__result = _TransactionResult()
@@ -237,7 +234,7 @@ def rollback(*, result: Any = None) -> NoReturn:
 class _rollbackable:
     __OPERATION_ANNOTATION: ClassVar[TypeAlias]
     __OPERATION_ANNOTATION = (
-        ActionOf[Pm, R] & RollbackableBy[Pm, L] | ActionOf[Pm, R]
+        ActionOf[Pm, R] & Rollbackable[Pm, L] | ActionOf[Pm, R]
     )
 
     def __new__(cls, operation: __OPERATION_ANNOTATION | Self) -> Self:
@@ -258,7 +255,7 @@ class _rollbackable:
         return result
 
     def rollback(self) -> tuple[L]:
-        if not isinstance(self.__operation, RollbackableBy[..., Any]):
+        if not isinstance(self.__operation, Rollbackable[..., Any]):
             return tuple()
 
         return tmap(
@@ -274,13 +271,13 @@ _Pm4 = ParamSpec("_Pm4")
 
 @partially
 def _map_rollbackable(
-    operation: ActionOf[_Pm3, A] & RollbackableBy[_Pm4, B] | ActionOf[_Pm3, A],
+    operation: ActionOf[_Pm3, A] & Rollbackable[_Pm4, B] | ActionOf[_Pm3, A],
     main_decorated: Callable[Callable[_Pm3, A], Callable[Pm, R]],
     rollback_decorated: Callable[Callable[_Pm4, B], Callable[_Pm2, L]] = _get,
-) -> ActionOf[Pm, R] & RollbackableBy[_Pm2, L] | ActionOf[Pm, R]:
+) -> ActionOf[Pm, R] & Rollbackable[_Pm2, L] | ActionOf[Pm, R]:
     with_decorated_main = val(__call__=main_decorated(operation))
 
-    if isinstance(operation, RollbackableBy[..., Any]):
+    if isinstance(operation, Rollbackable[..., Any]):
         with_decorated_rollback = val(
             rollback=rollback_decorated(operation.rollback),
         )
@@ -291,8 +288,8 @@ def _map_rollbackable(
 
 
 _Mode: TypeAlias = Callable[
-    ActionOf[Pm, R] & RollbackableBy[_Pm2, L] | ActionOf[Pm, R],
-    ActionOf[Pm, R] & RollbackableBy[[], tuple],
+    ActionOf[Pm, R] & Rollbackable[_Pm2, L] | ActionOf[Pm, R],
+    ActionOf[Pm, R] & Rollbackable[[], tuple],
 ]
 
 
@@ -329,7 +326,9 @@ class rollbackable:
 
 class _TransactionCursor:
     ModeT: ClassVar[TypeAlias] = Callable[Callable[Pm, R], ActionT]
-    HasRollbackableVersionT: ClassVar[temp] = temp(_rollbackable_version_name=str)
+    HasRollbackableVersionT: ClassVar[Annotation] = type(
+        _rollbackable_version_name=str,
+    )
     ModeResourceT: ClassVar[TypeAlias] = HasRollbackableVersionT | ModeT
 
     __network_operations_cache: Optional[_TransactionOperations] = None

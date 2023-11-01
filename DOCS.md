@@ -1244,18 +1244,18 @@ class Beta:
     def __init__(self, b):
         self.b = b
 
-val(Alpha, Beta(2))
+val(Alpha, Beta(2))  # == val(Alpha) & val(Beta(2))
 ```
 ```
 <__module__="__main__", a=1, __doc__=None, b=2>
 ```
 
 
-Create object templates
+Create types
 ```py
-User = temp(name=str, age=int)  # <name: str, age: int>
+User = type(name=str, age=int)  # <name: str, age: int>
 
-User("Oliver", 24)
+user = User("Oliver", 24)
 ```
 ```
 <name="Oliver", age=24>
@@ -1263,31 +1263,34 @@ User("Oliver", 24)
 
 </br>
 
-> Behaviorally, templates are equivalent to objects.
+> `act` only extends `type`, preserving the rest of the behavior.
+> If you cannot use such `type`, then use `type_`.
+
+> Behaviorally, types are equivalent to objects.
 > ```py
-> temp(name=str) & temp(age=int)  # <name: str, age: int>
+> type(name=str) & type(age=int)  # <name: str, age: int>
 > 
-> User = temp(name=str) & val(age=24)  # <name: str, age=24>
+> User = type(name=str) & val(age=24)  # <name: str, age=24>
 > User("Oliver")  # <name="Oliver", age=24>
 > 
-> (temp(name=str) & temp(age=int)) - 'age'  # <name: str>
-> temp(name=str) + 'age'  # <name: str, age=None>
+> (type(name=str) & type(age=int)) - 'age'  # <name: str>
+> type(name=str) + 'age'  # <name: str, age=None>
 > 
-> (temp(name=str) & val(__call__=print))("Oliver")(1, 2, 3, sep=' -> ')  # 1 -> 2 -> 3
+> (type(name=str) & val(__call__=print))("Oliver")(1, 2, 3, sep=' -> ')  # 1 -> 2 -> 3
 > 
-> temp() == val()
+> type() == val()
 > ```
 
 > `isinstance` checks for empty fields as their presence.
 > ```py
-> isinstance(val(name="Oliver", age=24), temp(name=str))
-> isinstance(val(name="Oliver", age=24), temp(name=str) & val(age=24))
-> not isinstance(val(name="Oliver", age=24), temp(name=str) & val(age=26))
+> isinstance(val(name="Oliver", age=24), type(name=str))
+> isinstance(val(name="Oliver", age=24), type(name=str) & val(age=24))
+> not isinstance(val(name="Oliver", age=24), type(name=str) & val(age=26))
 > 
-> isinstance(val(name="Oliver"), temp(name=str) | temp(age=int))
-> isinstance(val(age=24), temp(name=str) | temp(age=int))
+> isinstance(val(name="Oliver"), type(name=str) | type(age=int))
+> isinstance(val(age=24), type(name=str) | type(age=int))
 > 
-> combination = (temp(name=str) & val(age=24)) | (val(name="Oliver") & temp(age=int))
+> combination = (type(name=str) & val(age=24)) | (val(name="Oliver") & type(age=int))
 > 
 > isinstance(val(name="Stone", age=24), combination)
 > not isinstance(val(name="Stone", age=22), combination)
@@ -1297,7 +1300,7 @@ User("Oliver", 24)
 </br>
 
 
-Create object templates from dataclasses
+Create types from dataclasses
 ```py
 from dataclasses import dataclass, field
 
@@ -1354,7 +1357,7 @@ sculpture = proxy_of(original)
 sculpture.number == 8
 sculpture.value == 16
 
-sculpture.number = 4  # AttributeError: property of 'obj' object has no setter
+sculpture.number = 4  # AttributeError: property of 'val' object has no setter
 sculpture.value = 4
 
 original.a == 8
