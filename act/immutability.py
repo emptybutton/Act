@@ -1,11 +1,10 @@
 from copy import deepcopy, copy
 from functools import wraps
-from typing import NoReturn, Callable, Any, Concatenate, Self
+from typing import NoReturn, Callable, Any, Concatenate
 
 from act.annotations import V, Pm, TypeT
 from act.errors import InvalidInitializationError
 from act.partiality import partially
-from act.signatures import call_signature_of
 
 
 __all__ = ("NotInitializable", "to_clone", "publicly_immutable")
@@ -39,10 +38,6 @@ def to_clone(
         method(clone, *args, **kwargs)
 
         return clone
-
-    wrapper.__signature__ = call_signature_of(wrapper).replace(
-        return_annotation=Self
-    )
 
     return wrapper
 

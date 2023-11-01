@@ -1,8 +1,8 @@
 from inspect import ismethod, isbuiltin, isfunction
-from typing import Any
+from typing import Any, Optional
 
 
-__all__ = ("code_like_repr_of", )
+__all__ = ("code_like_repr_of", "ActionReprMixnin")
 
 
 def code_like_repr_of(value: Any) -> str:
@@ -31,3 +31,14 @@ def code_like_repr_of(value: Any) -> str:
         return f"{type(value).__name__}({code_like_repr_of(str(value))})"
     else:
         return str(value)
+
+
+class ActionReprMixnin:
+    _action: Any
+    _repr_prefix: Optional[str] = None
+
+    def __repr__(self) -> str:
+        prefix = (
+            type(self).__name__ if self._repr_prefix is None else self._repr_prefix
+        )
+        return f"{prefix}({code_like_repr_of(self._action)})"

@@ -1,7 +1,6 @@
 from collections import OrderedDict
 from functools import cached_property
 from dataclasses import dataclass, field
-from inspect import Signature
 from operator import attrgetter
 from typing import (
     Final, Generic, Iterable, Optional, Tuple, Self, Any, Callable, TypeVar,
@@ -15,11 +14,10 @@ from act.atomization import fun
 from act.errors import ArgumentError
 from act.partiality import partial
 from act.representations import code_like_repr_of
-from act.signatures import Decorator, call_signature_of
 from act.structures import (
     without, frozendict, tmap, without_duplicates, reversed_table
 )
-from act.tools import documenting_by
+from act.tools import documenting_by, Decorator
 
 
 __all__ = ("ArgumentKey", "Arguments", "as_arguments", "unpackly")
@@ -285,9 +283,3 @@ class unpackly(Decorator):
             if isinstance(arguments, Arguments)
             else self._action(*arguments)
         )
-
-    @cached_property
-    def _force_signature(self) -> Signature:
-        return call_signature_of(self).replace(return_annotation=(
-            call_signature_of(self._action).return_annotation
-        ))

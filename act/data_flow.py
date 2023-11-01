@@ -1,23 +1,20 @@
 from abc import ABC, abstractmethod
-from functools import cached_property, reduce
-from inspect import Signature, Parameter, signature
-from operator import not_, is_not, or_
+from operator import not_
 from typing import (
-    Callable, Any, _CallableGenericAlias, Optional, Tuple, Self, Iterable,
-    NamedTuple, Generic
+    Callable, Any, Optional, Tuple, Self, Iterable, NamedTuple, Generic
 )
 
 from pyannotating import Special
 
 from act.annotations import Pm, V, R, I, A, dirty, ArgumentsT, ActionT, Unia, Cn
 from act.atomization import fun
-from act.errors import ReturningError, MatchingError
+from act.errors import MatchingError
 from act.partiality import will, rpartial, partial, partially
 from act.pipeline import bind, then
 from act.representations import code_like_repr_of
-from act.signatures import Decorator, call_signature_of
+from act.signatures import call_signature_of
 from act.synonyms import on
-from act.tools import documenting_by, items_of, _get
+from act.tools import documenting_by, items_of, Decorator, _get
 
 
 __all__ = (
@@ -66,17 +63,6 @@ class io(Decorator):
 
         return value
 
-    @cached_property
-    def _force_signature(self) -> Signature:
-        parameters = tuple(call_signature_of(self._action).parameters.values())
-
-        if len(parameters) == 0:
-            raise ReturningError("function must contain at least one parameter")
-
-        return call_signature_of(self._action).replace(return_annotation=(
-            parameters[0].annotation
-        ))
-
 
 @documenting_by(
     """
@@ -113,13 +99,6 @@ class eventually(Decorator):
             f"{', ' if self._args and self._kwargs else str()}"
             f"{formatted_kwargs})"
         )
-
-    @cached_property
-    def _force_signature(self) -> Signature:
-        return call_signature_of(self._action).replace(parameters=(
-            Parameter('_', Parameter.VAR_POSITIONAL, annotation=Any),
-            Parameter('__', Parameter.VAR_KEYWORD, annotation=Any),
-        ))
 
 
 def with_result(result: R, action: Callable[Pm, Any]) -> Callable[Pm, R]:
@@ -184,16 +163,6 @@ class double(Decorator):
     ) -> Any:
         return self._action(value)(*result_action_args, **result_action_kwargs)
 
-    @property
-    def _force_signature(self) -> Signature:
-        signature_ = call_signature_of(self._action)
-
-        return signature_.replace(return_annotation=(
-            signature_.return_annotation.__args__[-1]
-            if isinstance(signature_, _CallableGenericAlias)
-            else Parameter.empty
-        ))
-
 
 @dirty
 @documenting_by(
@@ -211,7 +180,6 @@ class once:
 
     def __init__(self, action: Callable[Pm, R]):
         self._action = action
-        self.__signature__ = call_signature_of(self._action)
 
     def __repr__(self) -> str:
         return f"once({{}}{code_like_repr_of(self._action)})".format(
@@ -226,10 +194,6 @@ class once:
 
         self._was_called = True
         self._result = self._action(*args, **kwargs)
-
-        self.__signature__ = signature(lambda *_, **__: ...).replace(
-            return_annotation=call_signature_of(self._action).return_annotation
-        )
 
         return self._result
 
@@ -483,38 +447,12 @@ anything = documenting_by(
 class merged:
     def __init__(self, *actions: Callable[Pm, Any]):
         self._actions = actions
-        self.__signature__ = self.__get_signature()
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> Tuple:
         return tuple(action(*args, **kwargs) for action in self._actions)
 
     def __repr__(self) -> str:
         return ' & '.join(map(code_like_repr_of, self._actions))
-
-    def __get_signature(self) -> Signature:
-        if not self._actions:
-            return call_signature_of(lambda *args, **kwargs: ...).replace(
-                input_annotation=Tuple
-            )
-
-        argument_signature = call_signature_of(
-            self._actions[0] if self._actions else lambda *_, **__: ...
-        )
-
-        return_annotations = tuple(
-            partial(filter, rpartial(is_not, Parameter.empty))(map(
-                lambda act: call_signature_of(act).return_annotation,
-                self._actions
-            ))
-        )
-
-        return_annotation = (
-            reduce(or_, return_annotations)
-            if return_annotations
-            else Parameter.empty
-        )
-
-        return argument_signature.replace(return_annotation=return_annotation)
 
 
 @documenting_by(
@@ -547,8 +485,6 @@ class mergely:
         self._parallel_actions = parallel_actions
         self._keyword_parallel_actions = keyword_parallel_actions
 
-        self.__signature__ = self.__get_signature()
-
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R:
         return self._merging_of(*args, **kwargs)(
             *(
@@ -580,17 +516,6 @@ class mergely:
             keyword_part='='.join(
                 f"{keyword}={action}"
                 for keyword, action in self._keyword_parallel_actions.items()
-            )
-        )
-
-    def __get_signature(self) -> Signature:
-        return_annotation = call_signature_of(self._merging_of).return_annotation
-
-        return call_signature_of(self._merging_of).replace(
-            return_annotation=(
-                return_annotation.__args__[-1]
-                if isinstance(return_annotation, _CallableGenericAlias)
-                else Parameter.empty
             )
         )
 

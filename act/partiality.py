@@ -1,14 +1,12 @@
-from collections import OrderedDict
-from inspect import Parameter, Signature, _empty
-from operator import attrgetter
-from typing import Any, Self, Iterable, Tuple, Optional, Callable
-import functools
+from functools import partial, cached_property
+from inspect import Parameter
+from typing import Any, Self, Optional, Callable
 
-from act.annotations import R
+from act.annotations import Pm, R, Special
 from act.atomization import fun
-from act.representations import code_like_repr_of
-from act.signatures import Decorator, call_signature_of
-from act.tools import documenting_by
+from act.representations import code_like_repr_of, ActionReprMixnin
+from act.signatures import call_signature_of
+from act.tools import documenting_by, Decorator
 
 
 __all__ = (
@@ -22,52 +20,48 @@ __all__ = (
 )
 
 
-class partial:
+class partial(partial):
     """Decorator to partially apply an input action on input arguments."""
 
-    func = property(attrgetter("_action"))
-    args = property(attrgetter("_args"))
-    keywords = property(attrgetter("_kwargs"))
-
-    def __init__(self, action: Callable[..., R], *args, **kwargs):
-        self._action = (
-            action.func
-            if isinstance(action, partial | functools.partial)
-            else action
-        )
-
-        self._args = (
-            (*action.args, *args)
-            if isinstance(action, partial | functools.partial)
-            else args
-        )
-
-        self._kwargs = (
-            action.keywords | kwargs
-            if isinstance(action, partial | functools.partial)
-            else kwargs
-        )
-
-        self.__signature__ = call_signature_of(
-            functools.partial(action, *args, **kwargs)
-        )
-
     def __repr__(self) -> str:
-        return f"partial({code_like_repr_of(self._action)}{{}}{{}}{{}}{{}})".format(
-            ', ' if self._args or self._kwargs else str(),
-            f"{', '.join(map(code_like_repr_of, self._args))}",
-            ', ' if self._args and self._kwargs else str(),
+        return f"partial({code_like_repr_of(self.func)}{{}}{{}}{{}}{{}})".format(
+            ', ' if self.args or self.keywords else str(),
+            f"{', '.join(map(code_like_repr_of, self.args))}",
+            ', ' if self.args and self.keywords else str(),
             ', '.join(
                 f"{key}={code_like_repr_of(arg)}"
-                for key, arg in self._kwargs.items()
+                for key, arg in self.keywords.items()
             ),
         )
 
-    def __call__(self, *args, **kwargs) -> R:
-        return self._action(*self._args, *args, **self._kwargs | kwargs)
+
+class _Partially(ActionReprMixnin):
+    _repr_prefix = "partially"
+
+    def __init__(self, action: Callable[Pm, R], required: Optional[int] = None):
+        self._action = action
+        self.__force_required = required
+
+    @cached_property
+    def _required(self) -> int:
+        required = self.__force_required
+        del self.__force_required
+
+        if required is not None:
+            return required
+
+        return _required_number_of(self._action)
+
+    def __call__(self, *args, **kwargs) -> Any | Self:
+        partial_applied_action = partial(self._action, *args, **kwargs)
+
+        if _required_number_of(partial_applied_action) == 0:
+            return partial_applied_action()
+
+        return _Partially(partial_applied_action, self._required - len(args))
 
 
-@documenting_by(
+def partially(action: Optional[Callable] = None, *, required: Optional[int] = None):
     """
     Decorator for splitting a decorated action call into non-structured
     sub-calls.
@@ -80,60 +74,12 @@ class partial:
     Required arguments are those that are not specified by keyword and do not
     have a default value.
     """
-)
-@fun
-class partially(Decorator):
-    _doc_parser = True
 
-    def __call__(self, *args, **kwargs) -> Any | Self:
-        augmented_action = partial(self._action, *args, **kwargs)
-
-        actual_parameters_to_call = OrderedDict(
-            tuple(
-                (parameter_name, parameter)
-                for parameter_name, parameter in self._parameters_to_call.items()
-                if (
-                    parameter_name not in kwargs.keys()
-                    and parameter.default is _empty
-                )
-            )[len(args):]
-        )
-
-        return (
-            augmented_action()
-            if len(actual_parameters_to_call) == 0
-            else partially(augmented_action)
-        )
-
-    @functools.cached_property
-    def _parameters_to_call(self) -> OrderedDict[str, Parameter]:
-        return OrderedDict(
-            (_, parameter)
-            for _, parameter in (
-                call_signature_of(self._action).parameters.items()
-            )
-            if _is_parameter_settable(parameter)
-        )
-
-    @functools.cached_property
-    def _force_signature(self) -> Signature:
-        return call_signature_of(self).replace(
-            return_annotation=(
-                call_signature_of(self._action).return_annotation | Self
-            ),
-            parameters=tuple(
-                (
-                    parameter.replace(
-                        default=None, annotation=Optional[parameter.annotation]
-                    )
-                    if _is_parameter_settable(parameter)
-                    else parameter
-                )
-                for parameter in (
-                    call_signature_of(self._action).parameters.values()
-                )
-            )
-        )
+    return (
+        partial(partially, required=required)
+        if action is None
+        else _Partially(action, required)
+    )
 
 
 @documenting_by(
@@ -141,43 +87,8 @@ class partially(Decorator):
 )
 @fun
 class flipped(Decorator):
-    _doc_parser = True
-
     def __call__(self, *args, **kwargs) -> R:
         return self._action(*args[::-1], **kwargs)
-
-    @functools.cached_property
-    def _force_signature(self) -> Signature:
-        return call_signature_of(self._action).replace(
-            parameters=self.__flip_parameters(
-                call_signature_of(self._action).parameters.values()
-            )
-        )
-
-    @staticmethod
-    def __flip_parameters(parameters: Iterable[Parameter]) -> Tuple[Parameter]:
-        parameters = tuple(parameters)
-
-        if any(
-            parameter.kind is Parameter.VAR_POSITIONAL
-            for parameter in parameters
-        ):
-            return (
-                call_signature_of(lambda *args, **kwargs: ...).parameters.values()
-            )
-
-        index_border_to_invert = 0
-
-        for parameter_index, parameter in enumerate(parameters):
-            if not _is_parameter_settable(parameter):
-                break
-
-            index_border_to_invert = parameter_index
-
-        return (
-            *parameters[index_border_to_invert::-1],
-            *parameters[index_border_to_invert + 1:],
-        )
 
 
 def mirrored_partial(action: Callable[..., R], *args, **kwargs) -> Callable[..., R]:
@@ -200,7 +111,7 @@ def rpartial(action: Callable[..., R], *args, **kwargs) -> Callable[..., R]:
 
 def will(action: Callable[..., R]) -> Callable[..., Callable[..., R]]:
     """
-    Decorator to represent an input action into an action that partially applies
+    to represent an input action into an action that partially applies
     that input action like `partial` function.
     """
 
@@ -216,12 +127,15 @@ def rwill(action: Callable[..., R]) -> Callable[..., Callable[..., R]]:
     return partial(rpartial, action)
 
 
-def _is_parameter_settable(parameter: Parameter) -> bool:
+def _required_number_of(value: Special[Callable]) -> int:
+    parameters = call_signature_of(value).parameters.values()
+
+    return len(tuple(filter(_is_required, parameters)))
+
+
+def _is_required(parameter: Parameter) -> bool:
     """Function that determines whether a parameter is required to be called."""
 
-    return (
-        parameter.default is _empty
-        and parameter.kind in (
-            Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD
-        )
-    )
+    valid_kinds = (Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD)
+
+    return parameter.kind in valid_kinds and parameter.default is Parameter.empty

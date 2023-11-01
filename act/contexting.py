@@ -19,7 +19,6 @@ from act.immutability import NotInitializable
 from act.partiality import partially, will, rpartial
 from act.pipeline import then
 from act.representations import code_like_repr_of
-from act.signatures import call_signature_of
 from act.synonyms import while_, on
 from act.tools import documenting_by, _get
 
@@ -176,10 +175,6 @@ class contextually(ContextualForm, Generic[C, ActionT]):
     def _neutral_value(self) -> V:
         return _get
 
-    def _update(self, context: C, value: Callable[Pm, R]) -> None:
-        super()._update(context, value)
-        self.__signature__ = call_signature_of(self._value)
-
     def __repr__(self) -> str:
         return f"callable({super().__repr__()})"
 
@@ -199,9 +194,6 @@ class ContextualError(ContextualForm, Exception, Generic[ErrorT, C]):
     @property
     def _neutral_value(self) -> V:
         return Exception()
-
-    def _update(context: C, value: ErrorT) -> None:
-        super()._update(context, value)
 
     def __repr__(self) -> str:
         return f"raisable({super().__repr__()})"

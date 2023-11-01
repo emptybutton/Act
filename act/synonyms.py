@@ -1,6 +1,5 @@
 from contextlib import AbstractContextManager
 from typing import NoReturn, Any, Callable, Mapping, Tuple
-from inspect import Signature, Parameter
 
 from pyannotating import Special
 
@@ -8,8 +7,7 @@ from act.annotations import Pm, V, R, E, reformer_of, L
 from act.atomization import fun
 from act.partiality import partial, partially
 from act.representations import code_like_repr_of
-from act.signatures import Decorator, call_signature_of, annotation_sum
-from act.tools import to_check, as_action, documenting_by, _get
+from act.tools import to_check, as_action, documenting_by, Decorator, _get
 
 
 __all__ = (
@@ -66,8 +64,6 @@ class on:
         self._right_action = as_action(right_way)
         self._left_action = as_action(else_)
 
-        self.__signature__ = self.__get_signature()
-
     def __call__(self, *args: Pm.args, **kwargs: Pm.kwargs) -> R | L:
         return (
             self._right_action
@@ -80,14 +76,6 @@ class on:
             code_like_repr_of(self._right_action),
             code_like_repr_of(self._condition_checker),
             code_like_repr_of(self._left_action),
-        )
-
-    def __get_signature(self) -> Signature:
-        return call_signature_of(self._right_action).replace(
-            return_annotation=annotation_sum(
-                call_signature_of(self._right_action).return_annotation,
-                call_signature_of(self._left_action).return_annotation,
-            )
         )
 
 
@@ -113,8 +101,6 @@ class while_:
         self._is_valid_to_repeat = to_check(is_valid_to_repeat)
         self._action = action
 
-        self.__signature__ = self.__get_signature()
-
     def __call__(self, value: V) -> V:
         while self._is_valid_to_repeat(value):
             value = self._action(value)
@@ -126,9 +112,6 @@ class while_:
             code_like_repr_of(self._is_valid_to_repeat),
             code_like_repr_of(self._action),
         )
-
-    def __get_signature(self) -> Signature:
-        return call_signature_of(self._action)
 
 
 @partially
@@ -155,7 +138,6 @@ class try_:
     ):
         self._action = action
         self._rollback = rollback
-        self.__signature__ = self.__get_signature()
 
     def __call__(self, *args: Pm.args, **kwargs: Pm.args) -> R | E:
         try:
@@ -167,14 +149,6 @@ class try_:
         return "(try {} except {})".format(
             code_like_repr_of(self._action),
             code_like_repr_of(self._rollback),
-        )
-
-    def __get_signature(self) -> Signature:
-        return call_signature_of(self._action).replace(
-            return_annotation=annotation_sum(
-                call_signature_of(self._action).return_annotation,
-                call_signature_of(self._rollback).return_annotation,
-            )
         )
 
 
@@ -195,14 +169,6 @@ def with_(context_manager: AbstractContextManager, action: Callable[..., R]) -> 
 class keyword_unpackly(Decorator):
     def __call__(self, arguments: Mapping[str, Any]) -> Any:
         return self._action(**arguments)
-
-    @property
-    def _force_signature(self) -> Signature:
-        return call_signature_of(self._action).replace(parameters=[Parameter(
-            "arguments",
-            Parameter.POSITIONAL_OR_KEYWORD,
-            annotation=Mapping[str, Any],
-        )])
 
 
 def tuple_of(*args: V) -> Tuple[V, ...]:

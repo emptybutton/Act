@@ -5,6 +5,7 @@ from typing import Callable, Any, Tuple, Mapping, Optional
 from pyannotating import Special
 
 from act.annotations import V, dirty, reformer_of, ActionT, K
+from act.representations import ActionReprMixnin
 
 
 __all__ = (
@@ -16,6 +17,20 @@ __all__ = (
     "maybe_getattr",
     "maybe_getitem",
 )
+
+
+class Decorator(ActionReprMixnin):
+    """
+    Abstract class for decorating an input action and creating a signature
+    based on it.
+
+    Set signature from `_force_signature` attribute.
+
+    When `_doc_parser = True` assigns itself an input action documentation.
+    """
+
+    def __init__(self, action: ActionT):
+        self._action = action
 
 
 def documenting_by(documentation: str) -> dirty[reformer_of[V]]:
