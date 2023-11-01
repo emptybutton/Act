@@ -1,4 +1,4 @@
-from functools import reduce, wraps
+from functools import reduce, wraps, cached_property
 from operator import not_
 from typing import (
     Callable, Generic, Iterable, Iterator, Self, Any, Tuple, TypeAlias,
@@ -11,7 +11,6 @@ from act.annotations import ActionT, R, Pm, V, A, B, C, D
 from act.atomization import fun
 from act.partiality import rpartial, will
 from act.representations import code_like_repr_of
-from act.signatures import call_signature_of
 from act.synonyms import on
 from act.tools import documenting_by, _get
 
@@ -43,10 +42,6 @@ class bind:
         self._first = first
         self._second = second
 
-        self.__signature__ = call_signature_of(self._first).replace(
-            return_annotation=(call_signature_of(self._second).return_annotation)
-        )
-
     def __repr__(self) -> str:
         return "({} >> {})".format(
             code_like_repr_of(self._first),
@@ -76,16 +71,30 @@ class ActionChain(Generic[ActionT]):
     """
 
     def __init__(self, actions: Iterable[ActionT | Self] = tuple()):
-        self._actions = self._actions_from(actions)
+        self.__raw_actions = actions
 
+    @cached_property
+    def _actions(self) -> Tuple[ActionT]:
+        new_actions = list()
+
+        for action in self.__raw_actions:
+            if isinstance(action, ActionChain):
+                new_actions.extend(action)
+            else:
+                new_actions.append(action)
+
+        del self.__raw_actions
+
+        return tuple(new_actions)
+
+    @cached_property
+    def _main_action(self) -> ActionT:
         if len(self._actions) == 0:
-            self._main_action = _get
+            return _get
         elif len(self._actions) == 1:
-            self._main_action = self._actions[0]
+            return self._actions[0]
         else:
-            self._main_action = reduce(bind, self._actions)
-
-        self.__signature__ = call_signature_of(self._main_action)
+            return reduce(bind, self._actions)
 
     def __repr__(self) -> str:
         return (
@@ -116,20 +125,6 @@ class ActionChain(Generic[ActionT]):
         actions = self._actions[key]
 
         return type(self)(actions if isinstance(actions, tuple) else (actions, ))
-
-    @staticmethod
-    def _actions_from(
-        actions: Iterable[ActionT | Self],
-    ) -> Tuple[ActionT]:
-        new_actions = list()
-
-        for action in actions:
-            if isinstance(action, ActionChain):
-                new_actions.extend(action)
-            else:
-                new_actions.append(action)
-
-        return tuple(new_actions)
 
 
 class _ActionChainInfix:
