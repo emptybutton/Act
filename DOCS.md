@@ -1244,7 +1244,7 @@ class Beta:
     def __init__(self, b):
         self.b = b
 
-val(Alpha, Beta(2))  # == val(Alpha) & val(Beta(2))
+val(Alpha, Beta(2))  # val(Alpha) & val(Beta(2))
 ```
 ```
 <__module__="__main__", a=1, __doc__=None, b=2>
@@ -1271,12 +1271,13 @@ User("Oliver")(age=24) == user
 User("Oliver")(24) == user
 User(name="Oliver")(24) == user
 User(age=24)(name="Oliver") == user
+User(age=24)("Oliver") == user
 User("Oliver", 24, is_admin=True) == user & val(is_admin=True)
 ```
 
 </br>
 
-> `act` only extends `type`, preserving the rest of the behavior.
+> `act` only extends `type`, preserving the rest of the behavior. </br>
 > If you cannot use such `type`, then use `type_`.
 
 > Behaviorally, types are equivalent to objects.
@@ -1327,8 +1328,8 @@ other_not_a_singleton.add(6) == -4
 > ```py
 > ...
 > 
-> obj(not_a_singleton, other_not_a_singleton, c=0) == other_not_a_singleton & val(c=0)
-> obj(other_not_a_singleton, not_a_singleton, c=0) == not_a_singleton & val(c=0)
+> obj(not_a_singleton, other_not_a_singleton, c=8) == other_not_a_singleton & val(c=8)
+> obj(other_not_a_singleton, not_a_singleton, c=8) == not_a_singleton & val(c=8)
 > ```
 
 </br>
@@ -1480,7 +1481,7 @@ def main(do: Do, a: WithNumber[Optional[int]], b: WithNumber[Optional[int]]) -> 
     # `maybe` for `... | bad[...]` type.
     # `optionally` for `Optional[...]` type.
     # `either` for `... | left[...]` type.
-    # `binary` for `Special[Literal[False]]` type.
+    # `binary` for `... | Literal[False]` type.
 
     # if the stored numbers are `None`, then `main` will return `None`.
     # You can specify `else_` and then this value will be returned instead.
