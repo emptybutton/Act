@@ -130,7 +130,6 @@ class ActionChain(Generic[ActionT]):
 class _ActionChainInfix:
     _Operand: TypeAlias = Ellipsis | Callable | Iterable[Ellipsis | Callable]
     _NotCallable: TypeAlias = tuple | type(Ellipsis)
-    _second: _Operand = _get
 
     def __init__(self, name: str, *, second: _Operand = _get):
         self._name = name
