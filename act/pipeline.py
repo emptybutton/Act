@@ -1,4 +1,4 @@
-from functools import reduce, wraps, cached_property
+from functools import wraps, cached_property
 from operator import not_
 from typing import (
     Callable, Generic, Iterable, Iterator, Self, Any, Tuple, TypeAlias,
@@ -91,10 +91,16 @@ class ActionChain(Generic[ActionT]):
     def _main_action(self) -> ActionT:
         if len(self._actions) == 0:
             return _get
-        elif len(self._actions) == 1:
-            return self._actions[0]
-        else:
-            return reduce(bind, self._actions)
+
+        def main_action(*args, **kwargs):
+            result = self._actions[0](*args, **kwargs)
+
+            for action in self._actions[1:]:
+                result = action(result)
+
+            return result
+
+        return main_action
 
     def __repr__(self) -> str:
         return (
