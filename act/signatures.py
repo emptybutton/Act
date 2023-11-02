@@ -1,10 +1,8 @@
-from inspect import Signature, signature, Parameter
-from typing import Callable, Any, Union
-
-from pyannotating import Special
+from inspect import Signature, signature
+from typing import Callable
 
 
-__all__ = ("call_signature_of", "annotation_sum")
+__all__ = ("call_signature_of", )
 
 
 def call_signature_of(action: Callable) -> Signature:
@@ -17,11 +15,3 @@ def call_signature_of(action: Callable) -> Signature:
         return signature(action)
     except ValueError:
         return signature(lambda *args, **kwargs: ...)
-
-
-def annotation_sum(*args: Special[Parameter.empty]) -> Any:
-    """Function to create `Union` given `Parameter.empty`."""
-
-    annotations = tuple(arg for arg in args if arg is not Parameter.empty)
-
-    return Union[*annotations] if annotations else Parameter.empty
