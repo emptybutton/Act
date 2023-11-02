@@ -1544,9 +1544,9 @@ For dictionaries
 ```py
 from collections import OrderedDict
 
-map_table(v + 1, dict(a=1, b=2)) == OrderedDict([('a', 2), ('b', 3)])
-filter_table(v > 0, dict(a=0, b=1)) == OrderedDict([('b', 1)])
-reversed_table(dict(a=1, b=2)) == OrderedDict([(1, 'a'), (2, 'b')])
+table.map(v + 1, dict(a=1, b=2)) == OrderedDict([('a', 2), ('b', 3)])
+table.filter(v > 0, dict(a=0, b=1)) == OrderedDict([('b', 1)])
+table.reversed(dict(a=1, b=2)) == OrderedDict([(1, 'a'), (2, 'b')])
 
 dict(groups_in(range(11), by=v >= 5)) == {False: (0, 1, 2, 3, 4), True: (5, 6, 7, 8, 9, 10)}
 type(groups_in(range(11), by=v >= 5)) is OrderedDict

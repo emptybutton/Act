@@ -15,7 +15,7 @@ from act.errors import ArgumentError
 from act.partiality import partial
 from act.representations import code_like_repr_of
 from act.structures import (
-    without, frozendict, tmap, without_duplicates, reversed_table
+    without, frozendict, tmap, without_duplicates, table
 )
 from act.tools import documenting_by, Decorator
 
@@ -251,7 +251,7 @@ class Arguments(Mapping, Generic[A]):
         try:
             key_of = partial(ArgumentKey, self.args.index(value))
         except ValueError:
-            key_of = partial(ArgumentKey, reversed_table(self.kwargs)[value])
+            key_of = partial(ArgumentKey, table.reversed(self.kwargs)[value])
 
         return key_of(default=value)
 

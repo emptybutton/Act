@@ -227,21 +227,21 @@ test_indexed = case_of(
 )
 
 
-test_map_table = case_of((
-    lambda: map_table(lambda v: v * 2, dict(a=1, b=2, c=3)), dict(a=2, b=4, c=6)
+test_table_map = case_of((
+    lambda: table.map(lambda v: v * 2, dict(a=1, b=2, c=3)), dict(a=2, b=4, c=6)
 ))
 
 
-test_filter_table = case_of((
-    lambda: filter_table(lambda v: v >= 0, dict(a=-1, b=0, c=1)), dict(b=0, c=1)
+test_table_filter = case_of((
+    lambda: table.filter(lambda v: v >= 0, dict(a=-1, b=0, c=1)), dict(b=0, c=1)
 ))
 
 
-test_from_keys = case_of((
-    lambda: from_keys([1, 2, 3], str), {1: '1', 2: '2', 3: '3'}
+test_table_from_keys = case_of((
+    lambda: table.from_keys([1, 2, 3], str), {1: '1', 2: '2', 3: '3'}
 ))
 
 
-test_reversed_table = case_of((
-    lambda: reversed_table(dict(a=1, b=2)), {1: 'a', 2: 'b'}
+test_table_reversed = case_of((
+    lambda: table.reversed(dict(a=1, b=2)), {1: 'a', 2: 'b'}
 ))

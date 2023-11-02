@@ -15,6 +15,7 @@ from act.contexting import ContextualForm, contexted, contextualizing, saving_co
 from act.data_flow import io, by, and_via_indexer, indexer_of
 from act.errors import RangeConstructionError, IndexingError
 from act.flags import flag_about
+from act.objects import val
 from act.partiality import partial, rpartial, partially, will, rwill
 from act.pipeline import then, bind_by, ActionChain
 from act.protocols import Hashable
@@ -45,10 +46,7 @@ __all__ = (
     "to_interval",
     "groups_in",
     "indexed",
-    "map_table",
-    "filter_table",
-    "from_keys",
-    "reversed_table",
+    "table",
 )
 
 
@@ -374,7 +372,7 @@ def groups_in(
     Segregates elements by id resulting from calling the `by` argument.
     """
 
-    id_by_item = from_keys(items, by)
+    id_by_item = table.from_keys(items, by)
     group_by_id = OrderedDict.fromkeys(id_by_item.values(), tuple())
 
     for item in items:
@@ -402,49 +400,51 @@ def indexed(items: Iterable[V], *indexes: int) -> Generator[Tuple[V], None, None
         yield tuple(items[current_index + index] for index in indexes)
 
 
-def map_table(mapped: Callable[V, M], table: Mapping[K, V]) -> OrderedDict[K, M]:
-    """
-    Function to map values of an input `Mapping` object by an input action.
+@val
+class table:
+    def map(mapped: Callable[V, M], table: Mapping[K, V]) -> OrderedDict[K, M]:
+        """
+        Function to map values of an input `Mapping` object by an input action.
 
-    Saves sequence.
-    """
+        Saves sequence.
+        """
 
-    return OrderedDict((_, mapped(value)) for _, value in table.items())
+        return OrderedDict((_, mapped(value)) for _, value in table.items())
 
+    def filter(
+        is_valid: Callable[V, bool],
+        table: Mapping[K, V],
+    ) -> OrderedDict[K, V]:
+        """
+        Function to filter values of an input `Mapping` object by an input
+        action.
 
-def filter_table(
-    is_valid: Callable[V, bool],
-    table: Mapping[K, V],
-) -> OrderedDict[K, V]:
-    """
-    Function to filter values of an input `Mapping` object by an input action.
+        Saves sequence.
+        """
 
-    Saves sequence.
-    """
+        return OrderedDict(
+            (_, value) for _, value in table.items() if is_valid(value)
+        )
 
-    return OrderedDict((_, value) for _, value in table.items() if is_valid(value))
+    def from_keys(
+        keys: Iterable[K],
+        value_of: Callable[[K], V] = lambda _: None,
+    ) -> OrderedDict[K, V]:
+        """
+        Function to create a `Mapping` with keys from an input collection and
+        values obtained by applying an input action to a key under which a
+        resulting value will be stored.
 
+        Saves sequence.
+        """
 
-def from_keys(
-    keys: Iterable[K],
-    value_of: Callable[[K], V] = lambda _: None,
-) -> OrderedDict[K, V]:
-    """
-    Function to create a `Mapping` with keys from an input collection and
-    values obtained by applying an input action to a key under which a
-    resulting value will be stored.
+        return OrderedDict((key, value_of(key)) for key in keys)
 
-    Saves sequence.
-    """
+    def reversed(table: Mapping[K, V]) -> OrderedDict[V, K]:
+        """
+        Function to swap keys and values in `Mapping`.
 
-    return OrderedDict((key, value_of(key)) for key in keys)
+        Saves sequence.
+        """
 
-
-def reversed_table(table: Mapping[K, V]) -> OrderedDict[V, K]:
-    """
-    Function to swap keys and values in `Mapping`.
-
-    Saves sequence.
-    """
-
-    return OrderedDict(map(reversed, table.items()))
+        return OrderedDict(map(reversed, table.items()))

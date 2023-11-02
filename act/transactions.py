@@ -20,7 +20,7 @@ from act.objects import type, val, ActionOf
 from act.parameter_slicing import take
 from act.partiality import partial, partially, will, rwill
 from act.pipeline import ActionChain, then, frm, fbind_by
-from act.structures import tfilter, tmap, map_table
+from act.structures import tfilter, tmap, table
 from act.tools import _get
 
 
@@ -452,7 +452,7 @@ class do:
                     )
 
                     args = tmap(same, args)
-                    kwargs = map_table(same, kwargs)
+                    kwargs = table.map(same, kwargs)
 
                 return action(cursor, *args, **kwargs)
             except _TransactionRollbackMark as mark:
