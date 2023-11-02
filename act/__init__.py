@@ -30,3 +30,4 @@ import act.cursors as cursors
 
 
 __all__ = tfilter(not_(str.startswith |by| '__'), dir())
+__version__ = "3.2.0"
