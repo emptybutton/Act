@@ -48,7 +48,7 @@ class fun:
 
     @runtime_checkable
     class Imagenariable(Protocol[Pm, R]):
-        def get_fun_image__(self) -> "fun.Image[Pm, R]":
+        def __fun_image__(self) -> "fun.Image[Pm, R]":
             ...
 
     _ImageValue: TypeAlias = Image[Pm, R] | Imagenariable[Pm, R] | Callable[Pm, R]
@@ -67,6 +67,6 @@ class fun:
         if isinstance(value, fun.Image):
             return value
         elif isinstance(value, fun.Imagenariable):
-            return value.get_fun_image__()
+            return value.__fun_image__()
         else:
             return fun.Image(value, lambda: code_like_repr_of(value))

@@ -588,7 +588,7 @@ class _ActionCursor(Mapping):
 
         return name
 
-    def get_fun_image__(self) -> fun.Image:
+    def __fun_image__(self) -> fun.Image:
         keyword_union_parameter = self._get_keyword_union_parameter()
 
         def run(*args, **kwargs) -> Any:
