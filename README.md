@@ -48,7 +48,7 @@ main: Callable[
     Result[int] | bad[str],
 ]
 
-assert main(WithNumber(16), WithNumber(2)) == val(multiplication=32, division=8)
+assert main(WithNumber(16), WithNumber(2)) == obj(multiplication=32, division=8)
 assert main(WithNumber(16), WithNumber(0)) == bad("division by zero")
 assert main(WithNumber(16), WithNumber(None)) == bad("undefined")
 assert main(WithNumber(16), None) == bad("undefined")
@@ -64,7 +64,7 @@ assert (
     Result(32, 8)
     == RawResult(32, 8)
     == WithMultiplication(32) & WithDivision(8)
-    == val(multiplication=32, division=8)
+    == obj(multiplication=32, division=8)
 )
 
 ```
