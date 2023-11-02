@@ -1469,8 +1469,8 @@ def division_between(a: int, b: int) -> int | bad[str]:
     return a / b
 
 
-WithNumber = temp(number=N)
-Result = temp(multiplication=N, division=N)
+WithNumber = type(number=N)
+Result = type(multiplication=N, division=N)
 
 
 @do(maybe, optionally, for_input=optionally)  # You can use `@do.simply` to avoid passing `Do`.
